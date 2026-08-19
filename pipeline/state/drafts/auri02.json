@@ -1,0 +1,46 @@
+{
+  "draft_id": "auri02",
+  "message_id": 254,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-11T07:59:06Z",
+  "sent_unix": 1786435144,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "auri02",
+    "draft_id": "auri02",
+    "arc": "use-your-gold",
+    "winner_arc": "use-your-gold",
+    "body": "Bars in a vault can't buy coffee, cross a border, or back a loan. Auri puts real gold in your name — 1:1, vaulted in Switzerland, attested quarterly — then lets you spend it on a card, send it in seconds, or borrow against it. Anyone can hold gold. Auri lets you use it.",
+    "final_body": "Bars in a vault can't buy coffee, cross a border, or back a loan. Auri puts real gold in your name — 1:1, vaulted in Switzerland, attested quarterly — then lets you spend it on a card, send it in seconds, or borrow against it. Anyone can hold gold. Auri lets you use it.",
+    "final_hook": "Anyone can hold gold. Auri lets you use it.",
+    "thread": [],
+    "final_thread": [],
+    "platform": "x",
+    "trend_id": "Auri site research (auri.money) — use your gold: spend/send/borrow",
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Anyone can hold gold. Auri lets you use it.",
+      "emphasis_phrase": "use it",
+      "subhead": "Real allocated gold — spend it, send it, borrow against it. On Auri.",
+      "data": [
+        {
+          "label": "Spend",
+          "value": "Tap the Auri card",
+          "note": "24/7 - markets close, your money doesn't."
+        },
+        {
+          "label": "Send",
+          "value": "To anyone in seconds",
+          "note": "A contact, an @username, or a wallet."
+        },
+        {
+          "label": "Borrow",
+          "value": "Against your gold",
+          "note": "No credit check. Liquidation risk if gold falls."
+        }
+      ],
+      "disclaimer": "Gold can fall in value. Borrowing carries liquidation risk. Not financial advice."
+    }
+  },
+  "image": "pipeline\\state\\auri_card.png"
+}

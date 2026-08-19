@@ -1,0 +1,33 @@
+{
+  "id": "a793b053",
+  "draft_id": "de32671b",
+  "verdict": "ship",
+  "winner_arc": null,
+  "body": "Biden's EO sparks asset control fears. Human finance risks centralization. Agents, however, need their own. They can pay, can't borrow. Vanna gives agents balance sheets, building credit for true onchain autonomy. #AgenticCredit",
+  "final_body": "Biden's EO sparks asset control fears. Human finance risks centralization. Agents, however, need their own. They can pay, can't borrow. Vanna gives agents balance sheets, building credit for true onchain autonomy. #AgenticCredit",
+  "final_hook": "Biden's EO sparks asset control fears.",
+  "thread": [],
+  "final_thread": [],
+  "visual_brief": {
+    "type": "infographic",
+    "headline": "Beyond Centralized Control",
+    "emphasis_phrase": "Agent Credit, Unlocked",
+    "subhead": "Executive orders highlight human asset risk. Vanna enables agents to build their own balance sheets.",
+    "data": [
+      {
+        "label": "Human Assets",
+        "value": "Vulnerable",
+        "note": "Subject to centralized control, historical precedent of seizure (EO6102)"
+      },
+      {
+        "label": "Agent Assets",
+        "value": "Empowered",
+        "note": "Vanna provides onchain identity & borrowing capacity for autonomous credit."
+      }
+    ],
+    "disclaimer": "Illustrative example. Vanna is on testnet. There is no mainnet, no token, no audit, no TVL."
+  },
+  "platform": "x",
+  "trend_id": "Aave",
+  "sent_at": "2026-08-15T18:19:27Z"
+}

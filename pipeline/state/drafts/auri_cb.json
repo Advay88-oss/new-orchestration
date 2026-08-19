@@ -1,0 +1,46 @@
+{
+  "draft_id": "auri_cb",
+  "message_id": 262,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-11T21:24:42Z",
+  "sent_unix": 1786483479,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "auri_cb",
+    "draft_id": "auri_cb",
+    "arc": "store-of-value + trust (learned bias: statement/trust)",
+    "winner_arc": "store-of-value",
+    "body": "Central banks are buying gold again — Korea just did, after 13 years. They vault it; it sits there. Auri gives you the same allocated, Swiss-vaulted, quarterly-attested gold in your own name — then lets you use it: borrow at 3.75%. Gold can fall; loans can liquidate.",
+    "final_body": "Central banks are buying gold again — Korea just did, after 13 years. They vault it; it sits there. Auri gives you the same allocated, Swiss-vaulted, quarterly-attested gold in your own name — then lets you use it: borrow at 3.75%. Gold can fall; loans can liquidate.",
+    "final_hook": "Central banks are buying gold. Yours can do more than sit.",
+    "thread": [],
+    "final_thread": [],
+    "platform": "x",
+    "trend_id": "Bank of Korea buys gold after 13 years (Reuters/Yahoo, Aug 2026) + learned bias: statement hook, trust theme",
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Central banks are buying gold. Yours can do more than sit.",
+      "emphasis_phrase": "do more",
+      "subhead": "Allocated, Swiss-vaulted, attested gold — in your name. Then use it. On Auri.",
+      "data": [
+        {
+          "label": "The signal",
+          "value": "Korea, after 13 yrs",
+          "note": "Central banks are accumulating gold again."
+        },
+        {
+          "label": "Your gold",
+          "value": "Same, in your name",
+          "note": "Allocated, Swiss vault, attested quarterly by BDO."
+        },
+        {
+          "label": "The difference",
+          "value": "Use it",
+          "note": "Borrow at 3.75%, non-custodial. Gold can fall; loans can liquidate."
+        }
+      ],
+      "disclaimer": "Gold can fall in value. Borrowing carries liquidation risk. Not financial advice."
+    }
+  },
+  "image": "pipeline\\state\\auri_cb_card.png"
+}

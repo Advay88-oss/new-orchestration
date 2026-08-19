@@ -1,0 +1,288 @@
+{
+  "tenant": "vanna",
+  "bundle": "okf",
+  "gathered_at_utc": "2026-08-11T21:01:38Z",
+  "keywords": [
+    "agent credit",
+    "onchain agent",
+    "liquidation survival",
+    "composable liquidity",
+    "unified margin",
+    "oracle latency"
+  ],
+  "subreddits": [
+    "defi",
+    "Stellar",
+    "ethereum",
+    "cryptocurrency"
+  ],
+  "counts": {
+    "total": 29,
+    "google_news": 29,
+    "reddit": 0,
+    "twitter": 0
+  },
+  "items": [
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "Three credit card skimming suspects arrested in San Antonio - San Antonio Express-News",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxQMWJ0QkxtQ1k2Y1hHc2dQX1J5bHJ0ZThiRmlvVEpWSkVVRk9EMFpKa3BoRUl3ZjNXT0w4VE9WZ3V2LXlBNjBXMVprYUV1UVZ4T1B2aWpGOWpmZWFZWU5Xem5mUkFDcGpqbFRpYlpjVlhFRFZZR2lZaExJckZnd0s0UUxLOGhPMGUwS1FLYW04Ylp6ZTJmNDdZTGN2dw?oc=5",
+      "published": "Thu, 30 Jul 2026 07:00:00 GMT",
+      "source": "San Antonio Express-News",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "MIT Media Lab and HCLTech Host NANDAHack to Advance Agentic AI Innovation - MIT Media Lab",
+      "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQdzktSVBydjJTV2czQXpqNGdSaHJndDdyb3Q0VXF4LWkwUkZZaVE2YmtCRzh1b2pxQ1l2QWp4Zk1BaFlGejhBblNZVzh3YktfbXBNdTFmbFRXZFl0alJPaGpIZDJfaVpaczFnZXBmNDNValJJLVpCLV9JejNXQ1k4Z0JXZUZacDVBSkxpR0RQTlBxYktCaXFubUxsYmFZdHhMWFFjNEhsdTlvZw?oc=5",
+      "published": "Wed, 05 Aug 2026 01:16:08 GMT",
+      "source": "MIT Media Lab",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "Is AI Agent Pricing Getting Better? Grading My 2025 Predictions - Forbes",
+      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPNDNadTgtQWJpZUxNX0FZTU5YOGc0Z0lwMVZlMVhZc0xtQ3pKd0JYaDdtcFU1TDN6YVZ3MXozM3BzdW9kalA1ZWxSQU5yWUtZN25vOHkzRUstV2NhT3E0VGJyQ0xnMUhIYWRJbThSUktoX1BCMlFrSGdiVjdNb203OWZfV2NRcjFZVWNfYklpakRPdUluMzJJemtzZ1VzeWo2Rjd2WC1mWUQ4QUFCTWpiX0cyRDlROFk?oc=5",
+      "published": "Thu, 06 Aug 2026 16:58:50 GMT",
+      "source": "Forbes",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "Beachbody Enters Second Amendment to Credit Facility with Tiger Finance - ABF Journal",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxQdC14a0NaNWx5VG5JbTYwa1MxeWE0YjNnRjlmRTZCM2JPUFlXd2FNaTBudHhIMjRvalNMUmRHLW93OElnejR6UU92MVdWcTE3UnFvY1N4QVNyRUFyNXUzZkhCMU5TaHlWbkRZYVdqWmt5Z19UVTIxOG1tc2RZbXhjUFRsUHktTnpYVDhvcGQ4WUNMczdrcTdENnZUUkhVUldq?oc=5",
+      "published": "Fri, 07 Aug 2026 05:36:03 GMT",
+      "source": "ABF Journal",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "Silicon Valley startups are about to hand corporate credit cards to AI agents - Fast Company",
+      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNaFQ3ZktfTjBZbzZBWGJJUHd3UlJuN0I4eDNpSlgwQWlUdTNJdF9aRGxtSS1feFhKOGhkWjNRV2dGbXFyT3ozNklHbi1vcjBhRTRTVWw5Y2FVMmpVc3ZNY1BjbWRWTGxja3pvTmpaa0dGWGNtaG9pNlZiVmpYcXVNc3JaSmtfVDl0X1pDdg?oc=5",
+      "published": "Tue, 11 Aug 2026 15:12:20 GMT",
+      "source": "Fast Company",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "Pieverse: Agent in a Box combines onchain tools - 03 Aug 2026 - TradingView",
+      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNc2Vwdkd0SHFnV1F0SEtTUnc2TU00N0s3QTZjOC1kb2lBTnJCb1dENUN5aG0zbGlQSlRjd1FfcFdsU2xWazRpZmdxWGJGekhrVF90a3BDVHpFdFFMWHJfc3BMVHVBYVNrTFdYQTRmY3BvMkZXU0d2SEFuOTRFOGFROUVscXM3eHBLTG1xZ0NwX3hZYldNQUVTWkVRYXdjVUVxZUNxaF9kRmNiNkNrb1p4SWZNOEJDc0dpc1dzZ2p1TQ?oc=5",
+      "published": "Mon, 03 Aug 2026 08:00:29 GMT",
+      "source": "TradingView",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "🥛 COIN owns the AI agent payment rails 💪 - Milk Road",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1kb0Y3blpGTEh2dWk5T2xzRHgxQ1JNdHlScnFvVkgxbmlpUFJxTTNwcVZxQUR3cUdxMXYtUzk4cTU4LU9zU2sySy1nMC03QS1LQWtYcUdXbTV5SjY0ZC13WDFBTlU4a01Ed2VRWWpDcno?oc=5",
+      "published": "Fri, 31 Jul 2026 20:16:38 GMT",
+      "source": "Milk Road",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "Circle: USDC Onchain Volume Surges 151% To $14.8 Trillion And Revenue Grows 7% - Pulse 2.0",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxQTkE2VVNadUxRZUNmZ1AxcnJHWG45dTdDUzBUNkZPN1JYMkxSd054cUNjdUhzUUhjRGNHNVhKOTctak02NU1xb1o3ZVhUSmhNMU5JRFlOVEw5Zks4N1E2Y3p6czJBM21JRklUUVh5Ulo2ZVlmRWtFNXJxMEFYLUQ4RlFHSERHbHZ5aDM0U0lIQ01SRnBCYUgtRjFB0gGfAUFVX3lxTE1zQ05SaEFJYzFMeGd0UHNSLVJoSHZ1T1JsWUY1QlZXRjhUT05SbjFScXVyYjBCRmE4bFJGejNRM2hzc2JDLUk2VTdxWkdaVGtHLTViSHdwNFJCUDZUTE9zYVVfSmw5LVNGNE9vSXE4cW43OWZjMDFsMkttNEhPcnRqZ2I0UFFDS0Y1U2VONVd5aTRzMHlrYTJXMlhEbzZWTQ?oc=5",
+      "published": "Wed, 05 Aug 2026 13:52:28 GMT",
+      "source": "Pulse 2.0",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "BlackRock Expands Tokenized Cash Platform with BSTBL OnChain Shares and BRSRV - Business Wire",
+      "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxOaHJFN2tudlpHeUFlcnlXT00wVmtNekNaekdMa2QyRk5iVHpuNWZVUXcwV0EwZUI0Yko0dGVTOGJ3cHFsS2Vzd1huYWpYOXdDdlpkdmZ1d0JiaklNeUlvZDBSaG5DUllrVUdyQmlsLWhSSG4wWWZBY195Mk5Oajh6VlJfcnUyblJpZlFOb0hBblVZSEZlVmJjZ3NHQ1dCS2xqbHFkYURweWJuelRtTWNIaF9VLWVMcG1uVzVQanhpbU90MENuaWlvVFkyNXJuM0U?oc=5",
+      "published": "Mon, 03 Aug 2026 12:00:00 GMT",
+      "source": "Business Wire",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "BNY builds blockchain system for $8.6 trillion fund business - CoinDesk",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxQR2JXZ05MSndQeS1kRUxFS05IcnJBdGdvMW5xTjlsQ1JNMFNpemN0UVQwWTRvaWNVWHhJdGxwckhOZmhNQlNManhsUTUzYTN4a2hWZ0Z2aUJFV3NuZEdhRDg4N3J2N2Y3TjJCNTREdUJEWDhsYXoxUTNObUlqclRVeTZEd1NDSjRIVjRhYWhRenJ1Z3RZQjh5ODFlV1lCeW05akNERU92SndHaEw1TnFES1IwVnRqQQ?oc=5",
+      "published": "Wed, 29 Jul 2026 07:00:00 GMT",
+      "source": "CoinDesk",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "QVC Exits Chapter 11 With Focus on \"Innovative Shopping Experiences\" - jckonline.com",
+      "url": "https://news.google.com/rss/articles/CBMigAFBVV95cUxOVGd6ampuS0IwSGM0N2oyczhWY0MtOTcwTnNmQ2pPbHRwOUt0UlEzTDhKVTJ3TVoxbTZBMlVpSGlwTkJXbVhaNmU0bElLTEtCOHJ4Y0hDTVFqUmJZZGs5Yk1mOVprdlAwN0c2MUFkTUo4cEU4Tmg4Z2V1OURMSmZEVg?oc=5",
+      "published": "Fri, 07 Aug 2026 20:26:46 GMT",
+      "source": "jckonline.com",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "Don't sleep on the quietly great zombie game that just landed on Xbox Game Pass - Polygon.com",
+      "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTFBwVjBPbENJRmFoakljMlBTN3FVTzhBYzZxRWJSSHVNVEp6d0tiNHBqanlIQ1lTUlRmZjZXMkdDeERUVHlvNVhaVEt6NDZhN1dmR3hwNEZYaktCQW5QcER2TXA2N2NHWlpWSlpfWjRR?oc=5",
+      "published": "Thu, 06 Aug 2026 23:00:12 GMT",
+      "source": "Polygon.com",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "Roma Holocaust: 82 years since Auschwitz liquidation - Moldova 1",
+      "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxOcUtJYm9LU1ZCUDBvTjJhZXRRLWM2amo5dWRfZVUwcmJfMFdWNE16NnN1aENDZ0dSUmwtWDlkRmJKWVZ5RDZiZ0RGYi0yM0pPVlBkcFJOS0JVdEl3TlZNZnhkMzk2Ymc3dVdxcFhQQzhMQ19GeVFwWlVCNXl6V0poY0hOQ01UQQ?oc=5",
+      "published": "Mon, 03 Aug 2026 15:57:11 GMT",
+      "source": "Moldova 1",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "PROFITS 2167 Demo Live: Steam’s Train Sim Recasts AI as ‘Labor Liquidation Machines’ - Shane the Gamer",
+      "url": "https://news.google.com/rss/articles/CBMiugFBVV95cUxPcnQ1SFNYT1g2OHBWOHZKSHZaS1hUQ2M0NEFJVTd5aXE2enlyS2NjRmVYTW1vLVJUSUNlRTB6RGg1azBQOW84bW8yVVlESW9Tem9UcUhRdXlfUFpBeXZ5TnoyVExaUGxPQUVwd1p6cDI5elhWX245dVc0SFpGdDVWNTNHUzVsZmRUTGNOZE56VE9Pdm5DQzU1UzJhUlA3TS1JNEZORGZqd3hDaWF3R2p0RGRsTEt4ZWpjMlE?oc=5",
+      "published": "Tue, 11 Aug 2026 08:12:08 GMT",
+      "source": "Shane the Gamer",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "With price of pints, is pub survival coming to a head? - PressReader",
+      "url": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPZ2N6ajl0UzlpYlhsMXo0VGVkelc2OVlNak9paGNFTTdOSHplM0RmRFpOOTRDYjFSMm1qN0YwNGVybUx5bS1KWmFTSkpEUldnVmE1U3ZzVTNqRDctSHdmZnI3VldYb0FVVV9jWDBtWUF4RDlEaHlycFJTVFRqREVSZHE3RnN6c3RSOXNwdlFWV24?oc=5",
+      "published": "Sun, 02 Aug 2026 15:22:24 GMT",
+      "source": "PressReader",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "composable liquidity",
+      "title": "Introducing mWIN: Midas Brings Institutional Credit Strategies Onchain with Wellington Management - TradingView",
+      "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxOYk1jRkpEZXprbjhIVW1DeTZtV0N0S0tJSHpLaE9ocm80Zl90UkpSSDgtOFBpUTRMTTluT3ZadEtMYlRzZWY4akpYUGVlMUhTR0Zma2tUMmNLZm5TenJXaHZQOGhONm9ZeV9MbjNobGo5Slh2ZU5xUEVlWE1RSDJ0R0E2ZFc1V09pV2dWSFJzQ2FhM0NaaDBKTE5PbzlWaHI1clo4ZHFyYnRlcXJsdjNWdm1FakhYMkpCdkdITnhqSzhlRElyX3NSYld6emZsRlpPb3k1VGFHR3BTT1QwaTZyMTNoR2VQRTZ2VXh2eg?oc=5",
+      "published": "Mon, 10 Aug 2026 10:20:17 GMT",
+      "source": "TradingView",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "composable liquidity",
+      "title": "Wall Street put $7B into tokenized funds, but under 1% is actually being used in DeFi - CryptoSlate",
+      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxQM3BHWHYxMEhIdlp6eng0dDlFc21wT3dORlE1azZDa3N5dS1aQ05LYXJKZkdicVpOdEFnRXpkUm9PSHNzNS15Z0JDRzhtczNZc1RZTVU5SUVHR1p1Y0FVTG1OVkNVWTloNll6VTdzb1hFbTZINEUyRHA1R3UzNm13ZTJMeHVnQ1VqNHhvbHNXZ3JrX2ExVkVmVFNqazN4S0xzRmhyc2RoX0Z2TEk?oc=5",
+      "published": "Sun, 09 Aug 2026 15:00:16 GMT",
+      "source": "CryptoSlate",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "composable liquidity",
+      "title": "Tokenized Treasuries: Capital Efficiency or True Structural Market Shift? - Investing.com",
+      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxQRHlVcUw1Z3VzM0hqYjE3dThZUTM4U0tobG9MSkVoTC04bDJhZU5tRWFBWXhyeDNBM2JkSXhidHZ2MjdmZW1pRGNLbjF5YXNSRU1rZDk4MVlkUV95YmNlTlJOeGlTb3RhTXU5TFdOVEFLUU83ZmZFLWd1b2JSWnVQMVlrUTNTTlhXaF9JMU5tcU1rWFNZaGoyN2tTUFU0NmJuRV9Wd19qODdXOXZDRlFVaV9fYmF3QktjSlBXZmdwZnF4QQ?oc=5",
+      "published": "Mon, 10 Aug 2026 09:08:00 GMT",
+      "source": "Investing.com",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "composable liquidity",
+      "title": "Nearly $4 Billion in RWA Is Active in DeFi—Who’s Driving It? - Binance",
+      "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTE16dk82Y05LYlZadWFYN1l0QTdTN1d1YVhSUzlONExSTGZKS2FGSDhUcENVYXA5dmkwVjBndWJWeWJoZ0NFMU5zOWx3dU1QeGZvWjVtTlNEbERuZWViQmE3eGs0Nnc?oc=5",
+      "published": "Mon, 10 Aug 2026 11:03:04 GMT",
+      "source": "Binance",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "CBZ Q2 Deep Dive: AI Investments and Integration Drive Margin Focus Amid Flat Revenue - StockStory",
+      "url": "https://news.google.com/rss/articles/CBMi3gFBVV95cUxONTl6WnVQSVRSV0ZMV1YwdVFDVGlSU2c4b0Z5VHoycFQtNmxSQTZpWkh4bUpvX3h4N3VVbEx5UmNnaXpQaDZPQ0pXd0x3c19KYXBHQlgxUW9lX05KT1lObVZTWDJjYnRVR3RyU3hrVS1jOGlUNEZRTHBLRnZiZXFJWm9uRGlYWlhZNDFwTUtXLWYzVjRNV290UWxxSFRSa0ItTDNIejAzcjFxS1pXSWs0SHZIa2UyODZTQkFScF9zQ1Jhc2pQajRycWtPTm1HaEZRVG1UZWVVMm8xUU9IR0E?oc=5",
+      "published": "Thu, 30 Jul 2026 07:00:00 GMT",
+      "source": "StockStory",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "Bybit Adds Six xStock Assets as Collateral Across Margin Trading, Crypto Loans and Institutional Loans - PR Newswire",
+      "url": "https://news.google.com/rss/articles/CBMi7gFBVV95cUxQWGdYSHBydFZPbUJDMU5yMlZQclBmemYxSTY1bXJYREJsY19FUGRkQkpPRmk0MERzVEI3ZG5zbzhmWmdSSTZ4emZhYnBmWk1BYmQxYjBDb0xKczlmbFR0WV94NVh3NzBTbXctWGQtcHh1MHRKWkRYUEJIeU1yU09HUjVoeWU1R2ZpZ28yVmUxVFVYOFliMVJPZEpRWVE1YkpxNFF5aTc0Yzd3a1dxLURlQlhZcC1kaHgzT0Yzb1d0V2VWSF9qNU1fZDlpb1Q3WV9UclNRT1F1OWp0UXJTbHhzY1RPSXRxQml1cnA2VTJB?oc=5",
+      "published": "Fri, 31 Jul 2026 11:00:00 GMT",
+      "source": "PR Newswire",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "How OneGov is changing CACI's contractor role - Washington Technology",
+      "url": "https://news.google.com/rss/articles/CBMi2gFBVV95cUxQSzVIX2gzUlFSbnpqTU5oam1welFSdExaaHlrQWVUTmRkX1FzQmlpV2IzTlBNUjZiWHdRUFBlY3pqbUhWejdyVEo4VXVObnIzSVp1MTFwdGxQZkxBOXpBcDRqYmNxcExxXy11TlhXeUZVamxieUNjeERfc1NaUVdRNXczLXZjLWFYM2hXYVRYUV9FdkVCbW9aTW9kNG4tRnVuZHRpb18tZDhZdTd2VjZldE5zMkx1d2wyOTRSZzhJS3ZUczBMSlpnSHBqeVZpblhsMk9oYlVQSzVDQQ?oc=5",
+      "published": "Tue, 11 Aug 2026 18:02:56 GMT",
+      "source": "Washington Technology",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "Derive: Integrates with PulsarX for onchain trading - 10 Aug 2026 - TradingView",
+      "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQb1VEelpiS3VxNlZSazFlQURKNkl0SUxVUWhDczhCUU9yTHpBekp6QjEwVkVmbW5MNm15U3NjdUdZVHh3NEtOTUtWcmFRSVpTM0ZadXhuWTlmVjIxRlE1aVNTZTlXT3ZYT0djdi1uSEx2Sm9Ka1NNc19lZi1ac0NEN2xIOXFJYjlZX00xUE9sYzJIT19qMGUxcTE3T3k2T1J1NnltNy1TanhSWkNvV2R2NVFhWHgxNkJqRU52QmtEVnBYTTlI?oc=5",
+      "published": "Mon, 10 Aug 2026 20:00:25 GMT",
+      "source": "TradingView",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "B2B Ecommerce Resources: Guide for 2026 - shopify.com",
+      "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFBBWjhaX1RKNDJDRXFVQXNqZjF1RTVMTDM4aVZ5OXZONWhYNmQxRWFkWkYyVGk0d19KcmJJdDNTT0JFcERQLW1FVmpwZHc2TDJfeDlqR1h0dzlVSE1PTmhFZ3FaenJqbDVWUm54dkMwWFh4QnV1?oc=5",
+      "published": "Wed, 05 Aug 2026 23:43:39 GMT",
+      "source": "shopify.com",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "Oracle Multicloud – What’s News - Oracle Blogs",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQQ3c3aDc3aW1CbVN4Q2MydlhuNVhPZm4wZmZrVFdoQXdiTHdBOUl4d1ZsNXpvY19iWXgxXzNjMmY0MXIzN3VhOVJxQXNNVXN0aHFyekotcHJKalFTbG5INDZkbUFLMEQ3OHZRZ0NETlhxSjlhUko0QWU1ZlhUS0NJSy1JVlI?oc=5",
+      "published": "Fri, 07 Aug 2026 07:00:00 GMT",
+      "source": "Oracle Blogs",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "Migrating and Modernizing Oracle Databases to PostgreSQL on AWS – Part 4: Post-cutover optimization - Amazon Web Services (AWS)",
+      "url": "https://news.google.com/rss/articles/CBMi6gFBVV95cUxNNkJOWXNValUyY1NsMDRKSHZGV0VnQS02Sl9pbWdsNlJ0MzV3eDFEWUhnSENhODhmcVotWFN1MnBibGFST3ZzSnRqZmZmbG8yTWgwZ2JJWHZTTDBLMmtPZ0JYcldvLVNERjFmbnR2MFVBQ1hOOS0xR2lWXzFHZDRSWlBVZDQ3emFuVVo2aC1ILTFkakRnSGs0TGpLbXI3cGFoWnlDT0s0WkVuaDZ6Q2Z4SmRwOWs0d3BfTzdmS2pMNnllNENTQjdoMWljeVZKTzNSSW10MW1MOVFOUVFDQjN4b1lQOGlibEJBbHc?oc=5",
+      "published": "Fri, 07 Aug 2026 14:29:36 GMT",
+      "source": "Amazon Web Services (AWS)",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "25 Years of Oracle RAC: From Mission-Critical Availability to Multicloud Scale - Oracle Blogs",
+      "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNTHdiLVF3M29XNTR5alJXTVUxV1FwR1FvSHFRUFhGeVE4alF3dm9LaFEwNWxsbzVYOEpIcnBBVnlXUXdTV3g1WmhlQVdWSWRJanN4ZjJQQzFwLWhRTXl5dWVXMnBwanZqSFdrN0RuWDRfYVhNZFAyTEFTaDg4dThXOGUwY0kzVURjSS1ZeVJuOS10OTIwU3hXNHBvU3RsNjhQNEZiTWFWV0lrQQ?oc=5",
+      "published": "Mon, 03 Aug 2026 17:18:05 GMT",
+      "source": "Oracle Blogs",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "AWS, Google, Oracle, Microsoft Top Gartner’s Cloud AI Infrastructure List For 2026 - crn.com",
+      "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxONXZHUFhQNW1ReEJJcGlKaUNmTHJOY2hQbi11MnY4V3AybGZ1Tlo5WnZ6WDRtdEotNUdpNUI1N2kzWC12Y3ZndWFnb2IyOWJfeGFPMkthMnVZRXNfN0NDOE5lSkxaY1Vsd1llS04xZV8ydEUyc0pSOGI3QW53UHhfbVVPNEVyand5ZW5qVmxQcnBGTHdXamh0N1VpMllxM0JiV3MzWktOeEs3dnV5U09FMTZR?oc=5",
+      "published": "Wed, 29 Jul 2026 07:00:00 GMT",
+      "source": "crn.com",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "Arbitrage: Efficient Reasoning via Advantage-Aware Speculation - Apple Machine Learning Research",
+      "url": "https://news.google.com/rss/articles/CBMifEFVX3lxTE14V3g2WW1jNDBTcTFFX0RyTXZZZUdNaVN6YmxKaUdHLWVQaDI5X3hXMFpwaDhkN2NtS01LcjZxVzJTVTU4bzNydzM2Tjl6eHk0b3FoWlRJWDFTaFI1VzR1cjduQWl4NVExUklhR3JpWl9pTlROcThHMk54c3E?oc=5",
+      "published": "Sat, 08 Aug 2026 00:21:13 GMT",
+      "source": "Apple Machine Learning Research",
+      "engagement": null
+    }
+  ]
+}

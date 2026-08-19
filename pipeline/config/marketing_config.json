@@ -1,0 +1,75 @@
+{
+  "competitors": [
+    {
+      "name": "MorphoLabs",
+      "x_handle": "MorphoLabs",
+      "specialty": "Fixed-rate and fixed-term credit vaults"
+    },
+    {
+      "name": "GearboxProtocol",
+      "x_handle": "GearboxProtocol",
+      "specialty": "Policy-driven autonomous credit accounts"
+    },
+    {
+      "name": "BlendCapital",
+      "x_handle": "blend_capital",
+      "specialty": "Stellar-based lending and liquidity primitives"
+    },
+    {
+      "name": "Aave",
+      "x_handle": "Aave",
+      "specialty": "Siloed pool lending and liquidation thresholds"
+    },
+    {
+      "name": "KojiruFinance",
+      "x_handle": "KojiruFinance",
+      "specialty": "Agentic credit scoring and reputation systems"
+    }
+  ],
+  "subreddits": [
+    "defi",
+    "Stellar",
+    "ethereum",
+    "cryptocurrency"
+  ],
+  "search_keywords": [
+    "agent credit",
+    "onchain agent",
+    "liquidation survival",
+    "composable liquidity",
+    "unified margin",
+    "oracle latency"
+  ],
+  "taxonomy": [
+    {
+      "topic": "capital-efficiency",
+      "angle": "Unified Margin Accounts",
+      "description": "How Vanna unifies collateral across disparate positions to unlock up to 10x borrowing capacity, contrasted with siloed liquidity pools."
+    },
+    {
+      "topic": "risk-relief",
+      "angle": "Autonomous Risk Guardian",
+      "description": "Vanna's 1.1x automated liquidation floor and policy-bounded risk management, saving users during volatile market cascades."
+    },
+    {
+      "topic": "agentic-credit",
+      "angle": "Agentic Credit & Balance Sheets",
+      "description": "Vanna's core feature enabling autonomous agents to have their own onchain financial identity, borrow capital, and build credit scores."
+    },
+    {
+      "topic": "developer-experience",
+      "angle": "Unified SDK, CLI, and MCP Rails",
+      "description": "The developer integrations of Vanna, showcasing how any agent interface can connect to our composable credit rails."
+    },
+    {
+      "topic": "ecosystem-news",
+      "angle": "Stellar Soroban Mainnet Readiness",
+      "description": "Ecosystem updates regarding Vanna's deployment on Stellar Soroban, tokenized RWAs, and institutional credit rails."
+    }
+  ],
+  "settings": {
+    "deprioritize_depth_limit": 3,
+    "max_twitter_scrapes": 4,
+    "max_reddit_scrapes": 4
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "draft_id": "0f8119c8",
+  "message_id": 238,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-09T17:28:40Z",
+  "sent_unix": 1786296519,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "0f8119c8",
+    "draft_id": "14240705",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Fixed terms lock capital. Morpho offers predictable, static credit. Vanna's unified margin on Stellar Soroban means your collateral works harder—up to 10x credit capacity. One health factor for your entire RWA book. #Soroban #RWAs",
+    "final_body": "Fixed terms lock capital. Morpho offers predictable, static credit. Vanna's unified margin on Stellar Soroban means your collateral works harder—up to 10x credit capacity. One health factor for your entire RWA book. #Soroban #RWAs",
+    "final_hook": "Fixed terms lock capital.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Collateral Unleashed",
+      "emphasis_phrase": "10x Credit Capacity",
+      "subhead": "Static fixed terms vs. dynamic unified margin on Soroban.",
+      "data": [
+        {
+          "label": "MorphoLabs Approach",
+          "value": "Fixed-Term Vaults",
+          "note": "Capital locked per vault for predictability"
+        },
+        {
+          "label": "Vanna on Soroban",
+          "value": "Unified Margin",
+          "note": "Up to 10x credit capacity across all positions"
+        },
+        {
+          "label": "Portfolio Health Factor",
+          "value": "Multiple per vault",
+          "note": "Vs. Single, holistic health factor with Vanna"
+        }
+      ],
+      "disclaimer": "All Vanna claims are based on testnet performance. No mainnet, no token, no audit, no TVL."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-09T17:28:33Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

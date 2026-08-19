@@ -1,0 +1,47 @@
+{
+  "draft_id": "3db9f468",
+  "message_id": 269,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-14T19:11:50Z",
+  "sent_unix": 1786734708,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "3db9f468",
+    "draft_id": "41ecbace",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "The OpenAI hack shows what happens when autonomy goes rogue. In finance, uncontrolled automation leads to liquidation. Vanna's Guardian acts *inside your policy*, protecting your capital from unexpected moves. Leverage is easy. Not getting liquidated is the hard part.",
+    "final_body": "The OpenAI hack shows what happens when autonomy goes rogue. In finance, uncontrolled automation leads to liquidation. Vanna's Guardian acts *inside your policy*, protecting your capital from unexpected moves. Leverage is easy. Not getting liquidated is the hard part.",
+    "final_hook": "The OpenAI hack shows what happens when autonomy goes rogue.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Autonomy Without Policy",
+      "emphasis_phrase": "Liquidation Risk",
+      "subhead": "Uncontrolled agents cost capital. Vanna guards your limits.",
+      "data": [
+        {
+          "label": "Unconstrained Automation",
+          "value": "Black Box Risk",
+          "note": "Market volatility can trigger unexpected liquidations."
+        },
+        {
+          "label": "Vanna Guardian Safety",
+          "value": "Policy-Bounded Autonomy",
+          "note": "Actions only within your explicit health factor limits (testnet)."
+        },
+        {
+          "label": "Liquidation Floor",
+          "value": "1.1x Health Factor",
+          "note": "Built-in buffer for oracle cadence & slippage (testnet)."
+        }
+      ],
+      "disclaimer": "Illustrative example. Vanna is on testnet. Not financial advice."
+    },
+    "platform": "x",
+    "trend_id": "OpenAI",
+    "sent_at": "2026-08-14T19:11:33Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

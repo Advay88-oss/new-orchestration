@@ -1,0 +1,18 @@
+{
+  "run_id": "vanna-20260815-181658",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1786817818.5297549,
+  "ended": 1786817976.5202363,
+  "status": "completed",
+  "brain": "gemini",
+  "trend_source": "scout",
+  "duration_s": 158.0,
+  "trend": "Aave",
+  "topic": "agentic-credit",
+  "winner_hook": "Biden's EO sparks asset control fears.",
+  "winner_body": "Biden's EO sparks asset control fears. Human finance risks centralization. Agents, however, need their own. They can pay, can't borrow. Vanna gives agents balance sheets, building credit for true onchain autonomy. #AgenticCredit",
+  "telegram_message_id": 278,
+  "telegram_draft_id": "a793b053",
+  "has_image": true
+}

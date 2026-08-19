@@ -1,0 +1,43 @@
+{
+  "pass": false,
+  "platform": "x",
+  "block_count": 5,
+  "warn_count": 0,
+  "violations": [
+    {
+      "rule": "R-mcp-differentiator",
+      "severity": "BLOCK",
+      "matched": "first protocol with MCP",
+      "why": "MCP is table stakes since Morpho Agents (Apr 2026, mainnet, ~$11.8B TVL) and Base MCP (May 2026). Leading with it describes a competitor's shipped product.",
+      "fix": "Lead with undercollateralized credit: 'Morpho gives agents access to a lending market. Vanna gives them a balance sheet.'"
+    },
+    {
+      "rule": "R-category-claim",
+      "severity": "BLOCK",
+      "matched": "Nobody else is building",
+      "why": "Category-invention claim. Kojiru ships an Agent Credit Score; ERC-8004, Visa TAP, WEF KYA and an IETF draft are standardising agent reputation.",
+      "fix": "Claim the underwriting layer, not the category. See file 11 §2.3."
+    },
+    {
+      "rule": "R-unforkable-moat",
+      "severity": "BLOCK",
+      "matched": "unforkable",
+      "why": "The 'unforkable data moat' framing was retired by file 11 §1.",
+      "fix": "Say 'a credit decision needs a margin account to generate — that's the part that can't be copied from outside.'"
+    },
+    {
+      "rule": "R-agent-score-present-tense",
+      "severity": "BLOCK",
+      "matched": "Our Agent Score gives",
+      "why": "The Agent Score has no documented sybil resistance (file 11 §3). It must stay in future tense until that design ships.",
+      "fix": "Say 'Vanna is building an Agent Score that turns on-chain behaviour into a credit line.'"
+    },
+    {
+      "rule": "R-logo-wall-as-live",
+      "severity": "BLOCK",
+      "matched": "15+ integrations",
+      "why": "Only Blend, Aquarius and Soroswap are live, all on Stellar testnet. The logo wall is ecosystem, not integrations (file 11 §6).",
+      "fix": "Say 'Deep integrations with Blend, Aquarius and Soroswap today, with a broader venue roadmap.'"
+    }
+  ]
+}

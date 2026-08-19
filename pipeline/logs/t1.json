@@ -1,0 +1,36 @@
+{
+  "pass": false,
+  "platform": "x",
+  "block_count": 4,
+  "warn_count": 0,
+  "violations": [
+    {
+      "rule": "P1-mainnet-live",
+      "severity": "BLOCK",
+      "matched": "our mainnet",
+      "why": "Implies mainnet is live or imminent. Vanna is pre-mainnet, Stellar testnet only.",
+      "fix": "Say 'Currently on Stellar testnet. Mainnet addresses will be published at launch.'"
+    },
+    {
+      "rule": "P2-security-claims",
+      "severity": "BLOCK",
+      "matched": "audited",
+      "why": "No audits, bug bounty, multi-sig, timelocks, formal verification or insurance exist.",
+      "fix": "Say 'Security documentation is being published ahead of mainnet.'"
+    },
+    {
+      "rule": "F-1000x",
+      "severity": "BLOCK",
+      "matched": "1000x",
+      "why": "'1000× leverage' is a legacy/hackathon-era error. Canonical max is 10×.",
+      "fix": "Use 10×."
+    },
+    {
+      "rule": "V-exclamation",
+      "severity": "BLOCK",
+      "matched": "!",
+      "why": "Exclamation marks are banned — 'the brand does not shout.'",
+      "fix": "Replace with a period."
+    }
+  ]
+}

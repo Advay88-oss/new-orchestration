@@ -1,0 +1,156 @@
+{
+  "competitors": [
+    {
+      "name": "Wealthsimple Gold",
+      "x_handle": "Wealthsimple",
+      "specialty": "The most dangerous competitor in Canada — physically-backed gold trading inside an app millions already trust."
+    },
+    {
+      "name": "Gold ETFs (CGL / CGL.C)",
+      "x_handle": "",
+      "specialty": "The default for any financially literate Canadian — commission-free, TFSA/RRSP-eligible paper gold."
+    },
+    {
+      "name": "OneGold",
+      "x_handle": "OneGold",
+      "specialty": "The strongest US incumbent — an APMEX × Sprott JV, the most credible parentage in the category."
+    },
+    {
+      "name": "Vaulted",
+      "x_handle": "",
+      "specialty": "Simplest US vaulted-gold app — one all-in 1.8% fee, $10 minimum (the same entry point Auri markets)."
+    },
+    {
+      "name": "US Gold ETFs (GLD, IAU)",
+      "x_handle": "",
+      "specialty": "The real US volume competitor — commission-free in every brokerage, IRA/401(k)-eligible."
+    },
+    {
+      "name": "APMEX / JM Bullion / Costco",
+      "x_handle": "",
+      "specialty": "Physical bullion to your door. Costco selling gold bars is the clearest signal US retail gold demand is real — these are lead sources, not competitors."
+    },
+    {
+      "name": "Glint Pay",
+      "x_handle": "glintpay",
+      "specialty": "The clearest precedent for spending gold — a Mastercard debit card spending gold in 210 countries."
+    },
+    {
+      "name": "Kinesis Money",
+      "x_handle": "KinesisMonetary",
+      "specialty": "The most feature-complete gold-money platform and the most direct philosophical rival — and it pays a yield on gold."
+    },
+    {
+      "name": "Goldmoney",
+      "x_handle": "GoldmoneyOrg",
+      "specialty": "Buy-and-park vaulted gold. 1.0% round trip. No spend, borrow, or yield."
+    },
+    {
+      "name": "BullionVault",
+      "x_handle": "bullionvault",
+      "specialty": "Vaulted gold with a storage minimum (~$144/yr) and 2.5-10% redemption fees."
+    },
+    {
+      "name": "Ledn",
+      "x_handle": "hodlwithLedn",
+      "specialty": "The most important competitor to watch — Tether partnered with Ledn to let XAUT holders borrow against gold. Literally Auri's core product, from the token issuer."
+    },
+    {
+      "name": "Coinbase",
+      "x_handle": "coinbase",
+      "specialty": "Lends USDC against BTC from ~4% APR, built on Morpho, running on Base. The architectural distance to Auri is close to zero."
+    },
+    {
+      "name": "Nexo",
+      "x_handle": "Nexo",
+      "specialty": "Crypto-backed credit lines on 100+ assets, 1.9-18.9% APR. Relaunched in the US in 2026 (excl. New York)."
+    },
+    {
+      "name": "Milo",
+      "x_handle": "milocredit",
+      "specialty": "Crypto mortgages from 10.75% fixed — $100M+ originated, including a record $12M single loan."
+    },
+    {
+      "name": "APX Lending",
+      "x_handle": "",
+      "specialty": "Canadian crypto-backed loans — the direct Ledn competitor in Canada."
+    },
+    {
+      "name": "Morpho / Aave (direct DeFi)",
+      "x_handle": "MorphoLabs",
+      "specialty": "A sophisticated user can do exactly what Auri does, manually, for less — but ~99.9% of the target market never will."
+    },
+    {
+      "name": "Indian gold loans (Muthoot, Rupeek, IIFL)",
+      "x_handle": "",
+      "specialty": "The mature, mass-market gold-loan industry — 8-15% APR. Auri at 3.75% is 2-4x cheaper than the entire Indian industry."
+    },
+    {
+      "name": "Gnosis Pay",
+      "x_handle": "gnosispay",
+      "specialty": "Fully self-custodial Visa spending stablecoins from a Safe smart account — the architectural pattern Auri uses, on crypto."
+    },
+    {
+      "name": "Ether.fi Cash",
+      "x_handle": "ether_fi",
+      "specialty": "Self-custodial Visa where you spend, borrow, OR earn against ETH/BTC/stablecoins — collateral still earns yield while you spend, 76 countries."
+    },
+    {
+      "name": "Wise / Remitly / Western Union",
+      "x_handle": "",
+      "specialty": "Remittance incumbents. Auri doesn't beat them on price — it makes remittance a side effect of holding gold, and every gift-claim link a viral acquisition loop."
+    },
+    {
+      "name": "India digital gold (Jar, SafeGold, MMTC-PAMP)",
+      "x_handle": "",
+      "specialty": "80M+ Indians already invest in digital gold — micro-savings into gold is validated at massive scale. Essential diaspora-GTM context."
+    }
+  ],
+  "subreddits": [
+    "Gold",
+    "PersonalFinanceCanada",
+    "Bogleheads",
+    "preciousmetals",
+    "Fire"
+  ],
+  "search_keywords": [
+    "buy gold",
+    "tokenized gold",
+    "XAUT",
+    "self-custody gold",
+    "inflation hedge",
+    "gold-backed loan"
+  ],
+  "taxonomy": [
+    {
+      "topic": "use-your-gold",
+      "angle": "Gold You Can Use",
+      "description": "Spend, send, and borrow against real gold - the utility angle."
+    },
+    {
+      "topic": "self-custody",
+      "angle": "Non-Custodial Trust",
+      "description": "Auri holds $0; gold in your own name, attested quarterly."
+    },
+    {
+      "topic": "inflation-hedge",
+      "angle": "Store of Value",
+      "description": "Dollars buy less each year; gold that finally moves."
+    },
+    {
+      "topic": "gift-and-send",
+      "angle": "Gifting Gold",
+      "description": "Real grams by link, QR or @username - occasions built in."
+    },
+    {
+      "topic": "developers",
+      "angle": "Gold API",
+      "description": "Developer rails for building on allocated gold (unverified - see Tier C)."
+    }
+  ],
+  "settings": {
+    "deprioritize_depth_limit": 3,
+    "max_twitter_scrapes": 4,
+    "max_reddit_scrapes": 4
+  }
+}

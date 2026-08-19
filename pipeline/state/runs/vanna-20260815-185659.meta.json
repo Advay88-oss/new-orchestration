@@ -1,0 +1,10 @@
+{
+  "run_id": "vanna-20260815-185659",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1786820219.0199447,
+  "ended": null,
+  "status": "running",
+  "brain": "gemini",
+  "trend_source": "scout"
+}

@@ -1,0 +1,46 @@
+{
+  "draft_id": "2826a6b1",
+  "message_id": 277,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-15T17:43:55Z",
+  "sent_unix": 1786815834,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "2826a6b1",
+    "draft_id": "0da8ee70",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Bitcoin's 50% collapse exposes asset control myths. Volatile assets can vanish. But what if the platform does?\n\nAuri holds $0. Your gold, in your name, in a Swiss vault. If Auri vanished, your gold's still yours. Real ownership.",
+    "final_body": "Bitcoin's 50% collapse exposes asset control myths. Volatile assets can vanish. But what if the platform does?\n\nAuri holds $0. Your gold, in your name, in a Swiss vault. If Auri vanished, your gold's still yours. Real ownership.",
+    "final_hook": "Bitcoin's 50% collapse exposes asset control myths.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "True Ownership in Turbulent Markets",
+      "emphasis_phrase": "Your Gold, Your Name, Always.",
+      "subhead": "When market volatility hits, who truly controls your assets?",
+      "data": [
+        {
+          "label": "Auri's Custody",
+          "value": "Non-Custodial",
+          "note": "Auri holds $0; gold in your name, Swiss vault"
+        },
+        {
+          "label": "Asset Ownership",
+          "value": "You Control",
+          "note": "Owner-signed keys; session-scoped & capped"
+        },
+        {
+          "label": "Platform Risk",
+          "value": "Minimized",
+          "note": "If Auri vanished, your gold remains yours"
+        }
+      ]
+    },
+    "platform": "x",
+    "trend_id": "Bitcoin",
+    "sent_at": "2026-08-15T17:43:46Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

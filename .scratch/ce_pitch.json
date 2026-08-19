@@ -1,0 +1,49 @@
+{
+  "arc": "capital-efficiency",
+  "trend_id": "agentic-payments-velocity-2026 (x402/MPP settlement growth — Tier A ledger facts; stage-1 scout intel had not landed at time of pitch)",
+  "rationale": "The agentic-payments story is a velocity story: rails got faster, settlement got cheaper, ~100M x402 payments cleared on Base. None of that changed what a dollar can do at one time. That is a margin-architecture problem, not a payments problem — which makes this trend a capital-efficiency read before it is anything else. And the strongest thing Vanna owns here is not a slogan, it is an inequality anyone can check.",
+  "posts": [
+    {
+      "platform": "x",
+      "template": "Contrarian Take",
+      "hook": "Velocity is not efficiency.",
+      "body": "Velocity is not efficiency.\n\n~100M x402 payments have settled on Base. Money now moves at machine speed.\n\nIt still does one job at a time. Your $10,000 is three tabs, three health factors, three liquidation prices — and a gain on one leg can't back a loss on another.",
+      "thread": [
+        "Vanna's borrow guard is one inequality:\n\n(C + B) / (D + B) ≥ 1.1\n\nBorrowed capital never leaves the margin account, so the risk engine counts B on both sides. Start at D = 0:\n\nC + B ≥ 1.1B → C ≥ 0.1B → B ≤ 10C\n\n10× isn't a dial. It's what falls out of a 1.1 floor.",
+        "Which also tells you where not to sit.\n\nAt B = 10C the health factor is exactly 1.1 — the liquidation threshold itself. The ceiling is a boundary, not an operating point.\n\nThe maths is public because it's derivable. How far under it you run is your call.",
+        "One account. One health factor. Collateral that backs every leg at once instead of one leg each.\n\nLive on Stellar testnet with Blend, Aquarius and Soroswap — XLM and USDC. Mainnet addresses publish at launch.\n\nRead the maths. Tell us where the risk engine is wrong."
+      ],
+      "persona": "P1",
+      "claims": [
+        {"text": "~100M x402 payments have settled on Base", "tier": "A", "source": "file 08 §2 Tier A — '~100M x402 payments on Base; $1+ transactions rose from 49% to 95% of volume in a year' (Chainalysis, Jun 2026)"},
+        {"text": "The borrow guard is (C + B) / (D + B) ≥ 1.1", "tier": "A", "source": "file 08 §2 Tier A — health factor = total collateral USD / total debt USD; liquidation threshold / health-factor floor is 1.1×. Guard form stated in file 04 §10 proof-point bank."},
+        {"text": "Borrowed capital never leaves the margin account, so the risk engine counts it on both sides", "tier": "B", "source": "file 08 §2 Tier B — self-collateralization principle. Stated on-testnet in the post, per Tier B handling rule."},
+        {"text": "B ≤ 10C — maximum leverage is 10×", "tier": "A", "source": "file 08 §2 Tier A — 'Maximum leverage is 10×', live docs, derived from the borrow guard"},
+        {"text": "At B = 10C the health factor is exactly 1.1, the liquidation threshold", "tier": "A", "source": "Arithmetic consequence of the two Tier A facts above: (C+10C)/(0+10C) = 11C/10C = 1.1"},
+        {"text": "Live on Stellar testnet with Blend, Aquarius and Soroswap — XLM and USDC", "tier": "A", "source": "file 08 §2 Tier A — integrated external protocols on testnet: Blend Capital, Aquarius, Soroswap; assets XLM and USDC"},
+        {"text": "Mainnet addresses publish at launch", "tier": "A", "source": "file 08 §2 Tier A — 'All contracts are on Stellar Testnet. Mainnet addresses will be published at launch.'"}
+      ],
+      "stepps_self_score": {
+        "social_currency": 7,
+        "triggers": 6,
+        "emotion": 5,
+        "public": 4,
+        "practical_value": 9,
+        "stories": 3
+      },
+      "visual_brief": {
+        "type": "stat-card",
+        "headline": "Velocity is not efficiency. One inequality sets the ceiling.",
+        "emphasis_phrase": "B ≤ 10C",
+        "subhead": "Borrowed capital never leaves the account, so the guard counts it on both sides.",
+        "data": [
+          {"label": "Borrow guard", "value": "(C + B) / (D + B) ≥ 1.1", "note": "C collateral · B borrowed · D existing debt"},
+          {"label": "Solve at D = 0", "value": "C ≥ 0.1B", "note": "C + B ≥ 1.1B"},
+          {"label": "Maximum", "value": "B ≤ 10C", "note": "10× is the algebra, not a setting"},
+          {"label": "At the ceiling", "value": "HF = 1.1", "note": "the liquidation threshold itself"}
+        ],
+        "disclaimer": "Vanna is live on Stellar testnet only — no mainnet, no token. Protocol mechanics, not investment advice."
+      }
+    }
+  ]
+}

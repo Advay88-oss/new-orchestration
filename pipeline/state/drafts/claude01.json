@@ -1,0 +1,47 @@
+{
+  "draft_id": "claude01",
+  "message_id": 248,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-11T06:48:21Z",
+  "sent_unix": 1786430900,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "claude01",
+    "draft_id": "claude01",
+    "verdict": "ship",
+    "winner_arc": "agentic-credit",
+    "arc": "agentic-credit",
+    "body": "Hidden text in a PDF just hijacked an AI assistant. Now imagine that agent holds capital. Autonomous agents need hard limits, not trust. On Stellar testnet, Vanna gives agents a balance sheet bounded by policy — a hijacked agent still can't exceed what you allowed.",
+    "final_body": "Hidden text in a PDF just hijacked an AI assistant. Now imagine that agent holds capital. Autonomous agents need hard limits, not trust. On Stellar testnet, Vanna gives agents a balance sheet bounded by policy — a hijacked agent still can't exceed what you allowed.",
+    "final_hook": "A PDF just hijacked an AI agent.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Agents need hard limits, not trust.",
+      "emphasis_phrase": "hard limits",
+      "subhead": "Policy-bounded credit for autonomous agents. On Stellar testnet.",
+      "data": [
+        {
+          "label": "The account",
+          "value": "Policy-bounded",
+          "note": "A compromised agent still can't exceed what you allowed."
+        },
+        {
+          "label": "Isolation",
+          "value": "Per-agent contract",
+          "note": "Each agent account is its own deployed contract."
+        },
+        {
+          "label": "Stage",
+          "value": "Stellar testnet",
+          "note": "No mainnet, no token, no audit."
+        }
+      ],
+      "disclaimer": "Illustrative example. Vanna is on testnet. Not financial advice."
+    },
+    "platform": "x",
+    "trend_id": "AI agent hijacked via hidden PDF text (Decrypt, 10 Aug 2026)"
+  },
+  "image": "pipeline\\state\\temp_rendered.png"
+}

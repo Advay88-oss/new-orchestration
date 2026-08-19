@@ -1,0 +1,19 @@
+{
+  "type": "infographic",
+  "headline": "Beyond Centralized Control",
+  "emphasis_phrase": "Agent Credit, Unlocked",
+  "subhead": "Executive orders highlight human asset risk. Vanna enables agents to build their own balance sheets.",
+  "data": [
+    {
+      "label": "Human Assets",
+      "value": "Vulnerable",
+      "note": "Subject to centralized control, historical precedent of seizure (EO6102)"
+    },
+    {
+      "label": "Agent Assets",
+      "value": "Empowered",
+      "note": "Vanna provides onchain identity & borrowing capacity for autonomous credit."
+    }
+  ],
+  "disclaimer": "Illustrative example. Vanna is on testnet. There is no mainnet, no token, no audit, no TVL."
+}

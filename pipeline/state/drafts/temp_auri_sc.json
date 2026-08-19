@@ -1,0 +1,37 @@
+{
+  "id": "auri_selfcustody",
+  "draft_id": "auri_selfcustody",
+  "arc": "self-custody (security)",
+  "winner_arc": "self-custody",
+  "body": "Every gold app holds your gold for you. Auri holds $0 of it. Your gold sits in a Swiss vault in your own name, attested quarterly — not on our books, not ours to lend. If Auri vanished tonight, it's still yours in the morning. Borrow at 3.75%; gold can fall, loans can liquidate.",
+  "final_body": "Every gold app holds your gold for you. Auri holds $0 of it. Your gold sits in a Swiss vault in your own name, attested quarterly — not on our books, not ours to lend. If Auri vanished tonight, it's still yours in the morning. Borrow at 3.75%; gold can fall, loans can liquidate.",
+  "final_hook": "Every gold app holds your gold. Auri holds $0.",
+  "thread": [],
+  "final_thread": [],
+  "platform": "x",
+  "trend_id": "Learned bias: statement hook + security theme (#1, 199.5). Auri trust story.",
+  "visual_brief": {
+    "type": "stat-card",
+    "headline": "Every gold app holds your gold. Auri holds $0.",
+    "emphasis_phrase": "$0",
+    "subhead": "Your gold, your name, Swiss vault, attested quarterly. Non-custodial. On Auri.",
+    "data": [
+      {
+        "label": "Custody",
+        "value": "Yours, not ours",
+        "note": "Not on Auri's books, not ours to lend."
+      },
+      {
+        "label": "Proof",
+        "value": "Attested quarterly",
+        "note": "Allocated gold in a Swiss vault, checkable to the bar."
+      },
+      {
+        "label": "Even so",
+        "value": "Use it",
+        "note": "Borrow at 3.75%. Gold can fall; loans can liquidate."
+      }
+    ],
+    "disclaimer": "Gold can fall in value. Borrowing carries liquidation risk. Not financial advice."
+  }
+}

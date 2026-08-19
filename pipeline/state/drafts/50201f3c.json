@@ -1,0 +1,15 @@
+{
+  "draft_id": "50201f3c",
+  "message_id": 283,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-15T19:54:31Z",
+  "sent_unix": 1786823669,
+  "status": "awaiting_review",
+  "draft": {
+    "draft_id": "vanna-day5",
+    "final_hook": "Your voice matters. Help shape Vanna's future.",
+    "body": "[Day 5 · Discord, Telegram, Twitter, Galxe · Community/Feedback]\n\nWe're building Vanna for you. Your voice matters! Join our growing community on Discord & Telegram. Share your insights, provide feedback, and help us build the most resilient infrastructure against regulatory shifts. Complete our new feedback quest on Galxe! #VannaCommunity #BuildWithUs\n\nCTA: Join our Discord & complete the feedback quest on Galxe.\nIncentive: Galxe points for providing feedback, recognition within the community.\nKPI: Discord/Telegram member growth, number of feedback submissions via Galxe.\nGate: BLOCKED — ",
+    "platform": "Discord, Telegram, Twitter, Galxe"
+  },
+  "image": null
+}

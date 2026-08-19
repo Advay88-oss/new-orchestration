@@ -1,0 +1,67 @@
+{
+  "draft_id": "92be684c",
+  "message_id": 274,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-15T15:48:02Z",
+  "sent_unix": 1786808881,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "92be684c",
+    "draft_id": "cfa5b6b9",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Your agent can run your billing stack. Charge, refund, move funds.\n\nIt still can't carry a debt in its own name.\n\nSpending got automated. Solvency didn't.\n\nAgents can pay. Agents can't borrow. Vanna is building the credit line underneath — on Stellar testnet.",
+    "final_body": "Your agent can run your billing stack. Charge, refund, move funds.\n\nIt still can't carry a debt in its own name.\n\nSpending got automated. Solvency didn't.\n\nAgents can pay. Agents can't borrow. Vanna is building the credit line underneath — on Stellar testnet.",
+    "final_hook": "Your agent can run your billing stack",
+    "thread": [
+      "Your agent can run your billing stack. Charge, refund, move funds.\n\nIt still can't carry a debt in its own name.\n\nSpending got automated. Solvency didn't.\n\nAgents can pay. Agents can't borrow. Vanna is building the credit line underneath — on Stellar testnet.",
+      "Three layers hold up an agent economy. Two of them shipped.\n\nPayments: done. x402 and MPP are live on Stellar. MPP launched across 100+ integrated services including Stripe, Anthropic, OpenAI, Shopify and Visa, with the spec submitted to IETF.",
+      "Identity: standardising. ERC-8004, Visa TAP, WEF KYA, an IETF draft on agent trust scoring. Serious parallel work, and none of it is ours to claim.\n\nBut read what all of it underwrites. Reputation for payments. Permission to spend money that already exists.",
+      "Credit didn't move.\n\nAn agent can hold a key. It can't hold an obligation. No margin account in its own name, no solvency ratio anyone can check, no line that survives the moment its operator's wallet runs dry.\n\nThat isn't a payments gap. It's a missing balance sheet.",
+      "Vanna is the margin account underneath. One collateral base, one health factor derived on demand, a 1.1× floor, up to 10× credit — architecture live on Stellar testnet with Blend, Aquarius and Soroswap.\n\nAgent-held credit lines come next. Future tense, deliberately.",
+      "Nothing here is mainnet. No token, no TVL, no audit to point at.\n\nWhat exists is the primitive an agent balance sheet has to sit on, running on testnet today, and an honest statement of what still has to be designed before an agent can borrow in its own name."
+    ],
+    "final_thread": [
+      "Your agent can run your billing stack. Charge, refund, move funds.\n\nIt still can't carry a debt in its own name.\n\nSpending got automated. Solvency didn't.\n\nAgents can pay. Agents can't borrow. Vanna is building the credit line underneath — on Stellar testnet.",
+      "Three layers hold up an agent economy. Two of them shipped.\n\nPayments: done. x402 and MPP are live on Stellar. MPP launched across 100+ integrated services including Stripe, Anthropic, OpenAI, Shopify and Visa, with the spec submitted to IETF.",
+      "Identity: standardising. ERC-8004, Visa TAP, WEF KYA, an IETF draft on agent trust scoring. Serious parallel work, and none of it is ours to claim.\n\nBut read what all of it underwrites. Reputation for payments. Permission to spend money that already exists.",
+      "Credit didn't move.\n\nAn agent can hold a key. It can't hold an obligation. No margin account in its own name, no solvency ratio anyone can check, no line that survives the moment its operator's wallet runs dry.\n\nThat isn't a payments gap. It's a missing balance sheet.",
+      "Vanna is the margin account underneath. One collateral base, one health factor derived on demand, a 1.1× floor, up to 10× credit — architecture live on Stellar testnet with Blend, Aquarius and Soroswap.\n\nAgent-held credit lines come next. Future tense, deliberately.",
+      "Nothing here is mainnet. No token, no TVL, no audit to point at.\n\nWhat exists is the primitive an agent balance sheet has to sit on, running on testnet today, and an honest statement of what still has to be designed before an agent can borrow in its own name."
+    ],
+    "visual_brief": {
+      "type": "stat-card",
+      "format": "1080x1080",
+      "headline": "Agents can pay.\nAgents can't borrow.",
+      "emphasis_phrase": "can't borrow",
+      "subhead": "Three layers of agent infrastructure. Two of them shipped.",
+      "layout": "Vertical three-row stack. Each row is a full-width band: layer name left, status chip right, note in smaller type beneath. Status chips carry rising visual weight — row 1 solid fill, row 2 outlined, row 3 dashed outline with the label in the brand accent. A thin vertical rule runs down the left edge through rows 1 and 2 and breaks at row 3, so the eye reads the gap before it reads the words.",
+      "typography": "Headline in the brand display face, two lines, tight leading, 'can't borrow' in the accent colour. Statuses in uppercase small-caps. Notes in muted secondary weight, no more than two lines each.",
+      "palette": "Dark brand ground. Rows 1 and 2 in neutral/secondary text. Row 3 accent-lit. No gradients across text, no glow. Background texture only — never behind readable type.",
+      "data": [
+        {
+          "label": "Agent payments",
+          "value": "Shipped",
+          "note": "x402 and MPP live on Stellar. MPP launched across 100+ integrated services incl. Stripe, Anthropic, OpenAI, Shopify, Visa — Apr 2026."
+        },
+        {
+          "label": "Agent identity",
+          "value": "Standardising",
+          "note": "ERC-8004, Visa TAP, WEF KYA, IETF draft. Parallel efforts, all of it reputation for payments."
+        },
+        {
+          "label": "Agent credit",
+          "value": "Missing",
+          "note": "No margin account an agent holds in its own name. Vanna is building it on top of a live testnet primitive: one collateral base, one health factor, 1.1× floor, up to 10× credit."
+        }
+      ],
+      "footer_strip": "One collateral base. One health factor. Up to 10× — architecture, not a live figure. It falls out of the borrow guard (C+B)/(D+B) ≥ 1.1, so B ≤ 10C.",
+      "disclaimer": "Vanna is live on Stellar testnet with Blend, Aquarius and Soroswap. No mainnet, no token, no audit. Architecture shown — not performance. Agent-held credit lines are in development.",
+      "forbidden": "Do not print '10× undercollateralized credit' anywhere on the card. Do not render the demo figures (26% ROI, 742 score, +$302, 47 saves). No competitor logos. No exclamation marks. No emoji."
+    },
+    "platform": "x",
+    "trend_id": "Stripe",
+    "sent_at": "2026-08-15T15:47:51Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

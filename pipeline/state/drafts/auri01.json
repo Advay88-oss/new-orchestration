@@ -1,0 +1,21 @@
+{
+  "draft_id": "auri01",
+  "message_id": 253,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-11T07:51:53Z",
+  "sent_unix": 1786434712,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "auri01",
+    "draft_id": "auri01",
+    "arc": "non-custodial / gold you can use",
+    "body": "Everyone can hold gold. Almost nobody can use it. Auri puts real gold in your name — 1:1, vaulted in Switzerland, attested quarterly — then lets you spend, send, or borrow against it. Auri holds $0 of it. If Auri vanished tonight, your gold's still yours in the morning.",
+    "final_body": "Everyone can hold gold. Almost nobody can use it. Auri puts real gold in your name — 1:1, vaulted in Switzerland, attested quarterly — then lets you spend, send, or borrow against it. Auri holds $0 of it. If Auri vanished tonight, your gold's still yours in the morning.",
+    "final_hook": "Everyone can hold gold. Almost nobody can use it.",
+    "thread": [],
+    "final_thread": [],
+    "platform": "x",
+    "trend_id": "Auri site research (auri.money) — non-custodial, 22t/1,792 bars, BDO quarterly attestation"
+  },
+  "image": null
+}

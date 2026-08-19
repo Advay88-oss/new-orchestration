@@ -1,0 +1,15 @@
+{
+  "draft_id": "3888a630",
+  "message_id": 280,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-15T19:53:04Z",
+  "sent_unix": 1786823582,
+  "status": "awaiting_review",
+  "draft": {
+    "draft_id": "vanna-day2",
+    "final_hook": "Regulatory risks are complex. Vanna makes them understandable—and mitigatable.",
+    "body": "[Day 2 · Galxe, Vanna Blog/Website, Twitter · Education]\n\nReady to demystify regulatory risks? We've launched the 'Vanna Regulatory Resilience Quest' on Galxe! Dive into our new blog post explaining specific risks & how Vanna's verifiable infrastructure offers direct mitigation strategies. Empower yourself with knowledge. #VannaEducation #RegulatoryResilience\n\nCTA: Start your Vanna Regulatory Resilience Quest on Galxe.\nIncentive: Galxe points for learning and completing initial quest steps (e.g., 'Follow Vanna on Twitter').\nKPI: Number of Galxe quest starts, social media follower growth.\nGate: BLOCKED — ",
+    "platform": "Galxe, Vanna Blog/Website, Twitter"
+  },
+  "image": null
+}

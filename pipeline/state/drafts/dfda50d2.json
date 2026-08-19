@@ -1,0 +1,49 @@
+{
+  "draft_id": "dfda50d2",
+  "message_id": 245,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-10T04:37:42Z",
+  "sent_unix": 1786336662,
+  "status": "approved",
+  "draft": {
+    "id": "dfda50d2",
+    "draft_id": "fcefcddd",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "BTCPay exploit warnings? Your leveraged positions just got riskier. Vanna's Guardian monitors your health factor 24/7, autonomously adjusting to prevent liquidation within your policy. Sleep sound, even when markets don't.",
+    "final_body": "BTCPay exploit warnings? Your leveraged positions just got riskier. Vanna's Guardian monitors your health factor 24/7, autonomously adjusting to prevent liquidation within your policy. Sleep sound, even when markets don't.",
+    "final_hook": "BTCPay exploit warnings?",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "The Guardian's Edge",
+      "emphasis_phrase": "Policy-Bounded Protection",
+      "subhead": "Automated risk management for volatile markets.",
+      "data": [
+        {
+          "label": "Liquidation Buffer",
+          "value": "1.1x Health Factor",
+          "note": "Not 1.0x – 10% buffer for slippage & oracle"
+        },
+        {
+          "label": "Oracle Cadence",
+          "value": "~5 minutes",
+          "note": "Buffer for market shifts & rapid price changes"
+        },
+        {
+          "label": "Account Security",
+          "value": "Individual Contracts",
+          "note": "Each account is its own deployed contract"
+        }
+      ],
+      "disclaimer": "Illustrative example. Vanna is on testnet. No mainnet, no token, no audit."
+    },
+    "platform": "x",
+    "trend_id": "BTCPay",
+    "sent_at": "2026-08-10T04:36:45Z"
+  },
+  "image": "pipeline\\state\\temp_rendered.png",
+  "reviewer_reply": "ok",
+  "reviewed_at": "2026-08-10T04:37:56Z"
+}

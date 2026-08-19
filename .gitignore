@@ -1,0 +1,54 @@
+# ── SECRETS — never commit ──────────────────────────────────────────────
+.env
+**/.env
+*.env
+pipeline/keys/
+**/keys/
+*.pem
+*.key
+*_key
+*-key.json
+id_rsa*
+id_ed25519*
+*credential*.json
+*service-account*.json
+application_default_credentials.json
+pipeline/state/spend-ledger.json
+
+# ── dependencies / build / caches ───────────────────────────────────────
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+dist/
+build/
+target/
+.turbo/
+*.tsbuildinfo
+
+# python
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+venv/
+.agent-reach/
+*.egg-info/
+uv-cache/
+
+# rust (buzz)
+**/target/
+*.rlib
+
+# logs / temp
+*.log
+dev.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# large / regenerable binaries (kept out to keep the repo lean)
+*.pack.gz
+*.zip
+*.7z

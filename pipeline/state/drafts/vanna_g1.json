@@ -1,0 +1,51 @@
+{
+  "draft_id": "vanna_g1",
+  "message_id": 263,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-12T14:32:34Z",
+  "sent_unix": 1786545154,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "vanna_g1",
+    "draft_id": "vanna_g1",
+    "arc": "agentic-credit + infrastructure",
+    "winner_arc": "agentic-credit",
+    "body": "Give an AI agent a credit card and it can spend. It still can't answer for a loan, hold a balance sheet, or be trusted with a limit. Payments were the easy half. Vanna is the credit half: policy-bounded credit rails for agents and the businesses deploying them. On Stellar testnet.",
+    "final_body": "Give an AI agent a credit card and it can spend. It still can't answer for a loan, hold a balance sheet, or be trusted with a limit. Payments were the easy half. Vanna is the credit half: policy-bounded credit rails for agents and the businesses deploying them. On Stellar testnet.",
+    "final_hook": "Payments were the easy half.",
+    "audience": "fintech devs + agent builders",
+    "funnel_stage": "awareness->consideration",
+    "objective": "category authority / dev intent",
+    "cta": "follow the thread / read the thesis",
+    "campaign_type": "problem-awareness / thought-leadership",
+    "thread": [],
+    "final_thread": [],
+    "platform": "x",
+    "trend_id": "SV hands AI agents corporate credit cards (news, Aug 2026)",
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Payments were the easy half.",
+      "emphasis_phrase": "the easy half",
+      "subhead": "Agents can pay. They can't borrow, hold a balance sheet, or be trusted with a limit. Vanna is the credit half. On Stellar testnet.",
+      "data": [
+        {
+          "label": "Payments",
+          "value": "Solved",
+          "note": "A card lets an agent spend today."
+        },
+        {
+          "label": "Credit",
+          "value": "The hard half",
+          "note": "Borrow, a balance sheet, hard policy-bounded limits."
+        },
+        {
+          "label": "For",
+          "value": "agents + businesses",
+          "note": "The rails businesses deploy agents on. One system."
+        }
+      ],
+      "disclaimer": "Illustrative example. Vanna is on testnet. No mainnet, no token, no audit."
+    }
+  },
+  "image": "pipeline\\state\\vanna_g1_card.png"
+}

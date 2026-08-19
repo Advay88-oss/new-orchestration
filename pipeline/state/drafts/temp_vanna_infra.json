@@ -1,0 +1,37 @@
+{
+  "id": "vanna_infra",
+  "draft_id": "vanna_infra",
+  "arc": "infrastructure (dual B2B+B2C)",
+  "winner_arc": "capital-efficiency",
+  "body": "One credit system, both sides of the market. A business embeds undercollateralized credit and Vanna runs the risk engine; a person or their agent gets a credit account with hard limits — same rails underneath. The infrastructure, not another app. On Stellar testnet.",
+  "final_body": "One credit system, both sides of the market. A business embeds undercollateralized credit and Vanna runs the risk engine; a person or their agent gets a credit account with hard limits — same rails underneath. The infrastructure, not another app. On Stellar testnet.",
+  "final_hook": "One system. Both sides of the market.",
+  "thread": [],
+  "final_thread": [],
+  "platform": "x",
+  "trend_id": "Positioning directive: infrastructure-led, dual B2B+B2C",
+  "visual_brief": {
+    "type": "stat-card",
+    "headline": "One system. Both sides of the market.",
+    "emphasis_phrase": "Both sides",
+    "subhead": "Composable credit infrastructure for B2B and B2C. On Stellar testnet.",
+    "data": [
+      {
+        "label": "For businesses",
+        "value": "Embed credit",
+        "note": "Vanna runs the risk engine - your brand, front to back."
+      },
+      {
+        "label": "For people & agents",
+        "value": "A credit account",
+        "note": "Hard limits, policy-bounded."
+      },
+      {
+        "label": "Underneath",
+        "value": "One set of rails",
+        "note": "Same system, no rebuild. Designed to scale."
+      }
+    ],
+    "disclaimer": "Illustrative example. Vanna is on testnet. No mainnet, no token, no audit."
+  }
+}

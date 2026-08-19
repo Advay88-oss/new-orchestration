@@ -1,0 +1,46 @@
+{
+  "draft_id": "45e57983",
+  "message_id": 271,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-14T19:27:01Z",
+  "sent_unix": 1786735620,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "45e57983",
+    "draft_id": "3ab4847d",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Dollars buy less. Gold holds value for millennia. The challenge wasn't its worth, but its movement. Tether's audit shows digital trust needs verifiable proof. Auri provides gold's rails, with quarterly BDO Italia attestations. Your gold. Verified. Preserved.",
+    "final_body": "Dollars buy less. Gold holds value for millennia. The challenge wasn't its worth, but its movement. Tether's audit shows digital trust needs verifiable proof. Auri provides gold's rails, with quarterly BDO Italia attestations. Your gold. Verified. Preserved.",
+    "final_hook": "Dollars buy less. Gold holds value for millennia.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "The Gold Standard for Trust",
+      "emphasis_phrase": "Verified Value, Not Promises",
+      "subhead": "External attestations build confidence in digital assets. Auri applies this to gold's enduring power.",
+      "data": [
+        {
+          "label": "Tether's Trust Proof",
+          "value": "External Audit",
+          "note": "Verifies digital asset backing"
+        },
+        {
+          "label": "Auri's Gold Standard",
+          "value": "BDO Italia Attestations",
+          "note": "Quarterly, for allocated gold"
+        },
+        {
+          "label": "Gold's Core Strength",
+          "value": "5,000 Years",
+          "note": "Preserved value, now with rails"
+        }
+      ]
+    },
+    "platform": "x",
+    "trend_id": "Tether",
+    "sent_at": "2026-08-14T19:26:53Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

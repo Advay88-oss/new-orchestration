@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260815-195130",
+  "pipeline": "Vanna campaign execution",
+  "tenant": "Vanna",
+  "started": 1786823490.1252637,
+  "ended": 1786823720.7241945,
+  "status": "completed",
+  "brain": "gemini",
+  "trend_source": "news",
+  "duration_s": 230.6,
+  "kind": "campaign-execution",
+  "winner_hook": "Regulatory Resilience: Control Your Capital with Vanna",
+  "winner_body": "7/7 days delivered to Telegram",
+  "days_delivered": 7,
+  "days_total": 7
+}

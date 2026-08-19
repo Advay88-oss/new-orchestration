@@ -1,0 +1,42 @@
+{
+  "draft_id": "2f245c5b",
+  "message_id": 242,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-09T18:10:38Z",
+  "sent_unix": 1786299037,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "2f245c5b",
+    "draft_id": "a3e3eaf3",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "AI is finding critical exploits in crypto. Market instability rises. Your collateral is doing one job. It should be doing six. Vanna's unified margin + Risk Guardian defends your book, enabling up to 10x credit. One health factor, maximum capital efficiency—even when threats evolve.",
+    "final_body": "AI is finding critical exploits in crypto. Market instability rises. Your collateral is doing one job. It should be doing six. Vanna's unified margin + Risk Guardian defends your book, enabling up to 10x credit. One health factor, maximum capital efficiency—even when threats evolve.",
+    "final_hook": "AI is finding critical exploits in crypto.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "infographic",
+      "headline": "AI Threats Evolve. Your Collateral Must Too.",
+      "emphasis_phrase": "10x Capital Efficiency",
+      "subhead": "Unified Margin + Autonomous Risk Guardian for Dynamic Markets.",
+      "data": [
+        {
+          "label": "Collateral Efficiency (Traditional)",
+          "value": "Low",
+          "note": "Capital locked in silos, vulnerable to market shocks."
+        },
+        {
+          "label": "Collateral Efficiency (Vanna)",
+          "value": "Up to 10x",
+          "note": "Unified margin + Autonomous Guardian for optimal use."
+        }
+      ],
+      "disclaimer": "Illustrative example. Vanna is on testnet. Not financial advice."
+    },
+    "platform": "x",
+    "trend_id": "Bitcoin Red Team",
+    "sent_at": "2026-08-09T18:10:32Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

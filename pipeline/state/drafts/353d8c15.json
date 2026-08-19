@@ -1,0 +1,47 @@
+{
+  "draft_id": "353d8c15",
+  "message_id": 275,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-15T16:02:14Z",
+  "sent_unix": 1786809734,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "353d8c15",
+    "draft_id": "48526eb1",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "CEXs hold your funds hostage. Your collateral, doing nothing. Vanna's Unified Margin puts ALL your capital to work for up to 10x credit. One health factor. Maximize every dollar.",
+    "final_body": "CEXs hold your funds hostage. Your collateral, doing nothing. Vanna's Unified Margin puts ALL your capital to work for up to 10x credit. One health factor. Maximize every dollar.",
+    "final_hook": "CEXs hold your funds hostage.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Capital: Hostage No More",
+      "emphasis_phrase": "10x Credit. One Health Factor.",
+      "subhead": "CEXs trap your funds. Vanna puts every dollar to work.",
+      "data": [
+        {
+          "label": "Capital Availability (CEX)",
+          "value": "Hostage / Siloed",
+          "note": "Funds locked, inaccessible, or fragmented"
+        },
+        {
+          "label": "Capital Availability (Vanna)",
+          "value": "Unified Margin",
+          "note": "All collateral instantly available across venues"
+        },
+        {
+          "label": "Leverage Potential (Vanna)",
+          "value": "Up to 10x",
+          "note": "Calculated on your entire portfolio"
+        }
+      ],
+      "disclaimer": "Illustrative example. Vanna is on testnet. No mainnet, no token, no audit, no TVL."
+    },
+    "platform": "x",
+    "trend_id": "Coinbase",
+    "sent_at": "2026-08-15T16:02:03Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

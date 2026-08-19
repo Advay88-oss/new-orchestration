@@ -1,0 +1,29 @@
+{
+  "$schema": "https://open-plugin-spec.org/schema/v1/plugin.json",
+  "id": "finance.vanna.content-pipeline",
+  "name": "Vanna Content Pipeline",
+  "version": "0.1.0",
+  "description": "Seven agents that research live trends, debate three competing narrative arcs in the open, judge the drafts adversarially, and render the winner. Ported from the Claude Code subagent pipeline so the debate happens between agents in a channel instead of through a human relay.",
+  "keywords": ["marketing", "content", "research", "vanna", "defi"],
+  "personas": [
+    "agents/conductor.persona.md",
+    "agents/trend-scout.persona.md",
+    "agents/strategist-capital-efficiency.persona.md",
+    "agents/strategist-risk-relief.persona.md",
+    "agents/strategist-agentic-credit.persona.md",
+    "agents/editorial-judge.persona.md",
+    "agents/visual-creator.persona.md"
+  ],
+  "pack_instructions": "instructions.md",
+  "defaults": {
+    "model": "anthropic:claude-opus-5",
+    "temperature": 0.7,
+    "triggers": {
+      "mentions": true,
+      "keywords": [],
+      "all_messages": false
+    },
+    "thread_replies": true,
+    "broadcast_replies": false
+  }
+}

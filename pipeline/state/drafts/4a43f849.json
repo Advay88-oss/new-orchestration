@@ -1,0 +1,47 @@
+{
+  "draft_id": "4a43f849",
+  "message_id": 270,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-14T19:19:55Z",
+  "sent_unix": 1786735194,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "4a43f849",
+    "draft_id": "ae3104b6",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "They chase yield. You guard capital. SharpLink's $200M stake for yield is active. But leverage is easy. Not getting liquidated is the hard part. Vanna's Guardian keeps your gold active, policy-bounded, safe. 1.1x health factor, not 1.0x. #DeFi #RiskManagement #Testnet",
+    "final_body": "They chase yield. You guard capital. SharpLink's $200M stake for yield is active. But leverage is easy. Not getting liquidated is the hard part. Vanna's Guardian keeps your gold active, policy-bounded, safe. 1.1x health factor, not 1.0x. #DeFi #RiskManagement #Testnet",
+    "final_hook": "They chase yield. You guard capital.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Guard Your Gold.",
+      "emphasis_phrase": "1.1x Health Factor.",
+      "subhead": "Your buffer against market wicks and oracle latency.",
+      "data": [
+        {
+          "label": "SharpLink's Play",
+          "value": "$200M Staked",
+          "note": "Yield-first strategy."
+        },
+        {
+          "label": "Vanna's Policy Floor",
+          "value": "1.1x",
+          "note": "10% buffer for oracle + slippage."
+        },
+        {
+          "label": "Guardian's Role",
+          "value": "24/7",
+          "note": "Autonomous within YOUR limits."
+        }
+      ],
+      "disclaimer": "Vanna is on Testnet. Illustrative example only."
+    },
+    "platform": "x",
+    "trend_id": "SharpLink",
+    "sent_at": "2026-08-14T19:19:45Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

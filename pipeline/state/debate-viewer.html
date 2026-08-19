@@ -1,0 +1,82 @@
+<title>Agent Debate Viewer</title>
+<style>
+  :root { --bg:#faf9fb; --fg:#1a1723; --mut:#6b6577; --card:#ffffff; --line:#e6e2ee; }
+  :root:not([data-theme=light]) { }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme=light]) { --bg:#0f0b16; --fg:#ece8f2; --mut:#9a92a8; --card:#181322; --line:#2a2338; } }
+  :root[data-theme=dark] { --bg:#0f0b16; --fg:#ece8f2; --mut:#9a92a8; --card:#181322; --line:#2a2338; }
+  body { background:var(--bg); color:var(--fg); font:15px/1.55 -apple-system,Segoe UI,Roboto,sans-serif; margin:0; padding:24px; }
+  .wrap { max-width:820px; margin:0 auto; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--mut); margin:0 0 22px; font-size:13px; }
+  .run { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin:0 0 20px; }
+  h2 { font-size:18px; margin:0 0 12px; padding-bottom:8px; border-bottom:2px solid; }
+  .tg { font-size:12px; color:var(--mut); font-weight:400; }
+  .trend { font-size:13px; background:rgba(130,120,150,.08); border-radius:8px; padding:8px 10px; margin-bottom:14px; }
+  .lbl { color:var(--mut); text-transform:uppercase; font-size:11px; letter-spacing:.04em; }
+  .stage { font-size:12px; color:var(--mut); margin:14px 0 8px; text-transform:uppercase; letter-spacing:.05em; }
+  .strat { border-left:3px solid var(--line); padding:2px 0 2px 12px; margin:0 0 12px; }
+  .arc { font-weight:700; font-size:13px; margin-bottom:3px; }
+  .draft { font-size:14px; margin-bottom:5px; }
+  .reb { font-size:12.5px; color:var(--mut); }
+  .winner { border:2px solid; border-radius:10px; padding:12px 14px; margin-top:8px; position:relative; }
+  .wtag { display:inline-block; color:#fff; font-size:10px; font-weight:700; padding:2px 8px; border-radius:5px; margin-bottom:6px; letter-spacing:.05em; }
+  .foot { color:var(--mut); font-size:12px; margin-top:8px; }
+</style>
+<div class="wrap">
+  <h1>Agent Debate Viewer</h1>
+  <p class="sub">Real Reddit/Twitter trends → 3-strategist debate → judge → winner → Telegram. Data from this run's agent logs.</p>
+  
+    <section class="run">
+      <h2 style="border-color:#8B5CF6">Vanna <span class="tg">→ Telegram msg #272</span></h2>
+      <div class="trend"><span class="lbl">REAL trend scouted:</span> Reddit r/defi — “Coinbase is holding $16,000 USD Hostage” (2237 upvotes)</div>
+      <div class="stage">3 strategists debate (competing arcs)</div>
+      
+        <div class="strat">
+          <div class="arc" style="color:#8B5CF6">▸ capital-efficiency</div>
+          <div class="draft"><b></b> </div>
+          <div class="reb"><span class="lbl">rebuttal:</span> The other strategists focus on the *consequences* of CEX custody failures – risk of liquidation for Risk Relief, and loss of agent autonomy for Agentic Credit. While valid, these are downstream effects. My Capital Efficiency arc addresses the fundamental problem: frozen capital is *unproductive capital*. CEX failures represent the ultimate capital inefficiency, where funds perform zero jobs. Vanna&#x27;s unified margin directly solves this by ensuring collateral is always active and performing up to six jobs, making it a superior and more complete answer to the core economic problem posed by this trend.</div>
+        </div>
+        <div class="strat">
+          <div class="arc" style="color:#8B5CF6">▸ risk-relief</div>
+          <div class="draft"><b></b> </div>
+          <div class="reb"><span class="lbl">rebuttal:</span> The Capital Efficiency arc correctly identifies that CEX failures render capital unproductive, but misses the deeper, more visceral fear for P2: *liquidation* when funds are frozen. While inefficiency is a problem, losing all collateral to a forced liquidation is the ultimate pain point, which my arc directly addresses with the Guardian and self-custody. The Agentic Credit arc, while forward-looking, is too abstract for the P2 persona, focusing on agent autonomy rather than the immediate, catastrophic risk of a human user&#x27;s leveraged position being liquidated due to inaccessible funds. My arc focuses on the direct, preventative measure against liquidation that CEX failures expose.</div>
+        </div>
+        <div class="strat">
+          <div class="arc" style="color:#8B5CF6">▸ agentic-credit</div>
+          <div class="draft"><b></b> </div>
+          <div class="reb"><span class="lbl">rebuttal:</span> The Capital Efficiency strategist argues CEX failures make capital unproductive, which Vanna solves by keeping collateral active. The Risk Relief strategist emphasizes Vanna&#x27;s Guardian protecting human traders from liquidation due to frozen funds. While valid, both miss the foundational problem for *agents*: CEX custody failures fundamentally undermine an agent&#x27;s ability to reliably *pay* for services and maintain its operational identity. My arc demonstrates that Vanna provides the essential self-custodied balance sheet (x402) that agents need to function autonomously, ensuring they can fulfill obligations even when centralized systems fail, making it a prerequisite for any further capital </div>
+        </div>
+      <div class="stage">Editorial judge → winner shipped</div>
+      <div class="winner" style="border-color:#8B5CF6">
+        <div class="wtag" style="background:#8B5CF6">WINNER → posted</div>
+        <b>CEXs freeze your capital.</b> CEXs freeze your capital, making it do zero jobs. Vanna&#x27;s unified margin ensures your collateral is always active, always yours. Your funds do one job. They should do six. #CapitalEfficiency
+      </div>
+    </section>
+    <section class="run">
+      <h2 style="border-color:#EAD9AE">Auri <span class="tg">→ Telegram msg #273</span></h2>
+      <div class="trend"><span class="lbl">REAL trend scouted:</span> Twitter — “UK regulator prepares framework for tokenized gold” (3784 engagement)</div>
+      <div class="stage">3 strategists debate (competing arcs)</div>
+      
+        <div class="strat">
+          <div class="arc" style="color:#EAD9AE">▸ self-custody</div>
+          <div class="draft"><b></b> </div>
+          <div class="reb"><span class="lbl">rebuttal:</span> The other strategists acknowledge the emerging regulatory landscape for tokenized gold, but pivot too quickly to utility or generalized &#x27;store of value.&#x27; The &#x27;store of value&#x27; arc, while highlighting &#x27;gold you own,&#x27; immediately dilutes this by focusing on &#x27;movability&#x27; rather than the absolute, foundational nature of ownership itself. Similarly, the &#x27;use your gold&#x27; arc asks about control but then immediately shifts to spending and borrowing, implying that usability is the primary benefit rather than the self-sovereign control that *enables* safe utility. My &#x27;Non-custodial&#x27; arc is superior because it addresses the most fundamental concern in a regulated, tokenized world: verifiable, independent</div>
+        </div>
+        <div class="strat">
+          <div class="arc" style="color:#EAD9AE">▸ store-of-value</div>
+          <div class="draft"><b></b> </div>
+          <div class="reb"><span class="lbl">rebuttal:</span> While others focus on the *mechanics* of self-custody or merely the *features* of usage, my arc presents Auri’s Non-Custodial Trust as the complete answer for tokenized gold: it is the essential rails that make humanity&#x27;s oldest store of value—your wealth—finally secure, fully owned, and truly movable in the digital age, aligning perfectly with the global shift towards legitimized digital assets.</div>
+        </div>
+        <div class="strat">
+          <div class="arc" style="color:#EAD9AE">▸ use-your-gold</div>
+          <div class="draft"><b></b> </div>
+          <div class="reb"><span class="lbl">rebuttal:</span> While the self-custody draft correctly highlights the security of Auri holding $0, it presents ownership as an endpoint, overlooking the active financial life gold can lead. The store-of-value draft moves closer by mentioning &quot;use,&quot; but still frames gold primarily as inert wealth that merely becomes movable. My &quot;Gold you can use&quot; arc is fundamentally superior because it shifts the focus from passive holding—however secure—to active utility, demonstrating how Auri transforms gold from a static asset into a dynamic financial tool you can spend, send, and borrow against. This directly addresses the market&#x27;s evolving need to not just own gold, but to make it work for them, fulfilling the promise</div>
+        </div>
+      <div class="stage">Editorial judge → winner shipped</div>
+      <div class="winner" style="border-color:#EAD9AE">
+        <div class="wtag" style="background:#EAD9AE">WINNER → posted</div>
+        <b>UK legitimizes gold. Who truly controls it?</b> As digital assets become regulated, counterparty risk becomes a liability. Auri holds $0; your gold is always in your name, in a Swiss vault. True ownership, true security.
+      </div>
+    </section>
+  <p class="foot">Note: live buzz-chat GUI is blocked by a buzz-acp ↔ claude-agent-acp version mismatch (agents draft but can't self-post). This viewer renders the actual debate the pipeline ran to produce each post.</p>
+</div>

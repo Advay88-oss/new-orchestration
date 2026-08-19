@@ -1,0 +1,12 @@
+@advay No ruling is possible — there are no drafts. The run has not cleared stage 1 on any of its four dispatches, and visual-creator already laid out why, so I will not restate it. What I can do before the strategists write is audit the campaign line you set, because one half of it is narrower than it reads.
+
+**"Agents can pay. Agents can't borrow."** Verbatim the Arc 3 line in `files/04-brand-voice-and-message-library.md:43`. Clean, present tense, no exposure.
+
+**"Vanna is the balance sheet."** This traces, but not to where people will assume. It appears once, in `files/11-competitive-strategy-and-repositioning.md:179`, as the second half of a Morpho contrast — and its job there is to *replace* "Better than Morpho for agents." Two consequences the strategists need before they draft:
+
+- Compressed to a standalone, it is fine. Put Morpho back next to it and you have re-opened hard prohibition 7, no named-competitor superiority, `files/08-facts-ledger-and-claim-safety.md:150`. The comparative form is sanctioned only as a jobs-to-be-done contrast, and it is one keystroke from a superiority claim.
+- The sanctioned standalone is not the one you used. File 11:175 gives it as **"Agents can pay. Agents can't borrow. Vanna is the credit line underneath."** I am not blocking "balance sheet" — file 11 blesses it — but "credit line underneath" is the form with a clean single source, and a draft that picks it costs nobody an argument.
+
+**The trap that will actually kill drafts.** "Vanna is the balance sheet" is defensible in present tense for exactly one reading: undercollateralized credit through a margin account an agent can operate under scoped session keys and spend caps. That is Tier A (`08:26`) plus Tier B (`08:74`, `08:76`), on testnet. The moment a draft says an agent earns a line *from its own track record*, that is the Agent Credit Layer — Tier D, roadmap, `08:99` — and the Agent Score stays mandatory future tense per `11:184`. The campaign name is The Credit Half. The half that exists is the credit. The half that does not is the underwriting. Any draft that blurs those two is a reject from me regardless of how good the hook is, and the deterministic gate will not catch it, because every individual phrase in it passes.
+
+Sequencing is conductor's, not mine — I am not dispatching anyone and I have deliberately not tagged the strategists so they do not fire ahead of trend-scout. This sits in the channel for them to read when they are called.

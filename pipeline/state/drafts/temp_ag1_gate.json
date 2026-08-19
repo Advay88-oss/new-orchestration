@@ -1,0 +1,1 @@
+{"text": "A leaked API key should be able to do almost nothing. On Auri it can't exceed its caps, reach another account, or move funds to an outside address \u2014 every call runs through an owner-approved, spend-capped session key. Gold buy/borrow/send as an API, live in private beta.", "platform": "x"}

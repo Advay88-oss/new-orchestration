@@ -1,0 +1,18 @@
+/* Ported verbatim from the original component's <helmet> style block. */
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #F7F7F7; }
+body {
+  font-family: var(--font-plus-jakarta-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: #1F1F1F;
+}
+a { color: #703AE6; text-decoration: none; font-weight: 600; }
+a:hover { color: #5029A3; }
+button { font-family: inherit; color: inherit; }
+::selection { background: rgba(112,58,230,0.16); }
+* { scrollbar-width: thin; scrollbar-color: #A7A7A7 #F4F4F4; }
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: #F4F4F4; border-radius: 3px; }
+*::-webkit-scrollbar-thumb { background: #A7A7A7; border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: #777777; }

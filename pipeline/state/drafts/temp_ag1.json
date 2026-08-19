@@ -1,0 +1,42 @@
+{
+  "id": "auri_g1",
+  "draft_id": "auri_g1",
+  "arc": "infrastructure / developer (security)",
+  "winner_arc": "use-your-gold",
+  "body": "A leaked API key should be able to do almost nothing. On Auri it can't exceed its caps, reach another account, or move funds to an outside address — every call runs through an owner-approved, spend-capped session key. Gold buy/borrow/send as an API, live in private beta.",
+  "final_body": "A leaked API key should be able to do almost nothing. On Auri it can't exceed its caps, reach another account, or move funds to an outside address — every call runs through an owner-approved, spend-capped session key. Gold buy/borrow/send as an API, live in private beta.",
+  "final_hook": "A leaked API key should be able to do almost nothing.",
+  "audience": "fintech developers (the only fully-live segment)",
+  "funnel_stage": "awareness->interest",
+  "objective": "API integrator signups (a REAL conversion today)",
+  "cta": "read the docs / request a key",
+  "campaign_type": "developer-led / problem-awareness",
+  "thread": [],
+  "final_thread": [],
+  "platform": "x",
+  "trend_id": "Audit recommendation: dev-track LEADS Phase 0 (only live+convertible segment) + learned security theme",
+  "visual_brief": {
+    "type": "stat-card",
+    "headline": "A leaked API key should do almost nothing.",
+    "emphasis_phrase": "almost nothing",
+    "subhead": "Gold buy / borrow / send as an API — every call through a scoped session key. Live in private beta.",
+    "data": [
+      {
+        "label": "Scoped",
+        "value": "Caps it can't exceed",
+        "note": "A leaked key can't overreach its limits."
+      },
+      {
+        "label": "Isolated",
+        "value": "One account only",
+        "note": "Can't reach another account."
+      },
+      {
+        "label": "Contained",
+        "value": "No external moves",
+        "note": "Can't send funds to an outside address."
+      }
+    ],
+    "disclaimer": "Private beta. Gold can fall; borrowing carries liquidation risk. Not financial advice."
+  }
+}

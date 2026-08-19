@@ -1,0 +1,42 @@
+{
+  "draft_id": "852aad0e",
+  "message_id": 272,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-14T20:04:39Z",
+  "sent_unix": 1786737877,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "852aad0e",
+    "draft_id": "b6884f72",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "CEXs freeze your capital, making it do zero jobs. Vanna's unified margin ensures your collateral is always active, always yours. Your funds do one job. They should do six. #CapitalEfficiency",
+    "final_body": "CEXs freeze your capital, making it do zero jobs. Vanna's unified margin ensures your collateral is always active, always yours. Your funds do one job. They should do six. #CapitalEfficiency",
+    "final_hook": "CEXs freeze your capital.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Collateral in Limbo",
+      "emphasis_phrase": "Your Capital, Always Active",
+      "subhead": "Centralized exchanges can lock your funds. Vanna ensures continuous productivity.",
+      "data": [
+        {
+          "label": "CEX Collateral State",
+          "value": "Frozen",
+          "note": "Held hostage, unproductive"
+        },
+        {
+          "label": "Vanna Unified Margin",
+          "value": "Active",
+          "note": "Policy-bound, up to 6x utility (testnet)"
+        }
+      ],
+      "disclaimer": "All figures illustrative and on testnet only."
+    },
+    "platform": "x",
+    "trend_id": "Coinbase",
+    "sent_at": "2026-08-14T20:04:26Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

@@ -1,0 +1,49 @@
+{
+  "draft_id": "claude02",
+  "message_id": 251,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-11T07:19:23Z",
+  "sent_unix": 1786432762,
+  "status": "approved",
+  "draft": {
+    "id": "claude02",
+    "draft_id": "claude02",
+    "verdict": "ship",
+    "winner_arc": "capital-efficiency",
+    "arc": "capital-efficiency",
+    "body": "Web3 calls it financial freedom — but if you must over-collateralize twice over, that's a wealth filter, not freedom. On Stellar testnet, Vanna unifies margin so one pool of collateral backs several positions. Capital efficiency shouldn't be a whale-only luxury.",
+    "final_body": "Web3 calls it financial freedom — but if you must over-collateralize twice over, that's a wealth filter, not freedom. On Stellar testnet, Vanna unifies margin so one pool of collateral backs several positions. Capital efficiency shouldn't be a whale-only luxury.",
+    "final_hook": "Freedom, or a wealth filter?",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Capital efficiency shouldn't be a whale-only luxury.",
+      "emphasis_phrase": "whale-only luxury",
+      "subhead": "Unified margin: one pool of collateral, several positions. On Stellar testnet.",
+      "data": [
+        {
+          "label": "The problem",
+          "value": "Over-collateralized",
+          "note": "Freedom only for those who can afford to lock up capital twice over."
+        },
+        {
+          "label": "Unified margin",
+          "value": "One pool, many jobs",
+          "note": "The same collateral backs several positions at once."
+        },
+        {
+          "label": "Stage",
+          "value": "Stellar testnet",
+          "note": "No mainnet, no token, no audit."
+        }
+      ],
+      "disclaimer": "Illustrative example. Vanna is on testnet. Not financial advice."
+    },
+    "platform": "x",
+    "trend_id": "Web3 financial freedom only for those who can afford mistakes (Decrypt, 10 Aug 2026)"
+  },
+  "image": "pipeline\\state\\temp_rendered.png",
+  "reviewer_reply": "ok",
+  "reviewed_at": "2026-08-11T07:24:57Z"
+}

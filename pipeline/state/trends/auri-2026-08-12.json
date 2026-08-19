@@ -1,0 +1,343 @@
+{
+  "tenant": "auri",
+  "bundle": "okf-auri",
+  "gathered_at_utc": "2026-08-12T14:43:12Z",
+  "keywords": [
+    "buy gold",
+    "tokenized gold",
+    "XAUT",
+    "self-custody gold",
+    "inflation hedge",
+    "gold-backed loan"
+  ],
+  "subreddits": [
+    "Gold",
+    "PersonalFinanceCanada",
+    "Bogleheads",
+    "preciousmetals",
+    "Fire"
+  ],
+  "counts": {
+    "total": 35,
+    "google_news": 29,
+    "reddit": 3,
+    "twitter": 3
+  },
+  "items": [
+    {
+      "channel": "reddit",
+      "keyword": "buy gold",
+      "title": "Is #Gold a Good Buy in November? #goldprice has weakened from $1879 to $1614 since June 13, 2022, and the current price stands at $1656. #mining #stocks #trading",
+      "url": "https://www.reddit.com/r/PreciousMetals/comments/ycbi9h/is_gold_a_good_buy_in_november_goldprice_has/",
+      "published": 1666618677,
+      "source": "r/preciousmetals",
+      "engagement": 5
+    },
+    {
+      "channel": "reddit",
+      "keyword": "buy gold",
+      "title": "#GOLD: Here are 3 Things You can Learn from the #Fed Anyone who has decided to buy gold, or follows the gold price will be aware of how powerful the US #FederalReserve is. #mining #stocks #trading",
+      "url": "https://www.reddit.com/r/PreciousMetals/comments/10a63s7/gold_here_are_3_things_you_can_learn_from_the_fed/",
+      "published": 1673546544,
+      "source": "r/preciousmetals",
+      "engagement": 3
+    },
+    {
+      "channel": "reddit",
+      "keyword": "buy gold",
+      "title": "Pan American Silver $PAAS to Buy 4 mines for $1B Two proxy firms are recommending that Yamana Gold $YRI.T accept a $1 billion takeover offer from Vancouver’s Pan American #Silver Yaman #mining #stocks",
+      "url": "https://www.reddit.com/r/PreciousMetals/comments/10b69ju/pan_american_silver_paas_to_buy_4_mines_for_1b/",
+      "published": 1673645703,
+      "source": "r/preciousmetals",
+      "engagement": 2
+    },
+    {
+      "channel": "twitter",
+      "keyword": "buy gold",
+      "title": "gold buy now 4416.11‼️",
+      "url": "https://x.com/i/status/2087536129411064231",
+      "published": "Wed Aug 12 13:46:12 +0000 2026",
+      "source": "@SamuelLeac1kus",
+      "engagement": 1
+    },
+    {
+      "channel": "twitter",
+      "keyword": "buy gold",
+      "title": "🚨 DON’T BUY GOLD NOW https://t.co/hn1veSxUIF",
+      "url": "https://x.com/i/status/2087501002832486858",
+      "published": "Wed Aug 12 11:26:37 +0000 2026",
+      "source": "@arscryptocalls7",
+      "engagement": 1
+    },
+    {
+      "channel": "twitter",
+      "keyword": "buy gold",
+      "title": "GOLD - BUY NOW @ 4417 - 4412\n\nTP 1# : 4421\n\nTP 2# : 4425\n\nTP 3# : 4429\n\nTP 4# : 4440\n\n——-\nSL : 4410\n\n#Forex #Gold #Xauusd #Fy #Foryou #Priceaction #TL #ForexTrading #fyp #CPI",
+      "url": "https://x.com/i/status/2087549005634928928",
+      "published": "Wed Aug 12 14:37:22 +0000 2026",
+      "source": "@BrilliantAF",
+      "engagement": 1
+    },
+    {
+      "channel": "google-news",
+      "keyword": "buy gold",
+      "title": "South Korea's central bank to buy gold from domestic producers - Reuters",
+      "url": "https://news.google.com/rss/articles/CBMirAFBVV95cUxNMlo3QUF6QnN4eXNQejBWRndKQTFFd3lBUHJ4SzBPVl9EZjNaRmxQa0JKbG1oYXZjZDhKRWpmcG9xTGpGbUtGenhlRG85Q2I1dFFtdlFBcVhEb1puMmNJOGE2Mlg4M3V6cklrS2hrSUFJMGhnT0FTYmhaZTVZZFZNaDFxek1xQzBJTU5xYkxqXy1fUkZUSncwUEhPaWRYa2R0alFJenFTSmtaemNI?oc=5",
+      "published": "Mon, 03 Aug 2026 07:00:00 GMT",
+      "source": "Reuters",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "buy gold",
+      "title": "If You Buy Gold to Protect Against Inflation, You’re Doing It Wrong - Barron's",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQWlZhOTVjalFGZGwyZ25nU1ZIR01WX1Q1YmdBUGFnRVRfZkpVcjdwMS1YN3pLa0hBWW9wSDhKRzd1Tm9QSGFsNkJQdWVBRG9faFludnZtUy1vaV9GOHpNbHdWRE1yaG9adDZyeFlLc1ZELUxyeEJXaHFyU2tDeURFMVVZMms?oc=5",
+      "published": "Fri, 07 Aug 2026 06:45:00 GMT",
+      "source": "Barron's",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "buy gold",
+      "title": "Now is the time to buy gold; BCA sees bullish opportunity as real yields peak - KITCO",
+      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQSFJ5bTc4YlQtNTI5YnZfY1c5NWh5NHlqRWkydlBKZGlxalMyakxlSjAxR2hzZGp0Zk5PZlJjS0pHVUVJbEFOYWhNeTRjeVNlazBqZXV3Wk1sWlY5eGRJSFpVVGl5ai1TUGk4Y1BKUkxINXBYVC1ELWZWNEFxMTczbG8ybEQzajVuTGZKRU1PVTllRElvZS0tUlllaUczSUpRS0hfT0RDZTVsaTB3YlE?oc=5",
+      "published": "Thu, 06 Aug 2026 17:29:00 GMT",
+      "source": "KITCO",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "buy gold",
+      "title": "Bank of Korea Just Bought Gold After 13 Years: Is a New Rally Coming? - finance.yahoo.com",
+      "url": "https://news.google.com/rss/articles/CBMingFBVV95cUxQTFY1ck1pUnYtd1hQYmQ0M0QwbmgyWnIyZnV5ZF95UEdIaWdvcUpqOUQ0TGo0a3NDNEpfaS1RTDF4dlZZNUk3TVc2N0l1MFJBT19qLVFVbmUzeWxNcDdYR1dXd0FOSkdQMUJGTjlDcXVhaktsNXZvanEyQ3gyVXJqVjdVRTFvRHI4NGdMbkRWQXd5ZTdiSVVrUkxOSGlFZw?oc=5",
+      "published": "Tue, 04 Aug 2026 14:35:57 GMT",
+      "source": "finance.yahoo.com",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "buy gold",
+      "title": "400k gold scam: how a woman lost almost everything - FOX6 News Milwaukee",
+      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE9JYlIxWXJpNDloY2RLblpkbVVfSWd6dFJsZUpYVVJ0cldRelZuYlNtV0RaTXcwZTlOYXNjYUtlNXlGX0dpMmdhQnlUa0dTVXEzTnNHQUdmUlp0enNGMm5YMHZORlpzd9IBa0FVX3lxTE5ZN0piQkdjZkFSSk9ENUNEMG42OENvQ3YzMF9iSmRGZGhGSXExWTZTQzVXdG5uN1FkdHViQ0hGOW10MW1mWWxiNzZUc0ttNXROY2Q1NkVFVUFud29oOWZkMVc3YW1ZZFEtOWhz?oc=5",
+      "published": "Mon, 03 Aug 2026 07:00:00 GMT",
+      "source": "FOX6 News Milwaukee",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "tokenized gold",
+      "title": "How tokenized gold could secure London’s lead as the global bullion hub - CoinDesk",
+      "url": "https://news.google.com/rss/articles/CBMitgFBVV95cUxOdW54UUdITTFBRnotbUVZQ19IWnlXQXMteG1FamU5dVhjWnVpa3h6aDdMR1hPWDhyTjQ0b1F1eU9NaEZ0RGNpRzhyNGdER0Rpa1ZhcUx4M3lTa0NOcEs0WFVLU3pTZ0pSWGtBNzQ5M195c2ttMjF0WnoyZkRpdmpJdzVHaGNfdWxUeTM4MjRwWkRDbElUMkhZWnJQWkZEZ19DYXZaUFV0LTdtZnRGRjBfb2tyZHpRQQ?oc=5",
+      "published": "Mon, 10 Aug 2026 17:11:16 GMT",
+      "source": "CoinDesk",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "tokenized gold",
+      "title": "UK regulator prepares framework for tokenised gold - Financial Times",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQNDFBQW1oLUczd1F4cElHSFZhZkpCZFRMQ1N2R2VKeVRyS0V5UWUyNEZWcUVVeGkyM2RIempaN09yZ3otS0JGZ1hHTzFvVlpaMHpLVW1iYWhuaU00X1NIUTd5aVl1ekR5N2VULVlkQk1uMFRpMnJpaDVyTi0zVGh5TzBZQU4?oc=5",
+      "published": "Mon, 10 Aug 2026 04:01:48 GMT",
+      "source": "Financial Times",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "tokenized gold",
+      "title": "Tether Gold Holdings Rise 9.5% in Q2 as Demand for Tokenized Gold Remains Strong Through Market Volatility - Tether.io",
+      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxOMnF0bnpNQjVXR0VUUzJmWEc2X1ZQX3R6NUE5V0RFRXkyS2xxU3dwWkhCZjJwckdLT2hGYXM3TmhzQ2d1LUFRSHZ1bzJfWkZzUXA2OVJLaDkwT2RwbFFEZG1fTU9TeTloakxYUGZDNnZJQUQ2Z3ktNjlIQUI5OU0tcnFoMWVQbHlaUmM5dVNQYkd0V1ZMdzU0NWs0OEdpZXBEX0xOVnR2N1JTbHpSQ0t3UGNYeFdxRjgtcm5LRXdnLWt4RE5uRmtSUA?oc=5",
+      "published": "Mon, 03 Aug 2026 17:04:43 GMT",
+      "source": "Tether.io",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "tokenized gold",
+      "title": "Solana leads every blockchain in tokenized gold growth - Yahoo Finance Singapore",
+      "url": "https://news.google.com/rss/articles/CBMikgFBVV95cUxNVi1oZmJ4dThtUmZqV1JOQlBLck1mNUk3c01uZTVzZndRbVFYeTNROEN3cEhmQ0tuU2tQTERwdnBMMUJ5eTg5VUltdWpQMko1U2RiX1dnQWlaNVNfZXB3LTV6TFo3VUN0R1dkNkJaRHNVck9jYVY0U0ZpcWgtejdEczRma2tiLUlNSkQ0ZU0zZ3Bxdw?oc=5",
+      "published": "Wed, 05 Aug 2026 23:42:00 GMT",
+      "source": "Yahoo Finance Singapore",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "tokenized gold",
+      "title": "UK FCA Discusses Tokenized Gold As Collateral With Major Banks: 11 outlets compared - NewsCord",
+      "url": "https://news.google.com/rss/articles/CBMi0gFBVV95cUxPNGppejRrUWtHT2FSREcwbFBoTGlzb0xxaS1fSWM5WUNRYnc2d1JEZ0Z4VDk1Nk02N2hBT3VxSHZDa19ONHI2Q18zLWNaQVBVdWhVUl9zdE54Q25zXy1Ib2dnUUpqYzVudW1lVHBSbWdIM085QkpTTHNRZEp1VmdpM3pITFJCSmlhVkptRGpRMUlseTdaYkxrcTZTNkhsY3NWOTFQRUxEelBPTGd4RzB6RExrOW5xRHhyZGoyTWplZ0VkVGRZUF9UNVQ3UGNqU0d5Vmc?oc=5",
+      "published": "Mon, 10 Aug 2026 18:17:02 GMT",
+      "source": "NewsCord",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "XAUT",
+      "title": "Tether Gold (XAUt) Surges 5.09% on Underlying Gold Rally - CoinMarketCap",
+      "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFAxOURLd2hqOXN1VjQ2aU5adHJ5S3RyTnRERThnQ3BvTUJqeGs5Wnh1Y1JaODRwQjY4ZDBjMHFUN0tVTG5MWHFtZ0YxVzVxVWNuNkZrcGhOSDVRN3NsR19CbGRSbmlPbEp4SDBsaTZ5b18?oc=5",
+      "published": "Thu, 06 Aug 2026 01:04:00 GMT",
+      "source": "CoinMarketCap",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "XAUT",
+      "title": "Convert 1 USD (United States Dollar) to XAUT (Tether Gold) - Bybit",
+      "url": "https://news.google.com/rss/articles/CBMiV0FVX3lxTFBmUUFORU9XM0RyTzlPT21TNlM0R3NKRUxqVXYtWmgtNU5sckEyRldia01BU1NvVTUtN2ZlYk11WUxlUVAtNUtRR3R4QjFNa0k4Y19JVkxsUQ?oc=5",
+      "published": "Sat, 08 Aug 2026 00:00:00 GMT",
+      "source": "Bybit",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "XAUT",
+      "title": "Tether Gold Price: XAUT Price Index and Live Chart - The Block",
+      "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE81eUVlQ3lWWVU2cGpyS3NiNC1kZ21fc1BSSlhlbXB6dEh6TFFJTzZlZ1hnMmNGZTBhLUQtQndmbnhFVHBiS3I2ZDV0bGwtVnFMcmlkMXdicjZoM3FIb0dXRl9oSGRmaGww?oc=5",
+      "published": "Thu, 30 Jul 2026 07:00:00 GMT",
+      "source": "The Block",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "XAUT",
+      "title": "Tether Gold reserves rise 9.5% as gold posts worst quarter in 13 years - TradingView",
+      "url": "https://news.google.com/rss/articles/CBMizgFBVV95cUxPSzdrczlhbV90YWljZVg5aXJxaHdkdXZIUjM2NzNobHV4VkdjU2w2OTZUeDVQNjJhNGNQenhWczFLZlJFbWVJbllpdXUxVlJfb2lOQWtrdXExeHBPTGJhSVE2d2YzRl9SOGNodkR4d3U5SFFpX3JqV1VCZHdGOWJ5dmRmTFhhNEJyWXhzNFhxOTlIQW9wUXBwZFhlYXJDQ093ay1FYkwwNURSbzVfMGVYOTd3cFFLWnItYk9QeWFIY2hPRHZYa19ubXJDWmx5QQ?oc=5",
+      "published": "Tue, 04 Aug 2026 12:30:07 GMT",
+      "source": "TradingView",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "XAUT",
+      "title": "数据：关联钱包集群持有约 6 亿美元 XAUT，Abraxas Capital 3 天转移 2.54 万枚 XAUT，价值约 1.1 亿美元 - CryptoRank",
+      "url": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE95SnBGZ0xHTXJpX0F2SWVDYWk1QWpETFZPbG1DS1lXQWw5cEItY1FoTGkwUW9LYjB3TFhzejAzM1FOT0dQdHhtMTdkX0YzT0I2Ym5UaUdzUUQ?oc=5",
+      "published": "Wed, 12 Aug 2026 09:36:34 GMT",
+      "source": "CryptoRank",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "self-custody gold",
+      "title": "Self Custody Is Dead. Long Live Self Custody - Bitcoin Magazine",
+      "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxPVXExUFM3LWhLaDdOU1FFc0RpM0x2QW5paTVBaDNXRG5IN2Z5bWlTYVlrQ1RLWlpPUFRjOUxmOTlpMkxzaWlxb1ZOamwwSXgyc0JOUTJqOG1GWE9STmdpUWNQcFNWSEdBcFdwaEVOYVZ5X2hLYllmMWVVX0o1TTdRc3o2OHR4QQ?oc=5",
+      "published": "Tue, 04 Aug 2026 21:25:26 GMT",
+      "source": "Bitcoin Magazine",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "self-custody gold",
+      "title": "Coldcard exploit reignites Bitcoin self-custody debate after $38 million theft - CoinDesk",
+      "url": "https://news.google.com/rss/articles/CBMi1wFBVV95cUxPVzd6R0FFTndJeXUxU1B2NW1mV09xY214cUduVnpTeFRiZWlQQWxzbmxCbUc1VnJaM295TnhWLUQ0aTRyZzd3UTdjYXpJVXJfODh2X3AzTi1TcTNaVEhYcllSSVhSWnZRZ0JjakRLS1NnZGhFRy1rM25iOU84NXZyVy1aTkN0OUxOellFSE9RaG5idlQ1cUgxdW1fcjJSVHdxOXF6UVZvcWo3UFg2N1JKdDVZdjB4RFFwZnEzRmw3LW5MZERmTGh1SUZpZjFocjhhRkVNTm9hQQ?oc=5",
+      "published": "Fri, 31 Jul 2026 07:00:00 GMT",
+      "source": "CoinDesk",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "self-custody gold",
+      "title": "Robinhood Expands Financial Services with $143.6B Assets Under Custody in 2026 - KuCoin",
+      "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNYmZlOXduM2lQeUxmaktSN0lKVXhxZ3VDY19mZi1sNE5DSFFHRktiTkp4eUlmWmF6STZ2UkR2RVlOZk11cFFNOHVtVncwVG52MlY1d1dYa0g4eWoyMUluSnRsVXA4aHRkOWVYVnU0NUhKWGNOdURWUVB6YmoxdXZ6NW1xZVUzcUFyMkZjcUpHdXZjNFhJVlVqYnFLblZTNl9ybUdrdjRGdWg3TXJ4STdNRQ?oc=5",
+      "published": "Thu, 06 Aug 2026 07:00:00 GMT",
+      "source": "KuCoin",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "self-custody gold",
+      "title": "Best Self-Directed IRA Companies for August 2026 - Investopedia",
+      "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE1wQU5fVGNrQktNdXNmend4YXVyMXE5VllLWlBBaW1rcXFXYmJEZlVDX1VIMHA1WURBZTUyTW5keXZtMzFNa3Rnb0lZSDFQWE1RdVoyckU0X01UemdCVk90ZWFzUWs3V1NxTnVBb2NQWnBVclZIdzlCSkkwMklDV3c?oc=5",
+      "published": "Thu, 30 Jul 2026 07:00:00 GMT",
+      "source": "Investopedia",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "self-custody gold",
+      "title": "Is Crypto the New Safe Haven? Comparing Gold, Stablecoins and Tokenized Metals During Market Stress - StreetInsider",
+      "url": "https://news.google.com/rss/articles/CBMi7wFBVV95cUxPTVpMbjBEWXdwUEZ6Z0Vudjc2YUJvUUVVQVZ3LS16M252a1lNRzc5c1M0enh4WjVvMm9fNTZiVGcxS1FmQ3h2OUpLQ0hEZV9seTY3S3g3dDVkNEk1YjB0N0NUeE93VnpMbTVDNFprN05xSExBZmxEMUpPQnQ3eFFma25COG9ZNTQtQkVIT0lfZUVWX0VSX04zMUdpWFRmZkhiT24tWVZseFRmejQ4S2M4VS1VbFRySXpoMnAxTVY5MHVUUVVESnVBSzhlWmhYajM1Y01VMUdUZzlFdTloWWRpVWwxRUpJZzROTjdIaXVZbw?oc=5",
+      "published": "Tue, 11 Aug 2026 14:37:00 GMT",
+      "source": "StreetInsider",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "inflation hedge",
+      "title": "7 investments to hold as markets grapple with the latest inflation scare - Business Insider",
+      "url": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxPekJoYjdid2V1WGY0MW1RdVU2bXBKaTJadTFZT01MMlNodjVQYlJfMmlIVzdic1lDbDY3QUNQRktYWmtaR2dud3RReWVkSF9SNmJkR1pMT0txSWJXd1FUTlVoSzN6MW04aGQ0VlJrOUFVQVhRZHBLcFVnSmY0aTFNeVNyNHV0bFlYY2ZZ?oc=5",
+      "published": "Fri, 31 Jul 2026 07:00:00 GMT",
+      "source": "Business Insider",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "inflation hedge",
+      "title": "NANR: A Proven Inflation Hedge - Seeking Alpha",
+      "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTE43MFRDSjVXWGxoX3NORXdQeVRjd2dLTUpSNjNWZUVDYVY3UzJCTEx3NVhyanp4OWh5MDhwZTI5MVVkZkdXSTlBaEYyR3ZxQTU2TnoxWHhIcUpvMjBwYkRHNlJQTlVMQnI0SnBkVFZpWE5aZGttTzNJdDln?oc=5",
+      "published": "Tue, 04 Aug 2026 09:30:00 GMT",
+      "source": "Seeking Alpha",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "inflation hedge",
+      "title": "Treasury Bond Yields Are Soaring. Pensions, Take Note. - Governing",
+      "url": "https://news.google.com/rss/articles/CBMijgFBVV95cUxQTnNHLVFiNngyajk4UTl1Q0RPTE5NcTlUaDZnVlprY19xenM2VzVBaEhvcjJYUV9zSnp0cG0yc1pwRURuRjBScUh2czRYQnlYMXY2anF6RGFPQkFacXBLVGt0QUg2YndBMnVrdm5TLW1EeFBOeTdZMllKNkQtU0ZsV2dWbHB1XzNtajdFSlJB?oc=5",
+      "published": "Fri, 31 Jul 2026 07:00:00 GMT",
+      "source": "Governing",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "inflation hedge",
+      "title": "How to use TIPS in your portfolio - Boston Herald",
+      "url": "https://news.google.com/rss/articles/CBMif0FVX3lxTE85elBVT2RNZEZuQVg1elVPeXVsOFpLZkpNa0djeEs3NlVwUlpDbTR2YktPbldBSEMxSTUtZm5qVy1iRUlLOEJzNU9wYzZHVlNfcXFGRWhMUzM0OEQySmRzeGVWZW80TmVKYWtzMTFCUHdscTFLQzM5aWlMd3E1NlU?oc=5",
+      "published": "Mon, 03 Aug 2026 15:11:01 GMT",
+      "source": "Boston Herald",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "gold-backed loan",
+      "title": "Lode Gold Completes Full Repayment of Fremont Gold Mine Property Secured Loan Ahead of Schedule - finance.yahoo.com",
+      "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxNQzlyOTJsMEpXTklOaGdXNnZZVW1ibkNwVnhrZTZLRFFKOU1YeWg0bm9UeDZRWjZ1M1lXbmYzanVNaGhPZFBKZ0MwaENRWHV2WnRuNm9YaHBnWW5ySGpfUzlOLUR2WHdrOTgzSi1TQmdNYXp4R2xDYXB6SGJvdFNHVUlvdmwzQkxjSE1BSWpRbm5PekJ4NW5rSFNoSGRYVnlYYXN1VmFUcw?oc=5",
+      "published": "Tue, 04 Aug 2026 22:19:00 GMT",
+      "source": "finance.yahoo.com",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "gold-backed loan",
+      "title": "India's largest lender SBI beats quarterly profit view on healthy loan growth - Reuters",
+      "url": "https://news.google.com/rss/articles/CBMimgFBVV95cUxPVDI5enByU2tyaG44Rnp5cVBRMmoxYUZ1b1NQOFU1amdLSFl0c2UwQTcxVk8zaU1XY1NOR3IxeEN0UXNzOHBDSl8wanphVzItcjdpZFNWSllPWGt2TzJUdnNtNUFGM1VCNU1xRUFWV1lfeWFUdmI5TllVLTQxTkNuUUFKRmZvZzliVE9WVTVndnh3YUZUTGVkSUJ3?oc=5",
+      "published": "Fri, 07 Aug 2026 10:14:24 GMT",
+      "source": "Reuters",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "gold-backed loan",
+      "title": "Manappuram’s Gold-Loan Engine Powered A Profit Beat - Finimize",
+      "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxOT28tRXZqQ01KeW1ZU1ZKbUlKZnJuQXpPOUZWUlFZU0dpRVhxaXJrdFpFY0I0QWlxY0dMVUpTNEVVNm1NWGhXSTZUcDZzLTFfUXNfcWpCVXR1MGxuVXdkTkpXUXBVX3VYSl9GYXNiUXpPbS11NG5jV1ZKc2FqNklsOXQ0WVhKQQ?oc=5",
+      "published": "Tue, 11 Aug 2026 12:07:33 GMT",
+      "source": "Finimize",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "gold-backed loan",
+      "title": "Gold Demand Trends: India Focus Q2 2026 - World Gold Council",
+      "url": "https://news.google.com/rss/articles/CBMimwFBVV95cUxNazVKWUV3OW1vdkV6TGxiR1BfbjBYMzBmVnI1dDNSdGJhSmQ0dGpiR0I5OXFzMjVpbl9CQ1pkV2Q1Q20wLVBPSnBDY0NCbTFSc1dHX1BxOTlqdG1vZG1haU9SRkhyX0hRZ21iWHFwTlUtRnU2NUN2QzVLSTU4YThsZ1lqWjNQWUd0ZEFMcXN5clFjRElITjl4eXFtRQ?oc=5",
+      "published": "Thu, 30 Jul 2026 07:00:00 GMT",
+      "source": "World Gold Council",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "gold-backed loan",
+      "title": "Gold loans rise on larger ticket sizes, unsecured credit shift - The Times of India",
+      "url": "https://news.google.com/rss/articles/CBMi4AFBVV95cUxNaTF3Z1ZxMHVGZWFRU2FZYmI5bERKWFZ4RndiblBGOVl1MGNoRmVsMXVzcGdsbjFEaGV5YV9DR2xqR0VFWXJhaXhLRXFNaU9FdWhSY1JmODNTQ1M4LTM1NkZiczAyMTJlaXlMTE9kcFBRV3R2SUptRmc5U1FaSTdEdnJRTmxLclppWm5JZWZZeHJRaFlXekNvbXRUcXQyRDRCSlE5bFdpYjF2ajlPd1ZxRkE0bWlRdklVTld2OU40TkpPRy1UZG16NFVPZUtzNWVlV2ZDVWVtZUdsNWVZaEl2cdIB5gFBVV95cUxOQVd4WHk4cVJaQ2ZHa2tzVktzLWdPZFRVZTJDT01OOFdmMk1KQjh0V1FkTWxwSkt6S01rNjN1MklBS0VqazY1MnczYlRON3JwalZzczJ6b2NMR3gzZWdpQ2pRLWVBRElVZ0VtMTdZSjd5YWdlSEdZckFEdVZNSW04RnlRbFZhd0NzcmZmRG51S0ljaDZrUC1nR0NJdTMwTlBNLTFiS0wxTUkzaWc4ci1ZalJBMkZqWmFjUUFDWHFTMXVzVlVkT1U5S2h6LUFGX2JSbEVsRWhQVjU2QUdrSFg0aHRPb3VJZw?oc=5",
+      "published": "Thu, 30 Jul 2026 07:00:00 GMT",
+      "source": "The Times of India",
+      "engagement": null
+    }
+  ]
+}

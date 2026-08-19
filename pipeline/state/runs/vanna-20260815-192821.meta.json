@@ -1,0 +1,17 @@
+{
+  "run_id": "vanna-20260815-192821",
+  "pipeline": "Vanna campaign engine",
+  "tenant": "Vanna",
+  "started": 1786822101.4326196,
+  "ended": 1786822527.364761,
+  "status": "completed",
+  "brain": "gemini",
+  "trend_source": "scout",
+  "duration_s": 425.9,
+  "kind": "campaign",
+  "winner_hook": "Regulatory Resilience: Control Your Capital with Vanna",
+  "winner_body": "In an increasingly regulated and unpredictable market, Vanna provides the essential, verifiable infrastructure for users and businesses to maintain control and safety over their capital, mitigating risks inherent in traditional and less transparent systems.",
+  "trend": "A Warning to All: Coinbase is holding $16,000 USD Hostage with no ability to buy, sell, withdraw, or close account and has provided Zero customer support or solution.",
+  "plan_file": "D:\\new orchestration\\okf\\launches\\2026-launch\\campaign-operating-plan-20260815-193527.md",
+  "timeline_steps": 7
+}

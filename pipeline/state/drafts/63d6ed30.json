@@ -1,0 +1,47 @@
+{
+  "draft_id": "63d6ed30",
+  "message_id": 276,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-15T16:14:42Z",
+  "sent_unix": 1786810482,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "63d6ed30",
+    "draft_id": "fd52c634",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Agent capital markets are here (Moss). Agents initiate, but can they borrow? Payments shipped. Identity standardizing. Credit is the missing layer. Morpho gives agents a market. Vanna gives them a balance sheet. We're designing the Agent Score for autonomous underwriting.",
+    "final_body": "Agent capital markets are here (Moss). Agents initiate, but can they borrow? Payments shipped. Identity standardizing. Credit is the missing layer. Morpho gives agents a market. Vanna gives them a balance sheet. We're designing the Agent Score for autonomous underwriting.",
+    "final_hook": "Agent capital markets are here (Moss).",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "infographic",
+      "headline": "The Agent Economy's Missing Link",
+      "emphasis_phrase": "Balance Sheet for Bots",
+      "subhead": "Enabling autonomous agents to borrow & build on-chain financial identity.",
+      "data": [
+        {
+          "label": "Agent Market Access",
+          "value": "Emerging",
+          "note": "Moss, Morpho provide venues for agents."
+        },
+        {
+          "label": "Agent Financial Identity",
+          "value": "Standardizing",
+          "note": "ERC-8004 enables on-chain identity."
+        },
+        {
+          "label": "Agent Balance Sheet",
+          "value": "Missing",
+          "note": "Vanna enables autonomous credit for agents."
+        }
+      ],
+      "disclaimer": "Illustrative example. Vanna is on testnet. No mainnet, no token, no audit, no TVL."
+    },
+    "platform": "x",
+    "trend_id": "Moss Agent Marketplace",
+    "sent_at": "2026-08-15T16:14:29Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

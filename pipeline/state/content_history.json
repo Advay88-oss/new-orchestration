@@ -1,0 +1,333 @@
+[
+  {
+    "run_id": "85c8f39d",
+    "timestamp": "2026-08-09T08:50:00Z",
+    "topic_covered": "agentic-credit",
+    "angle_covered": "Agentic Credit & Balance Sheets",
+    "competitors_referenced": [
+      "MorphoLabs"
+    ],
+    "sources_used": [
+      "MorphoLabs tweets",
+      "r/defi posts"
+    ],
+    "verdict_outcome": "shipped",
+    "hook_shipped": "Fixed rates are here. But for who?"
+  },
+  {
+    "run_id": "6712471a",
+    "timestamp": "2026-08-09T09:12:00Z",
+    "topic_covered": "risk-relief",
+    "angle_covered": "Autonomous Risk Guardian",
+    "competitors_referenced": [
+      "Aave",
+      "GearboxProtocol"
+    ],
+    "sources_used": [
+      "r/defi posts",
+      "GearboxProtocol tweets"
+    ],
+    "verdict_outcome": "shipped",
+    "hook_shipped": "You fought the liquidation. You still lost."
+  },
+  {
+    "run_id": "72cb7cf7",
+    "timestamp": "2026-08-09T15:54:32Z",
+    "topic_covered": "capital-efficiency",
+    "angle_covered": "Unified Margin Accounts",
+    "competitors_referenced": [
+      "BlendCapital"
+    ],
+    "sources_used": [
+      "scout scraper"
+    ],
+    "verdict_outcome": "shipped"
+  },
+  {
+    "run_id": "8afd7a8b",
+    "timestamp": "2026-08-09T16:00:36Z",
+    "topic_covered": "developer-experience",
+    "angle_covered": "Unified SDK, CLI, and MCP Rails",
+    "competitors_referenced": [
+      "KojiruFinance"
+    ],
+    "sources_used": [
+      "scout scraper"
+    ],
+    "verdict_outcome": "shipped"
+  },
+  {
+    "run_id": "6f8ce8e9",
+    "timestamp": "2026-08-09T16:22:31Z",
+    "topic_covered": "ecosystem-news",
+    "angle_covered": "Stellar Soroban Mainnet Readiness",
+    "competitors_referenced": [
+      "MorphoLabs"
+    ],
+    "sources_used": [
+      "MorphoLabs tweets",
+      "r/defi posts"
+    ],
+    "verdict_outcome": "timeout",
+    "hook_shipped": "Fixed-term credit silos capital."
+  },
+  {
+    "run_id": "49cefdd9",
+    "timestamp": "2026-08-09T16:36:54Z",
+    "topic_covered": "capital-efficiency",
+    "angle_covered": "Unified Margin Accounts",
+    "competitors_referenced": [
+      "GearboxProtocol"
+    ],
+    "sources_used": [
+      "GearboxProtocol tweets",
+      "r/defi posts"
+    ],
+    "verdict_outcome": "timeout",
+    "hook_shipped": "Liquidation fear?"
+  },
+  {
+    "run_id": "83e7b770",
+    "timestamp": "2026-08-09T16:47:00Z",
+    "topic_covered": "risk-relief",
+    "angle_covered": "Autonomous Risk Guardian",
+    "competitors_referenced": [
+      "BlendCapital"
+    ],
+    "sources_used": [
+      "BlendCapital tweets",
+      "r/defi posts"
+    ],
+    "verdict_outcome": "timeout",
+    "hook_shipped": "Market wicks don't care about 'optimized credit capacity.'"
+  },
+  {
+    "run_id": "cf5665fc",
+    "timestamp": "2026-08-09T17:04:29Z",
+    "topic_covered": "agentic-credit",
+    "angle_covered": "Agentic Credit & Balance Sheets",
+    "competitors_referenced": [
+      "Aave"
+    ],
+    "sources_used": [
+      "Aave tweets",
+      "r/defi posts"
+    ],
+    "verdict_outcome": "timeout",
+    "hook_shipped": "Agents can pay. Agents can't borrow."
+  },
+  {
+    "run_id": "932a54e4",
+    "timestamp": "2026-08-09T17:22:48Z",
+    "topic_covered": "developer-experience",
+    "angle_covered": "Unified SDK, CLI, and MCP Rails",
+    "competitors_referenced": [
+      "KojiruFinance"
+    ],
+    "sources_used": [
+      "KojiruFinance tweets",
+      "r/defi posts"
+    ],
+    "verdict_outcome": "timeout",
+    "hook_shipped": "Agents decide, but can they borrow?"
+  },
+  {
+    "run_id": "0f8119c8",
+    "timestamp": "2026-08-09T17:31:02Z",
+    "topic_covered": "ecosystem-news",
+    "angle_covered": "Stellar Soroban Mainnet Readiness",
+    "competitors_referenced": [
+      "MorphoLabs"
+    ],
+    "sources_used": [
+      "MorphoLabs tweets",
+      "r/defi posts"
+    ],
+    "verdict_outcome": "timeout",
+    "hook_shipped": "Fixed terms lock capital."
+  },
+  {
+    "run_id": "3ece89e0",
+    "timestamp": "2026-08-09T17:41:35Z",
+    "topic_covered": "risk-relief",
+    "angle_covered": "Autonomous Risk Guardian",
+    "competitors_referenced": [
+      "Aave"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "timeout",
+    "hook_shipped": "AI finds critical exploits in core projects."
+  },
+  {
+    "run_id": "2f245c5b",
+    "timestamp": "2026-08-09T18:11:08Z",
+    "topic_covered": "risk-relief",
+    "angle_covered": "Increasing sophistication of threats in crypto, particularly AI finding critical exploits across core projects",
+    "competitors_referenced": [
+      "Bitcoin Red Team"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "approved",
+    "hook_shipped": "AI is finding critical exploits in crypto."
+  },
+  {
+    "run_id": "dfda50d2",
+    "timestamp": "2026-08-10T04:44:37Z",
+    "topic_covered": "risk-relief",
+    "angle_covered": "Autonomous Risk Guardian vs infrastructure exploit risk (BTCPay critical flaw under active attack)",
+    "competitors_referenced": [
+      "BTCPay"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "approved",
+    "publish_outcome": "blocked - opencli chrome bridge No SW",
+    "hook_shipped": "BTCPay exploit warnings?"
+  },
+  {
+    "run_id": "claude01",
+    "timestamp": "2026-08-11T06:55:05Z",
+    "topic_covered": "agentic-credit",
+    "angle_covered": "Autonomous agents need hard, policy-bounded limits \u2014 bridged from AI-agent prompt-injection news",
+    "competitors_referenced": [],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "brain": "claude (Gemini/Vertex ADC expired)",
+    "verdict_outcome": "approved",
+    "publish_outcome": "not_live",
+    "hook_shipped": "A PDF just hijacked an AI agent.",
+    "publish_outcome_original": "published https://x.com/AnandAdvay91289/status/2087070215679201599",
+    "publish_note": "REPORTED success by opencli but NOT live on account (verified 2026-08-12: direct URL 404, profile shows only 3 old posts, search from:self=0). Likely X automation/spam filtering. Treat as NOT published.",
+    "verified_at": "2026-08-12"
+  },
+  {
+    "run_id": "vanna_infra",
+    "timestamp": "2026-08-11T18:08:51Z",
+    "tenant": "vanna",
+    "topic_covered": "infrastructure (dual B2B+B2C)",
+    "brain": "claude",
+    "verdict_outcome": "approved",
+    "publish_outcome": "not_live",
+    "hook_shipped": "One system. Both sides of the market.",
+    "publish_outcome_original": "published https://x.com/AnandAdvay91289/status/2087239615568855457",
+    "publish_note": "REPORTED success by opencli but NOT live on account (verified 2026-08-12: direct URL 404, profile shows only 3 old posts, search from:self=0). Likely X automation/spam filtering. Treat as NOT published.",
+    "verified_at": "2026-08-12"
+  },
+  {
+    "run_id": "auri_vs",
+    "timestamp": "2026-08-11T18:08:51Z",
+    "tenant": "auri",
+    "topic_covered": "competitive (gold you can use)",
+    "brain": "claude",
+    "verdict_outcome": "approved",
+    "publish_outcome": "not_live",
+    "hook_shipped": "Everyone sells gold. Nobody lets you use it.",
+    "publish_outcome_original": "published https://x.com/AnandAdvay91289/status/2087239749409140906",
+    "publish_note": "REPORTED success by opencli but NOT live on account (verified 2026-08-12: direct URL 404, profile shows only 3 old posts, search from:self=0). Likely X automation/spam filtering. Treat as NOT published.",
+    "verified_at": "2026-08-12"
+  },
+  {
+    "run_id": "852aad0e",
+    "timestamp": "2026-08-14T20:04:44Z",
+    "topic_covered": "risk-relief",
+    "angle_covered": "centralized exchange custody failures and lack of user control over their own funds/collateral",
+    "competitors_referenced": [
+      "Coinbase"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "pending",
+    "hook_shipped": "CEXs freeze your capital."
+  },
+  {
+    "run_id": "6f596283",
+    "timestamp": "2026-08-14T20:09:28Z",
+    "topic_covered": "self-custody",
+    "angle_covered": "Non-Custodial Trust",
+    "competitors_referenced": [
+      "None"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "pending",
+    "hook_shipped": "UK legitimizes gold. Who truly controls it?"
+  },
+  {
+    "run_id": "92be684c",
+    "timestamp": "2026-08-15T15:48:08Z",
+    "topic_covered": "agentic-credit",
+    "angle_covered": "Agentic Credit & Balance Sheets",
+    "competitors_referenced": [
+      "Stripe"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "pending",
+    "hook_shipped": "Your agent can run your billing stack"
+  },
+  {
+    "run_id": "353d8c15",
+    "timestamp": "2026-08-15T16:02:20Z",
+    "topic_covered": "risk-relief",
+    "angle_covered": "Unified Margin Accounts",
+    "competitors_referenced": [
+      "Coinbase"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "pending",
+    "hook_shipped": "CEXs hold your funds hostage."
+  },
+  {
+    "run_id": "63d6ed30",
+    "timestamp": "2026-08-15T16:14:52Z",
+    "topic_covered": "agentic-credit",
+    "angle_covered": "Agentic Credit & Balance Sheets",
+    "competitors_referenced": [
+      "Moss Agent Marketplace"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "pending",
+    "hook_shipped": "Agent capital markets are here (Moss)."
+  },
+  {
+    "run_id": "2826a6b1",
+    "timestamp": "2026-08-15T17:44:21Z",
+    "topic_covered": "use-your-gold",
+    "angle_covered": "Culture moment worth borrowing",
+    "competitors_referenced": [
+      "Bitcoin"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "pending",
+    "hook_shipped": "Bitcoin's 50% collapse exposes asset control myths."
+  },
+  {
+    "run_id": "a793b053",
+    "timestamp": "2026-08-15T18:19:42Z",
+    "topic_covered": "agentic-credit",
+    "angle_covered": "Agentic Credit & Balance Sheets",
+    "competitors_referenced": [
+      "Aave"
+    ],
+    "sources_used": [
+      "Decrypt Global RSS Feed"
+    ],
+    "verdict_outcome": "pending",
+    "hook_shipped": "Biden's EO sparks asset control fears."
+  }
+]

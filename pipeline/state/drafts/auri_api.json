@@ -1,0 +1,46 @@
+{
+  "draft_id": "auri_api",
+  "message_id": 257,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-11T10:14:31Z",
+  "sent_unix": 1786443269,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "auri_api",
+    "draft_id": "auri_api",
+    "arc": "infrastructure (dual B2B+B2C) / live API",
+    "winner_arc": "use-your-gold",
+    "body": "Auri isn't just a gold app — it's an API. The same engine that buys, borrows, and moves allocated gold runs behind scoped keys, so a fintech can offer gold without building a vault or a lending market. Session-secured: a leaked key can't exceed caps or move funds out. Live in private beta.",
+    "final_body": "Auri isn't just a gold app — it's an API. The same engine that buys, borrows, and moves allocated gold runs behind scoped keys, so a fintech can offer gold without building a vault or a lending market. Session-secured: a leaked key can't exceed caps or move funds out. Live in private beta.",
+    "final_hook": "Not just a gold app. An API.",
+    "thread": [],
+    "final_thread": [],
+    "platform": "x",
+    "trend_id": "Auri internal docs (/auri data/) — live REST API = real B2B infrastructure",
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Not just a gold app. An API.",
+      "emphasis_phrase": "An API.",
+      "subhead": "The same engine — buy, borrow, move allocated gold — behind scoped keys. Live in private beta.",
+      "data": [
+        {
+          "label": "Embed gold",
+          "value": "One API",
+          "note": "Buy, borrow, send - no vault, no lending market to build."
+        },
+        {
+          "label": "Session-secured",
+          "value": "Keys can't overreach",
+          "note": "A leaked key can't exceed caps or move funds out."
+        },
+        {
+          "label": "Real reserve",
+          "value": "Allocated XAUT",
+          "note": "Swiss vault, attested quarterly by BDO."
+        }
+      ],
+      "disclaimer": "Private beta. Gold can fall; borrowing carries liquidation risk. Not financial advice."
+    }
+  },
+  "image": "pipeline\\state\\auri_api_card.png"
+}

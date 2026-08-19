@@ -1,0 +1,42 @@
+{
+  "id": "vanna_c4",
+  "draft_id": "vanna_c4",
+  "arc": "agentic-credit (design-partner CTA)",
+  "winner_arc": "agentic-credit",
+  "body": "Give an agent a card and it can spend. Give it a balance sheet and it can build — borrow, hold a position, act under a hard limit it can't exceed. That's Vanna, on Stellar testnet, and we're opening it to design partners. Building agents that need credit? Come build the credit half.",
+  "final_body": "Give an agent a card and it can spend. Give it a balance sheet and it can build — borrow, hold a position, act under a hard limit it can't exceed. That's Vanna, on Stellar testnet, and we're opening it to design partners. Building agents that need credit? Come build the credit half.",
+  "final_hook": "Give an agent a balance sheet and it can build.",
+  "audience": "agent/DeFi developers",
+  "funnel_stage": "conversion",
+  "objective": "design-partner / testnet signups",
+  "cta": "apply for testnet access / DM to build",
+  "campaign_type": "developer-led / launch",
+  "thread": [],
+  "final_thread": [],
+  "platform": "x",
+  "trend_id": "Campaign 'The Credit Half' C4 — conversion asset",
+  "visual_brief": {
+    "type": "stat-card",
+    "headline": "Give an agent a balance sheet.",
+    "emphasis_phrase": "balance sheet",
+    "subhead": "Vanna is building the credit half for agents. On Stellar testnet. Design partners, come build.",
+    "data": [
+      {
+        "label": "A card",
+        "value": "Spend only",
+        "note": "The agent pays. That is the easy half."
+      },
+      {
+        "label": "A balance sheet",
+        "value": "Borrow, hold, act",
+        "note": "Under a hard limit it can't exceed."
+      },
+      {
+        "label": "The ask",
+        "value": "Design partners",
+        "note": "Building agents that need credit? Come build."
+      }
+    ],
+    "disclaimer": "Illustrative example. Vanna is on testnet. No mainnet, no token, no audit."
+  }
+}

@@ -1,0 +1,23 @@
+{"ts": 1786823490.1252637, "run_id": "vanna-20260815-195130", "agent": "system", "stage": "triggered", "tenant": "Vanna", "text": "Run started for Vanna. executing campaign 'Regulatory Resilience: Control Your Capital with Vanna'"}
+{"ts": 1786823490.1307745, "agent": "content-agent", "stage": "step", "text": "Writing per-day copy + video briefs for the whole campaign"}
+{"ts": 1786823533.0261695, "agent": "compliance-gate", "stage": "step", "text": "Day 1: gate PASS — Centralized systems leave your capital vulnerable. Vanna off"}
+{"ts": 1786823533.0283494, "agent": "creative-agent", "stage": "step", "text": "Day 1: rendering branded video — Centralized systems leave your capital vulnerable."}
+{"ts": 1786823558.2252147, "agent": "distribution", "stage": "step", "text": "Day 1: sent to Telegram (review only, no posting)"}
+{"ts": 1786823559.0822463, "agent": "compliance-gate", "stage": "step", "text": "Day 2: gate BLOCK — Regulatory risks are complex. Vanna makes them understandabl"}
+{"ts": 1786823559.0854096, "agent": "creative-agent", "stage": "step", "text": "Day 2: rendering branded video — Regulatory risks are complex. Vanna makes them und"}
+{"ts": 1786823584.4285164, "agent": "distribution", "stage": "step", "text": "Day 2: sent to Telegram (review only, no posting)"}
+{"ts": 1786823585.6579642, "agent": "compliance-gate", "stage": "step", "text": "Day 3: gate PASS — Don't just take our word for it. See Vanna in action."}
+{"ts": 1786823585.6591268, "agent": "creative-agent", "stage": "step", "text": "Day 3: rendering branded video — Don't just take our word for it. See Vanna in acti"}
+{"ts": 1786823614.3572166, "agent": "distribution", "stage": "step", "text": "Day 3: sent to Telegram (review only, no posting)"}
+{"ts": 1786823615.1372824, "agent": "compliance-gate", "stage": "step", "text": "Day 4: gate BLOCK — Verify our claims. The Vanna Testnet is LIVE."}
+{"ts": 1786823615.140244, "agent": "creative-agent", "stage": "step", "text": "Day 4: rendering branded video — Verify our claims. The Vanna Testnet is LIVE."}
+{"ts": 1786823639.2307863, "agent": "distribution", "stage": "step", "text": "Day 4: sent to Telegram (review only, no posting)"}
+{"ts": 1786823640.2755663, "agent": "compliance-gate", "stage": "step", "text": "Day 5: gate BLOCK — Your voice matters. Help shape Vanna's future."}
+{"ts": 1786823640.2775323, "agent": "creative-agent", "stage": "step", "text": "Day 5: rendering branded video — Your voice matters. Help shape Vanna's future."}
+{"ts": 1786823671.6527505, "agent": "distribution", "stage": "step", "text": "Day 5: sent to Telegram (review only, no posting)"}
+{"ts": 1786823672.8674765, "agent": "compliance-gate", "stage": "step", "text": "Day 6: gate BLOCK — A week of verifiable control. Still wondering how?"}
+{"ts": 1786823672.8698916, "agent": "creative-agent", "stage": "step", "text": "Day 6: rendering branded video — A week of verifiable control. Still wondering how?"}
+{"ts": 1786823695.3176978, "agent": "distribution", "stage": "step", "text": "Day 6: sent to Telegram (review only, no posting)"}
+{"ts": 1786823696.2577891, "agent": "compliance-gate", "stage": "step", "text": "Day 7: gate BLOCK — The journey continues. What's next for Vanna?"}
+{"ts": 1786823696.259352, "agent": "creative-agent", "stage": "step", "text": "Day 7: rendering branded video — The journey continues. What's next for Vanna?"}
+{"ts": 1786823720.7219653, "agent": "distribution", "stage": "step", "text": "Day 7: sent to Telegram (review only, no posting)"}

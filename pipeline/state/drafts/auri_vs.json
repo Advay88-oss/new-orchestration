@@ -1,0 +1,46 @@
+{
+  "draft_id": "auri_vs",
+  "message_id": 258,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-11T18:00:00Z",
+  "sent_unix": 1786471198,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "auri_vs",
+    "draft_id": "auri_vs",
+    "arc": "competitive (gold you can use)",
+    "winner_arc": "use-your-gold",
+    "body": "Everyone sells gold. Nobody lets you use it. Wealthsimple and OneGold park it in a vault. Coinbase and Nexo lend cash — but only against crypto. Auri is the one place real gold is your savings and your collateral at once: non-custodial, borrow at 3.75%. Gold can fall; loans can liquidate.",
+    "final_body": "Everyone sells gold. Nobody lets you use it. Wealthsimple and OneGold park it in a vault. Coinbase and Nexo lend cash — but only against crypto. Auri is the one place real gold is your savings and your collateral at once: non-custodial, borrow at 3.75%. Gold can fall; loans can liquidate.",
+    "final_hook": "Everyone sells gold. Nobody lets you use it.",
+    "thread": [],
+    "final_thread": [],
+    "platform": "x",
+    "trend_id": "Auri competitors (03-competitors.md) — the intersection is the moat",
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Everyone sells gold. Nobody lets you use it.",
+      "emphasis_phrase": "use it",
+      "subhead": "Real gold as your savings AND your collateral — non-custodial. On Auri.",
+      "data": [
+        {
+          "label": "Gold apps",
+          "value": "Park it",
+          "note": "Wealthsimple, OneGold - buy and hold, that's the whole product."
+        },
+        {
+          "label": "Crypto lenders",
+          "value": "Lend, not gold",
+          "note": "Coinbase, Nexo - cash, but only against crypto."
+        },
+        {
+          "label": "Auri",
+          "value": "Both, on gold",
+          "note": "Savings + collateral at once. Non-custodial. Borrow at 3.75%."
+        }
+      ],
+      "disclaimer": "Gold can fall in value. Borrowing carries liquidation risk. Not financial advice."
+    }
+  },
+  "image": "pipeline\\state\\auri_vs_card.png"
+}

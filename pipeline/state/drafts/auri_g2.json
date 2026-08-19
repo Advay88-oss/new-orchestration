@@ -1,0 +1,51 @@
+{
+  "draft_id": "auri_g2",
+  "message_id": 266,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-12T15:54:33Z",
+  "sent_unix": 1786550072,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "auri_g2",
+    "draft_id": "auri_g2",
+    "arc": "self-custody / trust (security)",
+    "winner_arc": "self-custody",
+    "body": "A physical gold bar can be faked — scams targeting savers are rising. Allocated gold, attested quarterly and checkable to the individual bar, can't be. On Auri your gold is Tether Gold: Swiss vault, BDO-attested, non-custodial. Borrow at 3.75%; gold can fall, loans can liquidate.",
+    "final_body": "A physical gold bar can be faked — scams targeting savers are rising. Allocated gold, attested quarterly and checkable to the individual bar, can't be. On Auri your gold is Tether Gold: Swiss vault, BDO-attested, non-custodial. Borrow at 3.75%; gold can fall, loans can liquidate.",
+    "final_hook": "A physical gold bar can be faked. Allocated, attested gold can't.",
+    "audience": "gold holders + savers wary of scams",
+    "funnel_stage": "awareness->consideration",
+    "objective": "trust / waitlist intent",
+    "cta": "see how your gold is held",
+    "campaign_type": "problem-awareness / trust",
+    "thread": [],
+    "final_thread": [],
+    "platform": "x",
+    "trend_id": "Gold-bar scams targeting older adults (NY authorities warning, Aug 2026) -> provability wedge",
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "A gold bar can be faked. Attested gold can't.",
+      "emphasis_phrase": "Attested gold can't",
+      "subhead": "Allocated, Swiss-vaulted, BDO-attested, checkable to the bar. Non-custodial. On Auri.",
+      "data": [
+        {
+          "label": "Physical bar",
+          "value": "Unverifiable",
+          "note": "Scams targeting savers are rising."
+        },
+        {
+          "label": "Auri gold",
+          "value": "Checkable to the bar",
+          "note": "Allocated XAUT, Swiss vault, BDO quarterly attestation."
+        },
+        {
+          "label": "And usable",
+          "value": "Borrow at 3.75%",
+          "note": "Non-custodial. Gold can fall; loans can liquidate."
+        }
+      ],
+      "disclaimer": "Gold can fall in value. Borrowing carries liquidation risk. Not financial advice."
+    }
+  },
+  "image": "pipeline\\state\\auri_g2_card.png"
+}

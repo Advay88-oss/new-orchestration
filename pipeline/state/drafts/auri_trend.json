@@ -1,0 +1,46 @@
+{
+  "draft_id": "auri_trend",
+  "message_id": 259,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-11T19:05:30Z",
+  "sent_unix": 1786475128,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "auri_trend",
+    "draft_id": "auri_trend",
+    "arc": "trend-jack: tokenized gold goes institutional",
+    "winner_arc": "use-your-gold",
+    "body": "The UK's FCA is drafting rules for tokenized gold as collateral — London racing to let institutions borrow against digital bullion. Auri already does it: your gold, borrow at 3.75%, non-custodial. What London is building for banks, you can use today. Gold can fall; loans can liquidate.",
+    "final_body": "The UK's FCA is drafting rules for tokenized gold as collateral — London racing to let institutions borrow against digital bullion. Auri already does it: your gold, borrow at 3.75%, non-custodial. What London is building for banks, you can use today. Gold can fall; loans can liquidate.",
+    "final_hook": "What London is building for banks, you can use today.",
+    "thread": [],
+    "final_thread": [],
+    "platform": "x",
+    "trend_id": "UK FCA drafts tokenized-gold collateral framework (FT/CoinDesk, 10 Aug 2026)",
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "London is racing to build what you can use today.",
+      "emphasis_phrase": "use today",
+      "subhead": "The FCA is drafting tokenized-gold collateral rules for banks. Auri already gives it to you.",
+      "data": [
+        {
+          "label": "The news",
+          "value": "FCA drafts rules",
+          "note": "Tokenized gold as collateral - for institutions (FT, Aug 2026)."
+        },
+        {
+          "label": "Auri",
+          "value": "Already live",
+          "note": "Borrow against your gold at 3.75%, non-custodial."
+        },
+        {
+          "label": "The gap",
+          "value": "Them vs you",
+          "note": "Banks are still studying it. You can do it today."
+        }
+      ],
+      "disclaimer": "Gold can fall in value. Borrowing carries liquidation risk. Not financial advice."
+    }
+  },
+  "image": "pipeline\\state\\auri_trend_card.png"
+}

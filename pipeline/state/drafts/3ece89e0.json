@@ -1,0 +1,47 @@
+{
+  "draft_id": "3ece89e0",
+  "message_id": 239,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-09T17:39:15Z",
+  "sent_unix": 1786297154,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "3ece89e0",
+    "draft_id": "c5d3c4d5",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "AI finds critical exploits in core projects. That's a new liquidation risk. Your health factor can drop fast. Leverage is easy. Not getting liquidated is hard. Vanna's Autonomous Risk Guardian acts within your policy, keeping you above 1.1x while you sleep.",
+    "final_body": "AI finds critical exploits in core projects. That's a new liquidation risk. Your health factor can drop fast. Leverage is easy. Not getting liquidated is hard. Vanna's Autonomous Risk Guardian acts within your policy, keeping you above 1.1x while you sleep.",
+    "final_hook": "AI finds critical exploits in core projects.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Exploits vs. Protection",
+      "emphasis_phrase": "Guardian's 1.1x Floor",
+      "subhead": "AI discovers new threats. Vanna protects your capital.",
+      "data": [
+        {
+          "label": "Exploit Discovery",
+          "value": "AI-Driven",
+          "note": "Unpredictable market shocks, rapid health factor drops."
+        },
+        {
+          "label": "Liquidation Floor",
+          "value": "1.1x",
+          "note": "Automated buffer for oracle cadence & slippage (testnet)."
+        },
+        {
+          "label": "User Control",
+          "value": "Policy-Set",
+          "note": "Autonomous within YOUR defined limits, never black-box."
+        }
+      ],
+      "disclaimer": "All figures illustrative and based on Vanna testnet."
+    },
+    "platform": "x",
+    "trend_id": "Aave",
+    "sent_at": "2026-08-09T17:39:04Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

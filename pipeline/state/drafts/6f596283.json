@@ -1,0 +1,52 @@
+{
+  "draft_id": "6f596283",
+  "message_id": 273,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-14T20:09:19Z",
+  "sent_unix": 1786738157,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "6f596283",
+    "draft_id": "1731775b",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "As digital assets become regulated, counterparty risk becomes a liability. Auri holds $0; your gold is always in your name, in a Swiss vault. True ownership, true security.",
+    "final_body": "As digital assets become regulated, counterparty risk becomes a liability. Auri holds $0; your gold is always in your name, in a Swiss vault. True ownership, true security.",
+    "final_hook": "UK legitimizes gold. Who truly controls it?",
+    "thread": [
+      "#TokenizedGold",
+      "#SelfCustody"
+    ],
+    "final_thread": [
+      "#TokenizedGold",
+      "#SelfCustody"
+    ],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "The Future of Digital Gold",
+      "emphasis_phrase": "True Ownership. True Security.",
+      "subhead": "As regulators legitimize tokenized gold, Auri provides the ultimate framework for trust and control.",
+      "data": [
+        {
+          "label": "Your Gold's Custody",
+          "value": "In Your Name",
+          "note": "Auri holds $0; not on our books."
+        },
+        {
+          "label": "Regulatory Alignment",
+          "value": "Framework Ready",
+          "note": "UK prepares for tokenized gold standards."
+        },
+        {
+          "label": "Counterparty Risk",
+          "value": "Eliminated",
+          "note": "Gold resides off-Auri's balance sheet."
+        }
+      ]
+    },
+    "platform": "x",
+    "trend_id": "None",
+    "sent_at": "2026-08-14T20:09:09Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

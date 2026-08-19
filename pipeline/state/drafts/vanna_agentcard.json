@@ -1,0 +1,46 @@
+{
+  "draft_id": "vanna_agentcard",
+  "message_id": 260,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-11T21:03:34Z",
+  "sent_unix": 1786482212,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "vanna_agentcard",
+    "draft_id": "vanna_agentcard",
+    "arc": "agentic-credit + infrastructure",
+    "winner_arc": "agentic-credit",
+    "body": "Silicon Valley is about to hand AI agents corporate credit cards. A card lets an agent spend — it still can't borrow or answer for a loan. Vanna gives agents credit rails with hard, policy-bounded limits: for the businesses deploying them and the agents themselves. On Stellar testnet.",
+    "final_body": "Silicon Valley is about to hand AI agents corporate credit cards. A card lets an agent spend — it still can't borrow or answer for a loan. Vanna gives agents credit rails with hard, policy-bounded limits: for the businesses deploying them and the agents themselves. On Stellar testnet.",
+    "final_hook": "A card lets an agent spend. It still can't borrow.",
+    "thread": [],
+    "final_thread": [],
+    "platform": "x",
+    "trend_id": "Silicon Valley hands AI agents corporate credit cards (news, Aug 2026) + learned bias: statement hook",
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "A card lets an agent spend. It still can't borrow.",
+      "emphasis_phrase": "can't borrow",
+      "subhead": "Silicon Valley is giving agents credit cards. Vanna gives them credit rails. On Stellar testnet.",
+      "data": [
+        {
+          "label": "A card",
+          "value": "Spend only",
+          "note": "The agent pays. It can't hold a balance sheet."
+        },
+        {
+          "label": "Vanna",
+          "value": "Credit rails",
+          "note": "Borrow, with hard, policy-bounded limits."
+        },
+        {
+          "label": "For both",
+          "value": "B2B + the agent",
+          "note": "Businesses deploy; agents get an account. One system."
+        }
+      ],
+      "disclaimer": "Illustrative example. Vanna is on testnet. No mainnet, no token, no audit."
+    }
+  },
+  "image": "pipeline\\state\\vanna_ac_card.png"
+}
