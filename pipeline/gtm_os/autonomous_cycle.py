@@ -25,6 +25,7 @@ dashboard reads directly. Three rules it does not bend:
 from __future__ import annotations
 
 import argparse
+import pathlib
 import json
 import sys
 import time
@@ -148,7 +149,10 @@ def render_meme(blueprint, run_id: str) -> str:
     if len(prompt) < 40:
         raise RuntimeError("no meme prompt on the creative blueprint")
 
-    out = RUNS_DIR / run_id / (run_id + "_meme.png")
+    # STATE_DIR, not the run folder: the dashboard serves panel images
+    # through /api/media, which takes a bare filename and looks in
+    # pipeline/state. A path under gtm_runs/ resolved to nothing.
+    out = STATE_DIR / (run_id + "_meme.png")
     out.parent.mkdir(parents=True, exist_ok=True)
 
     started = time.time()
@@ -647,6 +651,19 @@ def _panel_write(name: str, key: str, entry: dict, keep: int = 24) -> None:
     doc[key] = items[:keep]
     doc["generated"] = datetime.now(timezone.utc).isoformat()
     doc["total_" + key] = len(doc[key])
+
+    # The panels render their headline counts from these fields, not from the
+    # list length, so a file written without them shows "0 Memes" above a full
+    # grid. Recompute rather than leaving whatever the last writer left.
+    if key == "memes":
+        for level in ("low", "medium", "high"):
+            doc[level + "_risk_count"] = sum(
+                1 for i in doc[key] if str(i.get("risk", "")).lower() == level)
+    if key == "ideas":
+        doc["runnable_today_count"] = sum(
+            1 for i in doc[key] if i.get("runnable_today"))
+        doc["blocked_count"] = sum(
+            1 for i in doc[key] if not i.get("runnable_today"))
     path.write_text(json.dumps(doc, indent=2, default=str), encoding="utf-8")
 
 
@@ -672,8 +689,8 @@ def publish_panels(summary: dict, rid: str) -> None:
             "effort": "AUTONOMOUS",
             "rejected": sel.get("rejected") or [],
             "run_id": rid,
-            "visual_url": "/api/gtm/artifact/" + rid + "/visual"
-                          if summary.get("visual_path") else None,
+            "visual_url": (pathlib.Path(str(summary["visual_path"])).name
+                           if summary.get("visual_path") else None),
         })
 
     # Crypto Memes <- A08's nano banana pro render
@@ -692,7 +709,7 @@ def publish_panels(summary: dict, rid: str) -> None:
             "freshness": "LIVE",
             "model": R.MODELS["meme"],
             "run_id": rid,
-            "visual_url": "/api/gtm/artifact/" + rid + "/meme",
+            "visual_url": pathlib.Path(str(summary["meme_path"])).name,
         })
 
 

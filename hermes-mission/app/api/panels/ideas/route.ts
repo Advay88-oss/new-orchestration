@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const targetFile = fs.existsSync(IDEAS_FILE_1) ? IDEAS_FILE_1 : IDEAS_FILE_2;
+    const targetFile = fs.existsSync(IDEAS_FILE_2) ? IDEAS_FILE_2 : IDEAS_FILE_1;
     if (!fs.existsSync(targetFile)) {
       return NextResponse.json({ success: false, error: 'ideas.json not found' }, { status: 404 });
     }
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     }
 
     if (action === 'render_visual') {
-      const targetFile = fs.existsSync(IDEAS_FILE_1) ? IDEAS_FILE_1 : IDEAS_FILE_2;
+      const targetFile = fs.existsSync(IDEAS_FILE_2) ? IDEAS_FILE_2 : IDEAS_FILE_1;
       const data = JSON.parse(fs.readFileSync(targetFile, 'utf-8'));
       const idea = (data.ideas || []).find((i: any) => i.id === idea_id);
       if (!idea) {

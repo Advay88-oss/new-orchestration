@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const targetFile = fs.existsSync(MEMES_FILE_1) ? MEMES_FILE_1 : MEMES_FILE_2;
+    const targetFile = fs.existsSync(MEMES_FILE_2) ? MEMES_FILE_2 : MEMES_FILE_1;
     if (!fs.existsSync(targetFile)) {
       return NextResponse.json({ success: false, error: 'memes.json not found' }, { status: 404 });
     }
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     }
 
     if (action === 'render_visual') {
-      const targetFile = fs.existsSync(MEMES_FILE_1) ? MEMES_FILE_1 : MEMES_FILE_2;
+      const targetFile = fs.existsSync(MEMES_FILE_2) ? MEMES_FILE_2 : MEMES_FILE_1;
       const data = JSON.parse(fs.readFileSync(targetFile, 'utf-8'));
       const meme = (data.memes || []).find((m: any) => m.id === meme_id);
       if (!meme) {

@@ -1,25 +1,25 @@
 {
-  "generated": "2026-09-22T09:29:00.093502+00:00",
+  "generated": "2026-09-22T09:33:21.700437+00:00",
   "total_memes": 7,
-  "low_risk_count": 6,
+  "low_risk_count": 7,
   "medium_risk_count": 0,
   "high_risk_count": 0,
   "memes": [
     {
-      "id": "GTM-20260922-092711-meme",
+      "id": "GTM-20260922-093129-meme",
       "format": "IMAGE",
       "reference": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
       "reference_url": null,
-      "vanna_angle": "Anchor Vanna's composable credit infrastructure to Blend's verified b-token architecture, showing how isolated SmartAccounts enable safe, high-efficiency leverage deployment into verified ecosystem primitives on testnet.",
-      "copy": "Shared pool liquidations will wreck your farming. Here is how we fixed it on Soroban.",
-      "visual_spec": "Hermetic architectural containment: independent, precision-milled basalt bulkheads separating credit risk, juxtaposed with an immaculate optical routing core.",
+      "vanna_angle": "Position Vanna as the composable credit engine powering advanced yield strategies on top of Blend's formally verified b-token primitives, showcasing modular Soroban composability.",
+      "copy": "Borrowing 10x on Blend b-tokens without pooled risk is live on Soroban testnet.",
+      "visual_spec": "The Calibrated Lever",
       "claims_gate": "PASS",
       "risk": "LOW",
       "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
       "freshness": "LIVE",
       "model": "gemini-3-pro-image",
-      "run_id": "GTM-20260922-092711",
-      "visual_url": "/api/gtm/artifact/GTM-20260922-092711/meme"
+      "run_id": "GTM-20260922-093129",
+      "visual_url": "GTM-20260922-093129_meme.png"
     },
     {
       "id": "meme_1790050822_1",
