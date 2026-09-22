@@ -530,3 +530,229 @@ def render_a4_isolation(headline: str, deck: str, stat_value: str,
     d.text((m, int(H * 0.905)), footnote, font=f_foot, fill=INK_FAINT)
     base.save(out, quality=96)
     return out
+
+
+# --------------------------------------------------------------------------
+# Flat archetypes — no 3D, no lighting, no photorealism
+# --------------------------------------------------------------------------
+#
+# The 3D renders read as product photography: machined columns, lit cubes,
+# cast shadows. Handsome, but wrong register — none of the reference posts
+# are photographed, and Vanna's own documentation explains itself with flat
+# figures and interface, never with rendered objects.
+#
+# These two are orthographic figures. The clause below is what does the work:
+# an image model's default for "architecture" is an isometric hero render, so
+# flatness has to be stated repeatedly and in several vocabularies at once.
+
+FLAT_CLAUSE = (
+    "STRICTLY FLAT 2D VECTOR ILLUSTRATION, drawn as a figure in technical "
+    "documentation. Orthographic and face-on. "
+    "ABSOLUTELY NO: three-dimensional forms, isometric or axonometric "
+    "projection, perspective, depth, extrusion, thickness, bevels, rounded "
+    "solids, lighting, key light, ambient occlusion, cast shadows, drop "
+    "shadows, reflections, specular highlights, material shading, gloss, "
+    "metal, glass, plastic, texture, photorealism, product photography, "
+    "render, raytracing, floor plane, horizon, vanishing point. "
+    "Use solid flat fills and thin uniform strokes only. Every shape is a "
+    "silhouette with no interior shading whatsoever. Think a diagram in a "
+    "technical manual or an SVG schematic, not an object in a room."
+)
+
+NEVER_CLAUSE = (
+    "NEVER: glowing edges, neon, cyan, teal, holographic surfaces, gradients "
+    "inside shapes, network-node constellations, circuit-board texture, coins "
+    "or currency glyphs, vaults, shields, padlocks, lens flare, light streaks, "
+    "haze, particles, starfields, cyberpunk or gaming aesthetics, any logo or "
+    "brand mark, three evenly spaced equal objects in a row."
+)
+
+NO_TEXT_CLAUSE = (
+    "RENDER NO TEXT: no words, letters, numerals, labels, axis ticks, "
+    "gradations, formulas, percentages or captions anywhere on the canvas. "
+    "Express every quantity and relationship through shape, proportion and "
+    "position only."
+)
+
+
+def top_scrim(img: Image.Image, height_pct: float = 0.44,
+              strength: float = 0.80) -> Image.Image:
+    """Darken the top edge with a soft falloff, for type set across the width.
+
+    `left_scrim`'s sibling. Pasting a flat darker rectangle instead, as the
+    first version did, drew a hard horizontal seam across the whole image that
+    read as a compositing mistake.
+    """
+    W, H = img.size
+    mask = Image.new("L", (1, H), 0)
+    px = mask.load()
+    edge = int(H * height_pct)
+    for y in range(H):
+        px[0, y] = int(255 * strength * (1 - y / edge) ** 1.5) if y < edge else 0
+    mask = mask.resize((W, H))
+    dark = Image.new("RGB", (W, H), GROUND_BASE)
+    return Image.composite(dark, img.convert("RGB"), mask)
+
+# --------------------------------------------------------------------------
+# A13 — Containment Figure. Nesting drawn flat.
+# --------------------------------------------------------------------------
+
+A13_PROMPT = (
+    "A flat schematic figure occupying the right half of a plain very dark "
+    "canvas, the left half completely empty. "
+    "The figure is a set of four concentric rounded-rectangle outlines, nested "
+    "one inside the next with even margins between them, like a plan view of "
+    "boxes within boxes. The outermost three outlines are thin and mid-grey. "
+    "The innermost rectangle is the only filled shape: a solid muted violet "
+    "block. A single thin grey line runs from the innermost violet block "
+    "straight out through a small gap in each surrounding outline to the "
+    "figure's right edge, then turns once and returns into the same innermost "
+    "block through a second gap, forming one closed circuit. "
+    + FLAT_CLAUSE + " "
+    "Palette: near-black background, three greys for the outlines, exactly one "
+    "muted violet for the filled block and the returning line. No other colour. "
+    "Generous empty space around the figure. "
+    + NO_TEXT_CLAUSE + " " + NEVER_CLAUSE
+)
+
+
+def render_a13_containment(headline: str, deck: str, notes: list[tuple[str, str]],
+                           footnote: str, *,
+                           out: Optional[Path] = None,
+                           model: str = "gemini-3-pro-image",
+                           reuse_raw: bool = False,
+                           size: tuple[int, int] = (1600, 900)) -> Path:
+    """Flat nesting figure from nano banana pro; all type composited."""
+    from pipeline.scripts.gemini_flash_image import generate_gemini_image
+
+    out = Path(out or (OUT_DIR / "demo_a13_containment.png"))
+    raw = out.with_name(out.stem + "_raw.png")
+    if not (reuse_raw and raw.exists()):
+        generate_gemini_image(prompt=A13_PROMPT, output_path=raw,
+                              project="vanna-mcp", location="global",
+                              model=model, temperature=0.45)
+
+    base = left_scrim(on_ground(Image.open(raw), size), 0.50, 0.74)
+    d = ImageDraw.Draw(base)
+    W, H = size
+    m = int(W * 0.065)
+
+    f_eyebrow = font("semibold", 15)
+    f_head = font("semibold", 60)
+    f_deck = font("regular", 23)
+    f_note_k = font("semibold", 15)
+    f_note_v = font("regular", 15)
+    f_foot = font("regular", 15)
+
+    y = int(H * 0.115)
+    _track(d, (m, y), "COMPOSABILITY · STELLAR SOROBAN TESTNET", f_eyebrow,
+           VIOLET_LIGHT, 2.2)
+
+    y += 44
+    for line in _wrap(d, headline, f_head, int(W * 0.44))[:3]:
+        d.text((m, y), line, font=f_head, fill=INK)
+        y += 72
+
+    y += 12
+    for line in _wrap(d, deck, f_deck, int(W * 0.40))[:2]:
+        d.text((m, y), line, font=f_deck, fill=INK_MUTED)
+        y += 32
+
+    # A short key, stacked, each row a thin rule then label and value. Reads
+    # as an annotation set rather than as a legend floating over the figure.
+    y = int(H * 0.615)
+    for label, value in notes[:3]:
+        d.line([(m, y), (m + 26, y)], fill=VIOLET, width=2)
+        _track(d, (m + 40, y - 9), label.upper(), f_note_k, INK, 1.4)
+        d.text((m + 40, y + 12), value, font=f_note_v, fill=INK_MUTED)
+        y += 62
+
+    d.text((m, int(H * 0.905)), footnote, font=f_foot, fill=INK_FAINT)
+    base.save(out, quality=96)
+    return out
+
+
+# --------------------------------------------------------------------------
+# A14 — Comparison Figure. One variable changed, drawn flat.
+# --------------------------------------------------------------------------
+
+A14_PROMPT = (
+    "A flat schematic comparison figure on a plain very dark canvas, occupying "
+    "the lower two-thirds, with the top third completely empty. "
+    "LEFT SIDE: one single large plain rectangle outline, undivided, SPLIT "
+    "APART by a jagged break: an irregular zigzag crack with sharp angular "
+    "turns running diagonally from the top edge to the bottom edge, cutting "
+    "the rectangle into two separated pieces that have visibly shifted away "
+    "from each other, like a broken pane. The crack is muted dull red. "
+    "It must read as a FRACTURE, not as a graph: it is NOT a line chart, NOT a "
+    "trend line, NOT a data series, NOT a rising or falling plot, and it must "
+    "not run left-to-right along the lower half. "
+    "RIGHT SIDE: twelve small separate square outlines in an even grid, each "
+    "one clearly detached from its neighbours with visible gaps, none touching "
+    "and none connected by any line. Exactly one of the twelve squares is "
+    "filled solid muted dull red; the other eleven are plain grey outlines, "
+    "unmarked and intact. "
+    "A single thin vertical grey rule separates the left and right halves. "
+    + FLAT_CLAUSE + " "
+    "Palette: near-black background, mid-grey outlines, exactly one muted dull "
+    "red. No violet, no other colour. Even weight to both halves. "
+    + NO_TEXT_CLAUSE + " " + NEVER_CLAUSE
+)
+
+
+def render_a14_comparison(headline: str, deck: str,
+                          left_label: str, right_label: str,
+                          footnote: str, *,
+                          out: Optional[Path] = None,
+                          model: str = "gemini-3-pro-image",
+                          reuse_raw: bool = False,
+                          size: tuple[int, int] = (1600, 900)) -> Path:
+    """Flat split comparison. Type runs across the reserved top third."""
+    from pipeline.scripts.gemini_flash_image import generate_gemini_image
+
+    out = Path(out or (OUT_DIR / "demo_a14_comparison.png"))
+    raw = out.with_name(out.stem + "_raw.png")
+    if not (reuse_raw and raw.exists()):
+        generate_gemini_image(prompt=A14_PROMPT, output_path=raw,
+                              project="vanna-mcp", location="global",
+                              model=model, temperature=0.45)
+
+    # No left scrim here: this archetype reserves the TOP, not the left, so a
+    # left falloff would darken half the comparison it is meant to show.
+    base = top_scrim(on_ground(Image.open(raw), size), 0.46, 0.86)
+    W, H = size
+    d = ImageDraw.Draw(base)
+    m = int(W * 0.065)
+
+    f_eyebrow = font("semibold", 15)
+    f_head = font("semibold", 58)
+    f_deck = font("regular", 23)
+    f_col = font("semibold", 15)
+    f_foot = font("regular", 15)
+
+    y = int(H * 0.085)
+    _track(d, (m, y), "RISK CONTAINMENT · STELLAR SOROBAN TESTNET", f_eyebrow,
+           VIOLET_LIGHT, 2.2)
+
+    y += 42
+    for line in _wrap(d, headline, f_head, int(W * 0.70))[:2]:
+        d.text((m, y), line, font=f_head, fill=INK)
+        y += 68
+
+    y += 6
+    d.text((m, y), deck, font=f_deck, fill=INK_MUTED)
+
+    # Column headings sit inside the scrimmed band, above the figure, each on
+    # its own short rule. Placed lower they landed on top of the halves they
+    # were meant to name.
+    cy = int(H * 0.355)
+    for lx, label, col in ((m, left_label, DANGER),
+                           (int(W * 0.525), right_label, HEALTHY)):
+        d.line([(lx, cy - 14), (lx + 30, cy - 14)], fill=col, width=2)
+        _track(d, (lx, cy), label.upper(), f_col, col, 1.8)
+
+    # The footnote joins the top block: the figure bleeds to the bottom edge,
+    # so anything set down there is buried under it.
+    d.text((m, int(H * 0.262)), footnote, font=f_foot, fill=INK_FAINT)
+    base.save(out, quality=96)
+    return out
