@@ -676,9 +676,21 @@ def _finish(summary: dict, t0: float, rid: str) -> dict:
                 if o not in seen:
                     seen.add(o); uniq.append(o)
             merged["outputs"] = uniq
-            if prior.get("status") == "failed" and s.get("status") == "ok":
-                merged["detail"] = (str(s.get("detail", "")) + " (recovered after: "
-                                    + str(prior.get("detail", ""))[:120] + ")")
+            # An agent's own status wins over the wrapper's.
+            #
+            # `_stage` writes "ok" whenever the callable returns without
+            # raising, but an agent can return normally having degraded — A06
+            # falls back to deterministic synthesis when its model call fails
+            # and records that itself. Last-write-wins then overwrote
+            # "degraded" with "ok", so a silent degradation reported as
+            # success. That is precisely the failure this whole rebuild
+            # existed to remove, reintroduced by the wrapper.
+            RANK = {"ok": 0, "skipped": 0, "degraded": 1, "failed": 2}
+            if RANK.get(prior.get("status"), 0) > RANK.get(s.get("status"), 0):
+                merged["status"] = prior["status"]
+                merged["detail"] = (str(prior.get("detail", ""))
+                                    + " | later stage reported "
+                                    + str(s.get("status")))
         by_agent[s["agent"]] = merged
     summary["agents"] = [by_agent.get(a, {"agent": a, "name": R.AGENT_NAMES[a],
                                           "status": "never_ran"})

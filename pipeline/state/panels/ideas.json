@@ -1,9 +1,61 @@
 {
-  "generated": "2026-09-22T10:53:56.553878+00:00",
-  "total_ideas": 20,
+  "generated": "2026-09-22T18:22:45.237219+00:00",
+  "total_ideas": 21,
   "runnable_today_count": 16,
-  "blocked_count": 4,
+  "blocked_count": 5,
   "ideas": [
+    {
+      "id": "GTM-20260922-182020-idea",
+      "type": "GTM_CYCLE",
+      "hook": "Looping Blend b-tokens shouldn't blow up LPs. Here is how we isolate margin risk on Soroban.",
+      "rationale": "Blend v2's formal verification and b-token specification provide the exact technical substrate required for Vanna's composable credit infrastructure to integrate collateral accounting, isolated credit lines, and structured lending on Soroban.",
+      "pattern_ref": "MACH_02_B2B_PARTNER_ONBOARDING",
+      "trend_link": "https://docs.blend.capital",
+      "pattern_source": "B2B Ecosystem Partner Onboarding Machine \u2014 observed in CAMP_ROBINHOOD_ACQUISITION, MORPHO_CURV_INTEGRATION",
+      "source_type": "LIVE_OBSERVED",
+      "audience_segment": "A1: Stellar & Soroban DeFi Farmers",
+      "objection_addressed": "Yield farmers face capital drag and fragmented multi-step transactions when trying to route liquidity into Blend lending markets and manage collateral manually.",
+      "claims_gate": "BLOCKED",
+      "runnable_today": false,
+      "blocked_by": "{'blocked_claims': [], 'slop': [], 'creative': 'REJECT'}",
+      "effort": "AUTONOMOUS",
+      "rejected": [
+        {
+          "headline": "The Web3 builder\u2019s guide to Stellar - Blockworks",
+          "why": "General ecosystem guide with high-level builder overviews rather than an architectural integration trigger."
+        },
+        {
+          "headline": "XLM Bulls Eye $0.20 As Stellar\u2019s Soroban Powers Record TVL - DailyCoin",
+          "why": "Speculative token price action and general TVL commentary without actionable smart contract primitives."
+        },
+        {
+          "headline": "Stellar Price Prediction 2026: XLM Targets Through 2030 - memeburn.com",
+          "why": "Speculative price prediction content irrelevant to protocol architecture."
+        },
+        {
+          "headline": "Stellar price prediction 2026-2030: the compliance-first bet - Crypto News",
+          "why": "Long-term price prediction narrative lacking technical utility."
+        },
+        {
+          "headline": "Stellar Price Prediction 2026, 2027 and 2030: Can XLM Touch $1? - Bitget",
+          "why": "Speculative retail price target article."
+        },
+        {
+          "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+          "why": "Ecosystem-external discussion on Principal Token yields on other chains, not Soroban-native."
+        },
+        {
+          "headline": "Protocol 20 smart contracts and Blend v2 liquidity expansion live",
+          "why": "Broad announcement of liquidity expansion, whereas signal 5 provides the concrete b-token architectural standard Vanna interfaces with."
+        },
+        {
+          "headline": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+          "why": "Archived internal framing rather than an active, live external market signal."
+        }
+      ],
+      "run_id": "GTM-20260922-182020",
+      "visual_url": "GTM-20260922-182020_visual.png"
+    },
     {
       "id": "GTM-20260922-105131-idea",
       "type": "GTM_CYCLE",

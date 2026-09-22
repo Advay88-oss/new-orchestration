@@ -1,10 +1,26 @@
 {
-  "generated": "2026-09-22T10:53:56.565887+00:00",
-  "total_memes": 16,
-  "low_risk_count": 16,
+  "generated": "2026-09-22T18:22:45.252819+00:00",
+  "total_memes": 17,
+  "low_risk_count": 17,
   "medium_risk_count": 0,
   "high_risk_count": 0,
   "memes": [
+    {
+      "id": "GTM-20260922-182020-meme",
+      "format": "IMAGE",
+      "reference": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+      "reference_url": null,
+      "vanna_angle": "Highlight Vanna's composable architecture that connects margin borrowing directly into Blend b-tokens within isolated SmartAccount sandboxes on Soroban testnet.",
+      "copy": "Looping Blend b-tokens shouldn't blow up LPs. Here is how we isolate margin risk on Soroban.",
+      "visual_spec": "A standalone, precision-machined SmartAccount monolithic unit actively docks a single high-refraction optical conduit into an external Blend b-token yield chamber, while identical adjacent borrower units remain completely dark, hermetically sealed, and unaffected by the deployment.",
+      "claims_gate": "BLOCKED",
+      "risk": "LOW",
+      "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
+      "freshness": "LIVE",
+      "model": "gemini-3-pro-image",
+      "run_id": "GTM-20260922-182020",
+      "visual_url": "GTM-20260922-182020_meme.png"
+    },
     {
       "id": "GTM-20260922-105131-meme",
       "format": "IMAGE",
