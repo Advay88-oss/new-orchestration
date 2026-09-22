@@ -183,7 +183,9 @@ def build_isolation_motion(
     # and produce the same pixels 192 times.
     ground = premium(vanna_ground(size))
 
-    tmp = Path(tempfile.mkdtemp(prefix="vanna_motion_"))
+    scratch_root = Path(__file__).resolve().parents[2] / "pipeline" / "state" / ".render"
+    scratch_root.mkdir(parents=True, exist_ok=True)
+    tmp = Path(tempfile.mkdtemp(prefix="motion_", dir=str(scratch_root)))
     frames_in = tmp / "in"
     frames_out = tmp / "out"
     frames_in.mkdir()
@@ -191,10 +193,10 @@ def build_isolation_motion(
 
     subprocess.run([ff, "-y", "-i", str(element), "-vf",
                     "fps=" + str(FPS) + ",scale=" + str(W) + ":" + str(H),
-                    str(frames_in / "f_%04d.png")],
+                    str(frames_in / "f_%05d.jpg")],
                    capture_output=True, check=True, timeout=300)
 
-    files = sorted(frames_in.glob("f_*.png"))
+    files = sorted(frames_in.glob("f_*.jpg"))
     if not files:
         raise RuntimeError("no frames extracted from the element clip")
 
@@ -270,10 +272,10 @@ def build_isolation_motion(
             d.text((m, int(H * 0.905)), footnote, font=f_foot,
                    fill=_dim(INK_FAINT, fa))
 
-        base.save(frames_out / fp.name, quality=95)
+        base.save(frames_out / fp.name, quality=94)
 
     subprocess.run([ff, "-y", "-framerate", str(FPS), "-i",
-                    str(frames_out / "f_%04d.png"),
+                    str(frames_out / "f_%05d.jpg"),
                     "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "18",
                     "-movflags", "+faststart", str(out)],
                    capture_output=True, check=True, timeout=300)
