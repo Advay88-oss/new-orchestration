@@ -1,8 +1,8 @@
 {
-  "audit_timestamp": "2026-09-22T10:13:19.230930+00:00",
-  "package_id": "CAP-STRAT-SIG-DOCS-B-202609221012",
+  "audit_timestamp": "2026-09-22T10:53:53.237383+00:00",
+  "package_id": "CAP-STRAT-SIG-DOCS-B-202609221052",
   "approved": true,
-  "distinctness_score": 85,
+  "distinctness_score": 87,
   "claim_provenance_verified": true,
   "channels_audited": [
     "x",
@@ -10,5 +10,5 @@
     "reddit"
   ],
   "blocked_claims_count": 0,
-  "reasoning": "Channel adaptation successfully verified across X, LinkedIn, and Reddit. Distinctness score: 85/100. All claims backed by provenance refs."
+  "reasoning": "Channel adaptation successfully verified across X, LinkedIn, and Reddit. Distinctness score: 87/100. All claims backed by provenance refs."
 }

@@ -435,8 +435,13 @@ def render_a3_threshold(headline: str, deck: str, floor_label: str,
     # Callouts sit to the LEFT of the column, right-aligned into their rule.
     # Placed on the right they ran straight across the machined face.
     rule_end = int(W * 0.625)
-    for label, ay, col in ((value_label, int(H * 0.38), HEALTHY),
-                           (floor_label, int(H * 0.70), DANGER)):
+    # Never above the text block: with a three-line headline the first callout
+    # landed on top of the last line. The rule still meets the column, so a
+    # nudged callout reads as an annotation rather than a collision.
+    first_y = max(int(H * 0.38), y + 34)
+    second_y = max(int(H * 0.70), first_y + int(H * 0.28))
+    for label, ay, col in ((value_label, first_y, HEALTHY),
+                           (floor_label, second_y, DANGER)):
         txt = label.upper()
         tw = sum(d.textlength(c, font=f_ann) + 1.6 for c in txt)
         d.line([(rule_end - 44, ay), (rule_end, ay)], fill=col, width=2)
@@ -754,5 +759,165 @@ def render_a14_comparison(headline: str, deck: str,
     # The footnote joins the top block: the figure bleeds to the bottom edge,
     # so anything set down there is buried under it.
     d.text((m, int(H * 0.262)), footnote, font=f_foot, fill=INK_FAINT)
+    base.save(out, quality=96)
+    return out
+
+
+# --------------------------------------------------------------------------
+# A7 — Composition. What something is made of, drawn not generated.
+# --------------------------------------------------------------------------
+
+def render_a7_composition(headline: str, deck: str,
+                          segments: list[tuple[str, float, tuple[int, int, int]]],
+                          total_label: str, footnote: str, *,
+                          out: Optional[Path] = None,
+                          size: tuple[int, int] = (1600, 900)) -> Path:
+    """A proportional bar. No model: a bar is arithmetic, and arithmetic
+    rendered by an image model is arithmetic you cannot trust.
+
+    `segments` is (label, weight, colour); weights are normalised, so the bar
+    always sums to the width and the drawing cannot disagree with the numbers
+    that sit beside it.
+    """
+    out = Path(out or (OUT_DIR / "demo_a7_composition.png"))
+    W, H = size
+    base = vanna_ground(size)
+    d = ImageDraw.Draw(base)
+    m = int(W * 0.065)
+
+    f_eyebrow = font("semibold", 15)
+    f_head = font("semibold", 58)
+    f_deck = font("regular", 23)
+    f_seg = font("semibold", 16)
+    f_pct = font("bold", 30)
+    f_total = font("semibold", 15)
+    f_foot = font("regular", 15)
+
+    y = int(H * 0.115)
+    _track(d, (m, y), "RECOGNISED COLLATERAL · STELLAR SOROBAN TESTNET",
+           f_eyebrow, VIOLET_LIGHT, 2.2)
+
+    y += 44
+    for line in _wrap(d, headline, f_head, int(W * 0.62))[:2]:
+        d.text((m, y), line, font=f_head, fill=INK)
+        y += 68
+
+    y += 8
+    for line in _wrap(d, deck, f_deck, int(W * 0.56))[:2]:
+        d.text((m, y), line, font=f_deck, fill=INK_MUTED)
+        y += 32
+
+    # One horizontal bar, full measure. Segments are separated by a gap rather
+    # than a stroke, so nothing needs a border and the proportions stay honest.
+    total = sum(max(0.0, s[1]) for s in segments) or 1.0
+    bar_y = int(H * 0.545)
+    bar_h = 74
+    gap = 6
+    usable = (W - 2 * m) - gap * (len(segments) - 1)
+    x = m
+    for label, weight, col in segments:
+        w = int(usable * (max(0.0, weight) / total))
+        d.rectangle([(x, bar_y), (x + w, bar_y + bar_h)], fill=col)
+        x += w + gap
+
+    # Labels sit under their own segment, left-aligned to it — a key off to
+    # the side makes the reader match colours instead of reading the bar.
+    x = m
+    ly = bar_y + bar_h + 26
+    for label, weight, col in segments:
+        w = int(usable * (max(0.0, weight) / total))
+        pct = str(int(round(weight / total * 100))) + "%"
+        d.text((x, ly), pct, font=f_pct, fill=col)
+        for i, line in enumerate(_wrap(d, label, f_seg, max(w, 150))[:2]):
+            d.text((x, ly + 42 + i * 22), line, font=f_seg, fill=INK_MUTED)
+        x += w + gap
+
+    _track(d, (m, bar_y - 30), total_label.upper(), f_total, INK_FAINT, 1.8)
+    d.text((m, int(H * 0.905)), footnote, font=f_foot, fill=INK_FAINT)
+
+    base.save(out, quality=96)
+    return out
+
+
+# --------------------------------------------------------------------------
+# A8 — Sequence. Something that happens in order, drawn flat.
+# --------------------------------------------------------------------------
+
+A8_PROMPT = (
+    "A flat schematic timeline figure across the lower half of a plain very "
+    "dark canvas, with the top half completely empty. "
+    "One long thin horizontal grey baseline runs most of the width. Four small "
+    "square markers sit ON the baseline at UNEVEN intervals — the first two "
+    "close together near the left, the third after a wider gap, the fourth "
+    "after a wider gap still. The first three markers are plain grey outlines. "
+    "The fourth and final marker is a solid filled muted violet square. "
+    "Below the baseline, a second thin line traces a shallow descent from left "
+    "to right that levels off flat before reaching the right edge, staying "
+    "clearly above a short dashed horizontal grey rule drawn near the bottom. "
+    "The descent line never touches the dashed rule. "
+    + FLAT_CLAUSE + " "
+    "Palette: near-black background, mid-grey lines and outlines, exactly one "
+    "muted violet for the final marker. No other colour. "
+    + NO_TEXT_CLAUSE + " " + NEVER_CLAUSE
+)
+
+
+def render_a8_sequence(headline: str, deck: str, steps: list[tuple[str, str]],
+                       footnote: str, *,
+                       out: Optional[Path] = None,
+                       model: str = "gemini-3-pro-image",
+                       reuse_raw: bool = False,
+                       size: tuple[int, int] = (1600, 900)) -> Path:
+    """Flat timeline from nano banana pro; steps composited along the top."""
+    from pipeline.scripts.gemini_flash_image import generate_gemini_image
+
+    out = Path(out or (OUT_DIR / "demo_a8_sequence.png"))
+    raw = out.with_name(out.stem + "_raw.png")
+    if not (reuse_raw and raw.exists()):
+        generate_gemini_image(prompt=A8_PROMPT, output_path=raw,
+                              project="vanna-mcp", location="global",
+                              model=model, temperature=0.45)
+
+    base = top_scrim(on_ground(Image.open(raw), size), 0.58, 0.86)
+    W, H = size
+    d = ImageDraw.Draw(base)
+    m = int(W * 0.065)
+
+    f_eyebrow = font("semibold", 15)
+    f_head = font("semibold", 58)
+    f_deck = font("regular", 23)
+    f_step_n = font("bold", 15)
+    f_step_k = font("semibold", 16)
+    f_step_v = font("regular", 15)
+    f_foot = font("regular", 15)
+
+    y = int(H * 0.105)
+    _track(d, (m, y), "DEFENSIVE REBALANCING · STELLAR SOROBAN TESTNET",
+           f_eyebrow, VIOLET_LIGHT, 2.2)
+
+    y += 42
+    for line in _wrap(d, headline, f_head, int(W * 0.70))[:2]:
+        d.text((m, y), line, font=f_head, fill=INK)
+        y += 66
+
+    y += 6
+    d.text((m, y), deck, font=f_deck, fill=INK_MUTED)
+
+    # Four steps as columns in the scrimmed band, so the figure beneath reads
+    # as the same sequence rather than as a separate chart.
+    cols = 4
+    col_w = (W - 2 * m) // cols
+    sy = int(H * 0.365)
+    for i, (title, sub) in enumerate(steps[:cols]):
+        cx = m + i * col_w
+        col = VIOLET_LIGHT if i == cols - 1 else INK_FAINT
+        d.line([(cx, sy - 16), (cx + 26, sy - 16)], fill=col, width=2)
+        _track(d, (cx, sy), ("0" + str(i + 1)), f_step_n, col, 1.4)
+        for j, line in enumerate(_wrap(d, title, f_step_k, col_w - 40)[:2]):
+            d.text((cx, sy + 26 + j * 22), line, font=f_step_k,
+                   fill=INK if i == cols - 1 else INK_MUTED)
+        d.text((cx, sy + 74), sub, font=f_step_v, fill=INK_FAINT)
+
+    d.text((m, int(H * 0.925)), footnote, font=f_foot, fill=INK_FAINT)
     base.save(out, quality=96)
     return out

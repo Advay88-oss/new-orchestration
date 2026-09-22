@@ -82,6 +82,40 @@ def _stage(agent: str, fn, *, required: bool = True, detail: str = "",
 # --------------------------------------------------------------------------
 
 def render_visual(strategy, content_pkg, blueprint, run_id: str) -> Optional[dict]:
+    """A08 renders the post visual through the archetype system.
+
+    The old path called VisualPipelineEngine, which chose its composition from
+    a five-branch if/else on keywords — the reason every post looked the same.
+    A07 now picks an archetype (with the last two removed from the candidate
+    set) and fills its slots, and the archetype's own renderer draws it. Half
+    the archetypes never reach an image model at all.
+    """
+    from pipeline.gtm_creative.archetype_director import direct_and_render
+
+    hook, body = "", ""
+    try:
+        x = content_pkg.channel_posts["x"]
+        hook, body = str(x.hook), str(x.copy)
+    except Exception:                               # noqa: BLE001 — boundary
+        hook = str(getattr(strategy, "problem", ""))[:200]
+
+    result = direct_and_render(strategy, hook, body, run_id)
+    png = Path(result["path"])
+    if not png.exists() or png.stat().st_size < 4096:
+        raise RuntimeError("archetype renderer produced no usable PNG")
+    R.record(R.AgentCall(
+        "A08_visual_synthesis",
+        "image" if result["generated"] else "none",
+        R.MODELS["image"] if result["generated"] else None,
+        True, 0.0,
+        note=result["archetype"] + (" (drawn, no model)" if not result["generated"] else ""),
+        transport="model-garden" if result["generated"] else "deterministic"))
+    return {"path": str(png), "filename": png.name,
+            "archetype": result["archetype"], "why": result["why"],
+            "public_url": "/" + png.name}
+
+
+def render_visual_legacy(strategy, content_pkg, blueprint, run_id: str) -> Optional[dict]:
     from pipeline.gtm_creative.visual_pipeline_engine import VisualPipelineEngine
 
     hook = ""
@@ -427,6 +461,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                         required=False, self_recorded=True)
         if visual:
             summary["visual_path"] = visual.get("path") or visual.get("filename")
+            summary["visual_archetype"] = visual.get("archetype")
+            summary["visual_why"] = visual.get("why")
             summary["visual_public_url"] = visual.get("public_url")
 
         # Meme — same agent, nano banana pro
