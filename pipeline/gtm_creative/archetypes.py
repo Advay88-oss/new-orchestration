@@ -77,6 +77,26 @@ def _wrap(draw, text: str, f, max_w: int) -> list[str]:
     return lines
 
 
+def _fit(draw, text: str, weight: str, max_w: int, max_lines: int,
+         start: int, minimum: int = 40):
+    """Shrink the headline until it fits, rather than dropping words.
+
+    Every archetype wrapped to a measure and then sliced `[:3]`, so a headline
+    one line too long silently lost its ending — "One account defaults. The
+    rest never" shipped without "know." A clipped sentence is worse than a
+    smaller one, and worse still because nothing reports it.
+    """
+    size = start
+    while size > minimum:
+        f = font(weight, size)
+        lines = _wrap(draw, text, f, max_w)
+        if len(lines) <= max_lines:
+            return f, lines, int(size * 1.18)
+        size -= 3
+    f = font(weight, minimum)
+    return f, _wrap(draw, text, f, max_w)[:max_lines], int(minimum * 1.18)
+
+
 # --------------------------------------------------------------------------
 # A5 — Round Trip. Generated geometry + composited type.
 # --------------------------------------------------------------------------
@@ -138,7 +158,7 @@ def render_a5_round_trip(
     base.paste(Image.blend(base.crop((0, 0, W, int(H * 0.30))), band, 0.82), (0, 0))
 
     f_eyebrow = font("semibold", 15)
-    f_head = font("semibold", 58)
+    f_head = font("regular", 76)
     f_deck = font("regular", 23)
     f_label = font("semibold", 14)
 
@@ -146,9 +166,11 @@ def render_a5_round_trip(
     _track(d, (m, y), "STELLAR SOROBAN · TESTNET", f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 40
-    for line in _wrap(d, headline, f_head, int(W * 0.62))[:3]:
-        d.text((m, y), line, font=f_head, fill=INK)
-        y += 68
+    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.52), 3,
+                            f_head.size)
+    for line in _hl:
+        d.text((m, y), line, font=f_head, fill=INK_SOFT)
+        y += _lh
 
     y += 8
     d.text((m, y), deck, font=f_deck, fill=INK_MUTED)
@@ -187,22 +209,18 @@ def render_a6_ledger(
     """
     out = Path(out or (OUT_DIR / "demo_a6_ledger.png"))
     W, H = size
-    img = Image.new("RGB", size, GROUND)
+    # The ledger was drawn on flat black with its own grid, which made it the
+    # one asset that did not sit on the Vanna ground.
+    img = refined_ground(size)
     d = ImageDraw.Draw(img)
-    m = int(W * 0.075)
-
-    # Documentation ground: a faint grid, nothing more.
-    for x in range(0, W, 48):
-        d.line([(x, 0), (x, H)], fill=(14, 14, 17), width=1)
-    for y in range(0, H, 48):
-        d.line([(0, y), (W, y)], fill=(14, 14, 17), width=1)
+    m = int(W * 0.082)
 
     f_eyebrow = font("semibold", 15)
-    f_head = font("semibold", 52)
+    f_head = font("regular", 70)
     f_key = font("regular", 22)
     f_val = font("semibold", 26)
     f_verdict_k = font("semibold", 20)
-    f_verdict_v = font("bold", 40)
+    f_verdict_v = font("semibold", 44)
     f_foot = font("regular", 16)
 
     # Start lower and let the table run: the first draft put everything in the
@@ -212,9 +230,11 @@ def render_a6_ledger(
     _track(d, (m, y), "HEALTH FACTOR · WORKED", f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 44
-    for line in _wrap(d, headline, f_head, int(W * 0.74))[:2]:
-        d.text((m, y), line, font=f_head, fill=INK)
-        y += 62
+    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.74), 2,
+                            f_head.size)
+    for line in _hl:
+        d.text((m, y), line, font=f_head, fill=INK_SOFT)
+        y += _lh
 
     # The statement itself, as a table. Tabular figures, right aligned.
     y += 48
@@ -222,8 +242,8 @@ def render_a6_ledger(
     for i, (k, v) in enumerate(rows):
         d.text((m, y), k, font=f_key, fill=INK_MUTED)
         vw = d.textlength(v, font=f_val)
-        d.text((right - vw, y - 3), v, font=f_val, fill=INK)
-        y += 62
+        d.text((right - vw, y - 3), v, font=f_val, fill=INK_SOFT)
+        y += 82
         if i < len(rows) - 1:
             d.line([(m, y - 10), (right, y - 10)], fill=(22, 22, 27), width=1)
 
@@ -361,6 +381,88 @@ def left_scrim(img: Image.Image, width_pct: float = 0.52,
     return Image.composite(dark, img.convert("RGB"), mask)
 
 # --------------------------------------------------------------------------
+# Refinement pass — the things that separate "correct" from "premium"
+# --------------------------------------------------------------------------
+#
+# The assets were right and flat and on-brand, and still looked a tier below
+# Arc, U-USDG and Robinhood Chain. Comparing them closely, the gap was never
+# the subject matter. It was five things, none of which are about what the
+# image depicts:
+#
+#   1. Type weight. The references set their largest line LIGHT, not bold. A
+#      semibold headline at 58px reads as a slide; a regular headline at 80px
+#      reads as a magazine. Weight down, size up.
+#   2. Material. Arc's card is frosted, with one hairline edge catching light.
+#      Nothing in our flat figures had any surface quality at all.
+#   3. Tonality. The references sit close in value — subject barely brighter
+#      than ground. Pure white on near-black is the cheapest contrast there is.
+#   4. A second texture. Arc has a faint line field, U-USDG a ghosted mark.
+#      One plain grid is a background; two layers at different scales is depth.
+#   5. Vignette. All three darken at the edges, which is what holds the eye in
+#      the middle. Ours were evenly lit corner to corner.
+
+INK_SOFT = (228, 228, 234)          # not pure white; #FFFFFF is the tell
+
+
+def _vignette(img: Image.Image, strength: float = 0.42) -> Image.Image:
+    """Darken the corners. Even edge-to-edge lighting is what makes a
+    composition read as a screenshot rather than as a photograph."""
+    from PIL import ImageFilter
+
+    W, H = img.size
+    mask = Image.new("L", (W, H), 0)
+    d = ImageDraw.Draw(mask)
+    inset_x, inset_y = int(W * 0.17), int(H * 0.17)
+    d.ellipse([(-inset_x, -inset_y), (W + inset_x, H + inset_y)], fill=255)
+    mask = mask.filter(ImageFilter.GaussianBlur(int(min(W, H) * 0.13)))
+    mask = mask.point(lambda v: int(255 - (255 - v) * strength))
+    dark = Image.new("RGB", (W, H), (4, 3, 7))
+    return Image.composite(img.convert("RGB"), dark, mask)
+
+
+def _hairlines(img: Image.Image, opacity: int = 7) -> Image.Image:
+    """A second, finer texture at a different scale from the grid.
+
+    One grid alone reads as a background. Two layers at different frequencies
+    read as depth — it is the faint line field behind the Arc card and the
+    ghosted grid under the U-USDG badges.
+    """
+    W, H = img.size
+    layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    step = 11
+    for x in range(-H, W, step):
+        d.line([(x, 0), (x + H, H)], fill=(190, 175, 255, opacity), width=1)
+    return Image.alpha_composite(img.convert("RGBA"), layer).convert("RGB")
+
+
+def refined_ground(size: tuple[int, int] = (1600, 900)) -> Image.Image:
+    """The Vanna ground with the depth pass applied."""
+    return _vignette(_hairlines(vanna_ground(size)))
+
+
+def premium(img: Image.Image) -> Image.Image:
+    """Apply the depth pass to a composited asset."""
+    return _vignette(_hairlines(img))
+
+
+# The clause that asks nano banana pro for material rather than shape alone.
+# Without it the figures come back as flat silhouettes: correct, and lifeless.
+MATERIAL_CLAUSE = (
+    "MATERIAL AND LIGHT, restrained: every shape is a softly translucent "
+    "frosted surface, not a flat cut-out. Each carries ONE hairline lighter "
+    "edge along a single side where light grazes it, and a faint interior "
+    "luminance that falls away toward the opposite side. Edges are crisp and "
+    "true. "
+    "TONALITY: keep everything close in value. The subject sits only slightly "
+    "brighter than the background — a quiet, tonal, low-contrast image. Never "
+    "pure white, never a hard black silhouette; high contrast reads as cheap. "
+    "This is the restraint of a premium product launch graphic, not the "
+    "contrast of an infographic."
+)
+
+
+# --------------------------------------------------------------------------
 # A3 — Threshold. A value held above a floor.
 # --------------------------------------------------------------------------
 
@@ -379,7 +481,7 @@ A3_PROMPT = (
     "Composition: flat near-orthographic, the column occupying only the right "
     "third, the left two-thirds completely empty dark floor, the top 25 percent "
     "entirely clear. "
-    "Fine 35mm grain. Photorealistic precision-instrument product photography. "
+    "Fine 35mm grain. " + MATERIAL_CLAUSE + " "
     "RENDER NO TEXT: no words, letters, numerals, tick labels, scale markings, "
     "gradations, formulas or captions anywhere. "
     "NEVER: glowing edges, neon, cyan, teal, holographic surfaces, floating "
@@ -405,13 +507,13 @@ def render_a3_threshold(headline: str, deck: str, floor_label: str,
                               project="vanna-mcp", location="global",
                               model=model, temperature=0.5)
 
-    base = left_scrim(on_ground(Image.open(raw), size))
+    base = premium(left_scrim(on_ground(Image.open(raw), size), 0.56, 0.82))
     d = ImageDraw.Draw(base)
     W, H = size
-    m = int(W * 0.065)
+    m = int(W * 0.082)
 
     f_eyebrow = font("semibold", 15)
-    f_head = font("semibold", 62)
+    f_head = font("regular", 80)
     f_deck = font("regular", 23)
     f_ann = font("semibold", 15)
     f_foot = font("regular", 15)
@@ -421,12 +523,14 @@ def render_a3_threshold(headline: str, deck: str, floor_label: str,
            VIOLET_LIGHT, 2.2)
 
     y += 44
-    for line in _wrap(d, headline, f_head, int(W * 0.50))[:3]:
-        d.text((m, y), line, font=f_head, fill=INK)
-        y += 74
+    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.40), 3,
+                            f_head.size)
+    for line in _hl:
+        d.text((m, y), line, font=f_head, fill=INK_SOFT)
+        y += _lh
 
     y += 10
-    for line in _wrap(d, deck, f_deck, int(W * 0.44))[:2]:
+    for line in _wrap(d, deck, f_deck, int(W * 0.36))[:2]:
         d.text((m, y), line, font=f_deck, fill=INK_MUTED)
         y += 32
 
@@ -472,8 +576,7 @@ A4_PROMPT = (
     "Composition: the grid occupying the lower right two-thirds at a low "
     "three-quarter angle, the upper left and the top 25 percent of the canvas "
     "completely empty dark floor. "
-    "Fine 35mm grain. Photorealistic architectural product rendering, quiet "
-    "institutional restraint. "
+    "Fine 35mm grain. " + MATERIAL_CLAUSE + " "
     "RENDER NO TEXT: no words, letters, numerals, labels, formulas or captions "
     "anywhere. "
     "NEVER: glowing edges, neon, cyan, teal, holographic surfaces, connecting "
@@ -500,15 +603,15 @@ def render_a4_isolation(headline: str, deck: str, stat_value: str,
                               project="vanna-mcp", location="global",
                               model=model, temperature=0.5)
 
-    base = left_scrim(on_ground(Image.open(raw), size), 0.46, 0.66)
+    base = premium(left_scrim(on_ground(Image.open(raw), size), 0.54, 0.84))
     d = ImageDraw.Draw(base)
     W, H = size
-    m = int(W * 0.065)
+    m = int(W * 0.082)
 
     f_eyebrow = font("semibold", 15)
-    f_head = font("semibold", 60)
+    f_head = font("regular", 78)
     f_deck = font("regular", 23)
-    f_stat = font("bold", 78)
+    f_stat = font("regular", 104)
     f_statlab = font("semibold", 15)
     f_foot = font("regular", 15)
 
@@ -517,19 +620,21 @@ def render_a4_isolation(headline: str, deck: str, stat_value: str,
            VIOLET_LIGHT, 2.2)
 
     y += 44
-    for line in _wrap(d, headline, f_head, int(W * 0.46))[:3]:
-        d.text((m, y), line, font=f_head, fill=INK)
-        y += 72
+    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.38), 3,
+                            f_head.size)
+    for line in _hl:
+        d.text((m, y), line, font=f_head, fill=INK_SOFT)
+        y += _lh
 
     y += 10
-    for line in _wrap(d, deck, f_deck, int(W * 0.40))[:2]:
+    for line in _wrap(d, deck, f_deck, int(W * 0.34))[:2]:
         d.text((m, y), line, font=f_deck, fill=INK_MUTED)
         y += 32
 
     # One figure, once, at scale — the Robinhood lesson. It sits in the empty
     # lower-left quadrant the prompt deliberately reserved.
     sy = int(H * 0.68)
-    d.text((m, sy), stat_value, font=f_stat, fill=INK)
+    d.text((m, sy), stat_value, font=f_stat, fill=INK_SOFT)
     _track(d, (m + 4, sy + 96), stat_label.upper(), f_statlab, INK_MUTED, 1.8)
 
     d.text((m, int(H * 0.905)), footnote, font=f_foot, fill=INK_FAINT)
@@ -613,7 +718,7 @@ A13_PROMPT = (
     "straight out through a small gap in each surrounding outline to the "
     "figure's right edge, then turns once and returns into the same innermost "
     "block through a second gap, forming one closed circuit. "
-    + FLAT_CLAUSE + " "
+    + FLAT_CLAUSE + " " + MATERIAL_CLAUSE + " "
     "Palette: near-black background, three greys for the outlines, exactly one "
     "muted violet for the filled block and the returning line. No other colour. "
     "Generous empty space around the figure. "
@@ -637,13 +742,13 @@ def render_a13_containment(headline: str, deck: str, notes: list[tuple[str, str]
                               project="vanna-mcp", location="global",
                               model=model, temperature=0.45)
 
-    base = left_scrim(on_ground(Image.open(raw), size), 0.50, 0.74)
+    base = premium(left_scrim(on_ground(Image.open(raw), size), 0.54, 0.84))
     d = ImageDraw.Draw(base)
     W, H = size
-    m = int(W * 0.065)
+    m = int(W * 0.082)
 
     f_eyebrow = font("semibold", 15)
-    f_head = font("semibold", 60)
+    f_head = font("regular", 78)
     f_deck = font("regular", 23)
     f_note_k = font("semibold", 15)
     f_note_v = font("regular", 15)
@@ -654,12 +759,14 @@ def render_a13_containment(headline: str, deck: str, notes: list[tuple[str, str]
            VIOLET_LIGHT, 2.2)
 
     y += 44
-    for line in _wrap(d, headline, f_head, int(W * 0.44))[:3]:
-        d.text((m, y), line, font=f_head, fill=INK)
-        y += 72
+    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.37), 3,
+                            f_head.size)
+    for line in _hl:
+        d.text((m, y), line, font=f_head, fill=INK_SOFT)
+        y += _lh
 
     y += 12
-    for line in _wrap(d, deck, f_deck, int(W * 0.40))[:2]:
+    for line in _wrap(d, deck, f_deck, int(W * 0.34))[:2]:
         d.text((m, y), line, font=f_deck, fill=INK_MUTED)
         y += 32
 
@@ -698,7 +805,7 @@ A14_PROMPT = (
     "filled solid muted dull red; the other eleven are plain grey outlines, "
     "unmarked and intact. "
     "A single thin vertical grey rule separates the left and right halves. "
-    + FLAT_CLAUSE + " "
+    + FLAT_CLAUSE + " " + MATERIAL_CLAUSE + " "
     "Palette: near-black background, mid-grey outlines, exactly one muted dull "
     "red. No violet, no other colour. Even weight to both halves. "
     + NO_TEXT_CLAUSE + " " + NEVER_CLAUSE
@@ -724,13 +831,13 @@ def render_a14_comparison(headline: str, deck: str,
 
     # No left scrim here: this archetype reserves the TOP, not the left, so a
     # left falloff would darken half the comparison it is meant to show.
-    base = top_scrim(on_ground(Image.open(raw), size), 0.46, 0.86)
+    base = premium(top_scrim(on_ground(Image.open(raw), size), 0.46, 0.86))
     W, H = size
     d = ImageDraw.Draw(base)
-    m = int(W * 0.065)
+    m = int(W * 0.082)
 
     f_eyebrow = font("semibold", 15)
-    f_head = font("semibold", 58)
+    f_head = font("regular", 76)
     f_deck = font("regular", 23)
     f_col = font("semibold", 15)
     f_foot = font("regular", 15)
@@ -740,9 +847,11 @@ def render_a14_comparison(headline: str, deck: str,
            VIOLET_LIGHT, 2.2)
 
     y += 42
-    for line in _wrap(d, headline, f_head, int(W * 0.70))[:2]:
-        d.text((m, y), line, font=f_head, fill=INK)
-        y += 68
+    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.70), 2,
+                            f_head.size)
+    for line in _hl:
+        d.text((m, y), line, font=f_head, fill=INK_SOFT)
+        y += _lh
 
     y += 6
     d.text((m, y), deck, font=f_deck, fill=INK_MUTED)
@@ -781,15 +890,15 @@ def render_a7_composition(headline: str, deck: str,
     """
     out = Path(out or (OUT_DIR / "demo_a7_composition.png"))
     W, H = size
-    base = vanna_ground(size)
+    base = refined_ground(size)
     d = ImageDraw.Draw(base)
-    m = int(W * 0.065)
+    m = int(W * 0.082)
 
     f_eyebrow = font("semibold", 15)
-    f_head = font("semibold", 58)
+    f_head = font("regular", 76)
     f_deck = font("regular", 23)
     f_seg = font("semibold", 16)
-    f_pct = font("bold", 30)
+    f_pct = font("semibold", 32)
     f_total = font("semibold", 15)
     f_foot = font("regular", 15)
 
@@ -798,9 +907,11 @@ def render_a7_composition(headline: str, deck: str,
            f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 44
-    for line in _wrap(d, headline, f_head, int(W * 0.62))[:2]:
-        d.text((m, y), line, font=f_head, fill=INK)
-        y += 68
+    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.52), 2,
+                            f_head.size)
+    for line in _hl:
+        d.text((m, y), line, font=f_head, fill=INK_SOFT)
+        y += _lh
 
     y += 8
     for line in _wrap(d, deck, f_deck, int(W * 0.56))[:2]:
@@ -855,7 +966,7 @@ A8_PROMPT = (
     "to right that levels off flat before reaching the right edge, staying "
     "clearly above a short dashed horizontal grey rule drawn near the bottom. "
     "The descent line never touches the dashed rule. "
-    + FLAT_CLAUSE + " "
+    + FLAT_CLAUSE + " " + MATERIAL_CLAUSE + " "
     "Palette: near-black background, mid-grey lines and outlines, exactly one "
     "muted violet for the final marker. No other colour. "
     + NO_TEXT_CLAUSE + " " + NEVER_CLAUSE
@@ -878,13 +989,13 @@ def render_a8_sequence(headline: str, deck: str, steps: list[tuple[str, str]],
                               project="vanna-mcp", location="global",
                               model=model, temperature=0.45)
 
-    base = top_scrim(on_ground(Image.open(raw), size), 0.58, 0.86)
+    base = premium(top_scrim(on_ground(Image.open(raw), size), 0.58, 0.86))
     W, H = size
     d = ImageDraw.Draw(base)
-    m = int(W * 0.065)
+    m = int(W * 0.082)
 
     f_eyebrow = font("semibold", 15)
-    f_head = font("semibold", 58)
+    f_head = font("regular", 76)
     f_deck = font("regular", 23)
     f_step_n = font("bold", 15)
     f_step_k = font("semibold", 16)
@@ -896,9 +1007,11 @@ def render_a8_sequence(headline: str, deck: str, steps: list[tuple[str, str]],
            f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 42
-    for line in _wrap(d, headline, f_head, int(W * 0.70))[:2]:
-        d.text((m, y), line, font=f_head, fill=INK)
-        y += 66
+    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.70), 2,
+                            f_head.size)
+    for line in _hl:
+        d.text((m, y), line, font=f_head, fill=INK_SOFT)
+        y += _lh
 
     y += 6
     d.text((m, y), deck, font=f_deck, fill=INK_MUTED)
