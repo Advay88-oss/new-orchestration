@@ -342,6 +342,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                         detail="chose a signal to pursue")
         summary["signal"] = str(signal.headline)
         summary["signal_source_type"] = str(signal.source_type)
+        summary["signal_source"] = str(getattr(signal, "source", "") or "")
         summary["signal_observed_at"] = str(signal.observed_at)
         summary["candidate_signals"] = [
             {"headline": str(s.headline)[:160], "source_type": str(s.source_type),
@@ -379,9 +380,15 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             return _finish(summary, t0, rid)
 
         # A04 — Machine Library
-        _stage("A04_machine_library",
-               lambda: GTMMachineLibrary().get_machine(strategy.gtm_machine_id),
-               detail="verified machine " + str(strategy.gtm_machine_id))
+        machine = _stage("A04_machine_library",
+                         lambda: GTMMachineLibrary().get_machine(strategy.gtm_machine_id),
+                         detail="verified machine " + str(strategy.gtm_machine_id))
+        if machine is not None:
+            summary["machine_name"] = str(getattr(machine, "name", ""))
+            summary["machine_evidence"] = [
+                str(x) for x in (getattr(machine, "independent_campaign_examples", []) or [])][:4]
+            summary["machine_sources"] = [
+                str(x) for x in (getattr(machine, "source_references", []) or [])][:4]
 
         # A05 — Campaign & Series Engine
         selection = _stage("A05_campaign_engine",
@@ -717,6 +724,14 @@ def publish_panels(summary: dict, rid: str) -> None:
                     or str(summary.get("signal") or "")[:200],
             "rationale": sel.get("why") or str(summary.get("opportunity") or "")[:400],
             "pattern_ref": summary.get("machine"),
+            # IdeasView renders both of these. They were absent, so every card
+            # showed an empty provenance row under a real idea.
+            "trend_link": summary.get("signal_source") or None,
+            "pattern_source": (
+                (summary.get("machine_name") or summary.get("machine") or "")
+                + (" — observed in " + ", ".join(summary["machine_evidence"])
+                   if summary.get("machine_evidence") else "")) or None,
+            "source_type": summary.get("signal_source_type"),
             "audience_segment": summary.get("audience"),
             "objection_addressed": str(summary.get("problem") or "")[:300],
             "claims_gate": "PASS" if summary.get("review_passed") else "BLOCKED",
