@@ -238,22 +238,20 @@ class VisualPipelineEngine:
 
         try:
             base = Image.open(raw_path).convert("RGBA")
-            badge_path = STATE_DIR / "vanna_full_brand_badge.png"
-            if not badge_path.exists():
-                badge_path = STATE_DIR / "vanna_official_master_logo.png"
-
-            if badge_path.exists():
-                badge = Image.open(badge_path).convert("RGBA")
-                # Size badge to ~18% of canvas width for ideal proportion
-                w_target = int(base.width * 0.18)
-                h_target = int(w_target * badge.height / badge.width)
-                badge_resized = badge.resize((w_target, h_target), Image.Resampling.LANCZOS)
-
-                # Position at top-left with 4% horizontal margin and 5% vertical margin
-                margin_x = int(base.width * 0.04)
-                margin_y = int(base.height * 0.05)
-                base.paste(badge_resized, (margin_x, margin_y), badge_resized)
-
+            # No logo lockup is composited onto post or meme assets.
+            #
+            # It was pasted at 18% of canvas width in the top-left corner of
+            # every single image, which is enormous for a social post and read
+            # as a watermark stuck onto artwork rather than part of a designed
+            # layout. None of the reference posts the founder compared against
+            # (Arc, Uniswap x Robinhood, Robinhood Chain) carry a brand mark
+            # that way: the wordmark is either set as typography inside the
+            # composition or absent entirely, because the account posting it is
+            # already the attribution.
+            #
+            # Where a Vanna wordmark genuinely belongs in a layout, it is set as
+            # type by the archetype that calls for it — not stamped on top of
+            # every render by this function.
             final_img = base.convert("RGB")
             final_img.save(out_path, quality=95)
         except Exception as e:
