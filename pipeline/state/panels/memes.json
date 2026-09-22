@@ -1,10 +1,58 @@
 {
-  "generated": "2026-09-22T20:50:05.815824+00:00",
+  "generated": "2026-09-22T21:05:56.488290+00:00",
   "total_memes": 24,
   "low_risk_count": 24,
   "medium_risk_count": 0,
   "high_risk_count": 0,
   "memes": [
+    {
+      "id": "GTM-20260922-210354-meme",
+      "format": "IMAGE",
+      "reference": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+      "reference_url": null,
+      "vanna_angle": "Frame Blend v2's verified b-token primitives as the foundational building block for Vanna's composable SmartAccounts, highlighting how Vanna enables up to 10x leveraged yield on b-tokens in a single transaction on testnet.",
+      "copy": "Looping Blend b-tokens on Soroban just got mathematical safety proofs.",
+      "visual_spec": "A monolithic obsidian SmartAccount module safely deploying credit along an isolated horizontal conduit into an intricate external crystalline matrix (Blend), receiving back a tenfold stacked array of nested optical plates (b-tokens) that seat flush into its internal core.",
+      "claims_gate": "BLOCKED",
+      "risk": "LOW",
+      "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
+      "freshness": "LIVE",
+      "model": "gemini-3-pro-image",
+      "run_id": "GTM-20260922-210354",
+      "visual_url": "GTM-20260922-210354_meme.png"
+    },
+    {
+      "id": "GTM-20260922-210103-meme",
+      "format": "IMAGE",
+      "reference": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+      "reference_url": null,
+      "vanna_angle": "Position Vanna as the native composability layer that leverages Blend v2's verified b-token primitives, turning formal pool specs into 1-click leveraged yield strategies inside isolated SmartAccounts.",
+      "copy": "Looping Blend b-tokens shouldn't blow up lenders.",
+      "visual_spec": "A discrete, monolithic black basalt SmartAccount chamber suspended in an expansive obsidian void, containing a self-contained kinetic light loop that interfaces cleanly through a single precision manifold with an external Blend b-token module, leaving adjacent modular units completely dormant and unexposed.",
+      "claims_gate": "BLOCKED",
+      "risk": "LOW",
+      "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
+      "freshness": "LIVE",
+      "model": "gemini-3-pro-image",
+      "run_id": "GTM-20260922-210103",
+      "visual_url": "GTM-20260922-210103_meme.png"
+    },
+    {
+      "id": "GTM-20260922-205748-meme",
+      "format": "IMAGE",
+      "reference": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+      "reference_url": null,
+      "vanna_angle": "Anchor Vanna's composable credit layer to Blend's formally verified b-token primitives, illustrating how testnet users can route margin directly into verified Blend pools from an isolated SmartAccount.",
+      "copy": "Most Soroban leverage loops fail on liquidations before you can exit.",
+      "visual_spec": "A solitary, sealed SmartAccount chassis anchors an optical transmission bridge into a modular Blend yield receptor, physically suspended above dual geometric risk datum planes.",
+      "claims_gate": "BLOCKED",
+      "risk": "LOW",
+      "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
+      "freshness": "LIVE",
+      "model": "gemini-3-pro-image",
+      "run_id": "GTM-20260922-205748",
+      "visual_url": "GTM-20260922-205748_meme.png"
+    },
     {
       "id": "GTM-20260922-204620-meme",
       "format": "IMAGE",
@@ -340,60 +388,6 @@
       "model": "gemini-3-pro-image",
       "run_id": "GTM-20260922-095239",
       "visual_url": "GTM-20260922-095239_meme.png"
-    },
-    {
-      "id": "GTM-20260922-094015-meme",
-      "format": "IMAGE",
-      "reference": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
-      "reference_url": null,
-      "vanna_angle": "Highlight how Vanna's isolated SmartAccount sandboxes natively ingest formally verified Blend b-tokens as composable building blocks, unlocking magnified yield without protocol-level contagion.",
-      "copy": "Holding Blend v2 b-tokens leaves yield behind without active credit loops.",
-      "visual_spec": "A monolithic, micro-milled titanium isolation chamber receiving a perfectly fitted optical smoked-quartz modular block, locking into a low-profile conductive plinth that amplifies an internal refracted beam without spilling heat to adjacent bays.",
-      "claims_gate": "PASS",
-      "risk": "LOW",
-      "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
-      "freshness": "LIVE",
-      "model": "gemini-3-pro-image",
-      "run_id": "GTM-20260922-094015",
-      "visual_url": "GTM-20260922-094015_meme.png"
-    },
-    {
-      "id": "meme_1790069987_1",
-      "format": "two-panel",
-      "reference": "Soroban Stability",
-      "reference_url": "https://knowyourmeme.com",
-      "vanna_angle": "My assets, chilling on Vanna Protocol's Stellar Soroban risk floors.",
-      "copy": "My assets, chilling on Vanna Protocol's Stellar Soroban risk floors.",
-      "visual_spec": {
-        "template": "two_panel_comparison",
-        "top_label": "DeFi Volatility",
-        "bottom_label": "Vanna Risk Floor",
-        "archetype": "risk_floor"
-      },
-      "claims_gate": "PASS",
-      "risk": "LOW",
-      "risk_reason": "General mechanism humor highlighting fee differences.",
-      "freshness": "in circulation",
-      "visual_url": "/meme_meme_1790069987_1_visual.png"
-    },
-    {
-      "id": "meme_1790070014_2",
-      "format": "two-panel",
-      "reference": "Anchor of Safety",
-      "reference_url": "https://knowyourmeme.com",
-      "vanna_angle": "When Vanna Protocol's risk floors protect your credit in stormy markets.",
-      "copy": "When Vanna Protocol's risk floors protect your credit in stormy markets.",
-      "visual_spec": {
-        "template": "two_panel_comparison",
-        "top_label": "Market Crash",
-        "bottom_label": "Vanna Protocol",
-        "archetype": "risk_floor"
-      },
-      "claims_gate": "PASS",
-      "risk": "LOW",
-      "risk_reason": "General mechanism humor highlighting fee differences.",
-      "freshness": "in circulation",
-      "visual_url": "/meme_meme_1790070014_2_visual.png"
     }
   ]
 }

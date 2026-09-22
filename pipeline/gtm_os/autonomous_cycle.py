@@ -226,7 +226,41 @@ def render_visual_legacy(strategy, content_pkg, blueprint, run_id: str) -> Optio
 # Meme — nano banana pro (gemini-3-pro-image)
 # --------------------------------------------------------------------------
 
-def render_meme(blueprint, run_id: str) -> str:
+def render_meme(blueprint, run_id: str, strategy=None, content_pkg=None) -> str:
+    """A08's second pass: a meme, which is a different job from a post.
+
+    The post archetypes are restrained, tonal and character-free. Applying that
+    to a meme produced abstract geometry that was on-brand and not funny. A
+    meme is a situation someone recognises, so A07 briefs two panels and a
+    first-person caption, and the renderer draws it in its own palette.
+    """
+    from pipeline.gtm_creative.memes import brief_meme, render_meme as draw
+
+    hook, body = "", ""
+    try:
+        x = content_pkg.channel_posts["x"]
+        hook, body = str(x.hook), str(x.copy)
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
+
+    brief = brief_meme(strategy, hook, body, run_id=run_id)
+    out = STATE_DIR / (run_id + "_meme.png")
+    path = draw(
+        panel_left=str(brief.get("panel_left") or ""),
+        panel_right=str(brief.get("panel_right") or ""),
+        caption=str(brief.get("caption") or hook)[:120],
+        labels=[str(l) for l in (brief.get("labels") or [])][:3],
+        out=out,
+    )
+    R.record(R.AgentCall("A08_visual_synthesis", "meme", R.MODELS["meme"], True,
+                         0.0, note="two-panel meme", transport="model-garden"))
+    R.record_stage("A08_visual_synthesis", "ok",
+                   "meme: " + str(brief.get("caption") or "")[:100],
+                   outputs=[str(path)])
+    return str(path)
+
+
+def render_meme_flat(blueprint, run_id: str) -> str:
     """Render the campaign's meme with nano banana pro.
 
     Attributed to A08: it is the same agent's second output, at a higher tier,
@@ -597,7 +631,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
 
         # Meme — same agent, nano banana pro
         meme = _stage("A08_visual_synthesis",
-                      lambda: render_meme(blueprint, rid), required=False,
+                      lambda: render_meme(blueprint, rid, strategy, content_pkg),
+                      required=False,
                       detail="rendered the meme", self_recorded=True)
         if meme:
             summary["meme_path"] = meme
