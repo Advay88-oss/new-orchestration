@@ -95,8 +95,10 @@ def veo_element(prompt: str, out: Path, *, project: str = "vanna-mcp",
 
     from pipeline.scripts.veo_broll import _vertex_token, _find_video, _write_video
 
+    started = time.time()
     token = _vertex_token()
     if not token:
+        _journal(False, 0.0, model, "no Vertex token")
         raise RuntimeError("no Vertex token; run `gcloud auth application-default login`")
 
     host = "https://" + location + "-aiplatform.googleapis.com"
@@ -134,8 +136,20 @@ def veo_element(prompt: str, out: Path, *, project: str = "vanna-mcp",
         out.parent.mkdir(parents=True, exist_ok=True)
         if not _write_video(b64, uri, out, None):
             raise RuntimeError("Veo payload could not be written")
+        # Journal the call. Routing A09 through here rather than through the
+        # cycle's own Veo path silently dropped veo-3.1 off the dashboard's
+        # model list — the work was happening and the telemetry said it was not.
+        _journal(True, round(time.time() - started, 2), model)
         return out
+    _journal(False, round(time.time() - started, 2), model,
+             "Veo did not finish within " + str(int(timeout_s)) + "s")
     raise RuntimeError("Veo did not finish within " + str(int(timeout_s)) + "s")
+
+
+def _journal(ok: bool, secs: float, model: str, note: str = "") -> None:
+    from pipeline.gtm_os import agent_runtime as R
+    R.record(R.AgentCall("A09_video_production", "video", model, ok, secs,
+                         note=note, transport="vertex"))
 
 
 # --------------------------------------------------------------------------

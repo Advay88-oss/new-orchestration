@@ -17,3 +17,5 @@
 {"agent": "A11_dispatch_worker", "name": "Approved Dispatch Worker", "role": "none", "status": "skipped", "detail": "awaiting human approval; dispatch never runs unprompted", "outputs": [], "at": "2026-09-22T18:22:41.710997+00:00"}
 {"agent": "A12_telegram_gateway", "name": "Telegram Gateway & Listener", "role": "none", "status": "ok", "detail": "built the human review packet (0.0s)", "outputs": [], "at": "2026-09-22T18:22:41.710997+00:00"}
 {"agent": "A13_learning_engine", "name": "Closed-Loop Learning Engine", "role": "reasoning", "status": "ok", "detail": "processed the outcome feedback loop (3.48s)", "outputs": [], "at": "2026-09-22T18:22:45.190190+00:00"}
+{"agent": "A12_telegram_gateway", "name": "Telegram Gateway & Listener", "role": "none", "status": "skipped", "detail": "not delivered: TELEGRAM_REVIEWER_CHAT_ID is not set.", "outputs": [], "at": "2026-09-22T19:51:32.693573+00:00"}
+{"agent": "A12_telegram_gateway", "name": "Telegram Gateway & Listener", "role": "none", "status": "skipped", "detail": "not delivered: TELEGRAM_REVIEWER_CHAT_ID is not set.", "outputs": [], "at": "2026-09-22T19:51:32.693573+00:00"}

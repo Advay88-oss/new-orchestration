@@ -65,7 +65,13 @@ class ApprovedDispatchWorker:
             receipt = dispatcher.dispatch(request.request_id, channel_payload, mode=request.mode)
             receipts.append(receipt)
 
-            if receipt.status == "SUCCESS":
+            # Only a real publish reaches the Brain DB and the performance
+            # store. A simulation that writes to posts.jsonl is indistinguishable
+            # from a real post the next time anything reads that file, and A13
+            # then learns from it.
+            if receipt.status == "SIMULATED":
+                print(f"   ○ {channel_payload.channel} SIMULATED — nothing published, nothing recorded")
+            elif receipt.status == "SUCCESS":
                 print(f"   ✅ {channel_payload.channel} published: {receipt.canonical_url} ({receipt.latency_ms}ms)")
                 # Persist to canonical DB posts.jsonl
                 self._record_published_post(request, receipt, channel_payload)
@@ -75,7 +81,16 @@ class ApprovedDispatchWorker:
                 print(f"   ❌ {channel_payload.channel} dispatch failed: {receipt.error_message}")
 
         success_count = sum(1 for r in receipts if r.status == "SUCCESS")
-        overall = "ALL_PUBLISHED" if success_count == len(receipts) else ("PARTIALLY_PUBLISHED" if success_count > 0 else "FAILED")
+        simulated_count = sum(1 for r in receipts if r.status == "SIMULATED")
+        # A batch of simulations is not a partial publish. It published nothing.
+        if simulated_count and not success_count:
+            overall = "FAILED"
+        elif success_count == len(receipts):
+            overall = "ALL_PUBLISHED"
+        elif success_count > 0:
+            overall = "PARTIALLY_PUBLISHED"
+        else:
+            overall = "FAILED"
 
         batch_result = BatchPublishResult(
             batch_id=batch_id,

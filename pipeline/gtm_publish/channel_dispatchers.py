@@ -1,10 +1,22 @@
-"""Phase 7: Channel Dispatchers for Live & Testnet Social Distribution.
+"""Channel dispatchers.
 
-Implements native dispatchers for:
-  - X (Twitter)
-  - LinkedIn
-  - Reddit
-Handles payload validation, media attachment verification, error handling, and canonical URL generation.
+**None of these can publish.** Every one of them used to fabricate a plausible
+post id and canonical URL and return `status="SUCCESS"` — including when called
+with `mode="LIVE"`, where the live branch was a bare `pass` that fell through to
+the same invented receipt. The results were written to the Brain DB as published
+posts and seeded into the performance store, so 204 rows claimed Vanna had
+posted to x.com and reddit.com at URLs that do not exist.
+
+A publisher that cannot fail is the most dangerous object in a system whose one
+rule is that nothing publishes without a human. Until a real API integration
+exists, dispatch refuses:
+
+  SIMULATED_TESTNET  -> a receipt clearly marked SIMULATED, never SUCCESS,
+                        with no canonical URL to mistake for a real one
+  LIVE               -> NotImplementedError
+
+Wiring a real integration means implementing `_publish_live` on a dispatcher
+and nothing else; the refusal below is the only thing in the way.
 """
 
 from __future__ import annotations
@@ -64,28 +76,28 @@ class XDispatcher(BaseChannelDispatcher):
                 latency_ms=(time.time() - start_time) * 1000
             )
 
-        # In LIVE mode, call live Twitter API v2 if credentials are set
         if mode == "LIVE":
-            # Native API call / browser dispatch logic
-            # For now, if no API key is exported, cleanly report or fall back
-            pass
+            raise NotImplementedError(
+                "X live dispatch is not implemented. There is no Twitter API "
+                "integration here; returning a receipt would be inventing one.")
 
-        # Deterministic generation of verified post ID and canonical URL
-        simulated_id = f"1835{int(time.time()) % 10000000000:010d}"
-        target_url = f"https://x.com/vanna_finance/status/{simulated_id}"
-        latency = (time.time() - start_time) * 1000 + 42.5
+        # A simulation says SIMULATED. It carries no post id and no URL,
+        # because a fabricated URL in a receipt is indistinguishable from a
+        # real one the moment it is written to the Brain DB.
+        latency = (time.time() - start_time) * 1000
 
         return ChannelPublishReceipt(
             receipt_id=receipt_id,
             request_id=request_id,
             channel="X",
-            status="SUCCESS",
-            post_id=simulated_id,
-            canonical_url=target_url,
-            published_at=datetime.now(timezone.utc).isoformat(),
+            status="SIMULATED",
+            error_message="SIMULATED — no post was made; X dispatch is not implemented",
+            post_id=None,
+            canonical_url=None,
+            published_at=None,
             latency_ms=round(latency, 2),
             raw_response={
-                "data": {"id": simulated_id, "text": clean_copy[:100] + "..."},
+                "simulated": True, "text": clean_copy[:100] + "...",
                 "media_attached": len(payload.media_paths) > 0,
                 "mode": mode
             }
@@ -117,21 +129,25 @@ class LinkedInDispatcher(BaseChannelDispatcher):
                 latency_ms=(time.time() - start_time) * 1000
             )
 
-        simulated_urn = f"urn:li:share:{7240000000000000000 + (int(time.time()) % 1000000000)}"
-        target_url = f"https://www.linkedin.com/feed/update/{simulated_urn}"
-        latency = (time.time() - start_time) * 1000 + 65.0
+        if mode == "LIVE":
+            raise NotImplementedError(
+                "LinkedIn live dispatch is not implemented. There is no "
+                "LinkedIn API integration here.")
+
+        latency = (time.time() - start_time) * 1000
 
         return ChannelPublishReceipt(
             receipt_id=receipt_id,
             request_id=request_id,
             channel="LinkedIn",
-            status="SUCCESS",
-            post_id=simulated_urn,
-            canonical_url=target_url,
-            published_at=datetime.now(timezone.utc).isoformat(),
+            status="SIMULATED",
+            error_message="SIMULATED — no post was made; LinkedIn dispatch is not implemented",
+            post_id=None,
+            canonical_url=None,
+            published_at=None,
             latency_ms=round(latency, 2),
             raw_response={
-                "activity": simulated_urn,
+                "simulated": True,
                 "media_count": len(payload.media_paths),
                 "mode": mode
             }
@@ -165,22 +181,25 @@ class RedditDispatcher(BaseChannelDispatcher):
                 latency_ms=(time.time() - start_time) * 1000
             )
 
-        simulated_id = f"t3_{hashlib.md5(f'{request_id}:{payload.copy}'.encode()).hexdigest()[:7]}"
-        sub_name = subreddit.replace("r/", "")
-        target_url = f"https://reddit.com/r/{sub_name}/comments/{simulated_id[3:]}/vanna_architecture/"
-        latency = (time.time() - start_time) * 1000 + 88.0
+        if mode == "LIVE":
+            raise NotImplementedError(
+                "Reddit live dispatch is not implemented. There is no Reddit "
+                "API integration here.")
+
+        latency = (time.time() - start_time) * 1000
 
         return ChannelPublishReceipt(
             receipt_id=receipt_id,
             request_id=request_id,
             channel="Reddit",
-            status="SUCCESS",
-            post_id=simulated_id,
-            canonical_url=target_url,
-            published_at=datetime.now(timezone.utc).isoformat(),
+            status="SIMULATED",
+            error_message="SIMULATED — no post was made; Reddit dispatch is not implemented",
+            post_id=None,
+            canonical_url=None,
+            published_at=None,
             latency_ms=round(latency, 2),
             raw_response={
-                "name": simulated_id,
+                "simulated": True,
                 "subreddit": subreddit,
                 "mode": mode
             }

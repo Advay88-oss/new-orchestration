@@ -11,7 +11,9 @@ from typing import Any, Dict, List, Literal, Optional
 from pydantic import BaseModel, Field
 
 ChannelType = Literal["X", "LinkedIn", "Reddit"]
-PublishStatus = Literal["PENDING", "SUCCESS", "FAILED", "SKIPPED"]
+# SIMULATED is its own state, not a flavour of SUCCESS. Collapsing the two
+# is how 204 fabricated posts entered the Brain DB as published.
+PublishStatus = Literal["PENDING", "SUCCESS", "SIMULATED", "FAILED", "SKIPPED"]
 ExecutionMode = Literal["LIVE", "SIMULATED_TESTNET", "DRY_RUN"]
 
 

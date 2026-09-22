@@ -1,9 +1,184 @@
 {
-  "generated": "2026-09-22T18:22:45.237219+00:00",
-  "total_ideas": 21,
-  "runnable_today_count": 16,
-  "blocked_count": 5,
+  "generated": "2026-09-22T20:08:29.271467+00:00",
+  "total_ideas": 24,
+  "runnable_today_count": 17,
+  "blocked_count": 7,
   "ideas": [
+    {
+      "id": "GTM-20260922-200707-idea",
+      "type": "GTM_CYCLE",
+      "hook": "Lending pool liquidations usually fail under stress.",
+      "rationale": "Vanna is composable credit infrastructure directly integrating with Blend pools and b-tokens on Soroban. Formal verification of the Blend v2 pool architecture and b-token specifications provides the exact technical and architectural foundation Vanna requires to demonstrate secure, composable credit extensions, isolated positions, and verified collateral integration.",
+      "pattern_ref": "MACH_02_B2B_PARTNER_ONBOARDING",
+      "trend_link": "https://docs.blend.capital",
+      "pattern_source": "B2B Ecosystem Partner Onboarding Machine \u2014 observed in CAMP_ROBINHOOD_ACQUISITION, MORPHO_CURV_INTEGRATION",
+      "source_type": "LIVE_OBSERVED",
+      "audience_segment": "A1",
+      "objection_addressed": "DeFi participants face capital drag and fragmented liquidity when trying to deploy borrowed capital across distinct lending protocols like Blend.",
+      "claims_gate": "PASS",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "AUTONOMOUS",
+      "rejected": [
+        {
+          "headline": "The Web3 builder\u2019s guide to Stellar - Blockworks",
+          "why": "Generic ecosystem overview lacking specific technical hook for composable credit infrastructure."
+        },
+        {
+          "headline": "XLM Bulls Eye $0.20 As Stellar\u2019s Soroban Powers Record TVL - DailyCoin",
+          "why": "Speculative token price and high-level TVL commentary with no actionable architectural angle."
+        },
+        {
+          "headline": "Stellar Price Prediction 2026: XLM Targets Through 2030 - Memeburn",
+          "why": "Pure price prediction signal irrelevant to technical credit infrastructure."
+        },
+        {
+          "headline": "Stellar price prediction 2026-2030: the compliance-first bet - Crypto News",
+          "why": "Regulatory and price prediction piece with no technical smart contract relevance."
+        },
+        {
+          "headline": "Soroban: The Smart Contract Platform Designed for Developers - Stellar",
+          "why": "Broad developer marketing article rather than a concrete protocol integration target."
+        },
+        {
+          "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+          "why": "External yield round-up unrelated to Stellar Soroban credit composition."
+        },
+        {
+          "headline": "Protocol 20 smart contracts and Blend v2 liquidity expansion live",
+          "why": "Broad liquidity expansion news that is less structurally precise than the underlying formal pool and b-token specification."
+        },
+        {
+          "headline": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+          "why": "Archival signal with lower recency and confidence compared to live observed Blend v2 specifications."
+        }
+      ],
+      "run_id": "GTM-20260922-200707",
+      "visual_url": null
+    },
+    {
+      "id": "GTM-20260922-200426-idea",
+      "type": "GTM_CYCLE",
+      "hook": "Lending pool yield drops without direct composability.",
+      "rationale": "Blend is the core lending primitive on Soroban, and the formal verification of Blend v2 pool architecture alongside the b-token specification provides a concrete technical foundation. As composable credit infrastructure, Vanna can deliver a precise architectural response detailing how its credit vaults and margin accounts compose safely with verified b-token contracts.",
+      "pattern_ref": "MACH_02_B2B_PARTNER_ONBOARDING",
+      "trend_link": "https://docs.blend.capital",
+      "pattern_source": "B2B Ecosystem Partner Onboarding Machine \u2014 observed in CAMP_ROBINHOOD_ACQUISITION, MORPHO_CURV_INTEGRATION",
+      "source_type": "LIVE_OBSERVED",
+      "audience_segment": "A1",
+      "objection_addressed": "Stellar DeFi farmers experience capital drag when manually shuttling collateral into Blend pools and managing separate positions without credit efficiency.",
+      "claims_gate": "BLOCKED",
+      "runnable_today": false,
+      "blocked_by": "{'blocked_claims': [], 'slop': [], 'creative': 'REJECT'}",
+      "effort": "AUTONOMOUS",
+      "rejected": [
+        {
+          "headline": "The Web3 builder\u2019s guide to Stellar - Blockworks",
+          "why": "Generic high-level builder overview lacking technical depth or an architectural entry point for composable credit."
+        },
+        {
+          "headline": "XLM Bulls Eye $0.20 As Stellar\u2019s Soroban Powers Record TVL - DailyCoin",
+          "why": "Speculative token price movement and superficial TVL headline with no architectural substance."
+        },
+        {
+          "headline": "Stellar Price Prediction 2026: XLM Targets Through 2030 - Memeburn",
+          "why": "Purely speculative long-term price prediction irrelevant to credit infrastructure engineering."
+        },
+        {
+          "headline": "Stellar price prediction 2026-2030: the compliance-first bet - Crypto News",
+          "why": "Macro compliance and speculative price narrative with no specific composability or smart contract integration hook."
+        },
+        {
+          "headline": "Soroban: The Smart Contract Platform Designed for Developers - Stellar",
+          "why": "Broad platform-level marketing piece aimed at onboarding developers rather than a specific technical development to compose against."
+        },
+        {
+          "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+          "why": "Community retail yield thread lacking Soroban-specific context or credit infrastructure architecture."
+        },
+        {
+          "headline": "Protocol 20 smart contracts and Blend v2 liquidity expansion live",
+          "why": "Broad ecosystem liquidity milestone that is less architecturally actionable than the specific b-token and pool verification specifications in signal 5."
+        },
+        {
+          "headline": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+          "why": "Archived narrative that lacks the timeliness and live verified technical substrate of signal 5."
+        }
+      ],
+      "run_id": "GTM-20260922-200426",
+      "visual_url": "GTM-20260922-200426_visual.png"
+    },
+    {
+      "id": "GTM-20260922-195931-idea",
+      "type": "GTM_CYCLE",
+      "hook": "Liquidation latency kills leverage faster than slippage.",
+      "rationale": "Blend v2 pool architecture formal verification and b-token specification provides the exact technical and contractual interface for Vanna's composable credit infrastructure on Soroban, allowing Vanna to build a concrete architectural campaign around verified collateral integration and b-token composability rather than generic market sentiment.",
+      "pattern_ref": "MACH_02_B2B_PARTNER_ONBOARDING",
+      "trend_link": "https://docs.blend.capital",
+      "pattern_source": "B2B Ecosystem Partner Onboarding Machine \u2014 observed in CAMP_ROBINHOOD_ACQUISITION, MORPHO_CURV_INTEGRATION",
+      "source_type": "LIVE_OBSERVED",
+      "audience_segment": "A1",
+      "objection_addressed": "DeFi farmers want to capture yield from Blend lending pools but face capital drag and manual friction when executing leveraged looping strategies across disconnected interfaces.",
+      "claims_gate": "PASS",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "AUTONOMOUS",
+      "rejected": [
+        {
+          "headline": "The Web3 builder\u2019s guide to Stellar - Blockworks",
+          "why": "Broad ecosystem guide without actionable architectural integration primitives for composable credit."
+        },
+        {
+          "headline": "XLM Bulls Eye $0.20 As Stellar\u2019s Soroban Powers Record TVL - DailyCoin",
+          "why": "Speculative token price momentum and broad TVL tracking lacking technical depth or protocol-specific architectural hooks."
+        },
+        {
+          "headline": "Stellar Price Prediction 2026: XLM Targets Through 2030 - Memeburn",
+          "why": "Long-term speculative price prediction irrelevant to credit infrastructure mechanics."
+        },
+        {
+          "headline": "Stellar price prediction 2026-2030: the compliance-first bet - Crypto News",
+          "why": "Generic compliance narrative and price prediction without technical utility for smart contract credit design."
+        },
+        {
+          "headline": "Soroban: The Smart Contract Platform Designed for Developers - Stellar",
+          "why": "High-level platform introduction aimed at general developers rather than a specific credit composability integration."
+        },
+        {
+          "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+          "why": "Off-ecosystem or generic PT stablecoin yield discussion without direct Soroban contract alignment."
+        },
+        {
+          "headline": "Protocol 20 smart contracts and Blend v2 liquidity expansion live",
+          "why": "High-level liquidity news; less technically focused than the concrete b-token specification and formal verification details of signal 5."
+        },
+        {
+          "headline": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+          "why": "Archival internal concept note rather than a fresh live external market integration driver."
+        }
+      ],
+      "run_id": "GTM-20260922-195931",
+      "visual_url": "GTM-20260922-195931_visual.png"
+    },
+    {
+      "id": "GTM-20260922-195509-idea",
+      "type": "GTM_CYCLE",
+      "hook": "EVM lending breaks quantitative basis trading models.",
+      "rationale": "Anchor Vanna into the builder conversation as the composable credit primitive that ties together Stellar DeFi protocols (Blend, Aquarius, Soroswap) via isolated smart account sandboxes.",
+      "pattern_ref": "MACH_02_B2B_PARTNER_ONBOARDING",
+      "trend_link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE43UkFtMzVNTmktb21IYXRHaG1mb0dmWWcta0c2MGVFaFRJQ2ZrRkozZVp2cFZIbDNZUXI2ckJiMTgxeWJMSl9ESXhGVXh6eC1fNDE3R1JhMW9KNnZsQS10NkppNHRlUQ?oc=5",
+      "pattern_source": "B2B Ecosystem Partner Onboarding Machine \u2014 observed in CAMP_ROBINHOOD_ACQUISITION, MORPHO_CURV_INTEGRATION",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "audience_segment": "A2: EVM Migrants & Quantitative Traders",
+      "objection_addressed": "EVM developers and traders exploring Stellar often assume DeFi primitives suffer from either fragmented liquidity or the shared-pool insolvency risks common in EVM lending protocols.",
+      "claims_gate": "BLOCKED",
+      "runnable_today": false,
+      "blocked_by": "{'blocked_claims': [], 'slop': [], 'creative': 'REJECT'}",
+      "effort": "AUTONOMOUS",
+      "rejected": [],
+      "run_id": "GTM-20260922-195509",
+      "visual_url": "GTM-20260922-195509_visual.png"
+    },
     {
       "id": "GTM-20260922-182020-idea",
       "type": "GTM_CYCLE",
@@ -791,25 +966,6 @@
         "archetype": "risk_floor"
       },
       "visual_url": "/idea_idea_1790050741_4_visual.png"
-    },
-    {
-      "id": "idea_1790050801_8",
-      "type": "VISUAL",
-      "hook": "Vanna Protocol: How we're boosting Stellar's DeFi TVL and your portfolio!",
-      "rationale": "Connecting Vanna's unique features to the broader ecosystem's growth encourages users to participate and benefit from the upward trend.",
-      "pattern_ref": "PAT_01_TECHNICAL_TELEMETRY",
-      "claims_gate": "PASS",
-      "audience_segment": "A1 Stellar DeFi Farmers",
-      "objection_addressed": "Stellar DeFi isn't mature enough.",
-      "effort": "MEDIUM",
-      "runnable_today": true,
-      "blocked_by": null,
-      "format_spec": {
-        "template": "single_stat",
-        "hero": "1.10x",
-        "archetype": "margin_account"
-      },
-      "visual_url": "/idea_idea_1790050801_8_visual.png"
     }
   ]
 }

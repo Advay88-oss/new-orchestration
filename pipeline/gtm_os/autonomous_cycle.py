@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import pathlib
 import json
+import os
 import sys
 import time
 import traceback
@@ -49,6 +50,63 @@ VEO_LOCATION = "us-central1"
 
 class CycleAbort(RuntimeError):
     """A stage failed in a way that makes the rest of the cycle meaningless."""
+
+
+# --------------------------------------------------------------------------
+# One run at a time
+# --------------------------------------------------------------------------
+
+LOCK_FILE = STATE_DIR / "gtm_cycle.lock"
+LOCK_STALE_S = 1800          # a cycle is 2-4 minutes; 30 is dead, not slow
+
+
+class AlreadyRunning(RuntimeError):
+    pass
+
+
+def _claim_lock(run_id: str) -> bool:
+    """Take the run lock, or report who holds it.
+
+    Two cycles at once interleave on shared files — `recent_archetypes.json`
+    would record one run's archetype and the other would then not block it, and
+    the Ideas and Memes panels are read-modify-write. Pressing Launch Run twice
+    was enough to do it.
+
+    `O_CREAT | O_EXCL` is the primitive: it either creates the file or fails,
+    with no window between the check and the write.
+    """
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    try:
+        age = time.time() - LOCK_FILE.stat().st_mtime
+        if age > LOCK_STALE_S:
+            # A crashed run leaves its lock behind. Reclaiming a stale one
+            # beats requiring a human to delete a file before the scheduler
+            # can work again.
+            print("  [lock] reclaiming a stale lock (" + str(int(age)) + "s old)")
+            LOCK_FILE.unlink(missing_ok=True)
+    except FileNotFoundError:
+        pass
+
+    try:
+        fd = os.open(str(LOCK_FILE), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except FileExistsError:
+        try:
+            holder = json.loads(LOCK_FILE.read_text(encoding="utf-8"))
+        except Exception:                           # noqa: BLE001 — boundary
+            holder = {}
+        raise AlreadyRunning(
+            "another cycle holds the lock: " + str(holder.get("run_id", "?"))
+            + " (pid " + str(holder.get("pid", "?")) + ", started "
+            + str(holder.get("started", "?")) + ")")
+
+    with os.fdopen(fd, "w", encoding="utf-8") as f:
+        json.dump({"run_id": run_id, "pid": os.getpid(),
+                   "started": datetime.now(timezone.utc).isoformat()}, f)
+    return True
+
+
+def _release_lock() -> None:
+    LOCK_FILE.unlink(missing_ok=True)
 
 
 def _stage(agent: str, fn, *, required: bool = True, detail: str = "",
@@ -216,8 +274,50 @@ def render_meme(blueprint, run_id: str) -> str:
 # A09 — Video Production Engine (Veo 3.1)
 # --------------------------------------------------------------------------
 
-def render_video(blueprint, run_id: str, *, timeout_s: float = 420.0) -> Optional[str]:
-    """Submit the art director's Veo prompt and wait for the asset.
+def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0) -> Optional[str]:
+    """A09: a motion graphic built from the run, not a cinematic shot.
+
+    Veo's whole competence is cinematography, so asking it for an explainer got
+    films — a slow dolly through a void, and once a glowing Bitcoin coin in a
+    vault for a product that is neither a currency nor on mainnet. The founder
+    rejected that register; the direction is in
+    `pipeline/brain/knowledge/motion-direction.md`.
+
+    So Veo now renders one locked-off flat element and nothing else. The Vanna
+    ground, the vignette, every word and the timing are drawn, which means the
+    background matches the still post byte for byte and nothing published can
+    be misspelt.
+
+    One motion treatment for now. Per-archetype motion — the threshold column
+    filling, the composition bar growing — is the next step, and the archetype
+    renderers already draw every element it would need.
+    """
+    from pipeline.gtm_creative.motion import build_isolation_motion
+
+    s = summary_or_blueprint if isinstance(summary_or_blueprint, dict) else {}
+    posts = (s.get("posts") or {}).get("x") or {}
+    out = RUNS_DIR / run_id / (run_id + "_video.mp4")
+
+    # Per-run element. The default cache is one shared file, so every cycle
+    # reused the same clip and the journal correctly showed no Veo call — the
+    # stage reported "ok" for a video it had not made.
+    path = build_isolation_motion(
+        element_mp4=RUNS_DIR / run_id / (run_id + "_element.mp4"),
+        eyebrow=str(s.get("pillar") or "Stellar Soroban · testnet")[:60],
+        headline=str(posts.get("hook") or s.get("signal") or "")[:120],
+        deck=str(s.get("opportunity") or s.get("problem") or "")[:160],
+        stat_value="0",
+        stat_label="accounts exposed to a neighbour's deficit",
+        footnote="Stellar Soroban testnet · docs.vanna.finance",
+        out=out,
+    )
+    R.record_stage("A09_video_production", "ok",
+                   "motion graphic " + Path(path).name, outputs=[str(path)])
+    return str(path)
+
+
+def render_video_cinematic(blueprint, run_id: str, *, timeout_s: float = 420.0) -> Optional[str]:
+    """The previous cinematic path. Kept for a launch film, not for posts.
 
     Veo runs through Vertex, which needs ADC rather than the API key the other
     agents use. When that is not available this raises and the caller records
@@ -339,6 +439,11 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
     from pipeline.gtm_os.telegram_packet import TelegramPacketBuilder
 
     rid = R.set_run(run_id or R.new_run_id())
+    try:
+        _claim_lock(rid)
+    except AlreadyRunning as exc:
+        print("  [skip] " + str(exc))
+        return {"run_id": rid, "status": "skipped_locked", "reason": str(exc)}
     t0 = time.time()
     print("=" * 70)
     print("GTM AUTONOMOUS CYCLE  " + rid)
@@ -475,7 +580,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         # A09 — Video Production Engine (Veo 3.1)
         if with_video:
             video = _stage("A09_video_production",
-                           lambda: render_video(blueprint, rid),
+                           lambda: render_video(summary, rid),
                            required=False, self_recorded=True)
             if video:
                 summary["video_path"] = video
@@ -524,6 +629,9 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                        "awaiting human approval; dispatch never runs unprompted")
 
         # A12 — Telegram Gateway
+        # A12 builds the packet AND delivers it. Building alone left the
+        # documented terminus of the system unreachable: the cycle assembled a
+        # review packet and put it on disk, where no human was looking.
         packet = _stage(
             "A12_telegram_gateway",
             lambda: TelegramPacketBuilder.build_packet(
@@ -534,6 +642,21 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             required=False, detail="built the human review packet")
         if packet is not None:
             summary["packet_built"] = True
+
+            def deliver():
+                from pipeline.gtm_os.telegram_packet import TelegramPacketBuilder
+                from pipeline.gtm_os.telegram_sender import send_review
+                md = None
+                try:
+                    md = TelegramPacketBuilder.render_telegram_markdown(packet)
+                except Exception:                   # noqa: BLE001 — boundary
+                    pass                            # fall back to our own text
+                return send_review(summary, rid, markdown=md)
+
+            delivery = _stage("A12_telegram_gateway", deliver,
+                              required=False, self_recorded=True)
+            if delivery:
+                summary["review_delivery"] = delivery
 
         # A13 — Closed-Loop Learning Engine
         _stage("A13_learning_engine", _run_learning, required=False,
@@ -551,6 +674,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         summary["reason"] = type(exc).__name__ + ": " + str(exc)
         summary["traceback"] = traceback.format_exc()[-2000:]
         return _finish(summary, t0, rid)
+    finally:
+        _release_lock()
 
 
 SELECTION: dict = {}
