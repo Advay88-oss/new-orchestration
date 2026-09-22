@@ -211,6 +211,17 @@ def render_video(blueprint, run_id: str, *, timeout_s: float = 420.0) -> Optiona
                 prompt = str(getattr(fmt, "compiled_prompt", "") or "")
                 break
     prompt = prompt.strip()
+    if prompt:
+        prompt += (
+            " ABSOLUTELY NO TEXT: no words, letters, labels, numerals, "
+            "readouts, captions, watermarks, icons or logos anywhere in frame "
+            "at any point in the shot. The model cannot spell reliably and a "
+            "misspelt label ships as a false claim. Convey every quantity and "
+            "every named part through form, scale, position and light only. "
+            "No cryptocurrency glyphs or coin props. No neon cyberpunk "
+            "palette: lighting stays clinical and restrained, with muted "
+            "violet and fuchsia confined to the far background.")
+    
     if not prompt:
         raise RuntimeError("no Veo prompt on the creative blueprint")
 
@@ -395,6 +406,13 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             lambda: CreativeDirectorSystem().compile_master_blueprint(strategy, content_pkg),
             detail="art-directed the campaign")
         summary["visual_concept"] = str(blueprint.visual_metaphor.concept)[:600]
+        # Store the generated prompts. When an asset comes back wrong the first
+        # question is what was actually asked for, and that was unrecoverable.
+        _fs = getattr(blueprint, "format_specs", {}) or {}
+        summary["prompts"] = {
+            k: str(getattr(v, "compiled_prompt", ""))[:1500]
+            for k, v in _fs.items()
+        }
 
         # A08 — Visual Synthesis Engine (nano banana)
         visual = _stage("A08_visual_synthesis",
@@ -422,20 +440,39 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             R.record_stage("A09_video_production", "skipped",
                            "video disabled for this run (--no-video)")
 
+        # A07 again — the creative director judges what was actually made.
+        # Until this existed nothing looked at the produced assets: A08 checked
+        # resolution and corner luminance, A09 checked only that an MP4 came
+        # back, and neither could tell whether the image was about Vanna.
+        def judge():
+            from pipeline.gtm_os.creative_judge import judge_assets
+            return judge_assets(summary, rid)
+
+        creative_verdict = _stage("A07_creative_director", judge,
+                                  required=False, self_recorded=True)
+        if creative_verdict:
+            summary["creative_review"] = creative_verdict
+            summary["creative_verdict"] = creative_verdict.get("overall")
+
         # A10 — Pre-Delivery Reviewer Firewall
         def review():
             channel_verdict = ChannelReviewer().review_channel_adaptation(content_pkg)
-            creative_verdict = CreativeValidator().validate_blueprint(
+            slop_verdict = CreativeValidator().validate_blueprint(
                 blueprint, raw_post_copy=content_pkg.channel_posts["x"].copy)
-            return channel_verdict, creative_verdict
+            return channel_verdict, slop_verdict
         verdicts = _stage("A10_reviewer_firewall", review,
                           detail="ran the pre-delivery firewalls")
         channel_verdict, creative_verdict = verdicts
-        passed = bool(channel_verdict.approved and creative_verdict.approved)
+        # A judge whose rejection changes nothing is decoration. A creative
+        # REJECT blocks the run the same way a channel or slop failure does.
+        creative_rejected = str(summary.get("creative_verdict") or "").upper() == "REJECT"
+        passed = bool(channel_verdict.approved and creative_verdict.approved
+                      and not creative_rejected)
         summary["review_passed"] = passed
         summary["review_notes"] = {
             "blocked_claims": list(getattr(channel_verdict, "blocked_unsupported_claims", []) or []),
             "slop": list(getattr(creative_verdict, "slop_violations", []) or []),
+            "creative": summary.get("creative_verdict"),
         }
 
         # A11 — Approved Dispatch Worker. It dispatches only what a human has

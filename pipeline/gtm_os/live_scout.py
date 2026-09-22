@@ -22,6 +22,7 @@ own timeout. Two rules:
 from __future__ import annotations
 
 import hashlib
+import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from typing import Any, Callable
@@ -49,9 +50,25 @@ def _now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+_SOURCE_TAG = re.compile(r"^\s*\[[^\]]{2,60}\]\s*")
+
+
+def _clean_headline(text: str) -> str:
+    """Drop the collector's provenance prefix.
+
+    Collectors prepend "[Market News] ", "[Reddit r/Stellar] ", "[Blend
+    Protocol Docs] " so a human scanning the list can see where a signal came
+    from. It is a label, not part of the headline — and it flowed straight
+    through A02 and A03 into the published hook, which shipped as "The hidden
+    math behind [Blend Protocol Docs] Blend v2 pool architecture...". The
+    source is already carried in `source_type` and `source`.
+    """
+    return _SOURCE_TAG.sub("", str(text or "")).strip()
+
+
 def _signal_from_raw(raw: dict[str, Any]) -> MarketSignal | None:
     """Convert a collector row into a MarketSignal, or skip it."""
-    headline = str(raw.get("headline") or raw.get("title") or "").strip()
+    headline = _clean_headline(raw.get("headline") or raw.get("title") or "")
     if len(headline) < 12:
         return None
 

@@ -8,6 +8,10 @@ Compiles format-specific specifications for Vector Schematics, Static Images, an
 
 from __future__ import annotations
 
+from pipeline.gtm_os.vanna_knowledge import (
+    prompt_block as _prompt_block, VISUAL_ANCHORS as _ANCHORS,
+    PROHIBITED_VISUAL as _PROHIBITED_VISUAL,
+)
 from pipeline.gtm_os.agent_runtime import (
     brain_json as _brain_json, BrainError as _BrainError, record_stage as _record_stage,
 )
@@ -78,50 +82,86 @@ class CreativeDirectorSystem:
         cid = f"CCB-{strategy.strategy_id[:16]}-{datetime.now(timezone.utc).strftime('%Y%m%d%H%M')}"
         pillar_lower = strategy.narrative_pillar.lower()
 
-        # Art-direct the visual for THIS strategy — gemini-3.8-flash.
+        # Ground the art direction in what Vanna actually is.
         #
-        # This was an if/else on whether the pillar contained "sub-second", so
-        # the entire system had exactly two visuals and two Veo prompts, both
-        # typed in full below. Every campaign on a telemetry pillar got the
-        # identical prism shot; everything else got the identical logo pull-back.
+        # The previous version told the model the metaphor must be "a physical,
+        # filmable arrangement of objects and light... not a diagram", and it
+        # obeyed: it produced beautiful optical glassware that could have
+        # advertised a wristwatch. Nothing in frame said Soroban, Blend, a
+        # SmartAccount or a health factor, so the visual and the video carried
+        # none of the argument the post was making.
         #
-        # FORBIDDEN_CRYPTO_SLOP stays a deterministic constraint appended to the
-        # prompt and re-applied to negative_elements: the model chooses the
-        # image, it does not get to choose the brand rules.
+        # The house style stays. What changes is that the subject matter is now
+        # required to BE the mechanism, named, using the anchors below.
+        knowledge = _prompt_block(
+            " ".join([str(strategy.narrative_pillar), str(strategy.problem)])[:400],
+            excerpts=6)
+        anchors = "\n".join("  - " + k + ": " + v for k, v in _ANCHORS.items())
+
         art_system = (
             "You are Vanna's creative director. Vanna is composable credit "
-            "infrastructure on Stellar Soroban testnet. You art-direct one "
-            "still image and one motion piece per campaign.\n\n"
-            "House style, non-negotiable: expansive tranquil obsidian void "
-            "(#07020D), 75%+ negative space, disciplined studio lighting, matte "
-            "and optical materials, 35mm film grain, photorealistic "
-            "architectural polish, quiet institutional confidence.\n\n"
-            "Muted accents only: royal violet #471485, fuchsia #5E0D46.\n\n"
-            "BANNED, always: " + ", ".join(FORBIDDEN_CRYPTO_SLOP) + ".\n"
-            "Also banned: any rendered text, letterforms, numerals, logos or "
-            "UI chrome inside the generated image.\n\n"
-            "The metaphor must be a physical, filmable arrangement of objects "
-            "and light that embodies the strategic claim. Not an illustration "
-            "of a concept, not a diagram, not a screenshot. Return strict JSON."
+            "infrastructure on Stellar Soroban TESTNET. You art-direct one still "
+            "image, one meme and one motion piece per campaign.\n\n"
+
+            "THE SUBJECT IS THE MECHANISM.\n"
+            "Every asset must depict Vanna's actual architecture using these "
+            "concrete anchors. An abstract composition of glass and light that "
+            "does not show the mechanism is a failed brief, however beautiful:\n"
+            + anchors + "\n\n"
+
+            "Build the image from real, identifiable things: discrete sealed "
+            "SmartAccount units versus one shared pool; a collateral-to-debt "
+            "ratio approaching a floor; a position routed out into Blend or "
+            "Aquarius and back; an event stream arriving before a threshold is "
+            "crossed. A viewer who knows Soroban should recognise what is being "
+            "described. A viewer who does not should still see structure, not "
+            "decoration.\n\n"
+
+            "HOUSE STYLE (unchanged): expansive obsidian void (#07020D), 70%+ "
+            "negative space, disciplined studio lighting, matte and optical "
+            "materials, 35mm film grain, photorealistic architectural polish, "
+            "quiet institutional confidence. Muted accents only: royal violet "
+            "#471485, fuchsia #5E0D46.\n\n"
+
+            "NEVER DEPICT: " + _PROHIBITED_VISUAL + ".\n"
+            "Never render text, letterforms, numerals, logos or UI chrome "
+            "inside a generated image — the models cannot spell, and a "
+            "misspelt figure is a false claim. Express quantity through "
+            "physical proportion instead.\n"
+            "Never depict or imply mainnet. Vanna is on testnet.\n\n"
+
+            "Return strict JSON."
         )
+
         art_prompt = (
-            "STRATEGIC PILLAR\n  " + str(strategy.narrative_pillar) + "\n\n"
-            "PROBLEM\n  " + str(strategy.problem) + "\n\n"
-            "OPPORTUNITY\n  " + str(strategy.strategic_opportunity) + "\n\n"
-            "AUDIENCE\n  " + str(strategy.audience_segment) + "\n\n"
-            "POST HOOK\n  " + str(_lead_hook(content_package)) + "\n\n"
-            "Return JSON exactly:\n"
+            knowledge + "\n\n"
+            "----\n\n"
+            "THIS CAMPAIGN\n"
+            "  pillar:      " + str(strategy.narrative_pillar) + "\n"
+            "  problem:     " + str(strategy.problem) + "\n"
+            "  opportunity: " + str(strategy.strategic_opportunity) + "\n"
+            "  audience:    " + str(strategy.audience_segment) + "\n"
+            "  post hook:   " + str(_lead_hook(content_package)) + "\n\n"
+            "Art-direct it. Return JSON exactly:\n"
             '{"thesis": str, "concept": str, "metaphor": str, '
             '"composition": str, "lighting": str, "materials": str, '
-            '"veo_prompt": str, "vector_spec": str}\n\n'
-            "veo_prompt: one paragraph, cinematic, describing camera move and "
-            "light behaviour over 5-8 seconds. No text in frame.\n"
-            "vector_spec: a 1200x675 schematic description for the deterministic "
-            "renderer, which MAY carry labels since it is drawn, not generated.\n"
-            "meme_prompt: a single square image for a developer-audience meme "
-            "about this same argument. Dry and knowing rather than loud — the "
-            "joke a Soroban engineer would make about the problem, not a "
-            "reaction-image template. Still no rendered text in frame."
+            '"mechanism_shown": str, "anchors_used": [str], '
+            '"veo_prompt": str, "vector_spec": str, "meme_prompt": str}\n\n'
+            "mechanism_shown: name the Vanna mechanism the image depicts, in "
+            "one sentence. If you cannot name one, the concept is decoration "
+            "and you must redo it.\n"
+            "anchors_used: which of the product anchors appear in frame. At "
+            "least two.\n"
+            "veo_prompt: one paragraph for an 8-second cinematic shot that "
+            "SHOWS this mechanism happening over time — a threshold approached "
+            "and defended, a position routed out and returning, one unit "
+            "sealing while its neighbours stay untouched. Describe camera move "
+            "and light behaviour. No text in frame. Not an ambient mood piece.\n"
+            "vector_spec: a 1200x675 schematic for the deterministic renderer, "
+            "which MAY carry labels since it is drawn rather than generated.\n"
+            "meme_prompt: one square image, dry and knowing — the joke a "
+            "Soroban engineer would make about this problem. Still grounded in "
+            "the mechanism, still no text in frame."
         )
 
         try:
@@ -137,9 +177,18 @@ class CreativeDirectorSystem:
             veo_prompt = str(art.get("veo_prompt") or "").strip()
             vector_spec = str(art.get("vector_spec") or "").strip()
             meme_prompt = str(art.get("meme_prompt") or "").strip()
+            mechanism_shown = str(art.get("mechanism_shown") or "").strip()
+            anchors_used = [str(a) for a in (art.get("anchors_used") or [])][:6]
+            if not mechanism_shown or len(anchors_used) < 2:
+                # The brief asks for these precisely so decoration cannot pass.
+                raise _BrainError(
+                    "art direction named no mechanism or fewer than two product "
+                    "anchors; that is a decorative concept, not a brief")
             if not (concept and veo_prompt):
                 raise _BrainError("art direction missing concept or veo_prompt")
-            _record_stage(_AGENT, "ok", "art-directed: " + concept[:160])
+            _record_stage(_AGENT, "ok",
+                          "art-directed: " + mechanism_shown[:120]
+                          + " | anchors: " + ", ".join(anchors_used))
         except _BrainError as exc:
             # No canned fallback. A creative director that could not reach its
             # model has not directed anything, and shipping the old hardcoded

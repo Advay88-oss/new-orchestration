@@ -585,70 +585,51 @@ class VisualCreativeDirector:
         key_claim = reasoning.get("key_claim", "0.00014 XLM fixed gas")
 
         # Dynamically build the 3-stage or 4-stage process flow based on content type and directive
-        d_lower = directive.lower()
-        if "risk" in d_lower or "solvency" in d_lower or "floor" in d_lower or "health factor" in d_lower or "cascade" in d_lower:
-            pipeline_desc = (
-                'A balanced, three-stage linear left-to-right risk defense pipeline connected by glowing cyan neon vector arrows: '
-                '1. LEFT NODE (Telemetry Ingestion): A dark frosted-glass squircle card with a thin cyan border, displaying bold glowing cyan text "~320ms" '
-                'and category label "Data Ingestion" above. Labeled beneath with bold text "Mercury Event Stream" and subtitle "Sub-Second Ingestion". '
-                '2. CENTER NODE (Compute Engine): A clean stylized 3D isometric computer processor microchip in pale lavender with coral/pink connector pins '
-                'and soft inner core glow. Category label "Compute Engine" above. Labeled beneath with bold text "Risk Guardian" and subtitle "1.25x Rebalance Trigger". '
-                '3. RIGHT NODE (Solvency Floor): A dark rounded card with an intense glowing double neon coral/red border and protective outer aura, '
-                'category label "Solvency Floor" above, displaying bold white text "1.10x Floor". Labeled beneath "Protected Solvency Floor" '
-                'and subtitle "Liquidation Prevention". Below it, a small pill tag "0.00014 XLM Gas".'
-            )
-            title_text = "Vanna Protocol on Stellar Soroban"
-            sub_text = "Deterministic 1.10x Health Factor Solvency Floor"
-        elif "leverage" in d_lower or "multiplier" in d_lower or "margin" in d_lower or "10x" in d_lower:
-            pipeline_desc = (
-                'A balanced, three-stage linear left-to-right capital amplification pipeline connected by glowing cyan neon vector arrows: '
-                '1. LEFT NODE (Collateral Input): A sleek pale lavender isometric modular cube, displaying bold text "1,000 XLM" and labeled beneath "1x Collateral Input". '
-                '2. CENTER NODE (Amplifier): A glowing 3D isometric prismatic funnel transformer in dark violet with electric cyan energy beams passing through it, '
-                'labeled beneath with bold text "10x Multiplier" and subtitle "(C+B)/(D+B) ≥ 1.10". '
-                '3. RIGHT NODE (Effective Margin): A neat stacked isometric cluster of illuminated modular cubes in glowing lavender and cyan, '
-                'displaying bold text "10,000 USDC" and labeled beneath "Effective Borrow Power". Below it, a small pill tag "0.00014 XLM Gas".'
-            )
-            title_text = "Vanna Protocol on Stellar Soroban"
-            sub_text = "10x Composable Margin Leverage Pipeline"
-        elif "blend" in d_lower or "vault" in d_lower or "pool" in d_lower:
-            pipeline_desc = (
-                'A balanced, three-stage linear left-to-right liquidity routing pipeline connected by glowing neon cyan vector arrows: '
-                '1. LEFT NODE (User Wallet): A dark frosted-glass squircle card with lavender border, labeled "Freighter Wallet" with subtitle "Collateral Deposit". '
-                '2. CENTER NODE (SmartAccount Sandbox): A clean 3D isometric modular security container in solid periwinkle/lavender with coral mounting tabs, '
-                'labeled beneath "Soroban SmartAccount" with subtitle "Isolated Contract Sandbox". '
-                '3. RIGHT NODE (Blend Pool): A modular 3D isometric lattice cluster of interconnected cubes with glowing cyan badges labeled "$148.5M TVL", '
-                'labeled beneath "Blend v2 Pools" with subtitle "Multi-Token b-Vaults". Below it, a small pill tag "0.00014 XLM Gas".'
-            )
-            title_text = "Vanna Protocol on Stellar Soroban"
-            sub_text = "Composable Liquidity Routing into Blend Pools"
-        elif "sandbox" in d_lower or "isolated" in d_lower or "state" in d_lower or "security" in d_lower:
-            pipeline_desc = (
-                'A balanced, three-stage linear left-to-right architectural isolation pipeline connected by glowing cyan vector arrows: '
-                '1. LEFT NODE (Monolithic Legacy): A dark-red tinted chamber showing internal cracks, labeled beneath "Shared Lending Pools" with subtitle "100% Contagion Risk". '
-                '2. CENTER NODE (Deterministic Firewall): A vertical glowing neon cyan firewall line with security shield icon, labeled "State Isolation Barrier". '
-                '3. RIGHT NODE (Vanna SmartAccounts): Three separate, discrete 3D isometric modular cube vaults in lavender with glowing green status lights, '
-                'labeled beneath "Quarantined Sandboxes" with subtitle "Zero Bad Debt Spillover". Below it, a small pill tag "0.00014 XLM Gas".'
-            )
-            title_text = "Vanna Protocol on Stellar Soroban"
-            sub_text = "State Isolation Architecture on Protocol 20"
-        else:
-            pipeline_desc = (
-                'A balanced, three-stage linear left-to-right process pipeline connected by glowing cyan neon vector arrows: '
-                '1. LEFT NODE (Input Stream): A dark frosted-glass squircle card with thin cyan border, displaying bold glowing metric "~320ms" and labeled "Data Ingestion". '
-                '2. CENTER NODE (Protocol Core): A clean stylized 3D isometric processor chip in pale lavender with coral pins and soft core glow, labeled "Vanna Credit Core" with subtitle "Policy Enforcement". '
-                '3. RIGHT NODE (Deterministic Execution): A dark rounded card with glowing double neon coral/magenta border, displaying bold text "10x Multiplier" and labeled "Sovereign Settlement". Below it, a pill tag "0.00014 XLM Gas".'
-            )
-            title_text = "Vanna Protocol on Stellar Soroban"
-            sub_text = winner["visual_thesis"][:70]
+        # The art director's own concept drives the image.
+        #
+        # This was a five-branch if/else on keywords in the directive, each
+        # branch a fully written infographic with its text baked into the
+        # prompt — 'LEFT NODE (Telemetry Ingestion)... displaying bold glowing
+        # cyan text "~320ms"... a small pill tag "0.00014 XLM Gas"'. So every
+        # campaign about risk got the identical three-node diagram, A07's
+        # reasoning was discarded, and the model was explicitly told to render
+        # text it cannot spell. The creative judge rejected the result for
+        # "blatant rendered text and unedited placeholder labels ('LEFT NODE',
+        # 'Pill tag')" — those labels were in the prompt.
+        #
+        # `directive` is `blueprint.visual_metaphor.concept`: what A07 actually
+        # art-directed for this campaign, grounded in Vanna's mechanism.
+        pipeline_desc = (
+            "Depict this specific mechanism as a clear left-to-right "
+            "architectural relationship: " + str(directive).strip() + " "
+            "Show it with geometry, proportion, containment and connection — "
+            "discrete sealed units versus one shared volume, a quantity "
+            "approaching a boundary, a path routed outward and returning. "
+            "Do not label anything; the relationships must read from form alone."
+        )
+        title_text = "Vanna Protocol on Stellar Soroban"
+        sub_text = str(winner.get("visual_thesis") or "")[:70]
 
         prompt_text = (
             f"A clean horizontal process flow DeFi architectural explainer diagram for {title_text}. "
             f"Style: Modern Web3 Dark Mode UI, clean isometric pseudo-3D vector geometry combined with flat 2D vector elements, "
-            f"soft neon glows, high-contrast crisp typography, razor-sharp line work, generous negative space. "
+            f"soft glows, razor-sharp line work, generous negative space. "
             f"Background: Deep space obsidian #080310 with signature Vanna ambient blooms: luminous fuchsia-pink #C73770 in top-right "
             f"and vibrant electric royal violet #7430CC in bottom-left, with fine 35mm digital film grain. "
             f"NO CINEMATIC LIGHTING, NO VOLUMETRIC FILM PROPS, NO MOVIE SCENES. PURE CLEAN FINTECH PRODUCT EXPLAINER DIAGRAM. "
-            f"Top header: Centered clean bold white title \"{title_text}\" and subtitle \"{sub_text}\". "
+            # The canvas is rendered TEXTLESS on purpose. `_composite_brand_finish`
+            # draws the title and subtitle afterwards with PIL, where the words
+            # are exactly what we passed in. Asking the image model for a header
+            # instead produced invented ticker symbols and misspelt formulas —
+            # and once a run leaked a raw provenance tag into `title_text`, the
+            # canvas rendered "[Blend Protocol Docs] Blend v2 pool architecture"
+            # as its headline. A misspelt figure in an image is a false claim.
+            f"Leave the top 22% of the canvas clear, dark and empty for an "
+            f"externally composited headline. "
+            f"RENDER NO TEXT OF ANY KIND: no words, letters, numerals, labels, "
+            f"axis ticks, formulas, ticker symbols, percentages or captions "
+            f"anywhere on the canvas. Express quantity and relationship through "
+            f"geometry, proportion and position only. "
             f"CRITICAL BRAND INVARIANT: Do NOT render any Vanna logo, emblem, V-icon, wordmark, or pill badge on the image canvas. "
             f"Keep the top-left corner completely clear and dark, as the official Vanna brand badge is composited externally. "
             f"There must be ZERO logos or Vanna pill badges rendered by the image model anywhere on the canvas. "
@@ -673,7 +654,11 @@ class VisualCreativeDirector:
                 "Rendering any Vanna logo or V-icon or pill badge on the image canvas (only external top-left lockup allowed)",
                 "Duplicate branding or logos",
                 "Cinematic volumetric movie scenes or raytraced film props",
-                "Generic glowing spheres with concentric rings"
+                "Generic glowing spheres with concentric rings",
+                "Any rendered text, numeral, formula, ticker symbol or label",
+                "Any cryptocurrency glyph or coin prop — no Bitcoin, Ethereum, "
+                "XLM or generic token discs; Vanna is credit infrastructure, "
+                "not a currency",
             ],
             "autonomous_decisions_for_image_model": [
                 "Exact micro-surface texture and refraction indices",

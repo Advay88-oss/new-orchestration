@@ -216,6 +216,7 @@ export function gtmRuns(limit = 15) {
         inputTokens: s.input_tokens ?? 0,
         outputTokens: s.output_tokens ?? 0,
         durationS: s.duration_s ?? 0,
+    inFlight: !s.ended_at,
         startedAt: s.started_at ?? null,
         hasVisual: Boolean(s.visual_path),
         hasVideo: Boolean(s.video_path),
@@ -261,8 +262,12 @@ export function gtmArtifactPath(
 export function gtmRunDetail(runId?: string) {
   const rid = runId || listGtmRunIds(1)[0];
   if (!rid) return null;
-  const s = gtmRunSummary(rid);
-  if (!s) return null;
+
+  // A run in flight has a directory and a journal but no summary.json yet —
+  // it is written when the cycle finishes. Returning null here 404'd the whole
+  // view for the two-to-four minutes a cycle takes, which is exactly when
+  // someone is watching it. Serve what the journal already has instead.
+  const s = gtmRunSummary(rid) ?? { status: 'running' };
   const { agents } = gtmAgents(rid);
 
   return {

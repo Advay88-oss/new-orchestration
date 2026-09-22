@@ -234,6 +234,104 @@ def brain_json(prompt: str, **kw) -> Any:
                          + "; head=" + repr(txt[:200])) from exc
 
 
+
+def brain_vision(
+    prompt: str,
+    images: list,
+    *,
+    agent: str,
+    system: str = "",
+    role: str = "reasoning",
+    temperature: float = 0.2,
+    max_output_tokens: int = 4096,
+    json_out: bool = True,
+    run_id: Optional[str] = None,
+    timeout: float = 120.0,
+) -> Any:
+    """Ask the model about images it can actually see.
+
+    A creative director that judges its own brief from the brief text is
+    grading its intentions, not the asset. This sends the rendered PNG so the
+    critique is of the thing that will be published.
+    """
+    import base64
+    import mimetypes
+
+    started = time.time()
+    url, model, transport = endpoint(role)
+
+    parts: list[dict[str, Any]] = [{"text": prompt}]
+    attached = 0
+    for img in images:
+        path = Path(str(img))
+        if not path.exists() or path.stat().st_size > 12_000_000:
+            continue
+        mime = mimetypes.guess_type(path.name)[0] or "image/png"
+        parts.append({"inlineData": {
+            "mimeType": mime,
+            "data": base64.b64encode(path.read_bytes()).decode("ascii"),
+        }})
+        attached += 1
+    if attached == 0:
+        raise BrainError("no readable images to inspect")
+
+    payload: dict[str, Any] = {
+        "contents": [{"role": "user", "parts": parts}],
+        "generationConfig": {"temperature": temperature,
+                             "maxOutputTokens": max_output_tokens},
+    }
+    if system:
+        payload["systemInstruction"] = {"parts": [{"text": system}]}
+    if json_out:
+        payload["generationConfig"]["responseMimeType"] = "application/json"
+
+    try:
+        res = _post(url, payload, timeout)
+    except urllib.error.HTTPError as exc:
+        body = ""
+        try:
+            body = exc.read().decode("utf-8", "replace")[:300]
+        except Exception:
+            pass
+        note = "HTTP " + str(exc.code) + ": " + body
+        record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
+                         note=note, transport=transport), run_id)
+        raise BrainError(note) from exc
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        note = (type(exc).__name__ + ": " + str(exc))[:300]
+        record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
+                         note=note, transport=transport), run_id)
+        raise BrainError(note) from exc
+
+    usage = res.get("usageMetadata") or {}
+    try:
+        text = res["candidates"][0]["content"]["parts"][0]["text"]
+    except (KeyError, IndexError, TypeError):
+        note = "no text in vision response: " + json.dumps(res)[:200]
+        record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
+                         note=note, transport=transport), run_id)
+        raise BrainError(note)
+
+    record(AgentCall(agent, role, model, True, round(time.time() - started, 2),
+                     input_tokens=usage.get("promptTokenCount", 0),
+                     output_tokens=usage.get("candidatesTokenCount", 0),
+                     note="inspected " + str(attached) + " image(s)",
+                     transport=transport), run_id)
+
+    if not json_out:
+        return text
+    txt = text.strip()
+    if txt.startswith("```"):
+        bits = txt.split("```")
+        txt = bits[1] if len(bits) > 1 else txt
+        if txt.startswith("json"):
+            txt = txt[4:]
+    try:
+        return json.loads(txt)
+    except json.JSONDecodeError as exc:
+        raise BrainError("unparseable JSON from vision model: " + str(exc)) from exc
+
+
 # --------------------------------------------------------------------------
 # Journal — the dashboard's only source of truth for these agents
 # --------------------------------------------------------------------------

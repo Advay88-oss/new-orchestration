@@ -65,6 +65,15 @@ export function AgentReasoning() {
   }, [load]);
 
   if (err) return <Msg tone="#FC5457">Could not read the run journal: {err}</Msg>;
+  if (d && (d as any).inFlight) {
+    // A cycle takes 2-4 minutes. Saying so beats an empty panel or an error.
+    return (
+      <Msg tone={ACCENT}>
+        {d.runId} is still running — A02 and A03 record their decisions as they
+        finish. This refreshes every 15s.
+      </Msg>
+    );
+  }
   if (!d) return <Msg tone={DIM}>Loading…</Msg>;
 
   return (
