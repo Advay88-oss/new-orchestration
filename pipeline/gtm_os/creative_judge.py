@@ -149,6 +149,16 @@ def judge_assets(summary: dict[str, Any], run_id: str) -> dict[str, Any]:
     no_mech = [a for a in assets if a.get("shows_mechanism") is False]
     overall = str(verdict.get("overall", "")).upper() or (
         "REJECT" if rejects else "SHIP")
+    # The per-asset verdicts dominate. A run came back overall REVISE while
+    # carrying a REJECTed video, and shipped — the asset the judge refused was
+    # rescued by its own summary line. If one asset must not publish, the run
+    # does not publish.
+    if rejects and overall != "REJECT":
+        overall = "REJECT"
+        verdict["summary"] = (
+            "Overall raised to REJECT: "
+            + ", ".join(str(a.get("asset")) for a in rejects)
+            + " rejected. " + str(verdict.get("summary", ""))[:300])
     verdict["overall"] = overall
 
     detail = ("judged " + str(len(assets)) + " asset(s): " + overall

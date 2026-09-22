@@ -1,0 +1,389 @@
+{
+  "run_id": "GTM-20260922-202615",
+  "started_at": "2026-09-22T20:26:15.676331+00:00",
+  "directive": null,
+  "status": "review_blocked",
+  "signal": "Blend v2 pool architecture formal verification and b-token specification",
+  "signal_source_type": "LIVE_OBSERVED",
+  "signal_source": "https://docs.blend.capital",
+  "signal_observed_at": "2026-09-22T20:26:17.118112+00:00",
+  "candidate_signals": [
+    {
+      "headline": "The Web3 builder\u2019s guide to Stellar - Blockworks",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Sun, 15 Mar 2026 05"
+    },
+    {
+      "headline": "XLM Bulls Eye $0.20 As Stellar\u2019s Soroban Powers Record TVL - DailyCoin",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Thu, 30 Apr 2026 07"
+    },
+    {
+      "headline": "Stellar Price Prediction 2026: XLM Targets Through 2030 - Memeburn",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Sat, 15 Aug 2026 07"
+    },
+    {
+      "headline": "Stellar price prediction 2026-2030: the compliance-first bet - Crypto News",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Mon, 01 Jun 2026 07"
+    },
+    {
+      "headline": "Soroban: The Smart Contract Platform Designed for Developers - Stellar",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 09 Jul 2024 07"
+    },
+    {
+      "headline": "Blend v2 pool architecture formal verification and b-token specification",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-22T20:26:17"
+    },
+    {
+      "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+      "source_type": "REDDIT_COMMUNITY_OBSERVED",
+      "observed_at": "2026-09-22T18:02:31"
+    },
+    {
+      "headline": "Protocol 20 smart contracts and Blend v2 liquidity expansion live",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-22T20:26:24"
+    },
+    {
+      "headline": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+      "source_type": "ARCHIVE",
+      "observed_at": "2026-09-10T17:09:00"
+    },
+    {
+      "headline": "Liquidation Protection Narrative (1.10x Health Factor Floor)",
+      "source_type": "ARCHIVE",
+      "observed_at": "2026-09-10T17:09:00"
+    },
+    {
+      "headline": "Live Composable Yield on Blend v2 Pools ($149,772,668 TVL)",
+      "source_type": "ARCHIVE",
+      "observed_at": "2026-09-10T17:09:00"
+    },
+    {
+      "headline": "Live Composable Yield on Blend v2 Pools ($150,235,698 TVL)",
+      "source_type": "ARCHIVE",
+      "observed_at": "2026-09-10T17:09:00"
+    },
+    {
+      "headline": "Composable 10x Margin for Blend v2 Pools ($149,164,002 TVL)",
+      "source_type": "ARCHIVE",
+      "observed_at": "2026-09-10T17:09:00"
+    },
+    {
+      "headline": "Composable 10x Margin for Blend v2 Pools ($149,730,095 TVL)",
+      "source_type": "ARCHIVE",
+      "observed_at": "2026-09-10T17:09:00"
+    }
+  ],
+  "selection": {
+    "chosen": "Blend v2 pool architecture formal verification and b-token specification",
+    "chosen_source": "LIVE_OBSERVED",
+    "why": "Blend v2's pool architecture and b-token specification provides a concrete technical interface for Vanna to deploy composable credit infrastructure, allowing deterministic integration with verified yield-bearing pool tokens rather than relying on generic ecosystem hype.",
+    "rejected": [
+      {
+        "headline": "The Web3 builder\u2019s guide to Stellar - Blockworks",
+        "why": "Broad ecosystem overview lacking a specific credit or integration challenge for Vanna to solve."
+      },
+      {
+        "headline": "XLM Bulls Eye $0.20 As Stellar\u2019s Soroban Powers Record TVL - DailyCoin",
+        "why": "Speculative token price and macro TVL metric without an architectural credit problem."
+      },
+      {
+        "headline": "Stellar Price Prediction 2026: XLM Targets Through 2030 - Memeburn",
+        "why": "Speculative price prediction devoid of technical or infrastructural relevance."
+      },
+      {
+        "headline": "Stellar price prediction 2026-2030: the compliance-first bet - Crypto News",
+        "why": "High-level regulatory narrative with no direct DeFi or credit architecture application."
+      },
+      {
+        "headline": "Soroban: The Smart Contract Platform Designed for Developers - Stellar",
+        "why": "Generic developer marketing content without specific primitives for composability."
+      },
+      {
+        "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+        "why": "Unanchored retail yield discussion without direct ties to Soroban smart contract architecture."
+      },
+      {
+        "headline": "Protocol 20 smart contracts and Blend v2 liquidity expansion live",
+        "why": "Broader network milestone that is less targeted than the specific b-token contract specification in signal 5."
+      },
+      {
+        "headline": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+        "why": "Archival internal product concept rather than an active external market catalyst."
+      }
+    ],
+    "candidates": 14
+  },
+  "action_status": "ACTION",
+  "machine": "MACH_02_B2B_PARTNER_ONBOARDING",
+  "pillar": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+  "strategy_reasoning": [
+    "Blend is the primary lending protocol on Stellar Soroban; highlighting integration with their formally verified b-token specification reinforces technical legitimacy.",
+    "Positioning Vanna as composable infrastructure rather than a direct competitor aligns with the B2B ecosystem partner onboarding machine.",
+    "Ensures clear distinction that all functionality is currently live and testable on Soroban testnet only.",
+    "Market Signal 'Blend v2 pool architecture formal verification and b-token specification' verified from LIVE_OBSERVED (Confidence: HIGH).",
+    "Audience 'A1: Stellar & Soroban DeFi Farmers' targeted to resolve verified objection from Brain DB.",
+    "Machine 'MACH_02_B2B_PARTNER_ONBOARDING' verified eligible (Backed by 1 observed protocols (observed x3) in Brain DB.).",
+    "Claims verified: 3 claims evaluated by ClaimEvidenceGate (0 blocked)."
+  ],
+  "problem": "DeFi participants face high friction and fragmented capital efficiency when manually wrapping, lending, and managing positions across standalone money markets like Blend.",
+  "opportunity": "Frame Blend v2's formal b-token architecture as the ideal collateral building block for Vanna's isolated SmartAccounts, demonstrating how composable credit elevates base yield primitives on Soroban testnet.",
+  "audience": "A1: Stellar & Soroban DeFi Farmers",
+  "proof_claims": [
+    "Composable integration architecture hooks directly into Blend (b-tokens), Aquarius (LP shares), and Soroswap (DEX swaps)",
+    "Up to 10x leverage deployed composably into external DeFi (Blend b-tokens, Aquarius LPs)"
+  ],
+  "machine_name": "B2B Ecosystem Partner Onboarding Machine",
+  "machine_evidence": [
+    "CAMP_ROBINHOOD_ACQUISITION",
+    "MORPHO_CURV_INTEGRATION"
+  ],
+  "machine_sources": [
+    "https://x.com/Morpho/status/2072395963793350687",
+    "https://morpho.org/blog/robinhood-chooses-morpho-to-power-new-earn-product"
+  ],
+  "posts": {
+    "x": {
+      "hook": "Blend b-tokens yield more when routed through isolated margin.",
+      "copy": "Most Soroban farmers leave basis points on the table by supplying spot directly to Blend v2 pools. Routing collateral through Vanna SmartAccounts lets you borrow against your position at a hard 1.10x Health Factor floor.\n\nExecution costs sit at 0.00014 XLM fixed gas per call, with state sync running at ~320ms Mercury indexer latency. You get automated yield compounding into b-tokens without co-mingled pool risk.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+    },
+    "linkedin": {
+      "hook": "Formal verification of lending primitives is worthless if execution latency fails liquidations.",
+      "copy": "Lending infrastructure on Soroban is shifting from pooled debt primitives toward isolated execution environments. Blend v2 formal pool verification solves smart contract invariant safety, but capital efficiency depends on execution pipelines. When margin routes through isolated SmartAccounts, collateral states maintain individual risk envelopes rather than sharing systemic pool drag.\n\nThe technical baseline reflects this separation. By decoupling margin custody from lending logic, Vanna routes directly into Blend b-tokens at 0.00014 XLM fixed gas overhead. The integration relies on ~320ms Mercury indexer latency to monitor positions against a strict 1.10x Health Factor floor. Liquidations and automated rebalances execute deterministically before price oracle drift impacts solvency.\n\nInstitutional liquidity cannot tolerate cross-collateral contagion or unverified pool states. Composable credit routing over formally verified b-tokens gives risk desks granular control over yield capture on Stellar. Builders and protocol risk teams can test contract interactions and deploy an isolated SmartAccount sandbox at test.stellar.vanna.finance.\n\nInstitutional architecture is documented at test.stellar.vanna.finance"
+    },
+    "reddit": {
+      "hook": "How we built isolated SmartAccount margin routing into Blend v2 b-tokens on Soroban testnet",
+      "copy": "We have been testing Blend v2 integration on Soroban testnet over the past few weeks, specifically around how composable credit can sit on top of b-tokens without introducing systemic collateral risk.\n\nMost lending implementations on Stellar treat user accounts as direct pool participants. You supply assets, mint b-tokens, and your position lives inside the common pool state. The limitation here is capital lockup: if you want to run automated yield routing or leverage a position, you either sign every sub-call manually or delegate full custody to a monolithic contract.\n\nWe approached this by decoupling custody from execution using Soroban native SmartAccounts. Here is how the contract architecture operates on testnet:\n\n1. Margin Custody and Delegation\nA user spins up an isolated SmartAccount instance. The SmartAccount holds the primary balance and retains ownership of the minted Blend b-tokens. Instead of approving a central protocol to pull funds, the SmartAccount exposes scoped policy modules that only execute specific routing logic.\n\n2. The Blend v2 Interface\nWhen routing capital into Blend v2, the SmartAccount deposits underlying assets, receives b-tokens, and tracks debt shares against a hardcoded 1.10x Health Factor floor. Because Blend v2 uses formal pool verification for its math invariants, the SmartAccount treats the b-token pool as a deterministic interest-bearing sink.\n\n3. Latency and Gas Constraints\nState tracking runs through Mercury indexer webhooks with ~320ms latency. This allows the off-chain monitoring engine to detect undercollateralized positions and trigger rebalance calls before bad debt accrues. Execution cost comes out to roughly 0.00014 XLM fixed gas per invocation, making micro-rebalancing feasible even during high-frequency volatility.\n\nIf you are building yield strategies or liquidation bots on Soroban, you can test this flow yourself. We opened up the testnet deployment pipeline so you can deploy an isolated SmartAccount sandbox, supply mock collateral, and verify the b-token routing mechanics directly on chain.\n\nSetup link: test.stellar.vanna.finance\n\nDisclosure: I am a core engineer at Vanna Protocol working on our Soroban credit infrastructure."
+    }
+  },
+  "visual_concept": "A precision-milled obsidian SmartAccount sandbox acts as an isolated routing chamber. A slender optical conduit bridges this private chamber to an external monolithic Blend station. Capital flows across the conduit, transmuting inside the Blend prism into a high-density, faceted b-token crystalline lattice, which routes immediately back into the sealed SmartAccount storage bay while neighboring sandboxes remain completely inert.",
+  "prompts": {
+    "STATIC_VECTOR": "1200x675 clean vector schematic on background #07020D. Center-left: a distinct 280x360 rectangle with stroke #471485 and fill #0E051B labelled 'SmartAccount Sandbox (Isolated WASM)'. Inside it, a bottom partitioned container labelled 'Isolated Storage: b-Token Collateral' showing stacked hatched rectangles. Center-right: an external hexagonal node labelled 'Blend Money Market Contract' stroke #5E0D46. Connecting them: two parallel horizontal directional vectors. Top vector labelled 'Deploy Borrowed Liquidity (Fixed Micro-gas: 0.00014 XLM)' pointing right. Bottom vector labelled 'Return b-Tokens (Yield Accrual)' pointing left into the isolated storage partition. Top-left status annotation: 'Stellar Soroban Testnet // Account-Level Partitioning'. No logos, no currency glyphs.",
+    "STATIC_IMAGE": "Developer-grade clean DeFi visual metaphor for Vanna Protocol. A precision-milled obsidian SmartAccount sandbox acts as an isolated routing chamber. A slender optical conduit bridges this private chamber to an external monolithic Blend station. Capital flows across the conduit, transmuting inside the Blend prism into a high-density, faceted b-token crystalline lattice, which routes immediately back into the sealed SmartAccount storage bay while neighboring sandboxes remain completely inert. Background: Deep obsidian base (#07020D) with soft ambient electric violet glow (#471485) and fuchsia (#5E0D46). 35mm film grain, high negative space, zero text, zero generic floating spheres, zero neon grids.",
+    "MEME_IMAGE": "A humorous visual metaphor captured in quiet institutional studio photography: On the left, a solitary human figure wearing laboratory gloves painstakingly stacks fragile, mismatched glass vials by hand on a wobbly wooden folding table, looking stressed and exhausted. On the right, a solitary, massive, robotic obsidian milling station effortlessly extrudes a perfectly symmetrical, sealed monolithic block into an isolated titanium cradle in absolute silence. Crisp studio lighting, deep black shadows, 35mm film grain, deadpan technical mood, completely free of any text, speech bubbles, or logos.",
+    "VEO_VIDEO_31": "An 8-second cinematic tracking shot starting in extreme close-up on a matte black obsidian cubic chamber representing a Soroban SmartAccount. The camera smoothly tracks laterally to the right along a straight borosilicate glass transit conduit as a deep violet pulse of liquidity travels across into a faceted smoky quartz monolith representing Blend. Within the monolith, the pulse condenses into three interlocking, dense fuchsia crystalline prisms. The camera accelerates backward and pans, tracking these three prism units as they glide back through the conduit and snap securely into the sealed base of the first obsidian chamber, locking into hermetic storage with a soft mechanical settling. The background remains an uninterrupted obsidian void with subtle 35mm film grain, void of text, coins, or interface graphics."
+  },
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\GTM-20260922-202615_visual.png",
+  "visual_archetype": "A5_round_trip",
+  "visual_why": "Capital leaves the SmartAccount sandbox into Blend and returns as collateralized b-tokens, demonstrating composable credit routing.",
+  "visual_public_url": "/GTM-20260922-202615_visual.png",
+  "meme_path": "D:\\new orchestration\\pipeline\\state\\GTM-20260922-202615_meme.png",
+  "video_path": "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260922-202615\\GTM-20260922-202615_video.mp4",
+  "creative_review": {
+    "assets": [
+      {
+        "asset": "visual",
+        "verdict": "SHIP",
+        "shows_mechanism": true,
+        "mechanism_named": "Isolated SmartAccount routing credit conduit to Blend pool",
+        "on_brand": true,
+        "matches_copy": true,
+        "has_text": false,
+        "prohibited_elements": [],
+        "critique": "Crisp execution. The foreground isolated chamber accurately depicts a SmartAccount as a sealed physical unit deploying credit via conduit into external pool architecture. The lighting adheres to the obsidian void aesthetic, and typography is correctly typeset with explicit Soroban testnet cues.",
+        "fix": "None. Ready to ship."
+      },
+      {
+        "asset": "meme",
+        "verdict": "REVISE",
+        "shows_mechanism": true,
+        "mechanism_named": "Automated SmartAccount yield routing versus manual un-leveraged spot supply",
+        "on_brand": true,
+        "matches_copy": true,
+        "has_text": false,
+        "prohibited_elements": [],
+        "critique": "Strong tonal fit for a Vanna meme\u2014moody, restrained, and avoids low-effort crypto meme tropes. The visual contrast between the exhausted chemist manually handling glassware and the industrial robotic arm holding a sealed matte cell captures the thesis of manual Blend farming versus automated SmartAccount execution. However, the sealed container in the arm lacks visual indication that it is an isolated credit cell rather than generic lab hardware.",
+        "fix": "Ensure the robotic arm's payload more distinctly mirrors the architectural language of the isolated SmartAccount enclosure seen in primary assets."
+      },
+      {
+        "asset": "video_still",
+        "verdict": "REJECT",
+        "shows_mechanism": false,
+        "mechanism_named": "None (abstract wireframe grid)",
+        "on_brand": false,
+        "matches_copy": false,
+        "has_text": true,
+        "prohibited_elements": [
+          "neon cyberpunk grids"
+        ],
+        "critique": "Unacceptable on multiple fronts. Mechanistically, this is just a 4x4 neon grid with one tinted square, completely failing to depict isolated accounts or credit routing. Stylistically, the purple neon gradient slips directly into generic crypto slop. Critically, the typeset layer is corrupt: 'STELLAR SOROBA' is missing its terminal 'N', and the subdeck is an incomplete raw generation prompt ('...for Vanna's').",
+        "fix": "Scrap the entire frame. Replace with a mechanistic depiction of b-token yield accrual inside an isolated SmartAccount, correct the truncated text, and strip the purple neon grid aesthetic."
+      }
+    ],
+    "copy_verdict": "SHIP",
+    "copy_critique": "Flawless technical precision. Specifies Stellar Soroban, Blend v2 b-tokens, isolated SmartAccount boundaries, the hard 1.10x liquidation floor, 0.00014 XLM fixed gas, 320ms Mercury indexer telemetry, and points explicitly to a testnet domain.",
+    "overall": "REJECT",
+    "summary": "The copy and primary visual are stellar and fully compliant with Vanna's mechanism and brand rules. However, the release cannot ship due to the video still, which contains garbled/truncated prompt text ('STELLAR SOROBA', incomplete sentence) and lazy neon grid abstraction with zero mechanistic fidelity."
+  },
+  "creative_verdict": "REJECT",
+  "review_passed": false,
+  "review_notes": {
+    "blocked_claims": [],
+    "slop": [],
+    "creative": "REJECT"
+  },
+  "packet_built": true,
+  "review_delivery": {
+    "sent": false,
+    "reason": "not_configured",
+    "detail": "TELEGRAM_REVIEWER_CHAT_ID is not set."
+  },
+  "duration_s": 220.56,
+  "ended_at": "2026-09-22T20:29:56.233000+00:00",
+  "model_calls": 9,
+  "model_calls_ok": 9,
+  "input_tokens": 13048,
+  "output_tokens": 3825,
+  "models_used": [
+    "gemini-3-pro-image",
+    "gemini-3.1-flash-image",
+    "gemini-3.8-flash",
+    "veo-3.1-generate-001"
+  ],
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "live: 8 signals from docs_blogs, google_news, reddit, telegram | quiet/failed: twitter",
+      "outputs": [
+        "SIG-NEWS-a257dce0",
+        "SIG-NEWS-fc998c57",
+        "SIG-NEWS-a04f34cb",
+        "SIG-NEWS-92c9ce33",
+        "SIG-NEWS-ed882542",
+        "SIG-DOCS-BLEND-V2-SPEC",
+        "SIG-REDDIT-DEFI-93e6a756",
+        "SIG-TG-STELLAR-VERIFIED",
+        "SIG-OPP-OPP_COMPOSABLE_SANDBOX",
+        "SIG-OPP-OPP_1_1X_BUFFER_DEFENSE"
+      ],
+      "at": "2026-09-22T20:26:36.012793+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "chose a signal to pursue (5.16s)",
+      "outputs": [],
+      "at": "2026-09-22T20:26:41.182854+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "formulated strategy (5.15s)",
+      "outputs": [
+        "STRAT-SIG-DOCS-BLEND-V2-SPEC-202609222026"
+      ],
+      "at": "2026-09-22T20:26:46.333660+00:00"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "role": "none",
+      "status": "ok",
+      "detail": "verified machine MACH_02_B2B_PARTNER_ONBOARDING (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T20:26:46.333660+00:00"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "role": "none",
+      "status": "ok",
+      "detail": "selected campaign vehicle (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T20:26:46.333660+00:00"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "generated channel posts (9.42s)",
+      "outputs": [
+        "CAP-STRAT-SIG-DOCS-B-202609222026"
+      ],
+      "at": "2026-09-22T20:26:55.753159+00:00"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "role": "reasoning",
+      "status": "degraded",
+      "detail": "judged 3 asset(s): REJECT | 1 rejected | 1 show no mechanism",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\GTM-20260922-202615_visual.png"
+      ],
+      "at": "2026-09-22T20:29:56.171524+00:00"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "role": "image",
+      "status": "ok",
+      "detail": "rendered meme GTM-20260922-202615_meme.png",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\GTM-20260922-202615_meme.png"
+      ],
+      "at": "2026-09-22T20:28:02.854236+00:00"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "role": "video",
+      "status": "ok",
+      "detail": "motion graphic GTM-20260922-202615_video.mp4",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260922-202615\\GTM-20260922-202615_video.mp4"
+      ],
+      "at": "2026-09-22T20:29:41.034872+00:00"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "role": "none",
+      "status": "ok",
+      "detail": "ran the pre-delivery firewalls (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T20:29:56.173066+00:00"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "role": "none",
+      "status": "skipped",
+      "detail": "awaiting human approval; dispatch never runs unprompted",
+      "outputs": [],
+      "at": "2026-09-22T20:29:56.173066+00:00"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "role": "none",
+      "status": "skipped",
+      "detail": "not delivered: TELEGRAM_REVIEWER_CHAT_ID is not set.",
+      "outputs": [],
+      "at": "2026-09-22T20:29:56.173066+00:00"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "processed the outcome feedback loop (0.06s)",
+      "outputs": [],
+      "at": "2026-09-22T20:29:56.233000+00:00"
+    }
+  ],
+  "agents_ran": 11
+}

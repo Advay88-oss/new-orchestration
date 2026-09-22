@@ -238,7 +238,9 @@ def direct(strategy: Any, hook: str, body: str,
         + ("ALREADY USED BY THE LAST POSTS, and therefore not available: "
            + ", ".join(blocked) + "\n\n" if blocked else "")
         + "Choose one and fill its slots exactly. Return JSON:\n"
-        '{"archetype": "<id>", "why": str, "slots": { ... }}'
+        '{"archetype": "<id>", "why": str, "slots": { ... }}' + "\n\n"
+        "Keep `why` under 25 words. Put the effort into the slots; the "
+        "rationale is a note, not an essay."
     )
 
     # One retry on a malformed reply. The selection is a single short JSON
@@ -247,7 +249,7 @@ def direct(strategy: Any, hook: str, body: str,
     # broken brace is worth simply asking again for.
     try:
         out = R.brain_json(prompt, agent=AGENT, role="reasoning", system=SYSTEM,
-                           temperature=0.55, max_output_tokens=2048,
+                           temperature=0.55, max_output_tokens=6144,
                            run_id=client_run_id)
     except R.BrainError as first:
         R.record_stage(AGENT, "degraded",
@@ -258,7 +260,7 @@ def direct(strategy: Any, hook: str, body: str,
                      "before or after it, no comments, no trailing commas, "
                      "no ellipsis. Every slot must carry a literal value.",
             agent=AGENT, role="reasoning", system=SYSTEM,
-            temperature=0.2, max_output_tokens=2048, run_id=client_run_id)
+            temperature=0.2, max_output_tokens=6144, run_id=client_run_id)
 
     choice = str(out.get("archetype") or "")
     if choice not in opts:
@@ -308,7 +310,33 @@ def render(direction: dict[str, Any], run_id: str,
     elif choice == "A5_round_trip":
         slots["labels"] = [str(x) for x in (slots.get("labels") or [])][:3]
 
-    slots.setdefault("footnote", "Stellar Soroban testnet · docs.vanna.finance")
+    # Fill the renderer's signature, and only its signature.
+    #
+    # `footnote` was being set on every archetype, but A5 Round Trip does not
+    # take one — so a perfectly good selection died on a TypeError. Renderers
+    # differ by design; the director should adapt to them rather than assume
+    # they share a shape.
+    import inspect
+
+    accepted = set(inspect.signature(fn).parameters)
+    if "footnote" in accepted:
+        slots.setdefault("footnote", "Stellar Soroban testnet · docs.vanna.finance")
+
+    dropped = [k for k in slots if k not in accepted]
+    for k in dropped:
+        slots.pop(k)
+    missing = [k for k, prm in inspect.signature(fn).parameters.items()
+               if prm.default is inspect.Parameter.empty
+               and k not in ("out",) and k not in slots]
+    if missing:
+        raise ValueError("archetype " + choice + " needs " + ", ".join(missing)
+                         + " and the director did not supply "
+                         + ("them" if len(missing) > 1 else "it"))
+    if dropped:
+        R.record_stage(AGENT, "degraded",
+                       "dropped slots " + choice + " does not accept: "
+                       + ", ".join(dropped))
+
     path = fn(out=out, **slots)
     remember(choice)
     R.record_stage(AGENT, "ok",

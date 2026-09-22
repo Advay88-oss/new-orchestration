@@ -292,7 +292,8 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
     filling, the composition bar growing — is the next step, and the archetype
     renderers already draw every element it would need.
     """
-    from pipeline.gtm_creative.motion import build_isolation_motion
+    from pipeline.gtm_creative.motion import (build_isolation_motion,
+                                              element_prompt_for)
 
     s = summary_or_blueprint if isinstance(summary_or_blueprint, dict) else {}
     posts = (s.get("posts") or {}).get("x") or {}
@@ -301,13 +302,37 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
     # Per-run element. The default cache is one shared file, so every cycle
     # reused the same clip and the journal correctly showed no Veo call — the
     # stage reported "ok" for a video it had not made.
+    # Words come from the POST, not from the strategy.
+    #
+    # The first version took the eyebrow from `pillar`, hard-truncated at 60
+    # characters so it read "STELLAR SOROBA", and the deck from `opportunity` —
+    # which is the internal brief. A frame shipped saying "Position Vanna as
+    # the foundational composable credit layer on Soroban", which is what we
+    # tell ourselves, not what we tell a reader. The creative judge caught it.
+    hook = str(posts.get("hook") or "")
+    deck = ""
+    for para in str(posts.get("copy") or "").split("\n"):
+        line = para.strip()
+        if len(line) > 30 and line[:40] not in hook:
+            deck = line.split(". ")[0].rstrip(".") + "."
+            break
+
+    archetype = str(s.get("visual_archetype") or "")
     path = build_isolation_motion(
         element_mp4=RUNS_DIR / run_id / (run_id + "_element.mp4"),
-        eyebrow=str(s.get("pillar") or "Stellar Soroban · testnet")[:60],
-        headline=str(posts.get("hook") or s.get("signal") or "")[:120],
-        deck=str(s.get("opportunity") or s.get("problem") or "")[:160],
-        stat_value="0",
-        stat_label="accounts exposed to a neighbour's deficit",
+        # The motion must depict what the post argues. Rendering the isolation
+        # grid for a Round Trip post is why the judge rejected the video for
+        # showing no mechanism.
+        element_prompt=element_prompt_for(archetype),
+        eyebrow="Stellar Soroban · testnet",
+        headline=(hook or str(s.get("signal") or ""))[:120],
+        deck=deck[:150],
+        # Only the isolation archetype has a figure that means anything here.
+        # "0 accounts exposed" printed under a Round Trip post is a number
+        # attached to an argument it is not making.
+        stat_value="0" if archetype == "A4_isolation" else "",
+        stat_label=("accounts exposed to a neighbour's deficit"
+                    if archetype == "A4_isolation" else ""),
         footnote="Stellar Soroban testnet · docs.vanna.finance",
         out=out,
     )

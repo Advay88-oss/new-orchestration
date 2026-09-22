@@ -72,9 +72,97 @@ VEO_FLAT_PROMPT = (
     "watermarks at any point in the shot. "
     "NEVER: bright or white filled shapes, chrome, silver, metallic sheen, camera movement of any kind, 3D, perspective, isometric "
     "projection, extrusion, cast shadows, reflections, glow, neon, cyan, teal, "
+    "coins, currency glyphs, vaults, map pins, location markers, teardrop shapes, lens flare, light streaks, haze, "
+    "particles, cyberpunk or gaming aesthetics, any logo or brand mark."
+)
+
+
+# --------------------------------------------------------------------------
+# Element prompts, per archetype
+# --------------------------------------------------------------------------
+#
+# A09 rendered the isolation grid whatever the post argued, so a Round Trip
+# post shipped with a video about containment and the creative judge rightly
+# rejected it for showing no mechanism. The motion has to depict the same thing
+# the still does.
+#
+# Each of these is the archetype's own figure, plus the one change over time
+# that makes it a video rather than a still.
+
+LOCKED = (
+    "LOCKED-OFF STATIC CAMERA. The camera does not move, pan, tilt, dolly, "
+    "zoom, orbit, track, drift or shake at any point. The frame is absolutely "
+    "still, as if screen-recorded from a motion-graphics timeline. No depth of "
+    "field, no parallax, no lens effects, no film look. "
+    "FLAT 2D MOTION GRAPHIC, orthographic and face-on. "
+)
+
+DARK = (
+    "Everything is VERY DARK: near-black panels only a few percent brighter "
+    "than the background, defined by thin mid-grey outlines. Do NOT fill "
+    "shapes with white, silver, light grey or chrome. Keep the whole frame "
+    "dark, quiet and very low contrast. The left third of the frame stays "
+    "completely empty. "
+    "RENDER NO TEXT anywhere at any point. "
+    "NEVER: bright or white fills, metallic sheen, camera movement, 3D, "
+    "perspective, isometric projection, cast shadows, glow, neon, cyan, teal, "
     "coins, currency glyphs, vaults, lens flare, light streaks, haze, "
     "particles, cyberpunk or gaming aesthetics, any logo or brand mark."
 )
+
+ELEMENT_PROMPTS = {
+    "A5_round_trip": LOCKED + (
+        "A single sealed rectangular chamber sits right of centre. A thin "
+        "conduit leaves its right face, passes through a small separate module, "
+        "curves and RETURNS into the same chamber, forming one closed loop. "
+        "THE ONLY MOTION: a muted violet fill travels along the conduit, out "
+        "through the module and back into the chamber, and as it returns the "
+        "level inside the chamber visibly rises. Loop this once, slowly. "
+        "Two further chambers sit behind, unlit and unconnected, unchanging. ")
+        + DARK,
+    "A13_containment": LOCKED + (
+        "Four concentric rounded-rectangle outlines, nested with even margins. "
+        "The innermost is a solid muted violet block. A thin line runs from it "
+        "out through a gap in each surrounding outline and returns through a "
+        "second gap. THE ONLY MOTION: a violet pulse travels that path once, "
+        "outward and back, slowly. Nothing else changes. ") + DARK,
+    "A3_threshold": LOCKED + (
+        "A tall vertical column right of centre with a narrow open channel. A "
+        "pale bar sits inside the channel, above a thin horizontal reference "
+        "groove cut across the lower third. THE ONLY MOTION: the bar descends "
+        "slowly toward the groove, slows, stops clearly short of it, and holds. "
+        "It never touches the groove. Nothing else changes. ") + DARK,
+    "A4_isolation": LOCKED + (
+        "A four-by-four grid of sixteen identical sealed squares with clear "
+        "gaps between every unit. THE ONLY MOTION: at roughly the midpoint ONE "
+        "square, off-centre, fills with muted dull red over about a second, "
+        "then holds. The other fifteen never alter. No lines or connections "
+        "ever appear between them. ") + DARK,
+    "A14_comparison": LOCKED + (
+        "Left: one large undivided rectangle outline. Right: twelve small "
+        "separate square outlines in a grid, none touching. A thin vertical "
+        "rule divides the halves. THE ONLY MOTION: a jagged dull-red crack "
+        "spreads across the whole left rectangle, splitting it; at the same "
+        "time exactly one square on the right fills dull red and the other "
+        "eleven stay intact. Then everything holds. ") + DARK,
+    "A8_sequence": LOCKED + (
+        "A long thin horizontal baseline with four small flat SQUARE OUTLINES "
+        "sitting directly ON the line at uneven intervals — plain squares, "
+        "NOT teardrops, NOT map pins, NOT location markers, NOT dots, with "
+        "no stems, points or tails of any kind. Below the baseline a second "
+        "line traces a shallow descent "
+        "that levels off, staying above a short dashed rule near the bottom. "
+        "THE ONLY MOTION: the markers light one after another left to right, "
+        "the fourth filling muted violet, while the descent line draws itself "
+        "and flattens before reaching the dashed rule. ") + DARK,
+}
+
+DEFAULT_ELEMENT = ELEMENT_PROMPTS["A4_isolation"]
+
+
+def element_prompt_for(archetype: Optional[str]) -> str:
+    """The element that depicts what this post actually argues."""
+    return ELEMENT_PROMPTS.get(str(archetype or ""), DEFAULT_ELEMENT)
 
 
 def _ffmpeg() -> str:
@@ -180,13 +268,14 @@ def build_isolation_motion(
     stat_value: str, stat_label: str, footnote: str, *,
     out: Optional[Path] = None,
     element_mp4: Optional[Path] = None,
+    element_prompt: Optional[str] = None,
     size: tuple[int, int] = (1600, 900),
 ) -> Path:
     """Composite the Veo element onto the Vanna ground and animate the type."""
     out = Path(out or (OUT_DIR / "demo_motion_isolation.mp4"))
     element = Path(element_mp4 or (OUT_DIR / "demo_motion_element.mp4"))
     if not element.exists():
-        veo_element(VEO_FLAT_PROMPT, element)
+        veo_element(element_prompt or VEO_FLAT_PROMPT, element)
 
     ff = _ffmpeg()
     W, H = size
@@ -272,7 +361,7 @@ def build_isolation_motion(
 
         # The figure lands just after the element changes, so the number reads
         # as the consequence of what just happened on the right.
-        sa = _window(t, 4.6, 0.7)
+        sa = _window(t, 4.6, 0.7) if stat_value else 0.0
         if sa > 0:
             sy = int(H * 0.68)
             d.text((m, sy), stat_value, font=f_stat, fill=_dim(INK_SOFT, sa))
