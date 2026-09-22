@@ -1034,3 +1034,172 @@ def render_a8_sequence(headline: str, deck: str, steps: list[tuple[str, str]],
     d.text((m, int(H * 0.925)), footnote, font=f_foot, fill=INK_FAINT)
     base.save(out, quality=96)
     return out
+
+
+# --------------------------------------------------------------------------
+# A2 — Product Frame. The interface, designed.
+# --------------------------------------------------------------------------
+#
+# Vanna's documentation explains the margin account by showing the margin
+# account. This is the closest archetype to the product's own voice, and the
+# one the reference set does best: Arc asks a question, then puts one real
+# transfer card underneath it as proof the thing exists.
+#
+# Drawn, never generated. A panel is mostly text and figures, and both have to
+# be right — a model cannot be trusted with either.
+
+def _round_rect(d: ImageDraw.ImageDraw, box, r: int, fill=None, outline=None,
+                width: int = 1) -> None:
+    d.rounded_rectangle(box, radius=r, fill=fill, outline=outline, width=width)
+
+
+def render_a2_product(headline: str, deck: str, panel_title: str,
+                      rows: list[tuple[str, str]], primary: tuple[str, str],
+                      footnote: str, *,
+                      out: Optional[Path] = None,
+                      size: tuple[int, int] = (1600, 900)) -> Path:
+    """A designed account panel, bleeding off the right edge.
+
+    `primary` is the one row that carries the argument — it gets the accent and
+    sits apart. Everything else is context, and context is quiet.
+    """
+    out = Path(out or (OUT_DIR / "demo_a2_product.png"))
+    W, H = size
+    base = refined_ground(size)
+    d = ImageDraw.Draw(base)
+    m = int(W * 0.082)
+
+    f_eyebrow = font("semibold", 15)
+    f_deck = font("regular", 23)
+    f_panel_t = font("semibold", 17)
+    f_key = font("regular", 19)
+    f_val = font("semibold", 21)
+    f_prim_k = font("semibold", 17)
+    f_prim_v = font("semibold", 40)
+    f_foot = font("regular", 15)
+
+    y = int(H * 0.125)
+    _track(d, (m, y), "MARGIN ACCOUNT · STELLAR SOROBAN TESTNET", f_eyebrow,
+           VIOLET_LIGHT, 2.2)
+
+    y += 46
+    f_head, lines, lh = _fit(d, headline, "regular", int(W * 0.40), 3, 76)
+    for line in lines:
+        d.text((m, y), line, font=f_head, fill=INK_SOFT)
+        y += lh
+
+    y += 14
+    for line in _wrap(d, deck, f_deck, int(W * 0.36))[:3]:
+        d.text((m, y), line, font=f_deck, fill=INK_MUTED)
+        y += 32
+
+    d.text((m, int(H * 0.905)), footnote, font=f_foot, fill=INK_FAINT)
+
+    # The panel. It runs off the right edge on purpose: a card floating fully
+    # inside the frame with even margins reads as a stock asset.
+    px, py = int(W * 0.50), int(H * 0.155)
+    pw = W - px + 40
+    # Content sets the height. A fixed 70% left the panel two-thirds empty
+    # below its last row, which reads as a crop rather than a card.
+    ph = 74 + 52 * len(rows[:4]) + 118
+    panel = Image.new("RGBA", (pw, ph), (0, 0, 0, 0))
+    pd = ImageDraw.Draw(panel)
+    _round_rect(pd, [(0, 0), (pw - 1, ph - 1)], 18, fill=(21, 20, 27, 214))
+    _round_rect(pd, [(0, 0), (pw - 1, ph - 1)], 18, outline=(74, 70, 92, 190), width=1)
+    # One hairline along the top edge, where light would graze it.
+    pd.line([(20, 1), (pw - 20, 1)], fill=(150, 142, 190, 120), width=1)
+    base.paste(panel, (px, py), panel)
+
+    ix = px + 34
+    iy = py + 30
+    _track(d, (ix, iy), panel_title.upper(), f_panel_t, INK_MUTED, 1.6)
+    iy += 44
+
+    for i, (k, v) in enumerate(rows[:4]):
+        d.text((ix, iy), k, font=f_key, fill=INK_MUTED)
+        vw = d.textlength(v, font=f_val)
+        d.text((min(W - 46 - vw, px + pw - 80 - vw), iy - 2), v,
+               font=f_val, fill=INK_SOFT)
+        iy += 52
+        d.line([(ix, iy - 14), (px + pw - 56, iy - 14)], fill=(38, 36, 48), width=1)
+
+    # The row under discussion, lifted: its own fill, its own rule, the accent.
+    iy += 12
+    _round_rect(d, [(ix - 16, iy - 14), (px + pw - 56, iy + 74)], 12,
+                fill=(30, 25, 56))
+    d.line([(ix - 16, iy - 14), (ix - 16, iy + 74)], fill=VIOLET, width=3)
+    _track(d, (ix, iy), primary[0].upper(), f_prim_k, VIOLET_LIGHT, 1.6)
+    d.text((ix, iy + 26), primary[1], font=f_prim_v, fill=HEALTHY)
+
+    base.save(out, quality=96)
+    return out
+
+
+# --------------------------------------------------------------------------
+# A9 — Ecosystem Lockup. Names, set once, in one line.
+# --------------------------------------------------------------------------
+#
+# The U-USDG reference puts three brands in a single pill on one line and then
+# gets out of the way. Everything that makes that post work is typographic, so
+# nothing here reaches an image model either.
+
+def render_a9_lockup(names: list[str], statement: str, sub: str,
+                     notes: list[tuple[str, str]], footnote: str, *,
+                     out: Optional[Path] = None,
+                     size: tuple[int, int] = (1600, 900)) -> Path:
+    """Partner names in one lockup, a statement, and nothing else."""
+    out = Path(out or (OUT_DIR / "demo_a9_lockup.png"))
+    W, H = size
+    base = refined_ground(size)
+    d = ImageDraw.Draw(base)
+    m = int(W * 0.082)
+
+    f_pill = font("semibold", 19)
+    f_x = font("regular", 17)
+    f_sub = font("regular", 25)
+    f_note_k = font("semibold", 15)
+    f_note_v = font("regular", 16)
+    f_foot = font("regular", 15)
+
+    # The pill. Measured first so the container fits the content rather than
+    # the content being squeezed into a guessed box.
+    sep = "   ×   "
+    seg_w = [d.textlength(n, font=f_pill) for n in names[:3]]
+    sep_w = d.textlength(sep, font=f_x)
+    inner = sum(seg_w) + sep_w * (len(seg_w) - 1)
+    pad_x, pad_y = 26, 13
+    py = int(H * 0.135)
+    _round_rect(d, [(m, py), (m + inner + pad_x * 2, py + 48)], 24,
+                fill=(24, 22, 32), outline=(78, 72, 100), width=1)
+
+    x = m + pad_x
+    for i, n in enumerate(names[:3]):
+        d.text((x, py + pad_y), n, font=f_pill, fill=INK_SOFT)
+        x += seg_w[i]
+        if i < len(seg_w) - 1:
+            d.text((x, py + pad_y + 2), sep, font=f_x, fill=INK_FAINT)
+            x += sep_w
+
+    y = py + 96
+    f_stmt, lines, lh = _fit(d, statement, "regular", int(W * 0.78), 2, 104, 56)
+    for line in lines:
+        d.text((m, y), line, font=f_stmt, fill=INK_SOFT)
+        y += lh
+
+    y += 14
+    for line in _wrap(d, sub, f_sub, int(W * 0.60))[:2]:
+        d.text((m, y), line, font=f_sub, fill=INK_MUTED)
+        y += 36
+
+    # A short spread of supporting facts along the base — the only other marks.
+    ny = int(H * 0.775)
+    col_w = (W - 2 * m) // max(1, len(notes[:3]))
+    for i, (k, v) in enumerate(notes[:3]):
+        nx = m + i * col_w
+        d.line([(nx, ny - 18), (nx + 26, ny - 18)], fill=VIOLET, width=2)
+        _track(d, (nx, ny), k.upper(), f_note_k, INK_SOFT, 1.5)
+        d.text((nx, ny + 24), v, font=f_note_v, fill=INK_MUTED)
+
+    d.text((m, int(H * 0.925)), footnote, font=f_foot, fill=INK_FAINT)
+    base.save(out, quality=96)
+    return out

@@ -43,6 +43,27 @@ KEEP_RECENT = 2
 # --------------------------------------------------------------------------
 
 ARCHETYPES: dict[str, dict[str, Any]] = {
+    "A2_product": {
+        "name": "Product Frame",
+        "when": "Something a person does in the app — depositing, withdrawing, "
+                "checking a position before signing.",
+        "generated": False,
+        "slots": '{"headline": str, "deck": str, "panel_title": str, '
+                 '"rows": [[str, str]], "primary": [str, str], '
+                 '"footnote": str}',
+        "notes": "2-3 context rows of [label, value], then primary is the one "
+                 "line the post is about, as [label, value]. Every figure must "
+                 "be arithmetically consistent with the others.",
+    },
+    "A9_lockup": {
+        "name": "Ecosystem Lockup",
+        "when": "An integration or a relationship between named protocols.",
+        "generated": False,
+        "slots": '{"names": [str], "statement": str, "sub": str, '
+                 '"notes": [[str, str]], "footnote": str}',
+        "notes": "names is 2-3 protocols, Vanna first. statement is the one "
+                 "line, under ten words. Exactly three notes of [term, gloss].",
+    },
     "A3_threshold": {
         "name": "Threshold",
         "when": "A boundary the reader should understand — a floor, a trigger, "
@@ -121,6 +142,8 @@ ARCHETYPES: dict[str, dict[str, Any]] = {
 }
 
 RENDERERS: dict[str, Callable[..., Path]] = {
+    "A2_product": A.render_a2_product,
+    "A9_lockup": A.render_a9_lockup,
     "A3_threshold": A.render_a3_threshold,
     "A4_isolation": A.render_a4_isolation,
     "A5_round_trip": A.render_a5_round_trip,
@@ -262,7 +285,13 @@ def render(direction: dict[str, Any], run_id: str,
     # Shape the model's JSON into each renderer's signature. Tuples and colours
     # are applied here rather than asked for: a model handed a hex slot invents
     # hex values, and the accent ramp is a brand decision.
-    if choice == "A6_ledger":
+    if choice == "A2_product":
+        slots["rows"] = [tuple(r)[:2] for r in (slots.get("rows") or [])][:4]
+        slots["primary"] = tuple((slots.get("primary") or ["", ""]))[:2]
+    elif choice == "A9_lockup":
+        slots["names"] = [str(n) for n in (slots.get("names") or [])][:3]
+        slots["notes"] = [tuple(n)[:2] for n in (slots.get("notes") or [])][:3]
+    elif choice == "A6_ledger":
         slots["rows"] = [tuple(r)[:2] for r in (slots.get("rows") or [])][:4]
         slots["verdict"] = tuple((slots.get("verdict") or ["", ""]))[:2]
     elif choice == "A7_composition":
