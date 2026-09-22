@@ -1,0 +1,14 @@
+{"id": "CLM-001", "claim": "Vanna is a proprietary derivative trading protocol designed for composability, leverage, and hedging.", "tier": "VERIFIED", "source": "docs.vanna.finance"}
+{"id": "CLM-002", "claim": "Vanna is built on Ethereum Layer 2 networks: Base, Arbitrum, and Optimism.", "tier": "VERIFIED", "source": "docs.vanna.finance"}
+{"id": "CLM-003", "claim": "Two-sided protocol model: Passive liquidity providers supply pooled funds to earn APY without impermanent loss.", "tier": "VERIFIED", "source": "docs.vanna.finance"}
+{"id": "CLM-004", "claim": "Leverage takers borrow pooled liquidity undercollateralized via isolated Margin Accounts to trade options, futures, and spot markets.", "tier": "VERIFIED", "source": "docs.vanna.finance"}
+{"id": "CLM-005", "claim": "Isolated Margin Accounts restrict withdrawals to permitted derivative contracts to protect pooled liquidity.", "tier": "VERIFIED", "source": "docs.vanna.finance"}
+{"id": "CLM-006", "claim": "Prop Dashboard provides real-time visualization of active derivative positions and Greeks for structured hedging.", "tier": "VERIFIED", "source": "docs.vanna.finance"}
+{"id": "CLM-007", "claim": "Supports advanced hedging strategies including Covered Calls, Strangles, and Short Gamma positioning.", "tier": "VERIFIED", "source": "docs.vanna.finance"}
+{"id": "CLM-008", "claim": "Liquidation management protocols safeguard lender capital by monitoring margin account solvency.", "tier": "VERIFIED", "source": "docs.vanna.finance"}
+{"id": "CLM-P01", "claim": "Vanna operates on Stellar Soroban or uses Freighter wallet", "tier": "PROHIBITED", "source": "fact_audit"}
+{"id": "CLM-P02", "claim": "Vanna integrates with Blend, Aquarius, or Soroswap", "tier": "PROHIBITED", "source": "fact_audit"}
+{"id": "CLM-P03", "claim": "1.10x RiskEngine health factor floor (unverified Stellar narrative)", "tier": "PROHIBITED", "source": "fact_audit"}
+{"id": "CLM-P04", "claim": "14 smart contracts deployed on Stellar Testnet", "tier": "PROHIBITED", "source": "fact_audit"}
+{"id": "CLM-P05", "claim": "Guaranteed yields or zero liquidation risk", "tier": "PROHIBITED", "source": "safety_gate"}
+{"id": "CLM-P06", "claim": "Token, airdrop, or points farming launch", "tier": "PROHIBITED", "source": "safety_gate"}

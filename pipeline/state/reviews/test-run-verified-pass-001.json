@@ -1,0 +1,59 @@
+{
+  "run_id": "test-run-verified-pass-001",
+  "timestamp": "2026-09-15T06:01:32.985620+00:00",
+  "reviewer_version": "v1.0.0",
+  "regeneration_count": 0,
+  "generated_asset": "D:\\new orchestration\\pipeline\\state\\vanna_competitor_matched_post1.png",
+  "review_decision": "PASS",
+  "scores": {
+    "overall": 90,
+    "content": 90,
+    "visual": 88,
+    "brand": 92,
+    "factual": 98,
+    "social": 85,
+    "novelty": 85
+  },
+  "failures": [],
+  "warnings": [],
+  "evidence": {
+    "verified_claims": [
+      "Grounded in live Stellar / Blend architecture."
+    ],
+    "visual_observations": [
+      "Rendered image confirmed: 1408x768 (1505175 bytes)."
+    ],
+    "why_this_works": [
+      "Strong hook addressing market inefficiency or user problem.",
+      "All 6 hard verification gates satisfied with verified claims and distinct composition."
+    ]
+  },
+  "required_fixes": [],
+  "recommended_action": "Approve and dispatch to Telegram Review.",
+  "raw_review": {
+    "decision": "PASS",
+    "overall_score": 90,
+    "content_score": 90,
+    "visual_score": 88,
+    "brand_score": 92,
+    "factual_score": 98,
+    "social_score": 85,
+    "novelty_score": 85,
+    "critical_failures": [],
+    "warnings": [],
+    "verified_claims": [
+      "Grounded in live Stellar / Blend architecture."
+    ],
+    "visual_observations": [
+      "Rendered image confirmed: 1408x768 (1505175 bytes)."
+    ],
+    "why_this_works": [
+      "Strong hook addressing market inefficiency or user problem.",
+      "All 6 hard verification gates satisfied with verified claims and distinct composition."
+    ],
+    "required_fixes": [],
+    "recommended_action": "Approve and dispatch to Telegram Review.",
+    "engine": "deterministic_with_assertions",
+    "fallback_note": "HTTP Error 404: Not Found"
+  }
+}

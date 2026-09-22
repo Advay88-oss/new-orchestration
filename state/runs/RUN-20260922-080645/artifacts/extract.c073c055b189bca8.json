@@ -1,0 +1,172 @@
+[
+  {
+    "text": "Isolated lending pools fragment collateral.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Isolated lending pools require separate deposits for every borrow.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "In Vanna, collateral is deposited once into a SmartAccount.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "In Vanna, account health is assessed across the entire account.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "A SmartAccount can deploy deposited and borrowed assets into approved external protocols.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "A SmartAccount retains debt to lending pools while deploying assets into approved external protocols.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "In Vanna, one collateral balance can back multiple positions.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Isolated lending pools fragment collateral.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Assets deposited into single-purpose pools remain locked for individual borrows.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Capital does one job when it could support several positions at once.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "In Vanna, collateral is posted once into a SmartAccount.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "In Vanna, account health is assessed across the entire margin account.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "On testnet, the borrow guard counts borrowed capital on both sides.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "On testnet, borrowed funds cannot leave the account.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "A SmartAccount can deploy deposited and borrowed assets into approved external protocols.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "A SmartAccount retains debt to the lending pools.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "One collateral deposit backs multiple positions.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  }
+]

@@ -1,0 +1,92 @@
+[
+  {
+    "text": "A sharp downturn in a single asset can trigger cascading liquidations across a borrower's entire portfolio.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "Blend's TVL is $159,033,033.",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-c939357b13e5",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:20.094770+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.98
+  },
+  {
+    "text": "Soroswap's TVL is $1,239,028.",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-9f1c3933ff73",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:19.453237+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.98
+  },
+  {
+    "text": "Ledger capacity usage is 0.1.",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-7d8153a97626",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:18.648761+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.95
+  },
+  {
+    "text": "These broad figures do not stop cross-position contagion.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "Isolated credit accounts alter this dynamic structurally.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "Each account maintains its own distinct collateral and liabilities.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "When liquidation occurs, the settlement is strictly bounded to the distressed account.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "The protocol architecture prevents losses from pulling capital from other balances.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  }
+]

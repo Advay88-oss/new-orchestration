@@ -15,7 +15,7 @@ except ImportError:
 def main():
     print("=== Launching Fast Headless Chrome with Profile 6 ===")
     user_data_dir = "C:/Users/Advay Anand/AppData/Local/Google/Chrome/User Data"
-    screenshot_path = Path("D:/new orchestration/pipeline/state/twitter_test.png")
+    screenshot_path = Path(os.environ.get("VANNA_ROOT", Path(__file__).resolve().parents[2])) / Path("/pipeline/state/twitter_test.png")
     screenshot_path.parent.mkdir(parents=True, exist_ok=True)
     
     with sync_playwright() as p:

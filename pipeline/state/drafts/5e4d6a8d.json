@@ -1,0 +1,47 @@
+{
+  "draft_id": "5e4d6a8d",
+  "message_id": 293,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T12:26:32Z",
+  "sent_unix": 1787228789,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "5e4d6a8d",
+    "draft_id": "019748a0",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Siloed credit accounts force you to split your book. wstETH in one pool, stables in another.\n\nVanna unifies your margin. The borrow guard holds (C+B)/(D+B) >= 1.1 across your entire portfolio, unlocking up to 10x credit capacity on testnet.",
+    "final_body": "Siloed credit accounts force you to split your book. wstETH in one pool, stables in another.\n\nVanna unifies your margin. The borrow guard holds (C+B)/(D+B) >= 1.1 across your entire portfolio, unlocking up to 10x credit capacity on testnet.",
+    "final_hook": "Siloed credit accounts force you to split",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Siloed pools. Fragmented capital.",
+      "emphasis_phrase": "Unify your margin.",
+      "subhead": "Stop splitting your collateral across isolated credit accounts.",
+      "data": [
+        {
+          "label": "Collateral Structure",
+          "value": "Isolated vs. Unified",
+          "note": "Gearbox siloes credit accounts; Vanna runs one cohesive book."
+        },
+        {
+          "label": "Max Credit Capacity",
+          "value": "Up to 10x",
+          "note": "Based on the (C+B)/(D+B) >= 1.1 borrow guard on testnet."
+        },
+        {
+          "label": "Health Factors",
+          "value": "Multiple vs. 1",
+          "note": "Vanna monitors one health factor for your entire portfolio."
+        }
+      ],
+      "disclaimer": "Vanna is currently on testnet. Outlined capacities represent architectural limits, not guaranteed yields or live mainnet performance."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T12:26:09Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

@@ -1,0 +1,75 @@
+{
+  "analysis_of_old_video": {
+    "verdict": "SLIDE_DECK_DISGUISED_AS_ANIMATION",
+    "primary_defects": [
+      {
+        "defect": "Container / Card Dependency",
+        "observation": "Every scene placed text and data inside rectangular CSS flexbox cards (COLLATERAL DEPOSIT, LEVERAGE MULTIPLIER, DEPLOYABLE TRADING POWER, HUD CARD).",
+        "critique": "Astra Motion and high-end studios never show web dashboard cards in product films unless it's a direct software walkthrough. In a conceptual brand/product film, the geometry itself must BE the concept."
+      },
+      {
+        "defect": "Arbitrary Scene Boundaries",
+        "observation": "Scenes simply dissolved or pushed off-screen at frames 120, 270, 420. There was zero morphological continuity between them.",
+        "critique": "Elements from Scene N should physically fold, fracture, or accelerate into the geometry of Scene N+1."
+      },
+      {
+        "defect": "Decorative Motion vs Meaningful Metaphor",
+        "observation": "Scene 2 used a laser line between two cards labeled 'Active' and 'Protected' to represent contagion defense.",
+        "critique": "Contagion defense should be shown physically: an interconnected lattice under stress, a node fracturing, and an autonomous quarantine perimeter snapping shut to save the remaining network."
+      },
+      {
+        "defect": "Typography as Static Captions",
+        "observation": "Text simply converged and then hovered in place as a title above cards.",
+        "critique": "Kinetic typography should compress under load, split under leverage, or whip forward with camera velocity."
+      }
+    ]
+  },
+  "new_motion_design_plan": {
+    "title": "Vanna Protocol \u2014 The Architecture of Sovereign Credit",
+    "duration_seconds": 24.0,
+    "total_frames": 720,
+    "fps": 30,
+    "narrative_arcs": [
+      {
+        "arc": "ARC_01_SHARED_CONTAGION",
+        "frames": "000 - 135 (4.5s)",
+        "concept": "The fragility of pooled lending",
+        "visual_metaphor": "An interconnected geometric lattice of credit nodes. A toxic shockwave (crimson energy) hits node X. The entire shared web vibrates, warps under strain, and threatens systemic collapse.",
+        "typography_behavior": "Typography 'IN POOLED LENDING' appears; 'ONE DEBT THREATENS ALL' compresses under physical mechanical strain as the lattice bends.",
+        "continuity_handoff": "Camera plunges macro directly into the distressed node as it begins to rupture."
+      },
+      {
+        "arc": "ARC_02_AUTONOMOUS_ISOLATION",
+        "frames": "130 - 280 (5.0s)",
+        "concept": "SmartAccount sandboxing quarantines bad debt",
+        "visual_metaphor": "The fracturing joint is severed by an autonomous laser incision. A 3D obsidian quarantine ring snaps into place around the rogue node. The rest of the network instantly re-stabilizes into calm violet/cyan equilibrium.",
+        "typography_behavior": "The word 'QUARANTINED' expands from the severed joint, locking the frame in place.",
+        "continuity_handoff": "The stabilized central node opens its iris, transforming into an accelerator barrel."
+      },
+      {
+        "arc": "ARC_03_COMPOSABLE_MULTIPLICATION",
+        "frames": "275 - 430 (5.0s)",
+        "concept": "10x leverage multiplication",
+        "visual_metaphor": "A single brilliant white filament enters the barrel. The camera tracks at high velocity as the filament splits into 10 parallel, coherent laser waveforms that ripple and expand across the 3D depth field.",
+        "typography_behavior": "A massive bold typographic '10\u00d7' scales from deep Z-space, shattering the framing boundaries as numbers stream along the laser rails.",
+        "continuity_handoff": "The 10 laser streams converge into a high-speed telemetry horizon."
+      },
+      {
+        "arc": "ARC_04_SUBSECOND_DEFLECTION",
+        "frames": "425 - 580 (5.0s)",
+        "concept": "Mercury indexer (~320ms) protects against liquidation",
+        "visual_metaphor": "The horizon reveals a dangerous rising crimson plane (the 1.10x liquidation floor). The trajectory dives toward it. At the exact 1.25x threshold, a lightning-fast telemetry pulse flashes through the vector, instantly deflecting its curvature upward into an asymptotic safe parabolic orbit.",
+        "typography_behavior": "Dynamic metric '~320ms' flashes with electrical streaks; 'DEFLECTED BEFORE LIQUIDATION' sweeps horizontally with the trajectory.",
+        "continuity_handoff": "The upward parabolic curve loops gracefully around the screen, forming the outer fold of the Vanna monogram."
+      },
+      {
+        "arc": "ARC_05_ECOSYSTEM_CRYSTALLIZATION",
+        "frames": "575 - 720 (4.8s)",
+        "concept": "Vanna as the foundation of Stellar Soroban credit",
+        "visual_metaphor": "The vector paths fold into the razor-sharp geometric Vanna Monogram with dual-point ambient light blooms. Supporting streams link outward into Blend and Aquarius orbits before locking into the final resolve.",
+        "typography_behavior": "'CREDIT INFRASTRUCTURE FOR SOROBAN' materializes with studio restraint, anchored by 'test.stellar.vanna.finance'.",
+        "continuity_handoff": "Final resonant hold."
+      }
+    ]
+  }
+}

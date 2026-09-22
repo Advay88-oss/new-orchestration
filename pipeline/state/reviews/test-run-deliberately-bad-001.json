@@ -1,0 +1,67 @@
+{
+  "run_id": "test-run-deliberately-bad-001",
+  "timestamp": "2026-09-15T06:01:31.177025+00:00",
+  "reviewer_version": "v1.0.0",
+  "regeneration_count": 0,
+  "generated_asset": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png",
+  "review_decision": "REGENERATE",
+  "scores": {
+    "overall": 69,
+    "content": 80,
+    "visual": 73,
+    "brand": 92,
+    "factual": 50,
+    "social": 77,
+    "novelty": 40
+  },
+  "failures": [
+    "Post lacks clear grounding in verified protocol network or core contracts.",
+    "TEMPLATE REPETITION DETECTED\nCurrent: headline + subtitle + 3 rows + footer\nRecent posts: headline + subtitle + cards + footer | headline + subtitle + diagram + footer | headline + subtitle + stat + footer"
+  ],
+  "warnings": [
+    "Generic buzzword detected in copy ('revolutionary'/'next-gen').",
+    "Visual brief contains generic tabular data rows.",
+    "Opening hook could be more urgent or punchy."
+  ],
+  "evidence": {
+    "verified_claims": [],
+    "visual_observations": [
+      "Rendered image confirmed: 1080x1080 (1308999 bytes)."
+    ],
+    "why_this_works": []
+  },
+  "required_fixes": [
+    "Choose a fundamentally different composition:\n- editorial hero\n- asymmetric technical diagram\n- visual metaphor\n- one dominant metric\n- system architecture\n- before/after\n- mechanism visualization\n- editorial quote\n- protocol flow"
+  ],
+  "recommended_action": "Reject asset and send required fixes upstream to Art Director / Generation.",
+  "raw_review": {
+    "decision": "REGENERATE",
+    "overall_score": 69,
+    "content_score": 80,
+    "visual_score": 73,
+    "brand_score": 92,
+    "factual_score": 50,
+    "social_score": 77,
+    "novelty_score": 40,
+    "critical_failures": [
+      "Post lacks clear grounding in verified protocol network or core contracts.",
+      "TEMPLATE REPETITION DETECTED\nCurrent: headline + subtitle + 3 rows + footer\nRecent posts: headline + subtitle + cards + footer | headline + subtitle + diagram + footer | headline + subtitle + stat + footer"
+    ],
+    "warnings": [
+      "Generic buzzword detected in copy ('revolutionary'/'next-gen').",
+      "Visual brief contains generic tabular data rows.",
+      "Opening hook could be more urgent or punchy."
+    ],
+    "verified_claims": [],
+    "visual_observations": [
+      "Rendered image confirmed: 1080x1080 (1308999 bytes)."
+    ],
+    "why_this_works": [],
+    "required_fixes": [
+      "Choose a fundamentally different composition:\n- editorial hero\n- asymmetric technical diagram\n- visual metaphor\n- one dominant metric\n- system architecture\n- before/after\n- mechanism visualization\n- editorial quote\n- protocol flow"
+    ],
+    "recommended_action": "Reject asset and send required fixes upstream to Art Director / Generation.",
+    "engine": "deterministic_with_assertions",
+    "fallback_note": "HTTP Error 404: Not Found"
+  }
+}

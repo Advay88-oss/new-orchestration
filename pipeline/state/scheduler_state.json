@@ -1,0 +1,47 @@
+{
+  "trend_scan": {
+    "job": "trend_scan",
+    "last_run": "2026-09-22T04:17:48.731823+00:00",
+    "next_run": null,
+    "status": "COMPLETED",
+    "consecutive_failures": 0,
+    "total_runs": 73,
+    "last_duration_s": 0.78
+  },
+  "ideas_panel": {
+    "job": "ideas_panel",
+    "last_run": "2026-09-22T04:20:15.080010+00:00",
+    "next_run": null,
+    "status": "COMPLETED",
+    "consecutive_failures": 0,
+    "total_runs": 6,
+    "last_duration_s": 146.35
+  },
+  "memes_panel": {
+    "job": "memes_panel",
+    "last_run": "2026-09-22T04:23:09.484435+00:00",
+    "next_run": null,
+    "status": "COMPLETED",
+    "consecutive_failures": 0,
+    "total_runs": 16,
+    "last_duration_s": 174.4
+  },
+  "research_collect": {
+    "job": "research_collect",
+    "last_run": "2026-09-22T04:17:47.949116+00:00",
+    "next_run": null,
+    "status": "COMPLETED",
+    "consecutive_failures": 0,
+    "total_runs": 2,
+    "last_duration_s": 91.37
+  },
+  "gtm_cycle": {
+    "job": "gtm_cycle",
+    "last_run": "2026-09-22T08:49:25.951742+00:00",
+    "next_run": null,
+    "status": "COMPLETED",
+    "consecutive_failures": 0,
+    "total_runs": 2,
+    "last_duration_s": 132.29
+  }
+}

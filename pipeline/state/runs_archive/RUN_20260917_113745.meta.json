@@ -1,0 +1,23 @@
+{
+  "run_id": "RUN_20260917_113745",
+  "pipeline": "Vanna GTM OS Live Production Pipeline",
+  "tenant": "Vanna Protocol",
+  "started": 1789645065.992615,
+  "ended": 1789645114.835462,
+  "status": "WAITING_FOR_HUMAN",
+  "brain": "Gemini 2.5 Flash + Gemini 3.1 Flash Image + Veo 3.1 \u00b7 GCP Model Garden",
+  "trend_source": "DeFiLlama + Canonical Brain DB",
+  "duration_s": 48.84,
+  "kind": "live-gtm-production-cycle",
+  "winner_hook": "In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.",
+  "winner_body": "In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.\n\nVanna eliminates front-running liquidations with sub-second off-chain telemetry on Stellar Soroban:\n\n1. Mercury streams ledger events in ~320ms.\n2. At 1.25\u00d7 Net Health Factor, our Risk Guardian executes a targeted rebalance inside your SmartAccount sandbox.\n3. Execution gas is fixed at 0.00014 XLM. No mempool bidding wars. No liquidation fee penalty.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+  "trend": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+  "delivered_to_telegram": false,
+  "strategic_decision": {
+    "opportunity_id": "OPP_COMPOSABLE_SANDBOX",
+    "target_audience": "A2: EVM Migrants & Quantitative Traders",
+    "selected_machine": "MACHINE_02: TELEMETRY_DEFENSE_DISPATCH",
+    "vehicle": "RECURRING_SERIES",
+    "status": "WAITING_FOR_HUMAN"
+  }
+}

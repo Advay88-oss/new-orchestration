@@ -1,0 +1,6 @@
+{"id": "NOVA-001", "claim": "NovaStack provides autonomous compute auto-scaling for PostgreSQL databases.", "tier": "VERIFIED"}
+{"id": "NOVA-002", "claim": "Predictive scaling reacts in sub-500ms before p99 latency spikes occur.", "tier": "VERIFIED"}
+{"id": "NOVA-003", "claim": "Zero connection dropping during compute resize via transparent eBPF proxy routing.", "tier": "VERIFIED"}
+{"id": "NOVA-004", "claim": "Compatible with standard PostgreSQL 15, 16, and 17 wire protocols.", "tier": "VERIFIED"}
+{"id": "NOVA-P01", "claim": "Infinite free tier with unlimited storage", "tier": "PROHIBITED"}
+{"id": "NOVA-P02", "claim": "100% bug-free or zero query failure guarantee", "tier": "PROHIBITED"}

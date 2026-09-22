@@ -1,0 +1,92 @@
+[
+  {
+    "text": "Leverage is easy.",
+    "kind": "creative",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "creative-exempt",
+    "confidence": 0.0
+  },
+  {
+    "text": "Not getting liquidated while you sleep is the hard part.",
+    "kind": "creative",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "creative-exempt",
+    "confidence": 0.0
+  },
+  {
+    "text": "When volatility hits unattended positions, delayed intervention risks cascading insolvencies.",
+    "kind": "competitor_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.99
+  },
+  {
+    "text": "In Vanna's composable credit infrastructure, risk is stopped at the boundary.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.95
+  },
+  {
+    "text": "The liquidation threshold enforces a 1.1x health factor floor before capital breaches parity.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.85
+  },
+  {
+    "text": "Every calculation uses floor division—mul_wad_down and div_wad_down.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.95
+  },
+  {
+    "text": "Floor division prevents rounding in the protocol's favour.",
+    "kind": "vanna_fact",
+    "status": "verified",
+    "source_id": "EV-66757f030409",
+    "source_url": "file://files/08-facts-ledger-and-claim-safety.md#tier-a",
+    "observed_at": "2026-08-10T00:00:00Z",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.99
+  },
+  {
+    "text": "Vanna is governed by policy-bounded autonomous risk management within unified margin accounts.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.9
+  },
+  {
+    "text": "Distress is isolated before it spreads.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  }
+]

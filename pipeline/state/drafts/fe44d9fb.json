@@ -1,0 +1,47 @@
+{
+  "draft_id": "fe44d9fb",
+  "message_id": 288,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T11:42:18Z",
+  "sent_unix": 1787226135,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "fe44d9fb",
+    "draft_id": "16ac2006",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Siloed credit accounts fragment your book. Gearbox forces you to split collateral.\n\nVanna unifies your margin. One health factor backs every position—unlocking up to 10x credit on testnet.\n\nYour collateral is doing one job. It should be doing six.",
+    "final_body": "Siloed credit accounts fragment your book. Gearbox forces you to split collateral.\n\nVanna unifies your margin. One health factor backs every position—unlocking up to 10x credit on testnet.\n\nYour collateral is doing one job. It should be doing six.",
+    "final_hook": "Siloed credit accounts fragment your book.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "infographic",
+      "headline": "Unified margin. Fragmented credit.",
+      "emphasis_phrase": "One health factor.",
+      "subhead": "Why split your collateral across isolated silos when one pool can back it all?",
+      "data": [
+        {
+          "label": "Collateral Efficiency",
+          "value": "Up to 10x Credit",
+          "note": "Vanna's unified margin pool on testnet"
+        },
+        {
+          "label": "Account Structure",
+          "value": "Siloed Sub-Accounts",
+          "note": "Gearbox's isolated credit accounts"
+        },
+        {
+          "label": "Risk Evaluation",
+          "value": "Portfolio-Wide Netting",
+          "note": "Single health factor across all positions"
+        }
+      ],
+      "disclaimer": "Vanna is currently live on testnet. No mainnet, token, or TVL exists."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T11:41:56Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

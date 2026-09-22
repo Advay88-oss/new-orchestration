@@ -1,0 +1,400 @@
+{
+  "phase": 1,
+  "scope": "full market universe",
+  "status": "COMPLETE",
+  "records": [
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "LENDING",
+      "definition": "Pool-based and peer-to-peer mechanisms where suppliers deposit cryptographic assets to earn programmatic interest, and borrowers draw assets against posted overcollateralized or isolated collateral assets.",
+      "major_protocols": [
+        "Aave",
+        "Morpho",
+        "Compound",
+        "Spark",
+        "Fluid"
+      ],
+      "tvl_usd": 34850000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum",
+        "Base",
+        "Arbitrum",
+        "Polygon",
+        "Optimism",
+        "Avalanche"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "Aggregate lending category TVL expanded from approximately $21B to >$34B across 2024 driven by higher baseline interest rates and isolated market growth.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/lending"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "SPOT_AMM_DEX",
+      "definition": "Automated market makers that programmatically facilitate spot swaps between discrete tokens using liquidity pools governed by constant product, concentrated liquidity, or hybrid invariant curves.",
+      "major_protocols": [
+        "Uniswap",
+        "Curve DEX",
+        "PancakeSwap",
+        "Raydium",
+        "Balancer"
+      ],
+      "tvl_usd": 21500000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum",
+        "Solana",
+        "BNB Chain",
+        "Arbitrum",
+        "Base",
+        "Polygon"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "Sustained monthly spot trading volumes across EVM and Solana DEXes resulting in TVL resilience above $20B throughout Q3-Q4 2024.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/dexs"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "DEX_AGGREGATOR",
+      "definition": "Order routing protocols that query and split trades across multiple underlying on-chain liquidity venues and private market makers to minimize execution slippage and optimize net output for traders.",
+      "major_protocols": [
+        "1inch Network",
+        "Cow Protocol",
+        "Paraswap",
+        "KyberSwap",
+        "Jupiter"
+      ],
+      "tvl_usd": "UNKNOWN",
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum",
+        "Arbitrum",
+        "Solana",
+        "Polygon",
+        "Optimism",
+        "Base"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "Aggregator share of total DEX volume remained elevated (>40% on mainnet), driven by MEV-protected batch auctions like CoW Protocol and Solana routing via Jupiter.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/dex-aggregators"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "PERPETUALS",
+      "definition": "Derivatives protocols enabling leveraged exposure to underlying cryptographic or synthetic assets via perpetual contracts settled against pooled liquidity vaults or virtual automated market makers (vAMMs) with programmatic funding rate mechanisms.",
+      "major_protocols": [
+        "Hyperliquid",
+        "dYdX",
+        "GMX",
+        "Vertex Protocol",
+        "Jupiter Perpetuals"
+      ],
+      "tvl_usd": 3800000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Hyperliquid L1",
+        "Arbitrum",
+        "dYdX Chain",
+        "Solana",
+        "Optimism"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "Significant open interest and volume migration toward dedicated high-throughput appchains (Hyperliquid) and Solana-based perp venues across 2024.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/derivatives"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "OPTIONS_DERIVATIVES",
+      "definition": "Protocols underwriting, tokenizing, and settling standardized option contracts or exotic non-linear derivatives via automated market maker pools, structured orderbooks, or collateralized vaults.",
+      "major_protocols": [
+        "Derive",
+        "Aevo",
+        "Opyn",
+        "Premia",
+        "Dopex"
+      ],
+      "tvl_usd": 280000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Arbitrum",
+        "Ethereum",
+        "Optimism",
+        "Base"
+      ],
+      "trend": "FLAT",
+      "trend_basis": "Aggregate on-chain options TVL and open interest remained sub-$500M with institutional flow predominantly staying on CeFi platforms (Deribit).",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/options"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "LIQUID_STAKING",
+      "definition": "Protocols that pool native Proof-of-Stake tokens (e.g., ETH, SOL) across validator sets and issue liquid receipt tokens representing the staked principal plus accrued consensus and execution rewards.",
+      "major_protocols": [
+        "Lido",
+        "Rocket Pool",
+        "Jito",
+        "Marinade",
+        "Binance Staked ETH"
+      ],
+      "tvl_usd": 41200000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum",
+        "Solana",
+        "Polygon",
+        "Cosmos"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "Total staked assets increased in aggregate nominal terms, with Solana liquid staking (Jito) demonstrating rapid percentage expansion during 2024.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/liquid-staking"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "RESTAKING",
+      "definition": "Protocols allowing staked PoS assets or liquid staking tokens to be re-allocated to secure third-party Actively Validated Services (AVSs), middleware, or alternate consensus networks in exchange for additional yield.",
+      "major_protocols": [
+        "EigenLayer",
+        "Symbiotic",
+        "Karak",
+        "Ether.fi",
+        "Renzo"
+      ],
+      "tvl_usd": 15400000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "EigenLayer TVL surged from <$1B in early 2024 to peak above $18B before settling between $11B-$15B alongside competing frameworks (Symbiotic, Karak).",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/restaking"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "YIELD_TRADING",
+      "definition": "Protocols that tokenize yield-bearing assets into separate principal tokens (PT) and yield tokens (YT), enabling fixed-yield locking, yield speculation, and rate-duration matching.",
+      "major_protocols": [
+        "Pendle",
+        "Spectra"
+      ],
+      "tvl_usd": 2950000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum",
+        "Arbitrum",
+        "Mantle",
+        "BNB Chain"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "Pendle expanded from <$300M TVL at year-start 2024 to multi-billion TVL driven by point tokenization markets for restaking protocols.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/yield"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "SYNTHETIC_DOLLAR",
+      "definition": "Mechanisms issuing fiat-pegged unit tokens backed by collateral portfolios paired with offsetting delta-hedged derivative positions (cash-and-carry basis trade) rather than traditional fiat bank reserves or standard overcollateralization.",
+      "major_protocols": [
+        "Ethena",
+        "Resolv"
+      ],
+      "tvl_usd": 2750000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "USDe circulation scaled rapidly from inception in early 2024 to exceeding $2.5B in collateral backing.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/synthetics"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "CDP",
+      "definition": "Collateralized Debt Position protocols where users deposit acceptable collateral into isolated or cross-margin vaults to mint decentralized debt stablecoins programmatically at protocol-governed liquidation ratios.",
+      "major_protocols": [
+        "MakerDAO/Sky",
+        "Liquity",
+        "Prisma Finance",
+        "Curve USD (crvUSD)"
+      ],
+      "tvl_usd": 8600000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum",
+        "Optimism",
+        "Arbitrum"
+      ],
+      "trend": "FLAT",
+      "trend_basis": "MakerDAO/Sky DAI supply consolidated in the $5B-$6B range while non-Maker decentralized CDPs experienced muted TVL movement.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/cdp"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "RWA",
+      "definition": "Protocols that tokenize off-chain real world assets\u2014predominantly short-dated sovereign debt (U.S. Treasury bills), private credit, and real estate\u2014bringing yield from traditional finance onto public blockchains.",
+      "major_protocols": [
+        "Ondo Finance",
+        "BlackRock BUIDL",
+        "Centrifuge",
+        "Franklin Templeton FOBXX",
+        "Maple Finance"
+      ],
+      "tvl_usd": 6800000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum",
+        "Solana",
+        "Stellar",
+        "Mantle",
+        "Polygon"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "Tokenized U.S. treasuries expanded from ~$770M to over $2.2B over the 2023-2024 period, accompanied by institutional issuances like BlackRock BUIDL.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/rwa"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "PREDICTION_MARKETS",
+      "definition": "Protocols facilitating outcome-contingent contracts where market participants purchase binary or categorical shares whose payoff depends on the verified outcome of an external future event.",
+      "major_protocols": [
+        "Polymarket",
+        "Azuro"
+      ],
+      "tvl_usd": 450000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Polygon",
+        "Gnosis"
+      ],
+      "trend": "GROWING",
+      "trend_basis": "Polymarket open interest and monthly trading volume set historical peaks during the 2024 U.S. election cycle, surpassing $1B in monthly volume.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/prediction-market"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "BRIDGES",
+      "definition": "Infrastructure and cross-chain messaging mechanisms that custody, burn/mint, or pass verified messages to transfer digital assets and generalized payload state between sovereign layer 1 and layer 2 networks.",
+      "major_protocols": [
+        "Across",
+        "Stargate",
+        "Synapse",
+        "Hop Protocol",
+        "CBridge"
+      ],
+      "tvl_usd": 1250000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum",
+        "Arbitrum",
+        "Optimism",
+        "Base",
+        "Polygon",
+        "BNB Chain"
+      ],
+      "trend": "FLAT",
+      "trend_basis": "Liquidity pool bridge TVL has stabilized as intents-based bridge models (Across) capture market share with lower capital requirements than traditional lock-and-mint pools.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/bridge"
+    },
+    {
+      "record_type": "MARKET_CATEGORY",
+      "category": "ASSET_MANAGEMENT",
+      "definition": "On-chain structured product platforms and vault managers executing automated yield optimization, index rebalancing, delta hedging, and risk-adjusted multi-protocol capital routing.",
+      "major_protocols": [
+        "Yearn Finance",
+        "Convex Finance",
+        "Sommelier",
+        "Index Coop",
+        "Beefy"
+      ],
+      "tvl_usd": 2100000000,
+      "fees_annualised_usd": "UNKNOWN",
+      "revenue_annualised_usd": "UNKNOWN",
+      "chains": [
+        "Ethereum",
+        "Arbitrum",
+        "Base",
+        "Polygon",
+        "Optimism"
+      ],
+      "trend": "DECLINING",
+      "trend_basis": "Long-term decline from historical peak TVLs ($10B+ in 2021) as native protocols internalized yield aggregation and restaking protocols compressed traditional vault fee structures.",
+      "snapshot_date": "2024-11-01",
+      "evidence_tier": "OBSERVED",
+      "source_url": "https://defillama.com/protocols/yield-aggregator"
+    }
+  ],
+  "unknowns": [
+    {
+      "field": "fees_annualised_usd",
+      "reason": "DeFiLlama category overview pages aggregate TVL reliably, but whole-category annualized fee tallies require summing heterogeneously reported fee adapters across hundreds of protocols.",
+      "what_was_found": "Individual protocol fees are recorded for select top protocols, but complete verified category-wide aggregate annual fee figures were not verifiable without arithmetic extrapolation."
+    },
+    {
+      "field": "revenue_annualised_usd",
+      "reason": "Protocol revenue varies widely by governance retention models and token capture mechanics; category-wide automated rollups are not cleanly exposed at the top-level aggregator category view.",
+      "what_was_found": "Specific top protocols (Maker, Uniswap labs/frontend, Aave) report revenue independently, but aggregate category values are unverified."
+    },
+    {
+      "field": "DEX_AGGREGATOR.tvl_usd",
+      "reason": "DEX aggregators route trades without retaining native custody of assets, making TVL an inapplicable metric for order-routing protocol balance sheets.",
+      "what_was_found": "Aggregators report cumulative and 24h trading volume rather than persistent TVL."
+    }
+  ],
+  "contradictions": [],
+  "warnings": [],
+  "sources_visited": [
+    "https://defillama.com/protocols/lending",
+    "https://defillama.com/protocols/dexs",
+    "https://defillama.com/dex-aggregators",
+    "https://defillama.com/protocols/derivatives",
+    "https://defillama.com/protocols/options",
+    "https://defillama.com/protocols/liquid-staking",
+    "https://defillama.com/protocols/restaking",
+    "https://defillama.com/protocols/yield",
+    "https://defillama.com/protocols/synthetics",
+    "https://defillama.com/protocols/cdp",
+    "https://defillama.com/protocols/rwa",
+    "https://defillama.com/protocols/prediction-market",
+    "https://defillama.com/protocols/bridge",
+    "https://defillama.com/protocols/yield-aggregator"
+  ],
+  "next_phase_ready": true,
+  "blocker": null
+}

@@ -1,0 +1,51 @@
+{
+  "draft_id": "ba3d49d9",
+  "message_id": 295,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T12:47:17Z",
+  "sent_unix": 1787230034,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "ba3d49d9",
+    "draft_id": "25a13c0c",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "You've been liquidated by a single wick while holding idle collateral elsewhere. Isolated credit accounts force that risk.\n\nVanna’s Unified Margin pools your positions to absorb volatility. A strict 1.1x floor, not 1.0x.\n\nBuilt on testnet.",
+    "final_body": "You've been liquidated by a single wick while holding idle collateral elsewhere. Isolated credit accounts force that risk.\n\nVanna’s Unified Margin pools your positions to absorb volatility. A strict 1.1x floor, not 1.0x.\n\nBuilt on testnet.",
+    "final_hook": "You've been liquidated by a single wick",
+    "thread": [
+      "Why the 1.1x floor?\n\nIt provides a 10% safety buffer to absorb Reflector's ~5-minute oracle latency and market slippage.\n\nNo sudden liquidations. 0% liquidation fees on testnet."
+    ],
+    "final_thread": [
+      "Why the 1.1x floor?\n\nIt provides a 10% safety buffer to absorb Reflector's ~5-minute oracle latency and market slippage.\n\nNo sudden liquidations. 0% liquidation fees on testnet."
+    ],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Siloed risk. Unified safety.",
+      "emphasis_phrase": "1.1x floor buffer",
+      "subhead": "Siloed accounts liquidate on a single wick. Unified margin absorbs the shock.",
+      "data": [
+        {
+          "label": "Liquidation Structure",
+          "value": "Cross-Collateralized",
+          "note": "Positions offset volatility to protect health factor"
+        },
+        {
+          "label": "Liquidation Floor",
+          "value": "1.1x Floor",
+          "note": "10% buffer for 5-minute Reflector oracle cadence"
+        },
+        {
+          "label": "Liquidation Fee",
+          "value": "0%",
+          "note": "No penalty fees applied on testnet liquidation events"
+        }
+      ],
+      "disclaimer": "Vanna is currently live on testnet only. Architectural specifications are subject to change."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T12:46:58Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

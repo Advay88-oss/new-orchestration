@@ -130,6 +130,8 @@ def log_agent_activity(agent_name: str, message: str) -> None:
 
 def load_persona(name: str) -> str:
     path = REPO / "pipeline" / "buzz-pack" / "agents" / f"{name}.persona.md"
+    if not path.exists():
+        path = REPO / "pipeline" / "system1_extracted" / "buzz-pack" / "agents" / f"{name}.persona.md"
     return path.read_text(encoding="utf-8")
 
 
@@ -487,7 +489,8 @@ def main() -> int:
     if not mechanics:
         mechanics = "Risk Guardian, Capital Efficiency, Agentic Credit"
     topic_enum_str = ", ".join(f"'{t}'" for t in topic_enum)
-    BUNDLE = Path(os.environ.get("OKF_BUNDLE") or (REPO / "okf"))
+    okf_root = REPO / "okf" if (REPO / "okf").exists() else REPO / "pipeline" / "system1_extracted" / "okf"
+    BUNDLE = Path(os.environ.get("OKF_BUNDLE") or okf_root)
     strategist_personas = build_strategists(TENANT, BUNDLE)
     tenant_facts = load_tenant_facts(TENANT, BUNDLE)
     TENANT_GUARD = "" if TENANT.strip().lower() == "vanna" else (
@@ -511,10 +514,16 @@ def main() -> int:
     # 2. Conductor: Decides the Trendjack and selects the topic dynamically
     print("\n=== Step 2: Conductor Trendjack Selection ===")
     conductor_persona = load_persona("conductor")
-    shared_instructions = REPO.joinpath("pipeline", "buzz-pack", "instructions.md").read_text(encoding="utf-8")
+    instr_path = REPO.joinpath("pipeline", "buzz-pack", "instructions.md")
+    if not instr_path.exists():
+        instr_path = REPO.joinpath("pipeline", "system1_extracted", "buzz-pack", "instructions.md")
+    shared_instructions = instr_path.read_text(encoding="utf-8")
     # Campaign intelligence doctrine: how agents research and design real campaigns.
     try:
-        doctrine = REPO.joinpath("pipeline", "buzz-pack", "campaign-doctrine.md").read_text(encoding="utf-8")
+        doc_path = REPO.joinpath("pipeline", "buzz-pack", "campaign-doctrine.md")
+        if not doc_path.exists():
+            doc_path = REPO.joinpath("pipeline", "system1_extracted", "buzz-pack", "campaign-doctrine.md")
+        doctrine = doc_path.read_text(encoding="utf-8")
         shared_instructions += "\n\n---\n\n" + doctrine
     except Exception:
         pass

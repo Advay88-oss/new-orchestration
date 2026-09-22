@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vanna Protocol — Subtle Luxury Brand Reveal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #07020D;
+    color: #F3F1F8;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 36px;
+    min-height: 100vh;
+  }
+  .campaign-header {
+    width: 100%;
+    max-width: 860px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 16px;
+  }
+  .campaign-title {
+    font-size: 24px;
+    font-weight: 800;
+    color: #FFFFFF;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(34, 211, 196, 0.15);
+    color: #22D3C4;
+    border: 1px solid rgba(34, 211, 196, 0.3);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .campaign-desc {
+    font-size: 13px;
+    color: #A2A1A6;
+    line-height: 1.5;
+  }
+  .video-card {
+    width: 100%;
+    max-width: 860px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    background: #0C0C10;
+    padding: 24px;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.85);
+  }
+  .video-wrapper {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: #000000;
+    margin-bottom: 24px;
+  }
+  video {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .agents-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .agent-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .agent-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #A387FF;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .agent-title.cyan { color: #22D3C4; }
+  .agent-content {
+    font-size: 12px;
+    line-height: 1.55;
+    color: #C2C1C6;
+  }
+  .agent-content b { color: #FFFFFF; }
+  .spec-row {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 4px;
+  }
+  .spec-row span { color: #8C879E; }
+  .spec-row b { color: #22D3C4; }
+</style>
+</head>
+<body>
+
+<div class="campaign-header">
+  <div class="campaign-title">
+    Vanna — Subtle Luxury Brand Reveal
+    <span class="badge">RESTRAINED LIGHTING // VEO-3.1</span>
+  </div>
+  <p class="campaign-desc">Disciplined studio lighting without harsh god-rays or chaotic smoke. Clean matte obsidian void with controlled coral-to-violet glyph luminescence and satin floor reflections.</p>
+</div>
+
+<div class="video-card">
+  <div class="video-wrapper">
+    <video controls autoplay loop muted playsinline poster="vanna_subtle_frame.png">
+      <source src="vanna_subtle_logo_intro.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <div class="agents-grid">
+    <!-- AGENT 1: VIDEO SCRIPTWRITER -->
+    <div class="agent-box">
+      <div class="agent-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        AGENT 1: SCRIPT &amp; PACING
+      </div>
+      <div class="agent-content">
+        <div class="spec-row"><span>Campaign:</span> <b>Official Protocol Intro</b></div>
+        <div class="spec-row"><span>Style Posture:</span> <b>Minimalist Institutional Tech</b></div>
+        <div class="spec-row"><span>Pacing:</span> <b>Slow Cinematic Glide (8.00s)</b></div>
+        <p style="margin-top:8px;">
+          <b>The Hook:</b> "Traditional DeFi lending forces borrowers into shared-pool contagion. Vanna changes the paradigm with dedicated SmartAccount sandboxes on Stellar Soroban."
+        </p>
+        <p style="margin-top:6px;">
+          <b>Brand Integration:</b> Calm, steady presentation that gives maximum visual authority to the Vanna identity before transitioning to on-chain features.
+        </p>
+      </div>
+    </div>
+
+    <!-- AGENT 2: VIDEO ART DIRECTOR -->
+    <div class="agent-box">
+      <div class="agent-title cyan">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+        AGENT 2: ART DIRECTION (LIGHTING FIX)
+      </div>
+      <div class="agent-content">
+        <div class="spec-row"><span>Lighting Model:</span> <b>Soft Ambient Studio (0 Flares)</b></div>
+        <div class="spec-row"><span>Floor Material:</span> <b>Dark Satin Reflective Stone</b></div>
+        <div class="spec-row"><span>Glyph Treatment:</span> <b>Self-Illuminating Neon Gradient</b></div>
+        <p style="margin-top:8px;">
+          <b>Lighting Calibrations:</b> Removed aggressive god-rays and heavy clouds. Replaced with soft, uniform radial falloff and quiet edge highlights.
+        </p>
+        <p style="margin-top:6px;">
+          <b>Design System Fit:</b> Follows the Apple Keynote / Stripe Press design language—generous negative space, typographic rigor, and institutional polish.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,59 @@
+{
+  "graph_version": "1.0",
+  "updated_at": "2026-09-10T12:00:00Z",
+  "nodes": [
+    {
+      "claim_id": "CLAIM_ROBINHOOD_MORPHO",
+      "claim_statement": "Robinhood selected Morpho MetaMorpho vaults to power Robinhood Earn.",
+      "evidence_type": "OBSERVED",
+      "evidence_count": 3,
+      "source_urls": [
+        "https://x.com/Morpho/status/2072395963793350687",
+        "https://x.com/RobinhoodApp/status/2072392907416289516",
+        "https://morpho.org/blog/robinhood-chooses-morpho-to-power-new-earn-product"
+      ],
+      "underlying_observed_facts": [
+        "Robinhood announced Robinhood Earn rolling out on July 1, 2026",
+        "Morpho confirmed Vault curated by SteakhouseFi powers the backend",
+        "3 weeks post-launch deposits reached $300M+ on Robinhood Chain"
+      ],
+      "analytical_inference": "B2B fintech integrations are Morpho's primary strategy to unseat pooled lending incumbents.",
+      "verifying_tool_or_code": "opencli twitter tweets Morpho / DefiLlama protocol snapshot",
+      "confidence_level": "HIGH"
+    },
+    {
+      "claim_id": "CLAIM_AAVE_V4_AVAX",
+      "claim_statement": "Aave V4 deployed on Avalanche as its first multi-chain expansion.",
+      "evidence_type": "OBSERVED",
+      "evidence_count": 2,
+      "source_urls": [
+        "https://x.com/aave/status/2077414474017829232",
+        "https://governance.aave.com/t/temp-check-deploy-aave-v4-on-avalanche/24981"
+      ],
+      "underlying_observed_facts": [
+        "Aave tweeted live deployment on AVAX on July 15, 2026 (776 likes, 144k views)",
+        "Discourse forum carries original Temp Check proposal from May 2026"
+      ],
+      "analytical_inference": "Aave V4 is expanding multi-chain hubs to capture non-Ethereum capital before competitors deploy.",
+      "verifying_tool_or_code": "opencli twitter search from:aave V4",
+      "confidence_level": "HIGH"
+    },
+    {
+      "claim_id": "CLAIM_UNCOLLATERALIZED_DOMINANCE",
+      "claim_statement": "Pareto Credit commands over 77% of total TVL in the uncollateralized lending category.",
+      "evidence_type": "OBSERVED",
+      "evidence_count": 1,
+      "source_urls": [
+        "https://api.llama.fi/protocols"
+      ],
+      "underlying_observed_facts": [
+        "Uncollateralized lending total TVL is $292,442,412 across 18 protocols",
+        "Pareto Credit holds $226,216,675 TVL alone",
+        "Prior 15-player research roster missed all 18 category protocols"
+      ],
+      "analytical_inference": "Uncollateralized lending has a clear market incumbent utilizing off-chain legal covenants.",
+      "verifying_tool_or_code": "interceptors/defillama.py category_universe",
+      "confidence_level": "HIGH"
+    }
+  ]
+}

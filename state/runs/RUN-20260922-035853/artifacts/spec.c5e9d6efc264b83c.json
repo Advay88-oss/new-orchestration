@@ -1,0 +1,33 @@
+{
+  "layout": "hero_stat",
+  "headline": "The Liquidity Choke Point",
+  "subhead": "Secondary exchange depth constrains pooled liquidation solvency.",
+  "blocks": [
+    {
+      "role": "stat",
+      "text": "$157,161,882",
+      "emphasis": "primary"
+    },
+    {
+      "role": "label",
+      "text": "Blend lending TVL against $1,238,140 in Soroswap AMM liquidity",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "caption",
+      "text": "When secondary market depth is thin relative to total debt, shared pools risk shortfall dilution across depositors.",
+      "emphasis": "muted"
+    }
+  ],
+  "focal": {
+    "block_index": 0,
+    "reason": "The $157,161,882 lending pool TVL immediately establishes the scale disparity against secondary AMM depth."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

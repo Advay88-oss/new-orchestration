@@ -1,0 +1,47 @@
+{
+  "draft_id": "23274828",
+  "message_id": 294,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T12:29:12Z",
+  "sent_unix": 1787228949,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "23274828",
+    "draft_id": "96d6fac8",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Isolated credit accounts liquidate you on a single wick—even if your other positions are healthy.\n\nVanna’s Unified Margin Account on testnet offsets risk across your portfolio, backing debt with a 1.1x liquidation floor. Protect against siloed wipes.",
+    "final_body": "Isolated credit accounts liquidate you on a single wick—even if your other positions are healthy.\n\nVanna’s Unified Margin Account on testnet offsets risk across your portfolio, backing debt with a 1.1x liquidation floor. Protect against siloed wipes.",
+    "final_hook": "Isolated credit accounts liquidate you on",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Siloed risk. Unified safety.",
+      "emphasis_phrase": "1.1x Liquidation Floor",
+      "subhead": "How Vanna unifies portfolio health to survive localized asset volatility.",
+      "data": [
+        {
+          "label": "Liquidation Model",
+          "value": "Unified Margin",
+          "note": "Portfolio-wide risk offset on Vanna testnet"
+        },
+        {
+          "label": "Liquidation Floor",
+          "value": "1.1x Health Factor",
+          "note": "10% buffer protects against oracle slippage"
+        },
+        {
+          "label": "Account Isolation",
+          "value": "Isolated Accounts",
+          "note": "Legacy models liquidate individual volatile assets"
+        }
+      ],
+      "disclaimer": "Vanna is currently live on testnet only. No mainnet deployment or token exists."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T12:28:50Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

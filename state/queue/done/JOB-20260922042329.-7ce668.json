@@ -1,0 +1,10 @@
+{
+  "id": "JOB-20260922042329.-7ce668",
+  "directive": "video showing how isolated credit accounts contain a liquidation failure",
+  "created_at": "2026-09-22T04:23:29.725Z",
+  "attempts": 1,
+  "idempotency_key": null,
+  "requested_by": "mission-control",
+  "run_id": "RUN-20260922-042333",
+  "last_error": null
+}

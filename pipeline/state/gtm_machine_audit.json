@@ -1,0 +1,131 @@
+{
+  "audit_timestamp": "2026-09-19T09:02:51.609213+00:00",
+  "total_machines_evaluated": 10,
+  "eligible_machines_count": 7,
+  "insufficient_evidence_count": 2,
+  "prohibited_machines_count": 1,
+  "machines_summary": [
+    {
+      "machine_id": "MACH_01_PHASED_TECHNICAL_LAUNCH",
+      "name": "Phased Technical Protocol Launch Machine",
+      "status": "ELIGIBLE",
+      "observed_campaign_count": 2,
+      "threshold": 1,
+      "confidence": "HIGH",
+      "stages_count": 4,
+      "examples": [
+        "CAMP_MIDNIGHT_LAUNCH",
+        "AAVE_V3_LAUNCH"
+      ]
+    },
+    {
+      "machine_id": "MACH_02_B2B_PARTNER_ONBOARDING",
+      "name": "B2B Ecosystem Partner Onboarding Machine",
+      "status": "ELIGIBLE",
+      "observed_campaign_count": 2,
+      "threshold": 1,
+      "confidence": "HIGH",
+      "stages_count": 3,
+      "examples": [
+        "CAMP_ROBINHOOD_ACQUISITION",
+        "MORPHO_CURV_INTEGRATION"
+      ]
+    },
+    {
+      "machine_id": "MACH_03_COMPETITOR_DISPLACEMENT",
+      "name": "Architectural Competitor Displacement Machine",
+      "status": "ELIGIBLE",
+      "observed_campaign_count": 1,
+      "threshold": 1,
+      "confidence": "HIGH",
+      "stages_count": 3,
+      "examples": [
+        "MORPHO_VS_COMPOUND_MIGRATION"
+      ]
+    },
+    {
+      "machine_id": "MACH_04_TECHNICAL_TELEMETRY_SERIES",
+      "name": "Sub-Second Risk Telemetry Education Machine",
+      "status": "ELIGIBLE",
+      "observed_campaign_count": 1,
+      "threshold": 1,
+      "confidence": "HIGH",
+      "stages_count": 2,
+      "examples": [
+        "GEARBOX_TELEMETRY_SERIES"
+      ]
+    },
+    {
+      "machine_id": "MACH_05_MARKET_DATA_BENCHMARK",
+      "name": "Dynamic RateModel Quantitative Benchmark Machine",
+      "status": "ELIGIBLE",
+      "observed_campaign_count": 1,
+      "threshold": 1,
+      "confidence": "HIGH",
+      "stages_count": 2,
+      "examples": [
+        "CHAOS_LABS_INTEREST_RATE_MODELS"
+      ]
+    },
+    {
+      "machine_id": "MACH_06_INSTITUTIONAL_CREDIBILITY",
+      "name": "Formal Security & Sandbox Verification Machine",
+      "status": "ELIGIBLE",
+      "observed_campaign_count": 1,
+      "threshold": 1,
+      "confidence": "HIGH",
+      "stages_count": 2,
+      "examples": [
+        "AAVE_ARC_INSTITUTIONAL_FRAMEWORK"
+      ]
+    },
+    {
+      "machine_id": "MACH_07_ECOSYSTEM_EXPANSION",
+      "name": "Cross-DEX Composable LP Expansion Machine",
+      "status": "ELIGIBLE",
+      "observed_campaign_count": 1,
+      "threshold": 1,
+      "confidence": "HIGH",
+      "stages_count": 2,
+      "examples": [
+        "AQUARIUS_BRIBE_CAMPAIGN"
+      ]
+    },
+    {
+      "machine_id": "MACH_08_INCENTIVE_POINTS_CAMPAIGN",
+      "name": "Testnet Incentive Points & Waitlist Machine",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "observed_campaign_count": 0,
+      "threshold": 2,
+      "confidence": "LOW",
+      "stages_count": 1,
+      "examples": []
+    },
+    {
+      "machine_id": "MACH_09_DEVELOPER_SDK_ADOPTION",
+      "name": "Soroban SmartAccount SDK Developer Machine",
+      "status": "INSUFFICIENT_EVIDENCE",
+      "observed_campaign_count": 0,
+      "threshold": 2,
+      "confidence": "LOW",
+      "stages_count": 1,
+      "examples": []
+    },
+    {
+      "machine_id": "MACH_10_VIRAL_MEME_BOUNTY",
+      "name": "Viral Retail Engagement & Meme Bounty Machine",
+      "status": "PROHIBITED",
+      "observed_campaign_count": 0,
+      "threshold": 3,
+      "confidence": "LOW",
+      "stages_count": 0,
+      "examples": []
+    }
+  ],
+  "threshold_rules_enforced": [
+    "Minimum 1 observed campaign example required for autonomous eligibility",
+    "Minimum 1 observed protocol player required for autonomous eligibility",
+    "Three-way knowledge separation required (observed vs inferred vs adaptation)",
+    "Prohibited brand patterns (memes, retail hype) are hard-blocked"
+  ]
+}

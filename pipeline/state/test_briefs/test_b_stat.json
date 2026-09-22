@@ -1,0 +1,16 @@
+{
+  "type": "stat",
+  "category": "RISK ENGINE // REAL-TIME DEFENSE",
+  "headline": "Liquidation anxiety kills leverage.\nWe built the antidote.",
+  "emphasis_phrase": "built the antidote",
+  "subhead": "Strict real-time risk engine indexed at block-speed by Mercury on Stellar.",
+  "stat": {
+    "value": "1.1x",
+    "caption": "STRICT HEALTH FACTOR LIQUIDATION FLOOR"
+  },
+  "detail_line": {
+    "text": "Positions stay solvent above 1.1x HF. Reverts instantly if collateral degrades."
+  },
+  "tag": "MERCURY INDEXED // RISK CEILING 100%",
+  "source": "vanna.finance/risk • Real-time Soroban Telemetry"
+}

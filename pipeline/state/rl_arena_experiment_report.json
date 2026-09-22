@@ -1,0 +1,228 @@
+{
+  "timestamp": "2026-09-17T08:01:40.339885+00:00",
+  "briefs_evaluated": 5,
+  "total_trials": 15,
+  "policy_arms": {
+    "x_post": [
+      {
+        "model_id": "vanna-deterministic-engine",
+        "trials": 5,
+        "average_reward_Q": 0.822,
+        "ucb_score": 1.5
+      },
+      {
+        "model_id": "gemini-2.5-flash",
+        "trials": 5,
+        "average_reward_Q": 0.632,
+        "ucb_score": 1.5
+      },
+      {
+        "model_id": "gemini-2.5-pro",
+        "trials": 5,
+        "average_reward_Q": 0.622,
+        "ucb_score": 1.5
+      }
+    ]
+  },
+  "sample_trials": [
+    {
+      "trial_id": "TRIAL-X_P-202609170800407806",
+      "brief_id": "BRIEF_01_10X_LEVERAGE",
+      "brief_title": "10x Margin Multiplier & Capital Efficiency",
+      "task_type": "x_post",
+      "model_id": "gemini-2.5-pro",
+      "provider": "Google Cloud Vertex AI",
+      "prompt_used": "You are the senior growth copywriter for Vanna Protocol (Stellar Soroban credit infrastructure).\nWrite a concise, high-density X post for:\nAudience: A2: EVM Migrants & Quantitative Traders\nProblem: Overcollateralization locks capital in stasis, forcing you to lock $150 to touch $100.\nNarrative: Vanna enables up to 10x undercollateralized margin borrowing through isolated SmartAccount sandboxes on Stellar Soroban.\nProof: 10x Capital Amplification via Soroban SmartAccount instances; Atomic execution across Blend BLUSDC and Aquarius AMM; Non-custodial smart contract isolation: your wallet retains sovereign control; Fixed 0.00014 XLM execution gas\nCTA: test.stellar.vanna.finance\nRules: No hashtags, no emojis, zero AI buzzwords, no 'uncontested first-mover' claims. State that Vanna is on Stellar Testnet.",
+      "output_content": "Here are three options, each with a slightly different angle for the target audience.\n\n---\n\n### Option 1 (",
+      "latency_seconds": 9.175,
+      "cost_usd": 0.00024,
+      "critic_eval": {
+        "strategic_alignment": 0.7,
+        "content_quality": 0.94,
+        "hook_strength": 0.8,
+        "audience_fit": 0.85,
+        "claim_safety": 0.6,
+        "visual_quality": 0.9,
+        "originality": 0.95,
+        "brand_fit": 0.6,
+        "platform_suitability": 0.95,
+        "overall_quality": 0.773,
+        "failure_reasons": [
+          "Missing explicit testnet disclosure.",
+          "Does not identify Vanna Protocol."
+        ],
+        "base_reward": 0.773
+      },
+      "human_decision": "REVISE",
+      "human_reward_modifier": -0.15,
+      "final_reward": 0.623,
+      "timestamp": "2026-09-17T08:00:40.780655+00:00"
+    },
+    {
+      "trial_id": "TRIAL-X_P-202609170800458933",
+      "brief_id": "BRIEF_01_10X_LEVERAGE",
+      "brief_title": "10x Margin Multiplier & Capital Efficiency",
+      "task_type": "x_post",
+      "model_id": "gemini-2.5-flash",
+      "provider": "Google Cloud Vertex AI",
+      "prompt_used": "You are the senior growth copywriter for Vanna Protocol (Stellar Soroban credit infrastructure).\nWrite a concise, high-density X post for:\nAudience: A2: EVM Migrants & Quantitative Traders\nProblem: Overcollateralization locks capital in stasis, forcing you to lock $150 to touch $100.\nNarrative: Vanna enables up to 10x undercollateralized margin borrowing through isolated SmartAccount sandboxes on Stellar Soroban.\nProof: 10x Capital Amplification via Soroban SmartAccount instances; Atomic execution across Blend BLUSDC and Aquarius AMM; Non-custodial smart contract isolation: your wallet retains sovereign control; Fixed 0.00014 XLM execution gas\nCTA: test.stellar.vanna.finance\nRules: No hashtags, no emojis, zero AI buzzwords, no 'uncontested first-mover' claims. State that Vanna is on Stellar Testnet.",
+      "output_content": "EVM traders, quant funds: Overcollateralization locks capital, forcing $150 for $10",
+      "latency_seconds": 5.109,
+      "cost_usd": 0.00024,
+      "critic_eval": {
+        "strategic_alignment": 0.77,
+        "content_quality": 0.5,
+        "hook_strength": 0.95,
+        "audience_fit": 0.85,
+        "claim_safety": 0.6,
+        "visual_quality": 0.9,
+        "originality": 0.95,
+        "brand_fit": 0.6,
+        "platform_suitability": 0.95,
+        "overall_quality": 0.744,
+        "failure_reasons": [
+          "Missing explicit testnet disclosure.",
+          "Output is truncated or too brief (< 15 words).",
+          "Does not identify Vanna Protocol."
+        ],
+        "base_reward": 0.744
+      },
+      "human_decision": "REVISE",
+      "human_reward_modifier": -0.15,
+      "final_reward": 0.594,
+      "timestamp": "2026-09-17T08:00:45.893388+00:00"
+    },
+    {
+      "trial_id": "TRIAL-X_P-202609170800458943",
+      "brief_id": "BRIEF_01_10X_LEVERAGE",
+      "brief_title": "10x Margin Multiplier & Capital Efficiency",
+      "task_type": "x_post",
+      "model_id": "vanna-deterministic-engine",
+      "provider": "Local Grounded Engine",
+      "prompt_used": "You are the senior growth copywriter for Vanna Protocol (Stellar Soroban credit infrastructure).\nWrite a concise, high-density X post for:\nAudience: A2: EVM Migrants & Quantitative Traders\nProblem: Overcollateralization locks capital in stasis, forcing you to lock $150 to touch $100.\nNarrative: Vanna enables up to 10x undercollateralized margin borrowing through isolated SmartAccount sandboxes on Stellar Soroban.\nProof: 10x Capital Amplification via Soroban SmartAccount instances; Atomic execution across Blend BLUSDC and Aquarius AMM; Non-custodial smart contract isolation: your wallet retains sovereign control; Fixed 0.00014 XLM execution gas\nCTA: test.stellar.vanna.finance\nRules: No hashtags, no emojis, zero AI buzzwords, no 'uncontested first-mover' claims. State that Vanna is on Stellar Testnet.",
+      "output_content": "Overcollateralization locks capital in stasis. You shouldn't have to pledge $150 to access $100.\n\nVanna enables up to 10\u00d7 undercollateralized margin borrowing through isolated SmartAccounts on Stellar Soroban.\n\nDeposit collateral into a dedicated sandbox, access amplified borrowing power, and deploy straight to Blend and Aquarius\u2014without surrendering wallet custody.\n\ntest.stellar.vanna.finance",
+      "latency_seconds": 0.0,
+      "cost_usd": 0.0,
+      "critic_eval": {
+        "strategic_alignment": 0.85,
+        "content_quality": 0.94,
+        "hook_strength": 0.95,
+        "audience_fit": 0.85,
+        "claim_safety": 1.0,
+        "visual_quality": 0.9,
+        "originality": 0.95,
+        "brand_fit": 0.98,
+        "platform_suitability": 0.85,
+        "overall_quality": 0.924,
+        "failure_reasons": [],
+        "base_reward": 0.924
+      },
+      "human_decision": "APPROVE",
+      "human_reward_modifier": 0.25,
+      "final_reward": 1.0,
+      "timestamp": "2026-09-17T08:00:45.895389+00:00"
+    },
+    {
+      "trial_id": "TRIAL-X_P-202609170800548489",
+      "brief_id": "BRIEF_02_SUBSECOND_TELEMETRY",
+      "brief_title": "Sub-Second Telemetry vs EVM Mempool MEV",
+      "task_type": "x_post",
+      "model_id": "gemini-2.5-pro",
+      "provider": "Google Cloud Vertex AI",
+      "prompt_used": "You are the senior growth copywriter for Vanna Protocol (Stellar Soroban credit infrastructure).\nWrite a concise, high-density X post for:\nAudience: A2: EVM Migrants & Quantitative Traders\nProblem: Mempool front-running and 150 gwei gas spikes delay defensive rebalances, causing punitive liquidations.\nNarrative: Vanna streams on-chain events in ~320ms through Mercury with zero public mempool bidding wars.\nProof: ~320ms off-chain event streaming via the Mercury indexer; Risk Guardian automated rebalances at 1.25x Net Health Factor before 1.10x floor; Fixed 0.00014 XLM execution gas: zero priority gas auctions\nCTA: test.stellar.vanna.finance\nRules: No hashtags, no emojis, zero AI buzzwords, no 'uncontested first-mover' claims. State that Vanna is on Stellar Testnet.",
+      "output_content": "Tired of 150 gwei gas spikes and mempool wars turning your",
+      "latency_seconds": 8.951,
+      "cost_usd": 0.000241,
+      "critic_eval": {
+        "strategic_alignment": 0.7,
+        "content_quality": 0.5,
+        "hook_strength": 0.95,
+        "audience_fit": 0.96,
+        "claim_safety": 0.6,
+        "visual_quality": 0.9,
+        "originality": 0.95,
+        "brand_fit": 0.6,
+        "platform_suitability": 0.95,
+        "overall_quality": 0.746,
+        "failure_reasons": [
+          "Missing explicit testnet disclosure.",
+          "Output is truncated or too brief (< 15 words).",
+          "Does not identify Vanna Protocol."
+        ],
+        "base_reward": 0.746
+      },
+      "human_decision": "REVISE",
+      "human_reward_modifier": -0.15,
+      "final_reward": 0.596,
+      "timestamp": "2026-09-17T08:00:54.848987+00:00"
+    },
+    {
+      "trial_id": "TRIAL-X_P-202609170801002863",
+      "brief_id": "BRIEF_02_SUBSECOND_TELEMETRY",
+      "brief_title": "Sub-Second Telemetry vs EVM Mempool MEV",
+      "task_type": "x_post",
+      "model_id": "gemini-2.5-flash",
+      "provider": "Google Cloud Vertex AI",
+      "prompt_used": "You are the senior growth copywriter for Vanna Protocol (Stellar Soroban credit infrastructure).\nWrite a concise, high-density X post for:\nAudience: A2: EVM Migrants & Quantitative Traders\nProblem: Mempool front-running and 150 gwei gas spikes delay defensive rebalances, causing punitive liquidations.\nNarrative: Vanna streams on-chain events in ~320ms through Mercury with zero public mempool bidding wars.\nProof: ~320ms off-chain event streaming via the Mercury indexer; Risk Guardian automated rebalances at 1.25x Net Health Factor before 1.10x floor; Fixed 0.00014 XLM execution gas: zero priority gas auctions\nCTA: test.stellar.vanna.finance\nRules: No hashtags, no emojis, zero AI buzzwords, no 'uncontested first-mover' claims. State that Vanna is on Stellar Testnet.",
+      "output_content": "EVM traders: punitive liquidations from mempool front-running and 150 gwei gas spikes are",
+      "latency_seconds": 5.437,
+      "cost_usd": 0.000241,
+      "critic_eval": {
+        "strategic_alignment": 0.7,
+        "content_quality": 0.5,
+        "hook_strength": 0.95,
+        "audience_fit": 0.96,
+        "claim_safety": 0.6,
+        "visual_quality": 0.9,
+        "originality": 0.95,
+        "brand_fit": 0.6,
+        "platform_suitability": 0.95,
+        "overall_quality": 0.746,
+        "failure_reasons": [
+          "Missing explicit testnet disclosure.",
+          "Output is truncated or too brief (< 15 words).",
+          "Does not identify Vanna Protocol."
+        ],
+        "base_reward": 0.746
+      },
+      "human_decision": "REVISE",
+      "human_reward_modifier": -0.15,
+      "final_reward": 0.596,
+      "timestamp": "2026-09-17T08:01:00.286322+00:00"
+    },
+    {
+      "trial_id": "TRIAL-X_P-202609170801002878",
+      "brief_id": "BRIEF_02_SUBSECOND_TELEMETRY",
+      "brief_title": "Sub-Second Telemetry vs EVM Mempool MEV",
+      "task_type": "x_post",
+      "model_id": "vanna-deterministic-engine",
+      "provider": "Local Grounded Engine",
+      "prompt_used": "You are the senior growth copywriter for Vanna Protocol (Stellar Soroban credit infrastructure).\nWrite a concise, high-density X post for:\nAudience: A2: EVM Migrants & Quantitative Traders\nProblem: Mempool front-running and 150 gwei gas spikes delay defensive rebalances, causing punitive liquidations.\nNarrative: Vanna streams on-chain events in ~320ms through Mercury with zero public mempool bidding wars.\nProof: ~320ms off-chain event streaming via the Mercury indexer; Risk Guardian automated rebalances at 1.25x Net Health Factor before 1.10x floor; Fixed 0.00014 XLM execution gas: zero priority gas auctions\nCTA: test.stellar.vanna.finance\nRules: No hashtags, no emojis, zero AI buzzwords, no 'uncontested first-mover' claims. State that Vanna is on Stellar Testnet.",
+      "output_content": "If you borrow on EVM, you know the drill when volatility hits: gas jumps to 150 gwei, your defensive rebalance hangs in the mempool, and a searcher bot liquidates you for a 10% fee.\n\nVanna eliminates front-running liquidations with sub-second off-chain telemetry on Stellar Soroban:\n\nMercury streams ledger state in ~320ms. When an account drops toward 1.25x Net Health Factor, our Risk Guardian rebalances directly inside the sandbox before the 1.10x liquidation floor. Fixed 0.00014 XLM gas.\n\ntest.stellar.vanna.finance",
+      "latency_seconds": 0.0,
+      "cost_usd": 0.0,
+      "critic_eval": {
+        "strategic_alignment": 1.0,
+        "content_quality": 0.94,
+        "hook_strength": 0.65,
+        "audience_fit": 0.96,
+        "claim_safety": 0.4,
+        "visual_quality": 0.9,
+        "originality": 0.95,
+        "brand_fit": 0.98,
+        "platform_suitability": 0.65,
+        "overall_quality": 0.836,
+        "failure_reasons": [
+          "Falsely claimed 1.25x as the liquidation floor (canonical is 1.10x).",
+          "Hook is too long (> 140 chars for first line).",
+          "Exceeds standard X post length."
+        ],
+        "base_reward": 0.836
+      },
+      "human_decision": "REVISE",
+      "human_reward_modifier": -0.15,
+      "final_reward": 0.686,
+      "timestamp": "2026-09-17T08:01:00.287833+00:00"
+    }
+  ]
+}

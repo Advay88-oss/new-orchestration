@@ -1,0 +1,14 @@
+{
+  "id": "OPP-4c14c43100d9b5b6",
+  "title": "how the health factor and liquidation mechanism actually work on Vanna",
+  "rationale": "Founder directive; selection deferred to the instruction.",
+  "audience": "A1: Stellar & Soroban DeFi builders",
+  "score": 0.7,
+  "signal_ids": [
+    "SIG-57201ea630a95d35",
+    "SIG-56af2b8a77d7e775",
+    "SIG-522e4532f6f15119",
+    "SIG-74c694417e47bb28",
+    "SIG-5b5953728db97a09"
+  ]
+}

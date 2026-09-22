@@ -1,0 +1,28 @@
+{
+  "layout": "comparison",
+  "headline": "The 1.10 Threshold: Binary Risk Containment",
+  "subhead": "A position is either securely collateralized or isolated before undercollateralization spreads.",
+  "blocks": [
+    {
+      "role": "compare_left",
+      "text": "HF > 1.10\nHEALTHY POSITION\nPriced account maintains active collateral buffer above threshold.",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "compare_right",
+      "text": "HF ≤ 1.10\nLIQUIDATION CANDIDATE\nEligible for liquidation subject to oracle, configuration, funding, and execution checks.",
+      "emphasis": "primary"
+    }
+  ],
+  "focal": {
+    "block_index": 1,
+    "reason": "Draws immediate focus to the liquidation trigger condition and its multi-gate validation process."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

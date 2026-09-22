@@ -1,0 +1,9 @@
+{
+  "id": "CPY-db20c251d3530983",
+  "strategy_id": "STR-7fb99018f70eea90",
+  "channel": "x",
+  "hook": "In pooled lending, bad debt from a single defaulted asset spreads across every participant sharing the pool.",
+  "body": "When debt mutualizes, an insolvency in one collateral type reduces the backing for unrelated balances. Structural isolation prevents this by keeping position balances segregated; a shortfall remains bounded to the specific position rather than migrating across the protocol. Across Stellar Soroban, Blend TVL stands at $157,161,882 while Soroswap TVL is $1,238,140, on a ledger operating at 0.08 capacity usage and a base fee of 100. Isolation does not remove market risk, but it restricts the boundary of failure.",
+  "thread": [],
+  "claims": []
+}

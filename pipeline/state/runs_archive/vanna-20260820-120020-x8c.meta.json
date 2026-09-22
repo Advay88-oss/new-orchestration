@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-120020-x8c",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787227245.9827683,
+  "ended": 1787227387.677272,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 141.7,
+  "kind": "content-run",
+  "winner_hook": "Agents can pay. Agents can't borrow.",
+  "winner_body": "Agents can pay. Agents can't borrow.\n\nSiloed credit accounts force autonomous agents to run complex rebalancing math and burn gas across isolated pools.\n\nVanna’s Unified Margin Account offers a single aggregated credit line. Simpler policy execution — on testnet.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

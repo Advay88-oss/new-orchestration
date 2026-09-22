@@ -1,0 +1,38 @@
+{
+  "layout": "sequence",
+  "headline": "The Liquidation Trap: $159M TVL Meets $1.2M Swap Depth",
+  "subhead": null,
+  "blocks": [
+    {
+      "role": "step",
+      "text": "01 Seizure: Debt threshold breach activates liquidation against $159,033,033 Blend TVL",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "step",
+      "text": "02 Funnel: Liquidators route seized collateral to decentralized exchange pools",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "step",
+      "text": "03 Bottleneck: Swap depth exhausts against $1,239,028 Soroswap TVL",
+      "emphasis": "primary"
+    },
+    {
+      "role": "step",
+      "text": "04 Bad Debt: Slippage exceeds liquidation incentive, leaving underwater loans unsettled",
+      "emphasis": "muted"
+    }
+  ],
+  "focal": {
+    "block_index": 2,
+    "reason": "Exposes the fatal 128:1 liquidity mismatch where onchain liquidation capacity fails."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

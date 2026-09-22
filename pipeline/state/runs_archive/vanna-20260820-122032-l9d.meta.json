@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-122032-l9d",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787228805.4450798,
+  "ended": 1787228934.1258292,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 128.7,
+  "kind": "content-run",
+  "winner_hook": "Isolated credit accounts liquidate you on",
+  "winner_body": "Isolated credit accounts liquidate you on a single wick—even if your other positions are healthy.\n\nVanna’s Unified Margin Account on testnet offsets risk across your portfolio, backing debt with a 1.1x liquidation floor. Protect against siloed wipes.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

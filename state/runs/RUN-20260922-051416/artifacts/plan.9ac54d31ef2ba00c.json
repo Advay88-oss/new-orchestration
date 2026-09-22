@@ -1,0 +1,18 @@
+{
+  "playbook": {
+    "id": "PB_RISK",
+    "shape": "Name the failure mode first, then the structural reason it cannot spread.",
+    "forbidden": [
+      "fear-mongering about competitors",
+      "implying zero risk"
+    ],
+    "arc": "risk_relief"
+  },
+  "vehicle": {
+    "id": "VH_SINGLE",
+    "channel": "x",
+    "shape": "single",
+    "max_parts": 1,
+    "reason": "thin support (score 0.5, 1 signals)"
+  }
+}

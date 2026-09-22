@@ -1,0 +1,14 @@
+{
+  "type": "hero",
+  "category": "CREDIT PRIMITIVE // STELLAR SOROBAN",
+  "headline": "Composable credit\non Stellar.",
+  "emphasis_phrase": "Composable credit",
+  "subhead": "One SmartAccount sandbox. Direct composable leverage across Blend, Soroswap, and Aquarius.",
+  "visual": {
+    "concept": "monolithic isolated credit core",
+    "composition": "asymmetric_split",
+    "focal_element": "SMARTACCOUNT"
+  },
+  "tag": "VANNA ARCHITECTURE // ZERO CUSTODIAL RISK",
+  "source": "docs.vanna.finance • Audited Soroban Contracts"
+}

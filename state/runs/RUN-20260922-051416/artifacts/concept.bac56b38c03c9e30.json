@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The Orifice and Foundation",
+    "idea": "An architectural cross-section schematic modeling capital flow mechanics. At the top, a massive solid reservoir representing the $159M lending market drains through a narrow, measured throttle representing the $1.2M AMM pool. Underneath, instead of a buckling pipe, sits an immense unyielding bedrock slab labeled 'Stellar Settlement Layer: 0.1 Utilization / 100 Base Fee' absorbing the liquidations without deflection or network backpressure.",
+    "layout": "diagram",
+    "why": "Translates abstract DeFi liquidity mechanics into tangible mechanical engineering terms, making the distinction between pool slippage and network capacity instantly legible."
+  },
+  "all": [
+    {
+      "title": "The 128:1 Asymmetry",
+      "idea": "Monolithic typographic stat '128:1' rendered in sharp matte white on a dark slate surface, with micro-annotations detailing the exact figures: $159,033,033 Blend TVL over $1,239,028 Soroswap TVL. Across the base runs a minimal telemetry strip confirming Stellar ledger capacity at 0.1 and base fee at 100 stroops, anchoring the mathematical reality that market depth is outpaced while network headroom remains virtually untouched.",
+      "layout": "hero_stat",
+      "why": "Leads directly with the overwhelming mathematical disparity between debt and exchange liquidity, turning raw scale into an immediate visceral tension."
+    },
+    {
+      "title": "Decoupled Fault Lines",
+      "idea": "A stark horizontal split composition contrasting two operational realities. The top section, rendered in dense warning tones, diagrams the pool-level bottleneck where $159M in credit risk crowds into a $1.2M AMM liquidity conduit. The bottom section, rendered in calm structural gray, shows the base ledger telemetry: flatline 0.1 capacity utilization and 100 stroop fee baseline. A rigid structural barrier between the two proves that market slippage cannot compromise transaction settlement.",
+      "layout": "comparison",
+      "why": "This is the strongest concept because the core thesis is isolation of risk. By visually partitioning AMM depth slippage from ledger stability across a distinct horizontal boundary, it immediately communicates that pool-level liquidation friction cannot cascade into consensus gridlock."
+    },
+    {
+      "title": "The Orifice and Foundation",
+      "idea": "An architectural cross-section schematic modeling capital flow mechanics. At the top, a massive solid reservoir representing the $159M lending market drains through a narrow, measured throttle representing the $1.2M AMM pool. Underneath, instead of a buckling pipe, sits an immense unyielding bedrock slab labeled 'Stellar Settlement Layer: 0.1 Utilization / 100 Base Fee' absorbing the liquidations without deflection or network backpressure.",
+      "layout": "diagram",
+      "why": "Translates abstract DeFi liquidity mechanics into tangible mechanical engineering terms, making the distinction between pool slippage and network capacity instantly legible."
+    }
+  ],
+  "novelty_note": "novelty gate: 'comparison' used in the last 3 assets; switched to 'diagram'"
+}

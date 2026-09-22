@@ -1,0 +1,38 @@
+{
+  "layout": "sequence",
+  "headline": "Containing Distress Before Capital Breaches Parity",
+  "subhead": null,
+  "blocks": [
+    {
+      "role": "step",
+      "text": "01 / Volatility Spike: Health factor compresses under unattended adverse price movement.",
+      "emphasis": "muted"
+    },
+    {
+      "role": "step",
+      "text": "02 / 1.1x Boundary: Autonomous risk policies activate before collateral reaches parity.",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "step",
+      "text": "03 / Floor Division: mul_wad_down executes to prevent rounding in the protocol's favour.",
+      "emphasis": "primary"
+    },
+    {
+      "role": "step",
+      "text": "04 / Isolated Settlement: Distress is fully resolved without cross-margin contagion.",
+      "emphasis": "secondary"
+    }
+  ],
+  "focal": {
+    "block_index": 2,
+    "reason": "Floor division is the core mathematical guarantee preventing bias during liquidation."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

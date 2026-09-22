@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "Compartmentalized Blast Radius",
+    "idea": "An architectural schematic showing isolated credit accounts as discrete structural cells. Inside one cell, an insolvency event is indicated with sharp technical hatch marks and an alert status, completely contained by heavy perimeter boundary walls. Neighboring cells show flat, calm operational telemetry with zero structural bleed or cross-contamination lines.",
+    "layout": "diagram",
+    "why": "This is the strongest visual argument because it directly translates 'containment architecture' into clear spatial engineering. Rather than abstract graphs, it proves how isolated boundaries physically prevent liquidation contagion from reaching innocent capital."
+  },
+  "all": [
+    {
+      "title": "Compartmentalized Blast Radius",
+      "idea": "An architectural schematic showing isolated credit accounts as discrete structural cells. Inside one cell, an insolvency event is indicated with sharp technical hatch marks and an alert status, completely contained by heavy perimeter boundary walls. Neighboring cells show flat, calm operational telemetry with zero structural bleed or cross-contamination lines.",
+      "layout": "diagram",
+      "why": "This is the strongest visual argument because it directly translates 'containment architecture' into clear spatial engineering. Rather than abstract graphs, it proves how isolated boundaries physically prevent liquidation contagion from reaching innocent capital."
+    },
+    {
+      "title": "The Cascade Firewall",
+      "idea": "A vertical three-phase sequence detailing an asset failure event: Phase 1 shows collateral depegging inside a specific margin perimeter; Phase 2 demonstrates the liquidation deficit terminating abruptly at the account wall; Phase 3 shows adjacent protocol capital operating normally with zero bad debt socialization.",
+      "layout": "sequence",
+      "why": "Demonstrates the step-by-step mechanical termination of contagion, offering a clear procedural walkthrough of how isolation stops systemic domino effects."
+    },
+    {
+      "title": "Contagion Is an Architecture",
+      "idea": "A stark, high-contrast editorial poster framing a single uncompromising statement: 'Contagion is an architectural decision, not a market inevitability.' Set in bold technical typography with micro-metadata and ledger coordinate markings reinforcing institutional engineering rigor.",
+      "layout": "quote",
+      "why": "Strips away decorative charts to deliver an authoritative point-of-view that challenges DeFi's accepted norm of shared bad debt socialization."
+    }
+  ],
+  "novelty_note": ""
+}

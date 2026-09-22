@@ -1,0 +1,109 @@
+{
+  "run_id": "RUN_RESEARCH_BINANCE-CEX_1789971058",
+  "entity": "binance-cex",
+  "elapsed_seconds": 9.69,
+  "scraped_pages_count": 2,
+  "claims_extracted_count": 0,
+  "profile": {
+    "entity_id": "binance-cex",
+    "retrieved_at": "2026-09-21T06:11:08.281580+00:00",
+    "product": {
+      "name": "Binance-cex",
+      "description": "",
+      "features": [
+        "Core lending and margin borrowing capabilities"
+      ],
+      "chains_supported": [
+        "Ethereum"
+      ],
+      "sdk_api_available": false
+    },
+    "audience": {
+      "target_segments": [
+        "DeFi Allocators",
+        "Borrowers"
+      ],
+      "evidence_status": "INFERRED"
+    },
+    "positioning": {
+      "headline": "",
+      "category": "LENDING_AND_CREDIT",
+      "value_proposition": "Composable decentralized credit",
+      "source_hierarchy_level": 2
+    },
+    "conversion": {
+      "primary_cta_links": [],
+      "documentation_url": "https://docs.binance-cex.fi"
+    },
+    "proof": {
+      "metrics": [],
+      "confidence": "MEDIUM"
+    },
+    "visual": {
+      "screenshots": [],
+      "design_patterns": [
+        "Dark obsidian/slate UI",
+        "Modern glassmorphism tables"
+      ]
+    },
+    "sources_crawled": [
+      "https://binance-cex.fi",
+      "https://docs.binance-cex.fi"
+    ]
+  },
+  "claims": [],
+  "trace": [
+    {
+      "step": "LEVEL_1_MARKET_DISCOVERY",
+      "tool": "urllib.request -> api.llama.fi",
+      "target": "https://api.llama.fi/protocol/binance-cex",
+      "status": "NOT_OBSERVED",
+      "data_summary": "No live DeFiLlama record"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://binance-cex.fi",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://docs.binance-cex.fi",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "EVIDENCE_NORMALIZATION",
+      "claims_extracted": 0,
+      "profile_dimensions_populated": [
+        "entity_id",
+        "retrieved_at",
+        "product",
+        "audience",
+        "positioning",
+        "conversion",
+        "proof",
+        "visual",
+        "sources_crawled"
+      ],
+      "status": "NORMALIZED"
+    },
+    {
+      "step": "BRAIN_DB_INTEGRATION",
+      "evidence_records_appended": 0,
+      "opportunities_derived": 1,
+      "status": "COMMITTED"
+    }
+  ],
+  "brain_sync": {
+    "evidence_added": 0,
+    "opportunities_added": 1
+  },
+  "duration": 9.69
+}

@@ -1,0 +1,13 @@
+{
+  "id": "CPY-d4edfe06db816ac3",
+  "strategy_id": "STR-167492a4d345e216",
+  "channel": "x",
+  "hook": "Leverage is easy. Not getting liquidated is the hard part.",
+  "body": "When collateral declines, unmonitored positions risk falling into bad debt before a protocol can react. On Vanna, risk is bounded structurally. A priced account with debt must maintain a health factor strictly above 1.1 to be considered healthy. Once an account reaches or drops below 1.1, it becomes a liquidation candidate. It is marked as eligible for liquidation subject to oracle, configuration, funding, and execution checks to isolate the position before undercollateralization spreads.",
+  "thread": [
+    "Leverage is easy. Not getting liquidated is the hard part. When collateral values decline, unmonitored positions risk falling into bad debt before a protocol can intervene.",
+    "On Vanna, risk is bounded structurally. A priced account with debt must maintain a health factor strictly above 1.1 to be considered healthy.",
+    "At or below 1.1, the account becomes a liquidation candidate. It is eligible for liquidation subject to oracle, configuration, funding, and execution checks to isolate the failure mode."
+  ],
+  "claims": []
+}

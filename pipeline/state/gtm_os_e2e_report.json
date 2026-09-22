@@ -1,0 +1,33 @@
+{
+  "report_timestamp": "2026-09-19T08:54:55.869280+00:00",
+  "verdict": "GTM_OS_EMPIRICALLY_VERIFIED",
+  "scenarios_tested": 20,
+  "scenarios_passed": 20,
+  "scenarios_failed": 0,
+  "canonical_intelligence_root": "D:\\marketing intelligence system\\intelligence",
+  "state_machine_transitions_verified": [
+    "INGESTED",
+    "EVIDENCE_VALIDATED",
+    "STRATEGY_CREATED",
+    "MACHINE_SELECTED",
+    "CAMPAIGN_CREATED",
+    "CONTENT_CREATED",
+    "CREATIVE_CREATED",
+    "REVIEWED",
+    "WAITING_FOR_HUMAN"
+  ],
+  "terminal_states_verified": [
+    "NO_ACTION",
+    "HUMAN_REVIEW_REQUIRED",
+    "KILLED"
+  ],
+  "safety_firewalls_verified": [
+    "ClaimEvidenceGate: 5 claim types & first-mover block",
+    "GTMMachineLibrary: Empirical evidence thresholds",
+    "ChannelReviewer: Cross-platform distinctness & provenance",
+    "CreativeValidator: Anti-slop & generator bypass check",
+    "TelegramApprovalGate: Mandatory founder decision card"
+  ],
+  "performance_discipline": "Strict null != 0 typing enforced",
+  "provenance_chain_integrity": "100% verified"
+}

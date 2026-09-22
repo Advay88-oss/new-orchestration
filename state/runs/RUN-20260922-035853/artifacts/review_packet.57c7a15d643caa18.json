@@ -1,0 +1,95 @@
+{
+  "run_id": "RUN-20260922-035853",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "Pooled lending models risk systemic spillover when protocol deposits outgrow local exchange liquidity.",
+  "body": "Blend TVL is $157,161,882 while Soroswap TVL is $1,238,140, alongside a ledger capacity usage of 0.08. When secondary market depth is thin relative to total debt, liquidation shortfalls in shared pools dilute all depositors. This failure mode cannot spread across unrelated assets when risk is strictly isolated. Compartmentalized credit architecture does not remove liquidation loss, but it restricts shortfalls to the affected silo, preventing drawdowns from propagating across the broader ecosystem.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-035853_r1.png",
+  "visual_accepted": true,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "Pooled lending models risk systemic spillover when protocol deposits outgrow local exchange liquidity.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "When secondary market depth is thin relative to total debt, liquidation shortfalls in shared pools dilute all depositors.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "This failure mode cannot spread across unrelated assets when risk is strictly isolated.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Compartmentalized credit architecture does not remove liquidation loss.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Compartmentalized credit architecture restricts shortfalls to the affected silo.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Compartmentalized credit architecture prevents drawdowns from propagating across the broader ecosystem.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 9,
+    "by_status": {
+      "verified": 3,
+      "unverified": 0,
+      "unsupported": 6,
+      "refuted": 0
+    },
+    "blocking": [
+      "Pooled lending models risk systemic spillover when protocol deposits outgrow local exchange liquidity.",
+      "When secondary market depth is thin relative to total debt, liquidation shortfalls in shared pools dilute all depositors.",
+      "This failure mode cannot spread across unrelated assets when risk is strictly isolated.",
+      "Compartmentalized credit architecture does not remove liquidation loss.",
+      "Compartmentalized credit architecture restricts shortfalls to the affected silo.",
+      "Compartmentalized credit architecture prevents drawdowns from propagating across the broader ecosystem."
+    ]
+  }
+}

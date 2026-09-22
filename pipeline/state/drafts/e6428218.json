@@ -1,0 +1,47 @@
+{
+  "draft_id": "e6428218",
+  "message_id": 291,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T12:21:03Z",
+  "sent_unix": 1787228460,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "e6428218",
+    "draft_id": "05a53070",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Leverage is easy. Surviving the 3 AM wick is the hard part. Siloed accounts liquidate you in pieces. Vanna pools your collateral, using strong assets to shield volatile ones. One health factor—backed by our strict 1.1x borrow guard: (C+B)/(D+B) >= 1.1.",
+    "final_body": "Leverage is easy. Surviving the 3 AM wick is the hard part. Siloed accounts liquidate you in pieces. Vanna pools your collateral, using strong assets to shield volatile ones. One health factor—backed by our strict 1.1x borrow guard: (C+B)/(D+B) >= 1.1.",
+    "final_hook": "Leverage is easy. Surviving the",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "infographic",
+      "headline": "The liquidation gap.",
+      "emphasis_phrase": "10% safety buffer",
+      "subhead": "Why Vanna floors the liquidation threshold at 1.1x instead of 1.0x.",
+      "data": [
+        {
+          "label": "Oracle Cadence",
+          "value": "~5-Minute Reflector",
+          "note": "The 10% buffer absorbs price slippage and latency during market volatility."
+        },
+        {
+          "label": "Liquidation Fee",
+          "value": "0%",
+          "note": "No current liquidation fees; all debt clears in a single transaction."
+        },
+        {
+          "label": "Collateral Pooling",
+          "value": "Unified Buffer",
+          "note": "Stable assets shield volatile ones to protect the aggregate health factor."
+        }
+      ],
+      "disclaimer": "Vanna is currently on testnet. No mainnet, token, or active TVL exists."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T12:20:42Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

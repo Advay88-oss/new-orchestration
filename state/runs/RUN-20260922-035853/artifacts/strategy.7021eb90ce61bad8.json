@@ -1,0 +1,11 @@
+{
+  "id": "STR-35972379f5efbbce",
+  "opportunity_id": "OPP-36a84d7b3872cc0c",
+  "audience": "Stellar DeFi depositors and borrowers participating in pooled lending protocols",
+  "narrative_arc": "risk_relief",
+  "problem_statement": "Borrowers and lenders in shared pools bear systemic exposure when protocol TVL dwarfs local DEX liquidity, creating severe liquidation contagion risks during pool-wide drawdowns.",
+  "angle": "With Blend TVL at $157.16M compared to just $1.24M on Soroswap, pooled lending structures on Soroban create outsized contagion risks during liquidation cascades; however, because the provided data is limited to TVL snapshots and a 0.08 ledger capacity without explicit bad debt metrics, our argument must focus strictly on the sheer liquidity imbalance rather than proven insolvencies.",
+  "evidence_ids": [
+    "SIG-36a84d7b3872cc0c"
+  ]
+}

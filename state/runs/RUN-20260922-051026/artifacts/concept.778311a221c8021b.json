@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The Illiquid Liquidation Trap",
+    "idea": "A vertical four-stage architectural audit schematic printed in stark monochrome with safety-amber warning rules. Step 01: Collateral Seizure ($159M theoretical TVL triggered on debt threshold breach). Step 02: Exit Funneling (Liquidator routes seized collateral into primary onchain AMM). Step 03: The $1.2M Liquidity Wall (Available DEX depth exhausts instantly; slippage spikes past liquidation incentive). Step 04: Bad Debt Crystallization (Underwater loans stall, converting unliquidated positions into systemic pool insolvency). Rendered with hairline drafting rules, micro-callouts, and precise data tables instead of generic cards or icons.",
+    "layout": "sequence",
+    "why": "Recommended. Sequence directly articulates the kinetic failure mode described in the thesis: that liquidation is an active mechanical circuit that collapses at the swap step, not an abstract balance sheet metric. It has not been used in any recent assets and provides an airtight visual demonstration of how localized illiquidity becomes systemic bad debt."
+  },
+  "all": [
+    {
+      "title": "The Illiquid Liquidation Trap",
+      "idea": "A vertical four-stage architectural audit schematic printed in stark monochrome with safety-amber warning rules. Step 01: Collateral Seizure ($159M theoretical TVL triggered on debt threshold breach). Step 02: Exit Funneling (Liquidator routes seized collateral into primary onchain AMM). Step 03: The $1.2M Liquidity Wall (Available DEX depth exhausts instantly; slippage spikes past liquidation incentive). Step 04: Bad Debt Crystallization (Underwater loans stall, converting unliquidated positions into systemic pool insolvency). Rendered with hairline drafting rules, micro-callouts, and precise data tables instead of generic cards or icons.",
+      "layout": "sequence",
+      "why": "Recommended. Sequence directly articulates the kinetic failure mode described in the thesis: that liquidation is an active mechanical circuit that collapses at the swap step, not an abstract balance sheet metric. It has not been used in any recent assets and provides an airtight visual demonstration of how localized illiquidity becomes systemic bad debt."
+    },
+    {
+      "title": "The Solvency Illusion",
+      "idea": "A brutalist editorial layout dominated by heavy, ultra-condensed archival typography in stark charcoal and bone white. The central statement reads: 'A $159M credit protocol backed by $1.2M in exchange depth is not credit expansion—it is queued insolvency.' Encircling the statement are micro-engraved audited contract references, block heights, and a sparse legal-ledger sub-line detailing the verified 128:1 collateral-to-exit disparity. Zero decorative clutter; the physical gravity of the typography delivers an uncompromised institutional warning.",
+      "layout": "quote",
+      "why": "Directly confronts vanity metrics by stripping away visual rationalizations. The severe editorial treatment reads like an official financial risk dispatch rather than crypto marketing, demanding immediate scrutiny of protocol TVL claims."
+    },
+    {
+      "title": "The 128:1 Clearance Deficit",
+      "idea": "A high-contrast data placard anchored by an oversized, stark monospaced '128 : 1' ratio occupying the upper half of the 1:1 canvas. Beneath, an austere institutional formula breakdown: '$159,033,033 Lending TVL vs. $1,239,028 AMM Depth'. Running along the bottom are two horizontal precision mechanical calipers: the upper bar stretches edge-to-edge across the frame, while the lower caliper is clamped at an abrupt 0.78% tick mark to physically demonstrate the catastrophic shortfall in liquidation bandwidth.",
+      "layout": "hero_stat",
+      "why": "Distills the systemic fragility into a single devastating metric. The extreme physical contrast between the full-width scale and the fractional caliper forces instant comprehension of the liquidation bottleneck without needing complex charts."
+    }
+  ],
+  "novelty_note": ""
+}

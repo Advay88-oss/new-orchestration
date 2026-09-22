@@ -1,0 +1,8 @@
+{
+  "type": "stat_card",
+  "content_category": "TRUST_RISK",
+  "headline": "Liquidation triggers at 1.1, not 1.0.",
+  "hero": { "value": "1.1", "label": "health factor floor" },
+  "support": "Because a liquidation costs money. Slippage and oracle lag have to come from somewhere — that 10% is the somewhere.",
+  "footer": "docs.vanna.finance"
+}

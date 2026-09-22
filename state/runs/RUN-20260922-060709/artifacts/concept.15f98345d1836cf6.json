@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The Binary Threshold",
+    "idea": "A high-precision split layout dividing the canvas into two discrete technical zones along an exact vertical seam: Left pane displays 'HEALTHY [HF > 1.100]' with stable collateral ratios and nominal debt telemetry; Right pane displays 'LIQUIDATION CANDIDATE [HF <= 1.100]' showing an immediate air-gapped containment barrier with four sequential validation gates (Oracle, Config, Funding, Execution) locked in place to isolate contagion before bad debt touches the system.",
+    "layout": "comparison",
+    "why": "This is the recommended concept because it cleanly dramatizes the mathematical binary at the heart of the mechanism: solvency is not a gradient on Vanna, but an enforced structural boundary separating active positions from isolated liquidation candidates."
+  },
+  "all": [
+    {
+      "title": "The Binary Threshold",
+      "idea": "A high-precision split layout dividing the canvas into two discrete technical zones along an exact vertical seam: Left pane displays 'HEALTHY [HF > 1.100]' with stable collateral ratios and nominal debt telemetry; Right pane displays 'LIQUIDATION CANDIDATE [HF <= 1.100]' showing an immediate air-gapped containment barrier with four sequential validation gates (Oracle, Config, Funding, Execution) locked in place to isolate contagion before bad debt touches the system.",
+      "layout": "comparison",
+      "why": "This is the recommended concept because it cleanly dramatizes the mathematical binary at the heart of the mechanism: solvency is not a gradient on Vanna, but an enforced structural boundary separating active positions from isolated liquidation candidates."
+    },
+    {
+      "title": "The 1.100 Datum Line",
+      "idea": "A stark, architectural layout dominated by the oversized metric '1.100 HF' rendered in monolithic tabular numerals. A razor-sharp technical datum line cuts horizontally through the canvas directly beneath the number, with precise micro-annotations indicating the exact inflection point where debt exposure ceases to be considered healthy and enters immediate protocol-enforced containment.",
+      "layout": "hero_stat",
+      "why": "Distills the protocol's risk philosophy into a single unyielding number that institutional risk desks can instantly parse and remember as the hard floor against undercollateralization."
+    },
+    {
+      "title": "The Reality of Borrowing",
+      "idea": "An austere editorial layout leading with the hook in heavy, uncompromising sans-serif: 'Leverage is easy. Not getting liquidated is the hard part.' Directly below the statement, an austere monospace technical panel outlines Vanna's structural answer: a hard floor at strictly > 1.10 HF with automated candidate isolation.",
+      "layout": "quote",
+      "why": "Cuts through standard crypto hype by acknowledging the trader's actual operational anxiety, positioning Vanna's automated containment as the institutional antidote to unexpected liquidations."
+    }
+  ],
+  "novelty_note": ""
+}

@@ -1,0 +1,10 @@
+{
+  "id": "JOB-20260922044137.-e74e8d",
+  "directive": "why pooled lending spreads one bad position to everyone",
+  "created_at": "2026-09-22T04:41:37.271Z",
+  "attempts": 1,
+  "idempotency_key": null,
+  "requested_by": "mission-control",
+  "run_id": "RUN-20260922-044140",
+  "last_error": null
+}

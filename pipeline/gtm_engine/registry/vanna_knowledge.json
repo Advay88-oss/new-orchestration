@@ -1,0 +1,71 @@
+{
+  "protocol": "Vanna Protocol",
+  "tagline": "Composable Credit infra for any DeFi",
+  "docs_source": "https://docs.vanna.finance",
+  "documentation_index": "https://docs.vanna.finance/llms.txt",
+  "network": {
+    "primary": "Stellar Soroban",
+    "secondary": "Base",
+    "current_status": "Pre-mainnet (Stellar Testnet)",
+    "wallet": "Freighter"
+  },
+  "architecture": {
+    "contract_count": 14,
+    "layer_stack": [
+      "User / Integrator Entrypoints (AccountManager, LendingPools)",
+      "Smart Account Execution Layer (SmartAccount sandboxes)",
+      "Safety & Risk Gates (RiskEngine, RateModel)",
+      "Core Accounting & Tokens (vTokens, TrackingTokens, Registry)"
+    ],
+    "key_contracts": {
+      "AccountManager": "Single entry point for margin accounts: create_account, deposit_collateral_tokens, borrow, repay, liquidate",
+      "SmartAccount": "Dedicated isolated smart contract per user; executes composable calls to external protocols without shared state",
+      "LendingPoolXLM": "Native pool for XLM deposits, borrow draws, and vXLM mint/redemption",
+      "LendingPoolUSDC": "Native pool for USDC deposits, borrow draws, and vUSDC mint/redemption",
+      "RiskEngine": "Stateless health checker enforcing borrow/withdraw gates and collateral valuation",
+      "RateModel": "Computes per-second borrow rates as a polynomial function of pool utilization",
+      "vTokens": "Fungible yield-accruing tokens (vXLM, vUSDC) representing LP pool shares",
+      "TrackingTokens": "Tracks external protocol positions (Blend b-tokens, Aquarius/Soroswap LP tokens) per account",
+      "Registry": "On-chain address book for dynamic contract resolution",
+      "Mercury": "Indexer for real-time contract events and historical liquidations"
+    }
+  },
+  "value_props": {
+    "for_lps": {
+      "product": "Earn",
+      "mechanism": "Deposit assets (XLM, USDC) into lending pools, receive vTokens, earn passive yield from continuous borrower interest + shared liquidation penalties",
+      "rate_dynamics": "Supply APY adjusts dynamically via polynomial utilization curve; higher borrow demand increases APY automatically"
+    },
+    "for_traders": {
+      "product": "Smart Margin Account",
+      "mechanism": "Deposit collateral (XLM or USDC) to borrow up to 10x leverage",
+      "isolation": "Capital remains inside the dedicated on-chain smart account; no cross-account contamination",
+      "composability": "Deploy borrowed funds into external DeFi strategies (Blend lending, Aquarius liquidity pools, Soroswap swaps)"
+    }
+  },
+  "risk_engine_parameters": {
+    "health_factor_formula": "Total Collateral Value / Total Debt Value",
+    "liquidation_floor": "1.1x Health Factor",
+    "liquidation_mechanism": "Permissionless liquidate() calls via AccountManager when HF <= 1.1x; penalty shared between liquidator and lending pool",
+    "key_dashboard_metrics": [
+      "Health Factor",
+      "Net Available Collateral (Equity)",
+      "Collateral Left Before Liquidation"
+    ]
+  },
+  "claim_safety_rules": {
+    "tier_a_quotable": [
+      "Composable credit infrastructure for DeFi",
+      "Up to 10x leverage on collateral",
+      "Dedicated smart account sandboxes per user",
+      "Strict 1.1x health factor floor",
+      "Dual-sided: Earn pools (LPs) + Margin accounts (Traders)",
+      "Deployable composably to Blend, Aquarius, Soroswap on Stellar Soroban"
+    ],
+    "tier_c_future_or_prohibited": [
+      "NO mainnet claims (currently on Stellar Testnet only)",
+      "NO token launch or TVL claims (pre-mainnet, zero production TVL)",
+      "NO audit completion claims until formal audit reports are published"
+    ]
+  }
+}

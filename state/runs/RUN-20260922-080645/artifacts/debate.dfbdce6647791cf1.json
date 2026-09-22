@@ -1,0 +1,118 @@
+{
+  "strategy": {
+    "id": "STR-12c92ea115929780",
+    "opportunity_id": "OPP-55124bd3b356d5bb",
+    "audience": "DeFi traders, yield strategists, and institutional borrowers seeking optimal capital productivity across multiple credit",
+    "narrative_arc": "capital_efficiency",
+    "problem_statement": "Isolated lending pools force capital fragmentation by requiring users to deposit separate, single-purpose collateral into individual pools for each borrow, locking up idle assets that could otherwise support multiple positions simultaneously.",
+    "angle": "Posting collateral once into a unified margin SmartAccount allows the same capital to back borrows across separate lending pools and approved external protocols, maximizing capital efficiency because account health is assessed across the entire margin account and borrowed funds retained in the account are counted on both sides under the self-collateralization principle.",
+    "evidence_ids": [
+      "EV-59eca1bff3bb",
+      "EV-087b2bc90075",
+      "EV-f56911745aa9",
+      "EV-8447ac0462b9",
+      "EV-c569e112e484"
+    ]
+  },
+  "winner": "capital_efficiency",
+  "briefs": [
+    {
+      "arc": "capital_efficiency",
+      "ok": true,
+      "problem_statement": "Isolated lending pools force capital fragmentation by requiring users to deposit separate, single-purpose collateral into individual pools for each borrow, locking up idle assets that could otherwise support multiple positions simultaneously.",
+      "angle": "Posting collateral once into a unified margin SmartAccount allows the same capital to back borrows across separate lending pools and approved external protocols, maximizing capital efficiency because account health is assessed across the entire margin account and borrowed funds retained in the account are counted on both sides under the self-collateralization principle.",
+      "audience": "DeFi traders, yield strategists, and institutional borrowers seeking optimal capital productivity across multiple credit positions on Stellar.",
+      "evidence_used": [
+        "EV-59eca1bff3bb",
+        "EV-087b2bc90075",
+        "EV-f56911745aa9",
+        "EV-8447ac0462b9",
+        "EV-c569e112e484"
+      ],
+      "strongest_objection": "Assessing account health holistically across the entire margin account means an underperforming position or borrow from one pool can trigger liquidations that compromise collateral backing all other positions, forfeiting the default isolation that protects independent positions in siloed pools.",
+      "model": "gemini-3.8-flash",
+      "input_tokens": 1180,
+      "output_tokens": 1174,
+      "cost_usd": 0.0,
+      "cost_known": false
+    },
+    {
+      "arc": "risk_relief",
+      "ok": true,
+      "problem_statement": "In traditional multi-pool borrowing, fragmented collateral leads to premature liquidations on isolated drawdowns, while lenders face the systemic threat that a bad debt collapse in one asset pool will cascade across the entire protocol.",
+      "angle": "Composable margin eliminates fragmented liquidation risk by evaluating health across the entire unified margin account, while structurally containing systemic failure: borrowed capital cannot leave the account, lending pools are isolated contracts per asset so an issue in one cannot affect another, and bad debt is quarantined strictly within the affected pool by distributing shortfalls proportionally across its LPs.",
+      "audience": "Risk-sensitive margin borrowers and liquidity providers seeking insolvency protection across multi-pool positions on Stellar.",
+      "evidence_used": [
+        "EV-242efd139e65",
+        "EV-8447ac0462b9",
+        "EV-c569e112e484",
+        "EV-f56911745aa9",
+        "EV-f5b68fd2b708"
+      ],
+      "strongest_objection": "Evaluating health across the entire margin account creates cross-position contamination for the borrower: an extreme deficit in one position can degrade total account health and trigger the liquidation of otherwise healthy collateral across pools, whereas isolated pools would have capped the borrower's loss to a single position.",
+      "model": "gemini-3.8-flash",
+      "input_tokens": 1184,
+      "output_tokens": 1591,
+      "cost_usd": 0.0,
+      "cost_known": false
+    },
+    {
+      "arc": "agentic_credit",
+      "ok": true,
+      "problem_statement": "Autonomous agents have maturing payment rails to spend capital they hold, but they cannot safely borrow or take leveraged credit positions across separate isolated pools. When credit rails require managing disjointed collateral positions across multiple per-asset pools without unified risk boundaries, autonomous programs risk liquidation or unconstrained capital leakage.",
+      "angle": "Composable margin bridges the gap between agent payments and agent credit. By depositing collateral into a SmartAccount and borrowing across separate per-asset lending pools, an agent can manage multiple positions where account health is assessed across the entire margin account. Crucially, because borrowed capital cannot leave the margin account under the self-collateralization principle, autonomous programs receive policy-bounded credit rails that enable multi-pool borrowing without permitting capital flight.",
+      "audience": "Autonomous agent developers and DeFi automation engineers seeking programmatic, safe credit execution.",
+      "evidence_used": [
+        "EV-087b2bc90075",
+        "EV-891de4c980f7",
+        "EV-f56911745aa9",
+        "EV-e7cab9bb1182",
+        "EV-242efd139e65",
+        "EV-c569e112e484"
+      ],
+      "strongest_objection": "Composable margin across lending pools is primarily valued by existing human traders and liquidity providers for immediate capital efficiency, whereas agentic borrowing remains an early-stage concept without current high-volume autonomous adoption.",
+      "model": "gemini-3.8-flash",
+      "input_tokens": 1180,
+      "output_tokens": 1674,
+      "cost_usd": 0.0,
+      "cost_known": false
+    }
+  ],
+  "ruling": {
+    "winner": "capital_efficiency",
+    "reason": "The capital efficiency brief directly addresses the prompt ('explain composable margin across lending pools') by anchoring squarely on the core thesis of EV-59eca1bff3bb and accurately weaving in the structural mechanics (SmartAccount, holistic account health assessment across lending pools, and the self-collateralization principle under EV-c569e112e484) without extrapolating beyond the source records.",
+    "evidence_support": [
+      "EV-59eca1bff3bb",
+      "EV-087b2bc90075",
+      "EV-f56911745aa9",
+      "EV-8447ac0462b9",
+      "EV-c569e112e484"
+    ],
+    "rankings": [
+      {
+        "arc": "capital_efficiency",
+        "evidence_grounding": 10,
+        "argument_quality": 9,
+        "audience_fit": 9,
+        "note": "Flawlessly grounded in the provided documents. Every mechanism mentioned—unified margin SmartAccount, health assessment across the entire account, and self-collateralization—accurately reflects the evidence."
+      },
+      {
+        "arc": "risk_relief",
+        "evidence_grounding": 8,
+        "argument_quality": 8,
+        "audience_fit": 8,
+        "note": "Valid argument regarding pool isolation and bad debt distribution across LPs, but reframes the primary value of composable margin around systemic liquidation and contagion defense rather than cross-pool margin mechanics."
+      },
+      {
+        "arc": "agentic_credit",
+        "evidence_grounding": 8,
+        "argument_quality": 8,
+        "audience_fit": 7,
+        "note": "Grounds itself in EV-891de4c980f7 and EV-087b2bc90075, but bends the topic ('explain composable margin across lending pools') into a speculative niche case for autonomous agents."
+      }
+    ],
+    "unsupported_spotted": []
+  },
+  "judge_note": "",
+  "failed_strategists": []
+}

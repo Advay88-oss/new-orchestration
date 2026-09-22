@@ -1,0 +1,1112 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Reset & Canvas */
+* { 
+  margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+body {
+  width: 1080px;
+  height: 1080px;
+  overflow: hidden;
+  background: #06030B;
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+}
+
+/* Subtle Architectural Grid */
+.canvas-grid {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 80px 80px;
+  z-index: 0;
+}
+
+/* Minimal Directional Light (Restrained, no neon blurs) */
+.subtle-light {
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  top: -240px;
+  right: -200px;
+  background: radial-gradient(circle, rgba(112, 58, 230, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Viewport Frame */
+.viewport-frame {
+  position: relative;
+  z-index: 2;
+  width: 1080px;
+  height: 1080px;
+  display: flex;
+  flex-direction: column;
+  padding: 56px 64px 44px;
+}
+
+/* Top Navigation */
+.top-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+.vanna-logo {
+  height: 38px;
+  display: block;
+}
+.system-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 100px;
+}
+.active-pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #32EEE2;
+  box-shadow: 0 0 6px #32EEE2;
+}
+.tag-title {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: #A1A1AA;
+  letter-spacing: 0.08em;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.meta-kicker {
+  color: #9F7BEE;
+  font-weight: 700;
+}
+.meta-val {
+  color: #71717A;
+}
+
+/* Shared Typography Elements */
+.eyebrow-chip {
+  display: inline-block;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #32EEE2;
+  margin-bottom: 16px;
+}
+.hero-accent {
+  background: linear-gradient(135deg, #FFFFFF 20%, #FF54A6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   1. HERO STYLES
+   ────────────────────────────────────────────────────────────────────────── */
+.view-hero {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  align-items: center;
+  gap: 48px;
+  height: 800px;
+}
+.hero-headline {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+}
+.hero-lead {
+  font-size: 19px;
+  line-height: 1.5;
+  color: #D4D4D8;
+  margin-bottom: 36px;
+  max-width: 520px;
+}
+.hero-spec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.spec-row {
+  display: grid;
+  grid-template-columns: 44px 180px 1fr;
+  align-items: center;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 12px;
+}
+.spec-sym {
+  font-family: 'Geist Mono', monospace;
+  color: #9F7BEE;
+  font-weight: 700;
+}
+.spec-name {
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+}
+.spec-desc {
+  color: #A1A1AA;
+}
+.hero-visual-column {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.monolith-stage {
+  position: relative;
+  width: 360px;
+  height: 360px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.monolith-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.monolith-inner {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+.core-tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #32EEE2;
+  letter-spacing: 0.1em;
+}
+.core-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+.core-coords {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: #71717A;
+  margin-top: 4px;
+}
+.satellite {
+  position: absolute;
+  padding: 8px 14px;
+  background: #0C0617;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  z-index: 3;
+}
+.sat-top { top: 20px; right: 0; }
+.sat-bottom { bottom: 20px; left: 0; }
+.sat-kicker {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: #71717A;
+}
+.sat-data {
+  font-family: 'Geist Mono', monospace;
+  font-size: 20px;
+  font-weight: 800;
+  color: #32EEE2;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   2. TECHNICAL DIAGRAM STYLES (BORDERLESS)
+   ────────────────────────────────────────────────────────────────────────── */
+.view-technical {
+  display: flex;
+  flex-direction: column;
+  height: 800px;
+  justify-content: space-between;
+}
+.tech-headline {
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.tech-sub {
+  font-size: 18px;
+  color: #D4D4D8;
+}
+.diagram-viewport-borderless {
+  position: relative;
+  height: 520px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+.diagram-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.stage-node {
+  position: relative;
+  z-index: 3;
+  width: 220px;
+  background: #0B0614;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 18px;
+}
+.node-badge {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #32EEE2;
+  margin-bottom: 8px;
+}
+.node-badge.rose { color: #FF54A6; }
+.node-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+.node-subtitle {
+  font-size: 12px;
+  color: #A1A1AA;
+  margin-top: 4px;
+}
+.node-param {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  color: #71717A;
+  margin-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 8px;
+}
+.vault-container {
+  position: relative;
+  z-index: 3;
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.vault-perimeter {
+  border-bottom: 1px dashed rgba(50, 238, 226, 0.4);
+  width: 100%;
+  text-align: center;
+  margin-bottom: 8px;
+}
+.vault-security-tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: #32EEE2;
+  letter-spacing: 0.1em;
+}
+.vault-chassis {
+  width: 100%;
+  background: #0E071A;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+.vault-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  margin: 0 auto 10px;
+  box-shadow: 0 0 8px #10B981;
+}
+.vault-hero-name {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.vault-code {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  color: #32EEE2;
+  margin-top: 4px;
+}
+.vault-specs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 12px;
+}
+.spec-cell {
+  display: flex;
+  flex-direction: column;
+}
+.c-lbl {
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px;
+  color: #71717A;
+}
+.c-val {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+.vault-ports {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 14px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+}
+.port-tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: #FF54A6;
+}
+.port-tag.cyan {
+  color: #32EEE2;
+}
+.targets-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  z-index: 3;
+}
+.node-risk-stacked, .node-defi-stacked {
+  width: 250px;
+  background: #0B0614;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   3. DATA METRIC STYLES
+   ────────────────────────────────────────────────────────────────────────── */
+.view-metric {
+  display: flex;
+  flex-direction: column;
+  height: 800px;
+  justify-content: center;
+}
+.metric-headline {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.metric-sub {
+  font-size: 18px;
+  color: #D4D4D8;
+  margin-bottom: 36px;
+}
+.hero-metric-display {
+  display: flex;
+  align-items: baseline;
+  gap: 28px;
+  margin-bottom: 36px;
+}
+.big-number {
+  font-family: 'Geist Mono', monospace;
+  font-size: 140px;
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  background: linear-gradient(135deg, #FFFFFF 30%, #FF54A6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.number-caption {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #FFFFFF;
+}
+.number-sub-spec {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: #32EEE2;
+  margin-top: 6px;
+  letter-spacing: 0.08em;
+}
+.safety-field {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+.field-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+}
+.field-danger { color: #FC5457; }
+.field-threshold { color: #FF54A6; }
+.field-safe { color: #10B981; }
+.field-bar {
+  position: relative;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 100px;
+  display: flex;
+  overflow: visible;
+}
+.bar-danger {
+  width: 50%;
+  background: linear-gradient(90deg, #6B0E1E 0%, #FC5457 100%);
+  border-radius: 100px 0 0 100px;
+}
+.bar-warning {
+  width: 10%;
+  background: linear-gradient(90deg, #F59E0B 0%, rgba(245, 158, 11, 0.6) 100%);
+}
+.bar-safe {
+  width: 40%;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.4) 0%, #10B981 100%);
+  border-radius: 0 100px 100px 0;
+}
+.bar-threshold-marker {
+  position: absolute;
+  left: 55%;
+  top: -34px;
+  bottom: -12px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 4;
+}
+.threshold-pill {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  background: #FF007A;
+  color: #FFFFFF;
+  padding: 4px 10px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(255, 0, 122, 0.5);
+  margin-bottom: 2px;
+}
+.threshold-needle {
+  width: 3px;
+  height: 100%;
+  background: #FF007A;
+  box-shadow: 0 0 10px #FF007A;
+}
+.field-axis {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  color: #71717A;
+}
+.axis-highlight {
+  color: #FF54A6;
+  font-weight: 800;
+}
+.metric-detail-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 24px;
+}
+.strip-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.status-dot-green {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  box-shadow: 0 0 8px #10B981;
+}
+.strip-text {
+  font-size: 15px;
+  color: #D4D4D8;
+}
+.strip-code {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: #32EEE2;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   4. COMPARISON STYLES
+   ────────────────────────────────────────────────────────────────────────── */
+.view-comparison {
+  display: flex;
+  flex-direction: column;
+  height: 800px;
+  justify-content: space-between;
+}
+.cmp-title {
+  font-size: 46px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.cmp-sub {
+  font-size: 18px;
+  color: #D4D4D8;
+}
+.editorial-split {
+  display: grid;
+  grid-template-columns: 1fr 50px 1fr;
+  gap: 20px;
+  align-items: center;
+  margin: 30px 0;
+}
+.split-side {
+  display: flex;
+  flex-direction: column;
+}
+.side-kicker {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #FC5457;
+  margin-bottom: 12px;
+}
+.side-kicker.cyan {
+  color: #32EEE2;
+}
+.side-frame {
+  border-radius: 16px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.frame-fragile {
+  background: rgba(252, 84, 87, 0.04);
+  border: 1.5px dashed rgba(252, 84, 87, 0.5);
+}
+.frame-secure {
+  background: rgba(112, 58, 230, 0.08);
+  border: 1.5px solid rgba(50, 238, 226, 0.4);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}
+.cmp-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.row-sym {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  flex: none;
+}
+.cmp-row.bad .row-sym {
+  background: rgba(252, 84, 87, 0.15);
+  color: #FC5457;
+}
+.cmp-row.good .row-sym {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10B981;
+}
+.row-body strong {
+  font-size: 16px;
+  color: #FFFFFF;
+  display: block;
+  margin-bottom: 4px;
+}
+.row-body p {
+  font-size: 13px;
+  color: #A1A1AA;
+  line-height: 1.4;
+}
+.split-divider {
+  display: flex;
+  justify-content: center;
+}
+.vs-glyph {
+  font-family: 'Geist Mono', monospace;
+  font-size: 12px;
+  font-weight: 800;
+  color: #71717A;
+  padding: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   5. DIRECTIONAL LIQUIDITY PIPELINE STYLES (NO 4-CARD CLICHÉ)
+   ────────────────────────────────────────────────────────────────────────── */
+.view-network-pipeline {
+  display: flex;
+  flex-direction: column;
+  height: 800px;
+  justify-content: space-between;
+}
+.pipeline-title {
+  font-size: 44px;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 8px;
+}
+.pipeline-sub {
+  font-size: 18px;
+  color: #D4D4D8;
+}
+.pipeline-stage {
+  position: relative;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+.pipeline-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Origin Chassis (Left Side) */
+.origin-chassis {
+  position: relative;
+  z-index: 3;
+  width: 270px;
+  background: #0C0617;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+.origin-kicker {
+  font-family: 'Geist Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: #32EEE2;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.origin-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+.origin-sub {
+  font-size: 13px;
+  color: #A1A1AA;
+  margin-top: 2px;
+}
+.origin-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 18px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 12px;
+}
+.o-tag {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #FFFFFF;
+}
+.o-tag.cyan { color: #32EEE2; }
+.origin-footer {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #9F7BEE;
+  letter-spacing: 0.08em;
+}
+
+/* Right Side Open Protocol Rails */
+.target-rails-group {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 320px;
+}
+.protocol-rail {
+  background: #0B0614;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid #703AE6;
+  border-radius: 10px;
+  padding: 16px 20px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+.protocol-rail.rail-soroswap {
+  border-left-color: #32EEE2;
+}
+.protocol-rail.rail-aquarius {
+  border-left-color: #FF54A6;
+}
+.rail-meta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.r-badge {
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.r-badge.violet { background: rgba(112, 58, 230, 0.2); color: #9F7BEE; }
+.r-badge.cyan { background: rgba(50, 238, 226, 0.15); color: #32EEE2; }
+.r-badge.rose { background: rgba(255, 0, 122, 0.15); color: #FF54A6; }
+.r-status {
+  font-family: 'Geist Mono', monospace;
+  font-size: 8px;
+  color: #71717A;
+}
+.rail-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #FFFFFF;
+}
+.rail-desc {
+  font-size: 12px;
+  color: #A1A1AA;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   6. STATEMENT OBJECT (ISOMETRIC WIREFRAME BLUEPRINT)
+   ────────────────────────────────────────────────────────────────────────── */
+.view-statement-iso {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 48px;
+  height: 800px;
+}
+.statement-headline {
+  font-size: 54px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 16px;
+}
+.statement-sub {
+  font-size: 18px;
+  color: #D4D4D8;
+  margin-bottom: 36px;
+  line-height: 1.5;
+}
+.blueprint-features {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.bp-feature-row {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 12px;
+  align-items: baseline;
+}
+.bp-bullet {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: #32EEE2;
+}
+.bp-lead {
+  font-size: 14px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.04em;
+  display: block;
+  margin-bottom: 4px;
+}
+.bp-body {
+  font-size: 13px;
+  color: #A1A1AA;
+  line-height: 1.45;
+}
+.schematic-card {
+  background: #0B0614;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.schematic-header, .schematic-footer {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'Geist Mono', 'SF Mono', Consolas, monospace;
+  font-size: 10px;
+  color: #71717A;
+}
+.sch-id { color: #9F7BEE; }
+.schematic-viewport {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  margin: 0 auto;
+}
+.iso-svg {
+  width: 100%;
+  height: 100%;
+}
+.iso-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background: rgba(11, 6, 20, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 14px;
+}
+.iso-badge {
+  font-family: 'Geist Mono', 'SF Mono', Consolas, monospace;
+  font-size: 8px;
+  font-weight: 700;
+  color: #32EEE2;
+  letter-spacing: 0.06em;
+}
+.iso-val {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #FFFFFF;
+  display: block;
+  margin: 2px 0;
+}
+.iso-meta {
+  font-family: 'Geist Mono', 'SF Mono', Consolas, monospace;
+  font-size: 8px;
+  color: #71717A;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   7. LAUNCH MOMENT (HAIRLINE LEDGER — NO CARDS)
+   ────────────────────────────────────────────────────────────────────────── */
+.view-launch-billboard {
+  display: flex;
+  flex-direction: column;
+  height: 800px;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+}
+.launch-badge-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.milestone-badge {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  background: #FF007A;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 6px;
+  letter-spacing: 0.08em;
+}
+.commit-badge {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 6px 14px;
+  border-radius: 6px;
+  color: #32EEE2;
+}
+.launch-headline {
+  font-size: 68px;
+  font-weight: 800;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+  max-width: 860px;
+}
+.launch-subhead {
+  font-size: 20px;
+  color: #D4D4D8;
+  margin-bottom: 48px;
+  max-width: 680px;
+}
+.telemetry-ledger {
+  display: grid;
+  grid-template-columns: repeat(3, 260px);
+  gap: 24px;
+  margin-bottom: 44px;
+}
+.ledger-col {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  border-left: 2px solid rgba(255, 255, 255, 0.12);
+  padding-left: 18px;
+}
+.l-kicker {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #32EEE2;
+  margin-bottom: 6px;
+}
+.l-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 4px;
+}
+.l-desc {
+  font-size: 12px;
+  color: #A1A1AA;
+  line-height: 1.4;
+}
+.launch-verify-bar {
+  display: flex;
+  justify-content: space-between;
+  width: 800px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 20px;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  color: #A1A1AA;
+}
+.verify-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.seal-glyph {
+  color: #10B981;
+  font-weight: 800;
+}
+</style>
+</head>
+<body>
+  
+  <div class="subtle-light"></div>
+  <div class="viewport-frame">
+    
+    <nav class="top-nav">
+      <div class="brand-lockup">
+        <img src="data:image/png;base64,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" class="vanna-logo" alt="VANNA" />
+      </div>
+      <div class="system-tag">
+        <span class="active-pulse"></span>
+        <span class="tag-title">STELLAR TESTNET // GENESIS RELEASE</span>
+      </div>
+    </nav>
+    
+    
+    <div class="view-launch-billboard">
+      <div class="launch-badge-row">
+        <span class="milestone-badge">GENESIS DEPLOYMENT</span>
+        <span class="commit-badge">14 CONTRACTS VERIFIED ON-CHAIN</span>
+      </div>
+
+      <h1 class="launch-headline">Soroban Testnet:<br><span class="hero-accent">NOW LIVE.</span></h1>
+      <p class="launch-subhead">The first composable credit infrastructure on Stellar is deployed and open for SmartAccounts.</p>
+
+      <!-- Editorial Telemetry Ledger (Hairline Columns — NO CARDS) -->
+      <div class="telemetry-ledger">
+        <div class="ledger-col">
+          <span class="l-kicker">01 // PRIMITIVE</span>
+          <span class="l-val">SmartAccounts</span>
+          <p class="l-desc">Dedicated contract sandboxes providing isolated margin</p>
+        </div>
+        <div class="ledger-col">
+          <span class="l-kicker">02 // LIQUIDITY</span>
+          <span class="l-val">XLM • USDC Pools</span>
+          <p class="l-desc">Dual-sided lending with polynomial RateModel yield</p>
+        </div>
+        <div class="ledger-col">
+          <span class="l-kicker">03 // SOLVENCY</span>
+          <span class="l-val">1.1x Risk Floor</span>
+          <p class="l-desc">Block-speed telemetry indexed live by Mercury</p>
+        </div>
+      </div>
+
+      <div class="launch-verify-bar">
+        <div class="verify-left">
+          <span class="seal-glyph">&#10003;</span>
+          <span>COMPATIBLE WITH FREIGHTER WALLET • ZERO MAINNET TOKEN</span>
+        </div>
+        <div class="verify-right">docs.vanna.finance</div>
+      </div>
+    </div>
+    
+    
+    <footer class="bottom-nav">
+      <div class="meta-item">
+        <span class="meta-kicker">INFRASTRUCTURE</span>
+        <span class="meta-val">GENESIS DEPLOYMENT // FREIGHTER COMPATIBLE</span>
+      </div>
+      <div class="meta-item right">
+        <span class="meta-kicker">VERIFIED SOURCE</span>
+        <span class="meta-val">vanna.finance • Stellar Testnet Contract Directory</span>
+      </div>
+    </footer>
+    
+  </div>
+</body>
+</html>

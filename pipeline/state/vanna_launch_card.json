@@ -1,0 +1,33 @@
+{
+  "type": "infographic",
+  "headline": "Composable credit on Stellar.\nUp to 10x leverage without the chaos.",
+  "emphasis_phrase": "Up to 10x leverage",
+  "subhead": "Isolated SmartAccounts. Dynamic polynomial rate curves. 1.1x liquidation floor.",
+  "data": [
+    {
+      "value": "10x",
+      "label": "Max Leverage",
+      "note": "SmartAccount sandboxes keep capital isolated.",
+      "color": "blue"
+    },
+    {
+      "value": "1.1x",
+      "label": "Health Factor Floor",
+      "note": "Continuous RiskEngine indexing via Mercury.",
+      "color": "rose"
+    },
+    {
+      "value": "Dynamic APY",
+      "label": "Dual-Sided Yield",
+      "note": "vXLM & vUSDC pools earn polynomial rates + penalties.",
+      "color": "violet"
+    },
+    {
+      "value": "Native Soroban",
+      "label": "Ecosystem Direct",
+      "note": "Composable routing to Blend b-tokens & Soroswap DEX.",
+      "color": "blue"
+    }
+  ],
+  "disclaimer": "docs.vanna.finance • Stellar Testnet live • Freighter Wallet compatible"
+}

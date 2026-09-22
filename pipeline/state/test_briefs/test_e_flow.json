@@ -1,0 +1,15 @@
+{
+  "type": "flow",
+  "category": "AUTONOMOUS EXECUTION PIPELINE",
+  "headline": "Agent → Credit →\nDeFi execution.",
+  "emphasis_phrase": "DeFi execution.",
+  "subhead": "Autonomous capital lifecycle executed through verifiable Soroban sandboxes.",
+  "steps": [
+    {"num": "01", "name": "INTENT DEPLOY", "desc": "Autonomous agent or user signs capital mandate", "tech": "Freighter / ED25519"},
+    {"num": "02", "name": "SMARTACCOUNT", "desc": "Mints isolated sandbox with up to 10x leverage", "tech": "10x Credit Vault"},
+    {"num": "03", "name": "RISK ENGINE", "desc": "Enforces 1.1x Health Factor floor continuously", "tech": "Mercury Indexer"},
+    {"num": "04", "name": "DEFI ROUTING", "desc": "Deploys composably into Blend, Soroswap & Aquarius", "tech": "Atomic Soroban Ops"}
+  ],
+  "tag": "ATOMIC COMPOSABILITY // ZERO INTERMEDIARIES",
+  "source": "docs.vanna.finance • Developer SDK"
+}

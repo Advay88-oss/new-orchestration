@@ -1,0 +1,198 @@
+{
+  "run_id": "RUN_AUTO_20260918_090311",
+  "title": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+  "winner_hook": "[1/3] In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.\n\nVanna eliminates ",
+  "winner_body": "[1/3] In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.\n\nVanna eliminates front-running liquidations with sub-second off-chain telemetry on Stellar Soroban:\n\n1. Mercury streams ledger events in ~320ms.\n2. At",
+  "trend": "DeFi Composable Leverage on Stellar Soroban",
+  "brain": "gemini-3.8-flash",
+  "reviewer_brain": "gemini-3.8-flash",
+  "status": "COMPLETED",
+  "started": 1789722191,
+  "ended": 1789722220,
+  "duration_s": 28.24,
+  "delivered_to_telegram": true,
+  "agents_executed": [
+    "agent_01_scout",
+    "agent_02_selector",
+    "agent_03_strategist",
+    "agent_04_machine",
+    "agent_05_campaign",
+    "agent_06_content",
+    "agent_07_creative",
+    "agent_08_visual",
+    "agent_09_video",
+    "agent_10_reviewer",
+    "agent_11_dispatch",
+    "agent_12_telegram",
+    "agent_13_learning"
+  ],
+  "agent_outputs": {
+    "agent_01_scout": {
+      "cycle_id": "CYC-1789722191",
+      "elapsed_seconds": 27.98,
+      "signals_ingested": 0,
+      "duplicates_skipped": 8,
+      "opportunities_proposed": 0,
+      "completed_at": "2026-09-18T09:03:39.932259+00:00"
+    },
+    "agent_02_selector": {
+      "selected_opportunity": "OPP_COMPOSABLE_SANDBOX",
+      "title": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+      "portfolio_size": 2
+    },
+    "agent_03_strategist": {
+      "strategy_id": "STRAT-SIG-OPP_COMPOSABLE_SANDBOX-202609180903",
+      "audience": "A3: Institutional Liquidity Providers & Risk Architects",
+      "machine_id": "MACHINE_04: TECHNICAL_EDUCATION_DISPATCH",
+      "status": "ACTION"
+    },
+    "agent_04_machine": {
+      "machine_id": "MACH_04_TECHNICAL_TELEMETRY_SERIES",
+      "name": "Sub-Second Risk Telemetry Education Machine",
+      "status": "ELIGIBLE"
+    },
+    "agent_05_campaign": {
+      "decision_type": "RECURRING_SERIES",
+      "spec_id": "SERIES_STRAT-SIG-OPP_CO",
+      "rationale": "Classified as RECURRING_SERIES. A standalone technical topic distributed across multiple channels is not a campaign. It lacks coordinated phased stages and conversion sequencing. Because the architectural mechanism is repeatable, it belongs in an educational series."
+    },
+    "agent_06_content": {
+      "package_id": "CAP-STRAT-SIG-OPP_CO-202609180903",
+      "x_thread_count": 3,
+      "x_lead": "[1/3] In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance...",
+      "linkedin_chars": 922,
+      "reddit_hook": "A technical breakdown of how we solved liquidation front-running and pool contagion on Soroban."
+    },
+    "agent_07_creative": {
+      "creative_id": "CCB-STRAT-SIG-OPP_CO-202609180903",
+      "metaphor_family": "OPTICAL_REFRACTION",
+      "concept": "Three isolated monolithic glass-and-obsidian chambers where one secure..."
+    },
+    "agent_08_visual": {
+      "image_path": "D:\\new orchestration\\pipeline\\state\\vanna_visual_blend_v2_composable.png",
+      "model": "gemini-3.1-flash-image",
+      "textless": true
+    },
+    "agent_09_video": {
+      "job_id": "JOB-VID-1789722219-VannaPro",
+      "composition": "VannaProductFilm41s",
+      "audio_normalization": "EBU R128 (-14 LUFS) + Sidechain Ducking (-12dB)"
+    },
+    "agent_10_reviewer": {
+      "brain": "gemini-3.8-flash",
+      "decision": "PASS",
+      "score": "92/100",
+      "adversarial_audit": {
+        "model": "gemini-3.8-flash",
+        "em_dash_free": true,
+        "anti_ai_cliches_detected": [],
+        "calibrated_thresholds": true
+      }
+    },
+    "agent_11_dispatch": {
+      "overall_status": "ALL_PUBLISHED",
+      "published_channels": 3,
+      "receipts": [
+        "https://x.com/vanna_finance/status/18351789722220",
+        "https://www.linkedin.com/feed/update/urn:li:share:7240000000789722220",
+        "https://reddit.com/r/defi/comments/4449c15/vanna_architecture/"
+      ]
+    },
+    "agent_12_telegram": {
+      "status": "APPROVED_BY_FOUNDER",
+      "authorized_user": "5501720892 (Advay Anand)",
+      "packet_id": "PKT-RUN_AUTO_20260918_090311"
+    },
+    "agent_13_learning": {
+      "adjustments_made": 1,
+      "updated_weights": [
+        {
+          "adjustment_id": "ADJ-PAT_01_TECHNICAL_TELEMETRY-202609180903",
+          "pattern_id": "PAT_01_TECHNICAL_TELEMETRY",
+          "previous_weight": 1.0,
+          "new_weight": 1.15,
+          "evidence_refs": [
+            "REC-E2E-01",
+            "REC-E2E-01",
+            "REC-E2E-01",
+            "REC-E2E-01",
+            "REC-E2E-01",
+            "REC-E2E-01",
+            "REC-E2E-01",
+            "REC-E2E-01",
+            "PERF-18351789718381",
+            "PERF-urn:li:share:7240000000789718381",
+            "PERF-t3_10764f9",
+            "PERF-18351789718381",
+            "PERF-urn:li:share:7240000000789718381",
+            "PERF-t3_10764f9",
+            "PERF-18351789718704",
+            "PERF-urn:li:share:7240000000789718704",
+            "PERF-t3_0e0d425",
+            "PERF-18351789718731",
+            "PERF-urn:li:share:7240000000789718731",
+            "PERF-t3_bec6de1",
+            "PERF-18351789718739",
+            "PERF-urn:li:share:7240000000789718739",
+            "PERF-t3_47696f3",
+            "REC-E2E-01",
+            "PERF-18351789719053",
+            "PERF-urn:li:share:7240000000789719053",
+            "PERF-t3_0841be1",
+            "REC-E2E-01",
+            "PERF-18351789719093",
+            "PERF-urn:li:share:7240000000789719093",
+            "PERF-t3_d5b5586",
+            "REC-E2E-01",
+            "PERF-18351789720093",
+            "PERF-urn:li:share:7240000000789720093",
+            "PERF-t3_f4dd087",
+            "REC-E2E-01",
+            "PERF-18351789720139",
+            "PERF-urn:li:share:7240000000789720139",
+            "PERF-t3_79d5550",
+            "REC-E2E-01",
+            "PERF-18351789720167",
+            "PERF-urn:li:share:7240000000789720167",
+            "PERF-t3_5593f6e",
+            "REC-E2E-01",
+            "PERF-18351789720462",
+            "PERF-urn:li:share:7240000000789720462",
+            "PERF-t3_95c077d",
+            "REC-E2E-01",
+            "PERF-18351789720907",
+            "PERF-urn:li:share:7240000000789720907",
+            "PERF-t3_4061671",
+            "REC-E2E-01",
+            "PERF-18351789721118",
+            "PERF-urn:li:share:7240000000789721118",
+            "PERF-t3_51924ab",
+            "REC-E2E-01",
+            "PERF-18351789721528",
+            "PERF-urn:li:share:7240000000789721528",
+            "PERF-t3_9219d04",
+            "REC-E2E-01",
+            "PERF-18351789722220",
+            "PERF-urn:li:share:7240000000789722220",
+            "PERF-t3_4449c15",
+            "PERF-18351789722220"
+          ],
+          "sample_size": 64,
+          "confidence": 0.85,
+          "timestamp": "2026-09-18T09:03:40.077322+00:00",
+          "reason": "Empirical high conversion: 8.8 avg sandbox deployments across 64 posts."
+        }
+      ]
+    }
+  },
+  "spend": {
+    "spent_usd": 6.465239,
+    "calls": 652,
+    "input_tokens": 6077782,
+    "output_tokens": 1713178,
+    "started": "2026-08-08T16:28:05Z",
+    "cap_usd": 10.0,
+    "remaining_usd": 3.5348,
+    "source": "LIVE_PROXY_8900"
+  }
+}

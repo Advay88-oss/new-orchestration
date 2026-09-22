@@ -1,0 +1,47 @@
+{
+  "draft_id": "0b07429c",
+  "message_id": 292,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T12:23:26Z",
+  "sent_unix": 1787228603,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "0b07429c",
+    "draft_id": "cb422179",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Siloed credit pools trap capital. Split your assets across isolated accounts and you pay a fragmentation tax. Vanna unifies your entire book under one health factor—unlocking up to 10x borrowing capacity on testnet. Your collateral should do six jobs.",
+    "final_body": "Siloed credit pools trap capital. Split your assets across isolated accounts and you pay a fragmentation tax. Vanna unifies your entire book under one health factor—unlocking up to 10x borrowing capacity on testnet. Your collateral should do six jobs.",
+    "final_hook": "Siloed credit pools trap capital.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Siloed capital. Fractional power.",
+      "emphasis_phrase": "Unified Margin",
+      "subhead": "Why manage multiple health factors when you only need one?",
+      "data": [
+        {
+          "label": "Collateral Structure",
+          "value": "Unified Book",
+          "note": "Vanna cross-collateralizes all assets under one health factor vs Gearbox's isolated credit accounts."
+        },
+        {
+          "label": "Max Borrow Capacity",
+          "value": "Up to 10x",
+          "note": "Borrow guard holds (C+B)/(D+B) >= 1.1, allowing B <= 10C on testnet."
+        },
+        {
+          "label": "Capital Efficiency",
+          "value": "6x Multiplier",
+          "note": "Every asset backs every position simultaneously to eliminate idle capital."
+        }
+      ],
+      "disclaimer": "Vanna is currently live on testnet only. Visual representations are for illustrative purposes."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T12:23:06Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

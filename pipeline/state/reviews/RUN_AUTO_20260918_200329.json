@@ -1,0 +1,61 @@
+{
+  "run_id": "RUN_AUTO_20260918_200329",
+  "reviewer_brain": "gemini-3.8-flash",
+  "reviewer_brain_provider": "Google Cloud Vertex AI",
+  "reviewer_decision": "REJECT_VISUAL",
+  "decision": "REGENERATE",
+  "quality": "FAIL",
+  "overall_visual_score": "85/100",
+  "adversarial_humanizer_audit": {
+    "model": "gemini-3.8-flash",
+    "em_dash_free": true,
+    "anti_ai_cliches_detected": [],
+    "calibrated_thresholds": true
+  },
+  "scores": {
+    "content": 55,
+    "factual": 98,
+    "visual": 90,
+    "brand": 90,
+    "social": 85,
+    "novelty": 90
+  },
+  "score_breakdown": {
+    "message_fit": "55/100",
+    "brand_fit": "90/100",
+    "premiumness": "90/100",
+    "novelty": "90/100",
+    "technical_accuracy": "98/100"
+  },
+  "evaluations": {
+    "message_fit": "The visual does not clearly communicate the 1-to-10 capital expansion claim.",
+    "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+    "premiumness": "Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+    "novelty": "Original visual metaphor and composition; no template repetition detected.",
+    "technical_accuracy": "Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit."
+  },
+  "critical_failures": [
+    "MESSAGE FIT (55/100): The visual does not clearly communicate the 1-to-10 capital expansion claim."
+  ],
+  "failures": [
+    "MESSAGE FIT (55/100): The visual does not clearly communicate the 1-to-10 capital expansion claim."
+  ],
+  "reasons": [
+    "MESSAGE FIT (55/100): The visual does not clearly communicate the 1-to-10 capital expansion claim."
+  ],
+  "required_changes": [
+    "Ensure the graphic physically represents the exact mechanism stated in the copy."
+  ],
+  "required_revisions": [
+    "Ensure the graphic physically represents the exact mechanism stated in the copy."
+  ],
+  "why_it_passed": [],
+  "art_direction_action": "REGENERATE",
+  "art_direction_directives": [
+    "Ensure the graphic physically represents the exact mechanism stated in the copy."
+  ],
+  "template_repetition": false,
+  "visual_archetype": "technical_architecture",
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260918_200329_visual.png",
+  "timestamp": "2026-09-18T20:04:15.807427+00:00"
+}

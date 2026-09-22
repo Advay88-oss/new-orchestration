@@ -2,16 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "mission-control",
+      "name": "hermes-mission",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "mission-control"],
-      "port": 3100
-    },
-    {
-      "name": "buzz-web",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev", "--prefix", "D:/buzz/web", "--", "--host", "127.0.0.1", "--port", "5173"],
-      "port": 5173
+      "runtimeArgs": ["run", "dev", "--prefix", "hermes-mission"],
+      "port": 3000
     }
   ]
 }

@@ -1,0 +1,33 @@
+{
+  "layout": "diagram",
+  "headline": "Lending Balances Decouple from AMM Depth",
+  "subhead": "Distress remains isolated to pool slippage without network settlement bottlenecks.",
+  "blocks": [
+    {
+      "role": "stat",
+      "text": "159,033,033 USD Blend TVL",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "stat",
+      "text": "1,239,028 USD Soroswap TVL",
+      "emphasis": "primary"
+    },
+    {
+      "role": "label",
+      "text": "Stellar Settlement Layer: 0.1 Capacity Usage · 100 Base Fee",
+      "emphasis": "muted"
+    }
+  ],
+  "focal": {
+    "block_index": 1,
+    "reason": "The 1.2M AMM depth creates a severe liquidation throttle beneath 159M in lending market exposure."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

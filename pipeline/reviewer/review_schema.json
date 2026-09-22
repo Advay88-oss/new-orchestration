@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "VannaFinalReviewDecision",
+  "type": "object",
+  "required": [
+    "run_id",
+    "decision",
+    "scores",
+    "critical_failures",
+    "reasons",
+    "required_changes",
+    "visual_archetype",
+    "previous_archetypes_checked",
+    "template_repetition"
+  ],
+  "properties": {
+    "run_id": { "type": "string" },
+    "decision": {
+      "type": "string",
+      "enum": ["PASS", "REGENERATE", "FAIL"]
+    },
+    "scores": {
+      "type": "object",
+      "required": ["content", "factual", "visual", "brand", "social", "novelty"],
+      "properties": {
+        "content": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "factual": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "visual": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "brand": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "social": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "novelty": { "type": "integer", "minimum": 0, "maximum": 100 }
+      },
+      "additionalProperties": false
+    },
+    "critical_failures": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "reasons": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "required_changes": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "visual_archetype": { "type": "string" },
+    "previous_archetypes_checked": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "template_repetition": { "type": "boolean" },
+    "inspected_asset": { "type": "string" },
+    "timestamp": { "type": "string" }
+  },
+  "additionalProperties": false
+}

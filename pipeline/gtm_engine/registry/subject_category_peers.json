@@ -1,0 +1,221 @@
+[
+  {
+    "record_type": "SUBJECT_CATEGORY_PEERS",
+    "category_raw": "Uncollateralized Lending",
+    "member_count": 18,
+    "total_tvl_usd": 292442412.716372,
+    "members": [
+      {
+        "name": "Pareto Credit",
+        "slug": "pareto-credit",
+        "tvl_usd": 226216675.03810078,
+        "twitter": "paretocredit",
+        "url": "https://pareto.credit/",
+        "listedAt": 1752511411,
+        "in_prior_research": false
+      },
+      {
+        "name": "cSigma Finance",
+        "slug": "csigma-finance",
+        "tvl_usd": 21591638.53249798,
+        "twitter": "csigmafinance",
+        "url": "https://csigma.finance",
+        "listedAt": 1741612942,
+        "in_prior_research": false
+      },
+      {
+        "name": "Kasu",
+        "slug": "kasu",
+        "tvl_usd": 12518044.951604385,
+        "twitter": "kasuFinance",
+        "url": "https://kasu.finance/",
+        "listedAt": 1765221913,
+        "in_prior_research": false
+      },
+      {
+        "name": "3Jane Lending",
+        "slug": "3jane-lending",
+        "tvl_usd": 12404917.089175012,
+        "twitter": "3janexyz",
+        "url": "https://www.3jane.xyz/",
+        "listedAt": 1756929047,
+        "in_prior_research": false
+      },
+      {
+        "name": "Wildcat Protocol",
+        "slug": "wildcat-protocol",
+        "tvl_usd": 8202229.864352007,
+        "twitter": "WildcatFi",
+        "url": "https://wildcat.finance",
+        "listedAt": 1701425904,
+        "in_prior_research": false
+      },
+      {
+        "name": "Credit Coop",
+        "slug": "credit-coop",
+        "tvl_usd": 4588671.470524108,
+        "twitter": "creditcoop_xyz",
+        "url": "https://www.creditcoop.xyz/",
+        "listedAt": 1761266372,
+        "in_prior_research": false
+      },
+      {
+        "name": "Accountable",
+        "slug": "accountable",
+        "tvl_usd": 3746493.192731903,
+        "twitter": "AccountableData",
+        "url": "https://accountable.capital/",
+        "listedAt": 1764869673,
+        "in_prior_research": false
+      },
+      {
+        "name": "Goldfinch",
+        "slug": "goldfinch",
+        "tvl_usd": 2558595.289555209,
+        "twitter": "goldfinch_fi",
+        "url": "https://goldfinch.finance",
+        "listedAt": 1635105023,
+        "in_prior_research": false
+      },
+      {
+        "name": "Union Protocol",
+        "slug": "union-protocol",
+        "tvl_usd": 266042.2800409181,
+        "twitter": "unionprotocol",
+        "url": "https://union.finance",
+        "listedAt": 1655894184,
+        "in_prior_research": false
+      },
+      {
+        "name": "Clearpool Lending",
+        "slug": "clearpool-lending",
+        "tvl_usd": 234066.9349915943,
+        "twitter": "ClearpoolFin",
+        "url": "https://clearpool.finance",
+        "listedAt": 1649674184,
+        "in_prior_research": false
+      },
+      {
+        "name": "Ribbon Lend",
+        "slug": "ribbon-lend",
+        "tvl_usd": 52335.20340349481,
+        "twitter": "ribbonfinance",
+        "url": "https://www.ribbon.finance/",
+        "listedAt": null,
+        "in_prior_research": false
+      },
+      {
+        "name": "dAMM Finance",
+        "slug": "damm-finance",
+        "tvl_usd": 23074.532546813498,
+        "twitter": "dammfinance",
+        "url": "NO_URL",
+        "listedAt": 1662533692,
+        "in_prior_research": false
+      },
+      {
+        "name": "TrueFi",
+        "slug": "truefi",
+        "tvl_usd": 21735.484195679204,
+        "twitter": "TrueFiDAO",
+        "url": "NO_URL",
+        "listedAt": null,
+        "in_prior_research": false
+      },
+      {
+        "name": "Atlendis V1",
+        "slug": "atlendis-v1",
+        "tvl_usd": 16806.57236504014,
+        "twitter": "AtlendisLabs",
+        "url": "NO_URL",
+        "listedAt": 1656855449,
+        "in_prior_research": false
+      },
+      {
+        "name": "Atlendis V2",
+        "slug": "atlendis-v2",
+        "tvl_usd": 1013.1588431923004,
+        "twitter": "AtlendisLabs",
+        "url": "NO_URL",
+        "listedAt": 1714563532,
+        "in_prior_research": false
+      },
+      {
+        "name": "Avocado Fund",
+        "slug": "avocado-fund",
+        "tvl_usd": 46.968466893960986,
+        "twitter": "_avocadofund",
+        "url": "NO_URL",
+        "listedAt": 1786407687,
+        "in_prior_research": false
+      },
+      {
+        "name": "Clawloan",
+        "slug": "clawloan",
+        "tvl_usd": 15.155368767872853,
+        "twitter": "Clawloan",
+        "url": "https://clawloan.com",
+        "listedAt": 1770152755,
+        "in_prior_research": false
+      },
+      {
+        "name": "Micro Credit Project",
+        "slug": "micro-credit-project",
+        "tvl_usd": 10.997608317048797,
+        "twitter": "microcredittoken",
+        "url": "NO_URL",
+        "listedAt": 1728924133,
+        "in_prior_research": false
+      }
+    ],
+    "gearbox_present": false,
+    "snapshot_date": "2026-09-10",
+    "evidence_tier": "OBSERVED",
+    "derived_by": "code",
+    "source_url": "https://api.llama.fi/protocols"
+  },
+  {
+    "record_type": "SUBJECT_CATEGORY_PEERS",
+    "category_raw": "Collateral Markets",
+    "member_count": 1,
+    "total_tvl_usd": 442498730.2155156,
+    "members": [
+      {
+        "name": "Symbiotic",
+        "slug": "symbiotic",
+        "tvl_usd": 442498730.2155156,
+        "twitter": "symbioticfi",
+        "url": "https://symbiotic.fi",
+        "listedAt": 1718109849,
+        "in_prior_research": false
+      }
+    ],
+    "gearbox_present": false,
+    "snapshot_date": "2026-09-10",
+    "evidence_tier": "OBSERVED",
+    "derived_by": "code",
+    "source_url": "https://api.llama.fi/protocols"
+  },
+  {
+    "record_type": "SUBJECT_CATEGORY_PEERS",
+    "category_raw": "Secondary Debt Markets",
+    "member_count": 1,
+    "total_tvl_usd": 3922.595909734178,
+    "members": [
+      {
+        "name": "EulerDebt",
+        "slug": "eulerdebt",
+        "tvl_usd": 3922.595909734178,
+        "twitter": "SeaFi_vaults",
+        "url": "https://eulerdebt.com/",
+        "listedAt": 1764288651,
+        "in_prior_research": false
+      }
+    ],
+    "gearbox_present": false,
+    "snapshot_date": "2026-09-10",
+    "evidence_tier": "OBSERVED",
+    "derived_by": "code",
+    "source_url": "https://api.llama.fi/protocols"
+  }
+]

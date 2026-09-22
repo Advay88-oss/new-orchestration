@@ -1,0 +1,9 @@
+{
+  "id": "CPY-55ea5e04538669ef",
+  "strategy_id": "STR-d2bcb389f64555f0",
+  "channel": "x",
+  "hook": "Lending collateral on Stellar Soroban currently idles within isolated protocol silos.",
+  "body": "When deposited assets remain locked inside a single venue, they cannot back liquidity elsewhere. Composable credit routing allows collateral to support exposure across separate venues rather than sitting dormant. Blend holds $159,033,033 in TVL, while Soroswap holds $1,239,028 in TVL.",
+  "thread": [],
+  "claims": []
+}

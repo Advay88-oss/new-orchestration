@@ -1,6 +1,6 @@
 # Content learning — current insights
 
-_Generated 2026-08-19T06:31:04Z from 92 competitor/market signals
+_Generated 2026-09-10T18:41:24Z from 111 competitor/market signals
 and 0 published posts (0 with measured engagement)._
 
 **How to use this:** these are cross-company, feature-level learnings. Bias the
@@ -13,29 +13,29 @@ By hook type:
 
 | hook type | avg engagement | n |
 |---|---|---|
-| comparison | 797.7 | 12 |
-| stat-led | 187.7 | 54 |
+| comparison | 795.2 | 16 |
+| stat-led | 196.9 | 66 |
 | question | 165.5 | 12 |
-| statement | 50.6 | 13 |
+| statement | 48.5 | 16 |
 | contrarian | 2.0 | 1 |
 
 By theme:
 
 | theme | avg engagement | n |
 |---|---|---|
-| regulation | 980.8 | 4 |
-| infrastructure | 231.0 | 12 |
-| general | 216.5 | 68 |
-| security | 164.2 | 5 |
-| competitive | 50.5 | 2 |
-| trust | 12.0 | 1 |
+| regulation | 794.0 | 5 |
+| security | 260.1 | 8 |
+| general | 247.9 | 78 |
+| infrastructure | 191.0 | 15 |
+| credit | 101.0 | 1 |
+| competitive | 40.0 | 3 |
 
 By channel:
 
 | channel | avg engagement | n |
 |---|---|---|
-| twitter | 258.6 | 42 |
-| reddit | 229.8 | 50 |
+| reddit | 259.2 | 61 |
+| twitter | 253.4 | 50 |
 
 ## Our OWN published content
 

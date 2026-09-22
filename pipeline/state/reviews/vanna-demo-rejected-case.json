@@ -1,0 +1,53 @@
+{
+  "run_id": "vanna-demo-rejected-case",
+  "reviewer_decision": "REJECT_PRODUCT_CLAIM",
+  "decision": "REGENERATE",
+  "quality": "FAIL",
+  "overall_visual_score": "70/100",
+  "scores": {
+    "content": 90,
+    "factual": 35,
+    "visual": 45,
+    "brand": 90,
+    "social": 85,
+    "novelty": 90
+  },
+  "score_breakdown": {
+    "message_fit": "90/100",
+    "brand_fit": "90/100",
+    "premiumness": "45/100",
+    "novelty": "90/100",
+    "technical_accuracy": "35/100"
+  },
+  "evaluations": {
+    "message_fit": "Visual cleanly communicates the core narrative.",
+    "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+    "premiumness": "Generic 3D sphere with concentric rings detected. Overused AI crypto cliché.",
+    "novelty": "Original visual metaphor and composition; no template repetition detected.",
+    "technical_accuracy": "False network (Solana), premature mainnet, or prohibited 'zero risk' claim."
+  },
+  "critical_failures": [
+    "TECHNICAL ACCURACY (35/100): False network (Solana), premature mainnet, or prohibited 'zero risk' claim."
+  ],
+  "failures": [
+    "TECHNICAL ACCURACY (35/100): False network (Solana), premature mainnet, or prohibited 'zero risk' claim."
+  ],
+  "reasons": [
+    "TECHNICAL ACCURACY (35/100): False network (Solana), premature mainnet, or prohibited 'zero risk' claim."
+  ],
+  "required_changes": [
+    "Align copy strictly with verified Stellar Soroban, Blend BLUSDC, and isolated Margin Account claims."
+  ],
+  "required_revisions": [
+    "Align copy strictly with verified Stellar Soroban, Blend BLUSDC, and isolated Margin Account claims."
+  ],
+  "why_it_passed": [],
+  "art_direction_action": "REGENERATE",
+  "art_direction_directives": [
+    "Align copy strictly with verified Stellar Soroban, Blend BLUSDC, and isolated Margin Account claims."
+  ],
+  "template_repetition": false,
+  "visual_archetype": "generic_card",
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\bad_template_rendered.png",
+  "timestamp": "2026-09-15T09:53:50.240793+00:00"
+}

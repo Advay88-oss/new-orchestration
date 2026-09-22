@@ -1,0 +1,62 @@
+[
+  {
+    "slug": "aave-v3",
+    "change_30d": 25.27,
+    "tvl_then": 13846630603,
+    "tvl_now": 17345600792,
+    "basis": "TVL $13,846,630,603 -> $17,345,600,792 over 30d (+25.27%)",
+    "evidence_tier": "OBSERVED",
+    "from_cache": true,
+    "player_id": "aave"
+  },
+  {
+    "slug": "morpho-blue",
+    "change_30d": 23.25,
+    "tvl_then": 7865237182,
+    "tvl_now": 9693874180,
+    "basis": "TVL $7,865,237,182 -> $9,693,874,180 over 30d (+23.25%)",
+    "evidence_tier": "OBSERVED",
+    "from_cache": true,
+    "player_id": "morpho"
+  },
+  {
+    "slug": "curve-dex",
+    "change_30d": -1.62,
+    "tvl_then": 1289129927,
+    "tvl_now": 1268283146,
+    "basis": "TVL $1,289,129,927 -> $1,268,283,146 over 30d (-1.62%)",
+    "evidence_tier": "OBSERVED",
+    "from_cache": true,
+    "player_id": "curve"
+  },
+  {
+    "slug": "lido",
+    "change_30d": 34.76,
+    "tvl_then": 17818280948,
+    "tvl_now": 24012039498,
+    "basis": "TVL $17,818,280,948 -> $24,012,039,498 over 30d (+34.76%)",
+    "evidence_tier": "OBSERVED",
+    "from_cache": true,
+    "player_id": "lido"
+  },
+  {
+    "slug": "pendle",
+    "change_30d": 4.66,
+    "tvl_then": 1191347784,
+    "tvl_now": 1246846969,
+    "basis": "TVL $1,191,347,784 -> $1,246,846,969 over 30d (+4.66%)",
+    "evidence_tier": "OBSERVED",
+    "from_cache": true,
+    "player_id": "pendle"
+  },
+  {
+    "slug": "ethena",
+    "change_30d": 16.09,
+    "tvl_then": 4242121887.32288,
+    "tvl_now": 4924522120.61386,
+    "basis": "TVL $4,242,121,887 -> $4,924,522,121 over 30d (+16.09%)",
+    "evidence_tier": "OBSERVED",
+    "from_cache": true,
+    "player_id": "ethena"
+  }
+]

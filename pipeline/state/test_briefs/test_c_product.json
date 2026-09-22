@@ -1,0 +1,15 @@
+{
+  "type": "product",
+  "category": "CREDIT INFRASTRUCTURE // STELLAR SOROBAN",
+  "headline": "Composable credit on Stellar.\nUp to 10x leverage without the chaos.",
+  "emphasis_phrase": "Up to 10x leverage",
+  "subhead": "One isolated SmartAccount sandbox connecting directly to all Soroban DeFi primitives.",
+  "visual": {
+    "concept": "central isolated vault connecting to capabilities",
+    "composition": "radial_network",
+    "focal_element": "SMARTACCOUNT VAULT",
+    "secondary_elements": ["10x Leverage", "1.1x HF Floor", "Dynamic APY", "Soroban Composability"]
+  },
+  "tag": "FREIGHTER WALLET COMPATIBLE • TESTNET LIVE",
+  "source": "docs.vanna.finance • 14 Smart Contracts"
+}

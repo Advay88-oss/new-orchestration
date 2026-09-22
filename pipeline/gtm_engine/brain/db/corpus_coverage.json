@@ -1,0 +1,226 @@
+{
+  "retrieval_timestamp": "2026-09-10T11:37:29Z",
+  "window_start": "2026-06-12",
+  "window_end": "2026-09-10",
+  "total_players_tracked": 10,
+  "total_retrieved_posts": 165,
+  "total_classified_posts": 165,
+  "players": [
+    {
+      "player": "aave",
+      "handle": "@aave",
+      "market_category": "LENDING",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 10,
+      "classified_posts": 10,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "MINIMAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    },
+    {
+      "player": "morpho",
+      "handle": "@Morpho",
+      "market_category": "LENDING",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 10,
+      "classified_posts": 10,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "MINIMAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    },
+    {
+      "player": "uniswap",
+      "handle": "@Uniswap",
+      "market_category": "SPOT_AMM_DEX",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 20,
+      "classified_posts": 20,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "PARTIAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    },
+    {
+      "player": "curve-finance",
+      "handle": "@CurveFinance",
+      "market_category": "SPOT_AMM_DEX",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 20,
+      "classified_posts": 20,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "PARTIAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    },
+    {
+      "player": "hyperliquid",
+      "handle": "@HyperliquidX",
+      "market_category": "PERPETUALS",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 20,
+      "classified_posts": 20,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "PARTIAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    },
+    {
+      "player": "dydx",
+      "handle": "@dYdX",
+      "market_category": "PERPETUALS",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 5,
+      "classified_posts": 5,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "MINIMAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    },
+    {
+      "player": "pendle",
+      "handle": "@pendle_fi",
+      "market_category": "YIELD_TRADING",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 20,
+      "classified_posts": 20,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "PARTIAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    },
+    {
+      "player": "lido",
+      "handle": "@LidoFinance",
+      "market_category": "LIQUID_STAKING",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 20,
+      "classified_posts": 20,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "PARTIAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    },
+    {
+      "player": "ethena",
+      "handle": "@ethena",
+      "market_category": "BASIS_TRADING",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 20,
+      "classified_posts": 20,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "PARTIAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    },
+    {
+      "player": "pareto-credit",
+      "handle": "@paretocredit",
+      "market_category": "UNCOLLATERALIZED_LENDING",
+      "window_days": 90,
+      "requested_start": "2026-06-12",
+      "requested_end": "2026-09-10",
+      "retrieved_posts": 20,
+      "classified_posts": 20,
+      "classification_rate_pct": 100.0,
+      "coverage_status": "PARTIAL",
+      "retrieval_method": "OPENCLI_PROFILE_6",
+      "limitations": [
+        "Timeline cursor pagination bounded to recent 20 posts per CLI call",
+        "Replies excluded from root query to maximize signal",
+        "Earliest posts beyond 45 days bounded by Twitter API scroll rate limits",
+        "X timeline capped at 20 items by CLI cursor; cadence derived from blog/forum only"
+      ],
+      "x_collection_status": "TRUNCATED_AT_20",
+      "x_cadence_reliable": false
+    }
+  ],
+  "roster_scope": "FIRST_BATCH_10_OF_34",
+  "total_promoted_in_census": 34,
+  "batch_count": 10,
+  "x_collection_status": "TRUNCATED_AT_20",
+  "x_cadence_reliable": false,
+  "cadence_derivation_policy": "BLOG_AND_FORUM_ONLY (X excluded due to page-size cap)"
+}

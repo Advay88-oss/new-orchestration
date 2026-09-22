@@ -1,0 +1,9 @@
+[
+  {
+    "timestamp": "2026-09-16T08:36:38Z",
+    "company": "NovaStack",
+    "hook": "Database autoscaling that reacts after your latency spikes is already too late.",
+    "body": "Database autoscaling that reacts after your latency spikes is already too late.\n\nNovaStack uses predictive eBPF routing to scale PostgreSQL compute in sub-500ms before connection queues overflow.\n\nZero dropped transactions during 10x traffic surges.\n\nnovastack.dev",
+    "status": "APPROVED_FOR_DISPATCH"
+  }
+]

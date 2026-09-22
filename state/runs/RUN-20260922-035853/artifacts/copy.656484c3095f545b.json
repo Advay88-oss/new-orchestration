@@ -1,0 +1,9 @@
+{
+  "id": "CPY-c3ed325662ba70e5",
+  "strategy_id": "STR-35972379f5efbbce",
+  "channel": "x",
+  "hook": "Pooled lending models risk systemic spillover when protocol deposits outgrow local exchange liquidity.",
+  "body": "Blend TVL is $157,161,882 while Soroswap TVL is $1,238,140, alongside a ledger capacity usage of 0.08. When secondary market depth is thin relative to total debt, liquidation shortfalls in shared pools dilute all depositors. This failure mode cannot spread across unrelated assets when risk is strictly isolated. Compartmentalized credit architecture does not remove liquidation loss, but it restricts shortfalls to the affected silo, preventing drawdowns from propagating across the broader ecosystem.",
+  "thread": [],
+  "claims": []
+}

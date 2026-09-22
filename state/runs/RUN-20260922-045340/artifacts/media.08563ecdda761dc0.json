@@ -1,0 +1,27 @@
+{
+  "kind": "video",
+  "path": "D:\\new orchestration\\state\\media\\RUN-20260922-045340_veo.mp4",
+  "model": "veo-3.1-generate-preview",
+  "bytes": 3550500,
+  "operation": "models/veo-3.1-generate-preview/operations/n38xxmud7qi3",
+  "polls": 11,
+  "motion": {
+    "path": "D:\\new orchestration\\state\\media\\RUN-20260922-045340_motion.mp4",
+    "props": {
+      "words": [
+        "In pooled credit, the primary failure mode is contagion.",
+        "Containing shortfalls to individual positions protects broader capital.",
+        "Confining losses to individual boundaries prevents balance dilution."
+      ],
+      "hexTag": "0xVANNA",
+      "accent": "#A387FF"
+    },
+    "reason": "no verified figure available; using a composition that shows none",
+    "carries_figure": false,
+    "composition": "Kinetic",
+    "render_s": 13.2,
+    "bytes": 1278377
+  },
+  "motion_status": "ok",
+  "motion_note": null
+}

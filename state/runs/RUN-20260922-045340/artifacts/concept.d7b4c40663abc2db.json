@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The Bulkhead Schematic",
+    "idea": "An engineering blueprint schematic comparing failure propagation. On one side, a shared reservoir topology where a localized liquidation fault creates an uninhibited fracture network across communal reserves. On the other side, a segmented bulkhead framework where an identical default event is arrested entirely by structural isolation perimeters, leaving adjacent balance modules undisturbed.",
+    "layout": "diagram",
+    "why": "Diagram has not been used in recent assets and is the most honest visual form for mechanical risk architecture. It explicitly illustrates how boundary conditions halt systemic contagion, translating an abstract financial risk concept into rigorous, tangible structural engineering."
+  },
+  "all": [
+    {
+      "title": "The Bulkhead Schematic",
+      "idea": "An engineering blueprint schematic comparing failure propagation. On one side, a shared reservoir topology where a localized liquidation fault creates an uninhibited fracture network across communal reserves. On the other side, a segmented bulkhead framework where an identical default event is arrested entirely by structural isolation perimeters, leaving adjacent balance modules undisturbed.",
+      "layout": "diagram",
+      "why": "Diagram has not been used in recent assets and is the most honest visual form for mechanical risk architecture. It explicitly illustrates how boundary conditions halt systemic contagion, translating an abstract financial risk concept into rigorous, tangible structural engineering."
+    },
+    {
+      "title": "The Firewall Doctrine",
+      "idea": "A stark, editorial typographic execution. The hook 'In pooled credit, the primary failure mode is contagion' dominates the frame in imposing, clinical typography, severed down the middle by an unyielding physical rule line that acts as an impermeable boundary. Underneath, small technical monospace captions label the partition boundary and loss radius limit.",
+      "layout": "quote",
+      "why": "A minimalist, high-contrast typographic layout commands authority in an overcrowded visual feed, highlighting the foundational design philosophy that debt socialization is an architectural choice, not an inevitability."
+    },
+    {
+      "title": "Contagion Arrest Sequence",
+      "idea": "A vertical 4-stage telemetry readout detailing the lifespan of a default: Stage 1 (Collateral Deficit), Stage 2 (Liquidation Inception), Stage 3 (Perimeter Interception), and Stage 4 (Terminal Absorption). Each phase shows the precise transmission vector terminating abruptly at the account wall, with external reserve impact registered at zero.",
+      "layout": "sequence",
+      "why": "It systematically breaks down the temporal mechanics of containment, proving chronologically that liquidation does not have to result in pool-wide bad debt if the boundary terminates loss transmission at Stage 3."
+    }
+  ],
+  "novelty_note": ""
+}

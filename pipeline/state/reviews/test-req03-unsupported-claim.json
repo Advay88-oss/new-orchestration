@@ -1,0 +1,39 @@
+{
+  "run_id": "test-req03-unsupported-claim",
+  "timestamp": "2026-09-20T10:25:40Z",
+  "decision": "FAIL",
+  "score": "40/100",
+  "scores": {
+    "factual": 60,
+    "content": 60,
+    "visual": 92,
+    "brand": 92,
+    "social": 85,
+    "novelty": 85,
+    "overall": 40
+  },
+  "critical_failures": [
+    "Unsupported or prohibited factual claim detected"
+  ],
+  "reasons": [
+    "Draft contains prohibited claim or unverified mainnet/guarantee assertion"
+  ],
+  "required_changes": [
+    "Remove unsubstantiated assertions and ground claims strictly in testnet facts"
+  ],
+  "template_repetition": false,
+  "visual_archetype": "mechanism visualization",
+  "rubric_breakdown": {
+    "claim_integrity": 0,
+    "hook_strength": 20,
+    "arc_coherence": 15,
+    "voice_fidelity": 15,
+    "trend_fit": 10,
+    "virality_mechanics": 10
+  },
+  "adversarial_audit": {
+    "model": "gemini-3.8-flash",
+    "em_dash_free": true,
+    "calibrated_thresholds": true
+  }
+}

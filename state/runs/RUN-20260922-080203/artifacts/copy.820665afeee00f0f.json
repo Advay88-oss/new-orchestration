@@ -1,0 +1,13 @@
+{
+  "id": "CPY-40af10c83c039bcb",
+  "strategy_id": "STR-3043df056748af63",
+  "channel": "x",
+  "hook": "An autonomous agent can spend what it holds in a wallet. It cannot safely manage a leveraged credit position without infrastructure to calculate risk and prevent liquidation.",
+  "body": "An autonomous agent can spend what it holds in a wallet. It cannot safely manage a leveraged credit position without infrastructure to calculate risk and prevent liquidation.\n\nBorrowing requires more than static balances. An autonomous program holding credit must continuously compute risk constraints to maintain solvency.\n\nDeterministic risk math is the foundation of viable agentic credit rails.\n\nVanna is composable credit infrastructure on Stellar Soroban testnet.\n\nVanna derives an account's health factor on demand as total collateral USD divided by total debt USD using WAD precision. Vanna sets its liquidation threshold at a 1.1x health factor floor.\n\nEvery user receives a deployed SmartAccount contract with its own dedicated storage.\n\nOn testnet, Vanna demonstrates an end-to-end flow where an agent computes constraints and issues auto-signed transactions to maintain its health factor.",
+  "thread": [
+    "An autonomous agent can spend what it holds in a wallet. It cannot safely manage a leveraged credit position without infrastructure to calculate risk and prevent liquidation.\n\nBorrowing requires more than static balances. An autonomous program holding credit must continuously compute risk constraints to maintain solvency.",
+    "Deterministic risk math is the foundation of viable agentic credit rails.\n\nVanna is composable credit infrastructure on Stellar Soroban testnet.\n\nVanna derives an account's health factor on demand as total collateral USD divided by total debt USD using WAD precision. Vanna sets its liquidation threshold at a 1.1x health factor floor.",
+    "Every user receives a deployed SmartAccount contract with its own dedicated storage.\n\nOn testnet, Vanna demonstrates an end-to-end flow where an agent computes constraints and issues auto-signed transactions to maintain its health factor."
+  ],
+  "claims": []
+}

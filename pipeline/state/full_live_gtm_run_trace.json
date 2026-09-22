@@ -1,0 +1,846 @@
+{
+  "run_id": "RUN_20260917_065111",
+  "timestamp": "2026-09-17T06:51:11.647816+00:00",
+  "publishing_active": false,
+  "status": "WAITING_FOR_HUMAN",
+  "live_research": [
+    {
+      "source": "https://api.llama.fi/protocols",
+      "retrieved_at": "2026-09-17T06:51:11.647816+00:00",
+      "stellar_protocols_active": 40,
+      "blend_tvl": 149619642.49324483,
+      "aquarius_tvl": 37019995.65856911,
+      "soroswap_tvl": 1193386.9772617514,
+      "morpho_tvl_benchmark": 0.0,
+      "gearbox_tvl_benchmark": 21928800.389902852,
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    }
+  ],
+  "selected_opportunity": {
+    "opportunity_id": "OPP_COMPOSABLE_SANDBOX",
+    "title": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+    "marketing_angle": "The Composable Credit Layer for Soroban \u2014 One SmartAccount, 10x Margin Across Stellar DEXes",
+    "relevance_score": 0.95,
+    "urgency_score": 0.85,
+    "evidence_confidence": 0.95,
+    "audience_fit": 0.9,
+    "strategic_fit": 0.95,
+    "machine_eligibility_score": 0.9,
+    "conversion_potential": 0.85,
+    "risk_penalty": 0.3,
+    "novelty_bonus": 0.1,
+    "saturation_penalty": 0.0,
+    "final_score": 0.72,
+    "status": "ELIGIBLE",
+    "ranking_explanation": "High strategic fit (0.72) with verified documentation backing.",
+    "raw_record": {
+      "opportunity_id": "OPP_COMPOSABLE_SANDBOX",
+      "title": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+      "vanna_fact": "Vanna protocol architecture deploys dedicated SmartAccount contracts per user on Stellar Soroban, allowing up to 10x leverage composable across Blend (b-tokens), Aquarius (LP shares), and Soroswap (DEX swaps).",
+      "vanna_source": "docs.vanna.finance/home (registry/vanna_knowledge.json)",
+      "competitor_fact": "Aave and Morpho require external custom integrations or route borrowed funds directly to borrower EOAs without on-chain multi-dApp sandboxing on non-EVM chains.",
+      "competitor_sources": [
+        "https://aave.com/blog",
+        "https://morpho.org/blog"
+      ],
+      "whitespace_inference": "Stellar Soroban has zero existing composable credit infrastructure connecting Blend and Aquarius, creating an uncontested first-mover advantage for Vanna.",
+      "marketing_angle": "The Composable Credit Layer for Soroban \u2014 One SmartAccount, 10x Margin Across Stellar DEXes",
+      "claim_tier_safety_gate": "TESTNET_COMPLIANT",
+      "prohibited_claims": [
+        "Mainnet is live",
+        "Token is trading",
+        "Production TVL figure",
+        "Live mainnet yields"
+      ],
+      "confidence": "HIGH"
+    }
+  },
+  "strategic_thread": {
+    "thread_id": "THREAD_A_TRADER",
+    "target_audience": "A2: EVM Migrants & Quantitative Traders",
+    "pain_point": "Mempool front-running and volatile 150 gwei gas spikes delay defensive rebalances, causing punitive liquidation penalties on EVM.",
+    "core_narrative": "Sub-Second Telemetry & 10x Isolated Margin without Mempool Front-Running",
+    "cta": "Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+  },
+  "strategy": {
+    "strategy_id": "STRAT-SIG-OPP-OPP_COMPOSABLE_SANDBOX-202609170651",
+    "action_status": "ACTION",
+    "decision_reason_class": "VALID_ACTIONABLE_SIGNAL",
+    "no_action_rationale": null,
+    "kill_rationale": null,
+    "human_review_rationale": null,
+    "objective": "Educate institutional allocators and DeFi traders on Vanna's sub-second risk architecture to drive testnet sandbox deployment.",
+    "audience_segment": "A2: EVM Migrants & Quantitative Traders",
+    "problem": "Mempool front-running and $40 gas spikes during volatility cause unfair 10% liquidation penalties on EVM.",
+    "market_context": "Sub-Second Telemetry & 10x Isolated Margin without Mempool Front-Running. Mempool front-running and volatile 150 gwei gas spikes delay defensive rebalances, causing punitive liquidation penalties on EVM.",
+    "strategic_opportunity": "Position Vanna's sub-second Mercury event streaming (~320ms) and fixed $0.00014 gas as the antidote to liquidation anxiety.",
+    "narrative_pillar": "Pillar 3: Sub-Second Defensive Rebalancing & Liquidation Immunity",
+    "positioning": "Vanna is the composable credit layer for Stellar Soroban, providing isolated SmartAccount sandboxes and sub-second defense.",
+    "proof": [
+      "Mercury indexer event latency: ~320ms on Stellar Soroban Protocol 20",
+      "Fixed transaction cost: 0.00014 XLM (< $0.0001 USD)",
+      "Automated defensive deleveraging fires at 1.25x Net Health Factor before 1.10x floor"
+    ],
+    "claims": [
+      {
+        "claim_id": "CLM-001",
+        "text": "Mercury indexer event latency: ~320ms on Stellar Soroban Protocol 20",
+        "claim_type": "VANNA_FACT",
+        "evidence_status": "OBSERVED",
+        "evidence_refs": [
+          "D:\\marketing intelligence system\\knowledge\\internal\\approved-claims.md"
+        ],
+        "confidence": "HIGH",
+        "source_records": [
+          "APPROVED_CLAIMS_INTERNAL_V1"
+        ],
+        "calculation_method": "Direct documentation invariant verification.",
+        "action": "USE",
+        "rationale": "Verified against approved Vanna testnet architecture documentation."
+      },
+      {
+        "claim_id": "CLM-002",
+        "text": "Fixed transaction cost: 0.00014 XLM (< $0.0001 USD)",
+        "claim_type": "VANNA_FACT",
+        "evidence_status": "OBSERVED",
+        "evidence_refs": [
+          "D:\\marketing intelligence system\\knowledge\\internal\\approved-claims.md"
+        ],
+        "confidence": "HIGH",
+        "source_records": [
+          "APPROVED_CLAIMS_INTERNAL_V1"
+        ],
+        "calculation_method": "Direct documentation invariant verification.",
+        "action": "USE",
+        "rationale": "Verified against approved Vanna testnet architecture documentation."
+      },
+      {
+        "claim_id": "CLM-003",
+        "text": "Automated defensive deleveraging fires at 1.25x Net Health Factor before 1.10x floor",
+        "claim_type": "VANNA_FACT",
+        "evidence_status": "OBSERVED",
+        "evidence_refs": [
+          "D:\\marketing intelligence system\\knowledge\\internal\\approved-claims.md"
+        ],
+        "confidence": "HIGH",
+        "source_records": [
+          "APPROVED_CLAIMS_INTERNAL_V1"
+        ],
+        "calculation_method": "Direct documentation invariant verification.",
+        "action": "USE",
+        "rationale": "Verified against approved Vanna testnet architecture documentation."
+      }
+    ],
+    "cta": "Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+    "channel": "X & LinkedIn",
+    "content_type": "technical_breakdown_thread",
+    "gtm_machine_id": "MACHINE_02: TELEMETRY_DEFENSE_DISPATCH",
+    "machine_eligibility": {
+      "machine_id": "MACHINE_02: TELEMETRY_DEFENSE_DISPATCH",
+      "eligibility_status": "ELIGIBLE",
+      "evidence_count": 3,
+      "independent_campaign_count": 1,
+      "independent_player_count": 2,
+      "evidence_refs": [
+        "D:\\marketing intelligence system\\intelligence\\db\\campaigns.jsonl"
+      ],
+      "confidence": "HIGH",
+      "selection_reason": "Empirically observed in Morpho risk engine communications and Gearbox telemetry."
+    },
+    "reasoning": [
+      "Market Signal 'Isolated SmartAccount Credit Sandbox for Soroban Ecosystem' verified from WHITESPACE_DB (Confidence: HIGH).",
+      "Audience 'A2: EVM Migrants & Quantitative Traders' targeted to resolve verified objection from Brain DB.",
+      "Machine 'MACHINE_02: TELEMETRY_DEFENSE_DISPATCH' verified eligible (Empirically observed in Morpho risk engine communications and Gearbox telemetry.).",
+      "Claims verified: 3 claims evaluated by ClaimEvidenceGate (0 blocked)."
+    ],
+    "evidence": [
+      {
+        "record_id": "OPP_COMPOSABLE_SANDBOX",
+        "source": "D:\\marketing intelligence system\\intelligence\\db\\opportunities.jsonl",
+        "source_root": "D:\\marketing intelligence system\\intelligence",
+        "dataset": null,
+        "source_type": "WHITESPACE_DB",
+        "observed_metric": null,
+        "evidence_status": "OBSERVED"
+      }
+    ]
+  },
+  "series_spec": {
+    "series_id": "SERIES_VANNA_ARCHITECTURE",
+    "series_name": "Vanna Architectural Deep-Dives",
+    "cadence": "BIWEEKLY",
+    "trigger": "STAGED_SOLVENCY_RELEASE",
+    "input_data_source": "docs.vanna.finance / Stellar Testnet Contracts",
+    "fixed_structure": [
+      "Macro EVM Failure Mode",
+      "Soroban SmartAccount Containment",
+      "Stellar Testnet Ledger Proof"
+    ],
+    "variable_fields": [
+      "collateral_asset",
+      "isolated_instance_address"
+    ],
+    "visual_template_type": "monolithic_glass_compartment",
+    "recurrence_tier": "ONE_OCCURRENCE",
+    "occurrences": [
+      {
+        "occurrence_id": "OCC-SERIES_VANNA_ARCHITECTURE-001",
+        "occurrence_number": 1,
+        "published_date": "2026-09-17",
+        "content_id": "EPISODE_01_RUN_20260917_065111",
+        "verified_url": null,
+        "input_data_summary": "Opportunity: OPP_COMPOSABLE_SANDBOX | Pillar: Pillar 3: Sub-Second Defensive Rebalancing & Liquidation Immunity"
+      }
+    ],
+    "created_at": "2026-09-17T06:51:20.953657+00:00"
+  },
+  "content_outputs": {
+    "model_a_gemini_flash_x": "EVM's mempool front-running and 150 gwei gas spikes cripple defensive rebalances, leading to punitive liquidations. Vanna Protocol on Stellar",
+    "model_b_vanna_engine_x": "In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.\n\nVanna eliminates front-running liquidations with sub-second off-chain telemetry on Stellar Soroban:\n\n1. Mercury streams ledger events in ~320ms.\n2. At 1.25\u00d7 Net Health Factor, our Risk Guardian executes a targeted rebalance inside your SmartAccount sandbox.\n3. Execution gas is fixed at 0.00014 XLM. No mempool bidding wars. No liquidation fee penalty.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+    "model_b_linkedin": "Why the next generation of on-chain credit cannot rely on EVM-style shared liquidity pools.\n\nDuring high-volatility market events, decentralized lending markets face two structural failure modes:\n\n1. Mempool congestion spikes transaction fees, delaying borrower defensive rebalances.\n2. Shared pool storage forces haircuts across all depositors when an exotic collateral asset depegs.\n\nVanna addresses both challenges directly at the smart contract execution layer on Stellar Soroban:\n\n\u2022 Dedicated SmartAccount sandboxes isolate each borrower's risk. Deficits remain quarantined without compromising core pool reserves.\n\u2022 Sub-second event streaming via the Mercury indexer enables automated rebalances in ~320ms.\n\u2022 Predictable transaction fees fixed at 0.00014 XLM eliminate bidding wars against liquidation bots.\n\nThe architecture is live on testnet: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+    "model_b_reddit": "**Title:** A technical breakdown of how we solved liquidation front-running and pool contagion on Soroban.\n\nMost discussions around DeFi leverage focus on APY, but the real technical bottleneck has always been liquidation execution.\n\nIf you have ever had a position liquidated on Ethereum or an L2, you know the mechanic: market drops, gas spikes, and MEV searchers front-run your rebalance. You take a 10% penalty fee simply because your transaction was priced out of the block.\n\nHere is how we designed Vanna's credit layer on Stellar Soroban to eliminate that failure mode:\n\n- **State Isolation:** Borrowers execute within dedicated SmartAccount contract instances rather than sharing a global storage state. If one position enters deficit, it is strictly isolated.\n- **Off-Chain Stream Monitoring:** We use the Mercury indexer to stream ledger events in under 320ms.\n- **Non-Custodial Keeper Defense:** When a position reaches 1.25x Net Health Factor, our Risk Guardian triggers a defensive rebalance inside the user's sandbox at a fixed cost of 0.00014 XLM. There is no mempool to bid against.\n\nDocumentation and testnet sandbox deployments are live: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance\n\n*(Disclosure: Core builder at Vanna Protocol. Testing on Stellar Testnet only.)*"
+  },
+  "creative_blueprint": {
+    "creative_id": "CCB-STRAT-SIG-OPP-OP-202609170651",
+    "strategy_id": "STRAT-SIG-OPP-OPP_COMPOSABLE_SANDBOX-202609170651",
+    "communication_objective": "Educate institutional allocators and DeFi traders on Vanna's sub-second risk architecture to drive testnet sandbox deployment.",
+    "visual_metaphor": {
+      "thesis": "Visualizing sub-second liquidation deflection and automated margin protection.",
+      "concept": "Laminar telemetry beam entering an optical threshold prism and deflecting into a secure horizontal orbit.",
+      "metaphor": "Kinetic deflection: incoming volatility vector diverted safely away from an avoided hazard line.",
+      "composition": "Asymmetric 16:9 widescreen, >80% negative space, horizontal flow from left to right.",
+      "lighting": "Disciplined studio edge lighting; muted electric violet and fuchsia ambient washes in far corners.",
+      "materials": "Matte obsidian, optical crystal glass, dark satin reflective floor, 35mm film grain.",
+      "negative_elements": [
+        "random floating coins",
+        "glowing spheres with concentric rings",
+        "tron neon grids",
+        "meaningless abstract nodes",
+        "generic stock arrows",
+        "random 3d objects with no architectural purpose",
+        "decorative dashboards with fake numbers",
+        "excessive purple pink neon glow",
+        "fake product ui with unverified buttons",
+        "unmotivated gradients",
+        "text heavy infographic layouts"
+      ]
+    },
+    "brand_tokens": {
+      "obsidian_canvas": "#07020D",
+      "electric_violet_bloom": "#471485",
+      "fuchsia_magenta_bloom": "#5E0D46",
+      "vanna_lavender": "#A387FF",
+      "coral_risk_accent": "#FC5457",
+      "cyan_telemetry": "#22D3C4",
+      "film_grain": "35mm analog grain, zero digital banding",
+      "negative_space_ratio": "Minimum 75% uninterrupted obsidian void"
+    },
+    "typography_hierarchy": {
+      "headline": "Plus Jakarta Sans Bold 48px",
+      "telemetry": "JetBrains Mono SemiBold 12px"
+    },
+    "format_specs": {
+      "STATIC_VECTOR": {
+        "format_type": "STATIC_VECTOR",
+        "dimensions": "1200x675",
+        "framerate": null,
+        "duration_seconds": null,
+        "conditioning_asset": null,
+        "compiled_prompt": "1200x675 vector telemetry schematic with calibrated Net Health Factor rail (2.50x -> 1.25x -> 1.10x unreached)."
+      },
+      "STATIC_IMAGE": {
+        "format_type": "STATIC_IMAGE",
+        "dimensions": "1200x675",
+        "framerate": null,
+        "duration_seconds": null,
+        "conditioning_asset": null,
+        "compiled_prompt": "Developer-grade clean DeFi visual metaphor for Vanna Protocol. Laminar telemetry beam entering an optical threshold prism and deflecting into a secure horizontal orbit. Background: Deep obsidian base (#07020D) with soft ambient electric violet glow (#471485) and fuchsia (#5E0D46). 35mm film grain, high negative space, zero text, zero generic floating spheres, zero neon grids."
+      },
+      "VEO_VIDEO_31": {
+        "format_type": "VEO_VIDEO_31",
+        "dimensions": "1280x720",
+        "framerate": 24,
+        "duration_seconds": 8,
+        "conditioning_asset": "vanna_logo_hero_canvas.png",
+        "compiled_prompt": "Cinematic masterwork 4K video. Expansive tranquil obsidian void (#07020D) with tactile 35mm analog film grain. A precision-cut optical crystal prism rests in deep space. A thin, coherent cyan telemetry beam strikes the prism and refracts smoothly upward into a stable, peaceful horizontal orbit, avoiding a faint red boundary plane below. Soft royal violet (#471485) and fuchsia (#5E0D46) ambient blooms in the far background. Slow cinematic camera glide. Zero text, zero floating coins, zero neon grids, photorealistic architectural polish."
+      }
+    },
+    "negative_constraints": [
+      "random floating coins",
+      "glowing spheres with concentric rings",
+      "tron neon grids",
+      "meaningless abstract nodes",
+      "generic stock arrows",
+      "random 3d objects with no architectural purpose",
+      "decorative dashboards with fake numbers",
+      "excessive purple pink neon glow",
+      "fake product ui with unverified buttons",
+      "unmotivated gradients",
+      "text heavy infographic layouts"
+    ],
+    "created_at": "2026-09-17T06:51:28.709074+00:00"
+  },
+  "video_script": {
+    "campaign": {
+      "name": "Vanna Architecture Showcase",
+      "objective": "Demonstrate Vanna's sub-second liquidation protection and isolated SmartAccount sandboxes on Stellar Soroban",
+      "target_audience": "DeFi builders, quantitative traders, institutional allocators"
+    },
+    "core_message": "Sub-second on-chain telemetry and isolated SmartAccount sandboxes eliminate EVM front-running liquidation cascades.",
+    "hook": "In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.",
+    "narrative": "EVM lending protocols force users into mempool bidding wars during market crashes, resulting in guaranteed 10% penalty fees. Vanna on Stellar Soroban monitors positions in sub-second intervals via Mercury, executing automated non-custodial rebalancing in ~320ms at $0.00014 in gas, completely bypassing mempool auctions.",
+    "scenes": [
+      {
+        "scene_id": 1,
+        "name": "The Mempool Auction Bottleneck",
+        "duration_seconds": 4.0,
+        "narrative_purpose": "Establish the fundamental friction in traditional DeFi: mempool front-running and gas spikes.",
+        "voiceover": "In an EVM liquidation cascade, front-running bots bid gas to 150 gwei while your defensive transaction sits pending.",
+        "on_screen_text": "THE MEMPOOL AUCTION BOTTLENECK",
+        "transition_out": "kinetic_whip_pan"
+      },
+      {
+        "scene_id": 2,
+        "name": "Sub-Second Ingestion Stream",
+        "duration_seconds": 4.0,
+        "narrative_purpose": "Demonstrate Vanna's architectural solution: Mercury sub-second event streaming on Stellar Soroban.",
+        "voiceover": "Vanna eliminates mempool races. Mercury streams on-chain state changes in under 320 milliseconds.",
+        "on_screen_text": "MERCURY SUB-SECOND TELEMETRY // ~320MS",
+        "transition_out": "refractive_lens_flare"
+      },
+      {
+        "scene_id": 3,
+        "name": "Autonomous Defense Clearance",
+        "duration_seconds": 4.0,
+        "narrative_purpose": "Show the automated rebalance execution at 1.25x Net Health Factor with zero liquidation fee.",
+        "voiceover": "At 1.25x Net Health Factor, our Risk Guardian executes an automated rebalance inside your SmartAccount sandbox at fixed $0.00014 gas.",
+        "on_screen_text": "AUTONOMOUS DEFENSE // 0.00014 XLM GAS",
+        "transition_out": "geometric_convergence"
+      },
+      {
+        "scene_id": 4,
+        "name": "Isolated Solvency Terminal",
+        "duration_seconds": 3.0,
+        "narrative_purpose": "Deliver institutional closure and proof of non-custodial sandbox isolation with CTA.",
+        "voiceover": "Zero mempool bidding wars. Zero liquidation penalty. Test the protocol live on Stellar Soroban.",
+        "on_screen_text": "VANNA PROTOCOL \u00b7 TEST.STELLAR.VANNA.FINANCE",
+        "transition_out": "fade_to_obsidian"
+      }
+    ],
+    "total_duration_seconds": 15.0,
+    "ending_cta": {
+      "headline": "TEST LIVE ON STELLAR SOROBAN",
+      "url": "test.stellar.vanna.finance",
+      "subtext": "Non-Custodial Composable Credit"
+    }
+  },
+  "video_art_spec": {
+    "campaign": {
+      "name": "Vanna Architecture Showcase",
+      "objective": "Demonstrate Vanna's sub-second liquidation protection and isolated SmartAccount sandboxes on Stellar Soroban",
+      "target_audience": "DeFi builders, quantitative traders, institutional allocators"
+    },
+    "creative_thesis": "Visualizing risk deflection and modular containment through precision optical and architectural physics.",
+    "brand_system": {
+      "palette": {
+        "obsidian_base": "#07020D",
+        "royal_violet_bloom": "#471485",
+        "fuchsia_magenta_bloom": "#5E0D46",
+        "lavender_accent": "#A387FF",
+        "coral_accent": "#FC5457",
+        "cyan_telemetry": "#22D3C4",
+        "crisp_white": "#FFFFFF"
+      },
+      "typography": {
+        "primary_sans": "Plus Jakarta Sans",
+        "monospace_telemetry": "JetBrains Mono"
+      },
+      "texture": "Subtle 35mm analog film grain, high negative space, zero digital banding"
+    },
+    "scenes": [
+      {
+        "scene_id": 1,
+        "duration": 4.0,
+        "narrative_purpose": "Establish the fundamental friction in traditional DeFi: mempool front-running and gas spikes.",
+        "visual_concept": "Turbulent, congested congestion field in deep obsidian space representing mempool queue drag.",
+        "composition": "Cinematic wide 16:9, asymmetric camera framing looking down a narrowing geometric corridor.",
+        "camera": "Slow cinematic dolly pushing forward into a congested narrow choke-point.",
+        "motion": "Heavy, sluggish particle vectors crawling slowly through viscous dark fluid, signaling delay and friction.",
+        "lighting": "Low-key dramatic studio lighting; ominous crimson (#FC5457) warning reflections along obsidian walls.",
+        "color": "Obsidian base #07020D with deep violet shadows (#471485) and warning coral-red accents (#FC5457).",
+        "typography": "JetBrains Mono uppercase 12px supertitle with Plus Jakarta Sans 48px bold headline.",
+        "assets": [
+          "corridor_mesh",
+          "congested_vector_particles",
+          "status_bracket"
+        ],
+        "negative_constraints": [
+          "generic glowing spheres with concentric rings",
+          "random neon grid floors or Tron aesthetic",
+          "floating 3D cubes with no architectural purpose",
+          "flying golden crypto coins or cartoon dollar signs",
+          "generic stock crypto dashboards or candlestick charts",
+          "holographic sci-fi HUDs with meaningless decorative numbers",
+          "unmotivated particle storms or lens flare spam",
+          "happy lighting",
+          "generic crypto coins",
+          "stock arrows"
+        ],
+        "veo_prompt": "Cinematic high-end architectural visualization of financial friction and network congestion. A sleek, minimalist matte obsidian corridor (#07020D) in deep space. Glowing sluggish energy filaments crawl through a narrowing geometric choke-point with visible drag. Subtle ominous crimson-coral ambient rim light (#FC5457). 35mm film grain, cinematic depth of field, slow forward dolly movement, photorealistic tactile glass and dark stone materials, zero text, zero logos, zero floating spheres."
+      },
+      {
+        "scene_id": 2,
+        "duration": 4.0,
+        "narrative_purpose": "Demonstrate Vanna's architectural solution: Mercury sub-second event streaming on Stellar Soroban.",
+        "visual_concept": "High-velocity laminar beam of coherent telemetry light breaking through the congestion void.",
+        "composition": "Horizontal linear tracking shot following a fast, pristine beam from left to right across vast negative space.",
+        "camera": "High-speed tracking shot matching the velocity of the telemetry beam, then slowing to enter a precision lens.",
+        "motion": "Instantaneous laminar velocity transition (~320ms acceleration), perfectly smooth and coherent.",
+        "lighting": "Prismatic refraction along the edges of the beam; electric cyan (#22D3C4) and soft lavender (#A387FF) luminescence.",
+        "color": "Obsidian #07020D base, royal violet #471485 bloom bottom-left, electric cyan #22D3C4 core beam.",
+        "typography": "High-contrast monospace telemetry readouts at 80% opacity in top-left corner.",
+        "assets": [
+          "coherent_laser_beam",
+          "telemetry_pulse_node",
+          "refraction_plane"
+        ],
+        "negative_constraints": [
+          "generic glowing spheres with concentric rings",
+          "random neon grid floors or Tron aesthetic",
+          "floating 3D cubes with no architectural purpose",
+          "flying golden crypto coins or cartoon dollar signs",
+          "generic stock crypto dashboards or candlestick charts",
+          "holographic sci-fi HUDs with meaningless decorative numbers",
+          "unmotivated particle storms or lens flare spam",
+          "pixelated lines",
+          "cheap rainbow gradients"
+        ],
+        "veo_prompt": "Cinematic high-speed tracking shot of an ultra-thin, coherent laser beam of electric cyan (#22D3C4) and soft lavender (#A387FF) slicing cleanly through an expansive dark obsidian void (#07020D). Smooth laminar optical motion without turbulence. Soft royal violet bloom (#471485) emerging from lower-left. 35mm analog film texture, high optical realism, anamorphic lens flare, calm mathematical precision, zero text, zero floating tokens."
+      },
+      {
+        "scene_id": 3,
+        "duration": 4.0,
+        "narrative_purpose": "Show the automated rebalance execution at 1.25x Net Health Factor with zero liquidation fee.",
+        "visual_concept": "Precision optical deflection: the beam strikes a crystalline threshold prism and arcs gracefully into a secure orbit.",
+        "composition": "Centered monolithic prism with asymmetric parabolic vector trajectory arcing upward away from a faint lower boundary.",
+        "camera": "Subtle orbital camera rotation around the deflection lens as the beam cleanly redirects.",
+        "motion": "Impactless deflection: the beam enters the prism and bends instantaneously into a tranquil horizontal path.",
+        "lighting": "Specular glint at the moment of deflection; deep fuchsia-magenta bloom (#5E0D46) in top-right.",
+        "color": "Electric cyan (#22D3C4) trajectory curving safely above a muted crimson-coral (#FC5457) avoided hazard line.",
+        "typography": "Crisp status tags displaying 1.25x trigger and 1.10x unreached floor.",
+        "assets": [
+          "crystalline_deflection_prism",
+          "parabolic_vector_path",
+          "hazard_boundary_line"
+        ],
+        "negative_constraints": [
+          "generic glowing spheres with concentric rings",
+          "random neon grid floors or Tron aesthetic",
+          "floating 3D cubes with no architectural purpose",
+          "flying golden crypto coins or cartoon dollar signs",
+          "generic stock crypto dashboards or candlestick charts",
+          "holographic sci-fi HUDs with meaningless decorative numbers",
+          "unmotivated particle storms or lens flare spam",
+          "explosions",
+          "shattering glass",
+          "stock shield icons"
+        ],
+        "veo_prompt": "Cinematic architectural macro shot of a precision-cut transparent crystalline prism suspended in deep space. A sharp glowing beam of cyan light strikes the prism and refracts smoothly upward into a stable, peaceful horizontal orbit, completely avoiding a faint red boundary plane below. Rich fuchsia-magenta atmospheric glow (#5E0D46) in upper-right. Fine film grain, beautiful optical caustics, slow elegant camera pan, high-end studio lighting, zero text, zero badges."
+      },
+      {
+        "scene_id": 4,
+        "duration": 3.0,
+        "narrative_purpose": "Deliver institutional closure and proof of non-custodial sandbox isolation with CTA.",
+        "visual_concept": "Three modular obsidian and frosted glass vault chambers resting securely in tranquil equilibrium.",
+        "composition": "Stable, symmetrical architectural composition with vast negative space and reflective obsidian floor.",
+        "camera": "Slow, majestic crane up / tilt down, settling on the secure modular architecture.",
+        "motion": "Static architectural permanence; gentle breathing ambient glow from within the isolated chambers.",
+        "lighting": "Clean rim lighting defining the chamber bevels; serene lavender and cyan ambient washes.",
+        "color": "Deep obsidian base #07020D with calm lavender #A387FF and mint-cyan #22D3C4 interior radiance.",
+        "typography": "Vanna protocol wordmark and clean call-to-action typography.",
+        "assets": [
+          "modular_sandbox_chambers",
+          "reflective_floor_plane",
+          "vanna_monogram"
+        ],
+        "negative_constraints": [
+          "generic glowing spheres with concentric rings",
+          "random neon grid floors or Tron aesthetic",
+          "floating 3D cubes with no architectural purpose",
+          "flying golden crypto coins or cartoon dollar signs",
+          "generic stock crypto dashboards or candlestick charts",
+          "holographic sci-fi HUDs with meaningless decorative numbers",
+          "unmotivated particle storms or lens flare spam",
+          "floating coins",
+          "fireworks",
+          "pulsing circles"
+        ],
+        "veo_prompt": "Cinematic wide architectural shot of three minimalist, monolithic glass and dark obsidian vaults (#07020D) resting upon a mirror-polished dark floor. The vaults glow softly from within with serene lavender (#A387FF) and mint-cyan (#22D3C4) light. Perfect calm, quiet architectural authority, atmospheric violet haze. 35mm film grain, slow cinematic crane-up movement, studio rim lighting, zero text, zero logos, photorealistic."
+      }
+    ],
+    "global_negative_constraints": [
+      "generic glowing spheres with concentric rings",
+      "random neon grid floors or Tron aesthetic",
+      "floating 3D cubes with no architectural purpose",
+      "flying golden crypto coins or cartoon dollar signs",
+      "generic stock crypto dashboards or candlestick charts",
+      "holographic sci-fi HUDs with meaningless decorative numbers",
+      "unmotivated particle storms or lens flare spam"
+    ]
+  },
+  "video_director_spec": {
+    "video_run_id": "VID_RUN_20260917_065111",
+    "strategy_id": "STRAT-SIG-OPP-OPP_COMPOSABLE_SANDBOX-202609170651",
+    "visual_thesis": "Visualizing sub-second liquidation deflection and automated margin protection.",
+    "veo_prompt": "Cinematic masterwork 4K video. Expansive tranquil obsidian void (#07020D) with tactile 35mm analog film grain. A precision-cut optical crystal prism rests in deep space. A thin, coherent cyan telemetry beam strikes the prism and refracts smoothly upward into a stable, peaceful horizontal orbit, avoiding a faint red boundary plane below. Soft royal violet (#471485) and fuchsia (#5E0D46) ambient blooms in the far background. Slow cinematic camera glide. Zero text, zero floating coins, zero neon grids, photorealistic architectural polish.",
+    "video_director_contract": {
+      "campaign": {
+        "name": "Vanna Architecture Showcase",
+        "objective": "Demonstrate Vanna's sub-second liquidation protection and isolated SmartAccount sandboxes on Stellar Soroban",
+        "target_audience": "DeFi builders, quantitative traders, institutional allocators"
+      },
+      "creative_thesis": "Visualizing risk deflection and modular containment through precision optical and architectural physics.",
+      "brand_system": {
+        "palette": {
+          "obsidian_base": "#07020D",
+          "royal_violet_bloom": "#471485",
+          "fuchsia_magenta_bloom": "#5E0D46",
+          "lavender_accent": "#A387FF",
+          "coral_accent": "#FC5457",
+          "cyan_telemetry": "#22D3C4"
+        },
+        "typography": {
+          "primary": "Plus Jakarta Sans",
+          "telemetry": "JetBrains Mono"
+        },
+        "aesthetic_posture": "Institutional, developer-grade, cinematic, minimal, non-promotional"
+      },
+      "scenes": [
+        {
+          "scene_id": 1,
+          "duration": 4.0,
+          "narrative_purpose": "Establish the fundamental friction in traditional DeFi: mempool front-running and gas spikes.",
+          "visual_concept": "Turbulent, congested congestion field in deep obsidian space representing mempool queue drag.",
+          "composition": "Cinematic wide 16:9, asymmetric camera framing looking down a narrowing geometric corridor.",
+          "camera": "Slow cinematic dolly pushing forward into a congested narrow choke-point.",
+          "motion": "Heavy, sluggish particle vectors crawling slowly through viscous dark fluid, signaling delay and friction.",
+          "lighting": "Low-key dramatic studio lighting; ominous crimson (#FC5457) warning reflections along obsidian walls.",
+          "color": "Obsidian base #07020D with deep violet shadows (#471485) and warning coral-red accents (#FC5457).",
+          "typography": "JetBrains Mono uppercase 12px supertitle with Plus Jakarta Sans 48px bold headline.",
+          "assets": [
+            "corridor_mesh",
+            "congested_vector_particles",
+            "status_bracket"
+          ],
+          "negative_constraints": [
+            "generic glowing spheres with concentric rings",
+            "random neon grid floors or Tron aesthetic",
+            "floating 3D cubes with no architectural purpose",
+            "flying golden crypto coins or cartoon dollar signs",
+            "generic stock crypto dashboards or candlestick charts",
+            "holographic sci-fi HUDs with meaningless decorative numbers",
+            "unmotivated particle storms or lens flare spam",
+            "happy lighting",
+            "generic crypto coins",
+            "stock arrows"
+          ],
+          "veo_prompt": "Cinematic high-end architectural visualization of financial friction and network congestion. A sleek, minimalist matte obsidian corridor (#07020D) in deep space. Glowing sluggish energy filaments crawl through a narrowing geometric choke-point with visible drag. Subtle ominous crimson-coral ambient rim light (#FC5457). 35mm film grain, cinematic depth of field, slow forward dolly movement, photorealistic tactile glass and dark stone materials, zero text, zero logos, zero floating spheres."
+        },
+        {
+          "scene_id": 2,
+          "duration": 4.0,
+          "narrative_purpose": "Demonstrate Vanna's architectural solution: Mercury sub-second event streaming on Stellar Soroban.",
+          "visual_concept": "High-velocity laminar beam of coherent telemetry light breaking through the congestion void.",
+          "composition": "Horizontal linear tracking shot following a fast, pristine beam from left to right across vast negative space.",
+          "camera": "High-speed tracking shot matching the velocity of the telemetry beam, then slowing to enter a precision lens.",
+          "motion": "Instantaneous laminar velocity transition (~320ms acceleration), perfectly smooth and coherent.",
+          "lighting": "Prismatic refraction along the edges of the beam; electric cyan (#22D3C4) and soft lavender (#A387FF) luminescence.",
+          "color": "Obsidian #07020D base, royal violet #471485 bloom bottom-left, electric cyan #22D3C4 core beam.",
+          "typography": "High-contrast monospace telemetry readouts at 80% opacity in top-left corner.",
+          "assets": [
+            "coherent_laser_beam",
+            "telemetry_pulse_node",
+            "refraction_plane"
+          ],
+          "negative_constraints": [
+            "generic glowing spheres with concentric rings",
+            "random neon grid floors or Tron aesthetic",
+            "floating 3D cubes with no architectural purpose",
+            "flying golden crypto coins or cartoon dollar signs",
+            "generic stock crypto dashboards or candlestick charts",
+            "holographic sci-fi HUDs with meaningless decorative numbers",
+            "unmotivated particle storms or lens flare spam",
+            "pixelated lines",
+            "cheap rainbow gradients"
+          ],
+          "veo_prompt": "Cinematic high-speed tracking shot of an ultra-thin, coherent laser beam of electric cyan (#22D3C4) and soft lavender (#A387FF) slicing cleanly through an expansive dark obsidian void (#07020D). Smooth laminar optical motion without turbulence. Soft royal violet bloom (#471485) emerging from lower-left. 35mm analog film texture, high optical realism, anamorphic lens flare, calm mathematical precision, zero text, zero floating tokens."
+        },
+        {
+          "scene_id": 3,
+          "duration": 4.0,
+          "narrative_purpose": "Show the automated rebalance execution at 1.25x Net Health Factor with zero liquidation fee.",
+          "visual_concept": "Precision optical deflection: the beam strikes a crystalline threshold prism and arcs gracefully into a secure orbit.",
+          "composition": "Centered monolithic prism with asymmetric parabolic vector trajectory arcing upward away from a faint lower boundary.",
+          "camera": "Subtle orbital camera rotation around the deflection lens as the beam cleanly redirects.",
+          "motion": "Impactless deflection: the beam enters the prism and bends instantaneously into a tranquil horizontal path.",
+          "lighting": "Specular glint at the moment of deflection; deep fuchsia-magenta bloom (#5E0D46) in top-right.",
+          "color": "Electric cyan (#22D3C4) trajectory curving safely above a muted crimson-coral (#FC5457) avoided hazard line.",
+          "typography": "Crisp status tags displaying 1.25x trigger and 1.10x unreached floor.",
+          "assets": [
+            "crystalline_deflection_prism",
+            "parabolic_vector_path",
+            "hazard_boundary_line"
+          ],
+          "negative_constraints": [
+            "generic glowing spheres with concentric rings",
+            "random neon grid floors or Tron aesthetic",
+            "floating 3D cubes with no architectural purpose",
+            "flying golden crypto coins or cartoon dollar signs",
+            "generic stock crypto dashboards or candlestick charts",
+            "holographic sci-fi HUDs with meaningless decorative numbers",
+            "unmotivated particle storms or lens flare spam",
+            "explosions",
+            "shattering glass",
+            "stock shield icons"
+          ],
+          "veo_prompt": "Cinematic architectural macro shot of a precision-cut transparent crystalline prism suspended in deep space. A sharp glowing beam of cyan light strikes the prism and refracts smoothly upward into a stable, peaceful horizontal orbit, completely avoiding a faint red boundary plane below. Rich fuchsia-magenta atmospheric glow (#5E0D46) in upper-right. Fine film grain, beautiful optical caustics, slow elegant camera pan, high-end studio lighting, zero text, zero badges."
+        },
+        {
+          "scene_id": 4,
+          "duration": 3.0,
+          "narrative_purpose": "Deliver institutional closure and proof of non-custodial sandbox isolation with CTA.",
+          "visual_concept": "Three modular obsidian and frosted glass vault chambers resting securely in tranquil equilibrium.",
+          "composition": "Stable, symmetrical architectural composition with vast negative space and reflective obsidian floor.",
+          "camera": "Slow, majestic crane up / tilt down, settling on the secure modular architecture.",
+          "motion": "Static architectural permanence; gentle breathing ambient glow from within the isolated chambers.",
+          "lighting": "Clean rim lighting defining the chamber bevels; serene lavender and cyan ambient washes.",
+          "color": "Deep obsidian base #07020D with calm lavender #A387FF and mint-cyan #22D3C4 interior radiance.",
+          "typography": "Vanna protocol wordmark and clean call-to-action typography.",
+          "assets": [
+            "modular_sandbox_chambers",
+            "reflective_floor_plane",
+            "vanna_monogram"
+          ],
+          "negative_constraints": [
+            "generic glowing spheres with concentric rings",
+            "random neon grid floors or Tron aesthetic",
+            "floating 3D cubes with no architectural purpose",
+            "flying golden crypto coins or cartoon dollar signs",
+            "generic stock crypto dashboards or candlestick charts",
+            "holographic sci-fi HUDs with meaningless decorative numbers",
+            "unmotivated particle storms or lens flare spam",
+            "floating coins",
+            "fireworks",
+            "pulsing circles"
+          ],
+          "veo_prompt": "Cinematic wide architectural shot of three minimalist, monolithic glass and dark obsidian vaults (#07020D) resting upon a mirror-polished dark floor. The vaults glow softly from within with serene lavender (#A387FF) and mint-cyan (#22D3C4) light. Perfect calm, quiet architectural authority, atmospheric violet haze. 35mm film grain, slow cinematic crane-up movement, studio rim lighting, zero text, zero logos, photorealistic."
+        }
+      ],
+      "global_negative_constraints": [
+        "generic glowing spheres with concentric rings",
+        "random neon grid floors or Tron aesthetic",
+        "floating 3D cubes with no architectural purpose",
+        "flying golden crypto coins or cartoon dollar signs",
+        "generic stock crypto dashboards or candlestick charts",
+        "holographic sci-fi HUDs with meaningless decorative numbers",
+        "unmotivated particle storms or lens flare spam"
+      ],
+      "review_requirements": [
+        "100% script narrative alignment",
+        "Strict absence of generic AI slop or floating decorative spheres",
+        "Full adherence to Vanna obsidian and dual-bloom color hierarchy",
+        "Sub-second rebalancing and isolated sandbox claims must match verified technical truth"
+      ],
+      "brand_guardian_audit": {
+        "status": "APPROVED",
+        "brand_score": 96,
+        "violations": [],
+        "warnings": [
+          "Scene 1 Veo prompt recommended to include mood keywords: ['lighting']",
+          "Scene 2 Veo prompt recommended to include mood keywords: ['lighting']",
+          "Scene 3 Veo prompt recommended to include mood keywords: ['obsidian']"
+        ]
+      }
+    },
+    "scenes": [
+      {
+        "scene_id": 1,
+        "duration": 4.0,
+        "narrative_purpose": "Establish the fundamental friction in traditional DeFi: mempool front-running and gas spikes.",
+        "visual_concept": "Turbulent, congested congestion field in deep obsidian space representing mempool queue drag.",
+        "composition": "Cinematic wide 16:9, asymmetric camera framing looking down a narrowing geometric corridor.",
+        "camera": "Slow cinematic dolly pushing forward into a congested narrow choke-point.",
+        "motion": "Heavy, sluggish particle vectors crawling slowly through viscous dark fluid, signaling delay and friction.",
+        "lighting": "Low-key dramatic studio lighting; ominous crimson (#FC5457) warning reflections along obsidian walls.",
+        "color": "Obsidian base #07020D with deep violet shadows (#471485) and warning coral-red accents (#FC5457).",
+        "typography": "JetBrains Mono uppercase 12px supertitle with Plus Jakarta Sans 48px bold headline.",
+        "assets": [
+          "corridor_mesh",
+          "congested_vector_particles",
+          "status_bracket"
+        ],
+        "negative_constraints": [
+          "generic glowing spheres with concentric rings",
+          "random neon grid floors or Tron aesthetic",
+          "floating 3D cubes with no architectural purpose",
+          "flying golden crypto coins or cartoon dollar signs",
+          "generic stock crypto dashboards or candlestick charts",
+          "holographic sci-fi HUDs with meaningless decorative numbers",
+          "unmotivated particle storms or lens flare spam",
+          "happy lighting",
+          "generic crypto coins",
+          "stock arrows"
+        ],
+        "veo_prompt": "Cinematic high-end architectural visualization of financial friction and network congestion. A sleek, minimalist matte obsidian corridor (#07020D) in deep space. Glowing sluggish energy filaments crawl through a narrowing geometric choke-point with visible drag. Subtle ominous crimson-coral ambient rim light (#FC5457). 35mm film grain, cinematic depth of field, slow forward dolly movement, photorealistic tactile glass and dark stone materials, zero text, zero logos, zero floating spheres."
+      },
+      {
+        "scene_id": 2,
+        "duration": 4.0,
+        "narrative_purpose": "Demonstrate Vanna's architectural solution: Mercury sub-second event streaming on Stellar Soroban.",
+        "visual_concept": "High-velocity laminar beam of coherent telemetry light breaking through the congestion void.",
+        "composition": "Horizontal linear tracking shot following a fast, pristine beam from left to right across vast negative space.",
+        "camera": "High-speed tracking shot matching the velocity of the telemetry beam, then slowing to enter a precision lens.",
+        "motion": "Instantaneous laminar velocity transition (~320ms acceleration), perfectly smooth and coherent.",
+        "lighting": "Prismatic refraction along the edges of the beam; electric cyan (#22D3C4) and soft lavender (#A387FF) luminescence.",
+        "color": "Obsidian #07020D base, royal violet #471485 bloom bottom-left, electric cyan #22D3C4 core beam.",
+        "typography": "High-contrast monospace telemetry readouts at 80% opacity in top-left corner.",
+        "assets": [
+          "coherent_laser_beam",
+          "telemetry_pulse_node",
+          "refraction_plane"
+        ],
+        "negative_constraints": [
+          "generic glowing spheres with concentric rings",
+          "random neon grid floors or Tron aesthetic",
+          "floating 3D cubes with no architectural purpose",
+          "flying golden crypto coins or cartoon dollar signs",
+          "generic stock crypto dashboards or candlestick charts",
+          "holographic sci-fi HUDs with meaningless decorative numbers",
+          "unmotivated particle storms or lens flare spam",
+          "pixelated lines",
+          "cheap rainbow gradients"
+        ],
+        "veo_prompt": "Cinematic high-speed tracking shot of an ultra-thin, coherent laser beam of electric cyan (#22D3C4) and soft lavender (#A387FF) slicing cleanly through an expansive dark obsidian void (#07020D). Smooth laminar optical motion without turbulence. Soft royal violet bloom (#471485) emerging from lower-left. 35mm analog film texture, high optical realism, anamorphic lens flare, calm mathematical precision, zero text, zero floating tokens."
+      },
+      {
+        "scene_id": 3,
+        "duration": 4.0,
+        "narrative_purpose": "Show the automated rebalance execution at 1.25x Net Health Factor with zero liquidation fee.",
+        "visual_concept": "Precision optical deflection: the beam strikes a crystalline threshold prism and arcs gracefully into a secure orbit.",
+        "composition": "Centered monolithic prism with asymmetric parabolic vector trajectory arcing upward away from a faint lower boundary.",
+        "camera": "Subtle orbital camera rotation around the deflection lens as the beam cleanly redirects.",
+        "motion": "Impactless deflection: the beam enters the prism and bends instantaneously into a tranquil horizontal path.",
+        "lighting": "Specular glint at the moment of deflection; deep fuchsia-magenta bloom (#5E0D46) in top-right.",
+        "color": "Electric cyan (#22D3C4) trajectory curving safely above a muted crimson-coral (#FC5457) avoided hazard line.",
+        "typography": "Crisp status tags displaying 1.25x trigger and 1.10x unreached floor.",
+        "assets": [
+          "crystalline_deflection_prism",
+          "parabolic_vector_path",
+          "hazard_boundary_line"
+        ],
+        "negative_constraints": [
+          "generic glowing spheres with concentric rings",
+          "random neon grid floors or Tron aesthetic",
+          "floating 3D cubes with no architectural purpose",
+          "flying golden crypto coins or cartoon dollar signs",
+          "generic stock crypto dashboards or candlestick charts",
+          "holographic sci-fi HUDs with meaningless decorative numbers",
+          "unmotivated particle storms or lens flare spam",
+          "explosions",
+          "shattering glass",
+          "stock shield icons"
+        ],
+        "veo_prompt": "Cinematic architectural macro shot of a precision-cut transparent crystalline prism suspended in deep space. A sharp glowing beam of cyan light strikes the prism and refracts smoothly upward into a stable, peaceful horizontal orbit, completely avoiding a faint red boundary plane below. Rich fuchsia-magenta atmospheric glow (#5E0D46) in upper-right. Fine film grain, beautiful optical caustics, slow elegant camera pan, high-end studio lighting, zero text, zero badges."
+      },
+      {
+        "scene_id": 4,
+        "duration": 3.0,
+        "narrative_purpose": "Deliver institutional closure and proof of non-custodial sandbox isolation with CTA.",
+        "visual_concept": "Three modular obsidian and frosted glass vault chambers resting securely in tranquil equilibrium.",
+        "composition": "Stable, symmetrical architectural composition with vast negative space and reflective obsidian floor.",
+        "camera": "Slow, majestic crane up / tilt down, settling on the secure modular architecture.",
+        "motion": "Static architectural permanence; gentle breathing ambient glow from within the isolated chambers.",
+        "lighting": "Clean rim lighting defining the chamber bevels; serene lavender and cyan ambient washes.",
+        "color": "Deep obsidian base #07020D with calm lavender #A387FF and mint-cyan #22D3C4 interior radiance.",
+        "typography": "Vanna protocol wordmark and clean call-to-action typography.",
+        "assets": [
+          "modular_sandbox_chambers",
+          "reflective_floor_plane",
+          "vanna_monogram"
+        ],
+        "negative_constraints": [
+          "generic glowing spheres with concentric rings",
+          "random neon grid floors or Tron aesthetic",
+          "floating 3D cubes with no architectural purpose",
+          "flying golden crypto coins or cartoon dollar signs",
+          "generic stock crypto dashboards or candlestick charts",
+          "holographic sci-fi HUDs with meaningless decorative numbers",
+          "unmotivated particle storms or lens flare spam",
+          "floating coins",
+          "fireworks",
+          "pulsing circles"
+        ],
+        "veo_prompt": "Cinematic wide architectural shot of three minimalist, monolithic glass and dark obsidian vaults (#07020D) resting upon a mirror-polished dark floor. The vaults glow softly from within with serene lavender (#A387FF) and mint-cyan (#22D3C4) light. Perfect calm, quiet architectural authority, atmospheric violet haze. 35mm film grain, slow cinematic crane-up movement, studio rim lighting, zero text, zero logos, photorealistic."
+      }
+    ],
+    "video_asset_path": "D:\\new orchestration\\pipeline\\state\\vanna_subtle_logo_intro.mp4"
+  },
+  "review_verdicts": {
+    "channel_distinctness": 87,
+    "creative_spec_score": 96,
+    "pixel_brand_score": 95,
+    "video_reviewer_score": 94
+  },
+  "model_arena_comparison": {
+    "target_brief": {
+      "audience": "A2: EVM Migrants & Quantitative Traders",
+      "problem": "Mempool front-running and volatile 150 gwei gas spikes delay defensive rebalances, causing punitive liquidation penalties on EVM.",
+      "narrative": "Sub-Second Telemetry & 10x Isolated Margin without Mempool Front-Running",
+      "cta": "Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+    },
+    "content_arena": {
+      "Model_A_Gemini_2_5_Flash": {
+        "strategic_alignment": 94,
+        "audience_fit": 95,
+        "hook_impact": 91,
+        "claim_precision": 97,
+        "latency_s": 4.97,
+        "cost_usd": 8e-05,
+        "copy": "EVM's mempool front-running and 150 gwei gas spikes cripple defensive rebalances, leading to punitive liquidations. Vanna Protocol on Stellar"
+      },
+      "Model_B_Vanna_Channel_Engine": {
+        "strategic_alignment": 98,
+        "audience_fit": 98,
+        "hook_impact": 96,
+        "claim_precision": 100,
+        "latency_s": 0.05,
+        "cost_usd": 0.0,
+        "copy": "In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.\n\nVanna eliminates front-running liquidations with sub-second off-chain telemetry on Stellar Soroban:\n\n1. Mercury streams ledger events in ~320ms.\n2. At 1.25\u00d7 Net Health Factor, our Risk Guardian executes a targeted rebalance inside your SmartAccount sandbox.\n3. Execution gas is fixed at 0.00014 XLM. No mempool bidding wars. No liquidation fee penalty.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+      }
+    },
+    "visual_arena": {
+      "Model_Gemini_3_1_Flash_Image": {
+        "composition_score": 96,
+        "brand_palette_score": 98,
+        "negative_space_ratio": 0.82,
+        "anti_slop_compliance": 100,
+        "file_path": "D:\\new orchestration\\pipeline\\state\\vanna_live_arena_RUN_20260917_065111.png",
+        "size_bytes": 1503371
+      }
+    },
+    "video_arena": {
+      "Model_Google_Veo_3_1": {
+        "script_adherence": 96,
+        "motion_smoothness": 95,
+        "visual_thesis": "Visualizing sub-second liquidation deflection and automated margin protection.",
+        "resolution": "1280x720 (24fps)",
+        "duration_seconds": 8.0,
+        "file_path": "D:\\new orchestration\\pipeline\\state\\vanna_subtle_logo_intro.mp4"
+      }
+    },
+    "arena_winner": "Model_B_Vanna_Channel_Engine (Text) + gemini-3.1-flash-image (Visual) + veo-3.1-generate-001 (Video)"
+  },
+  "static_image_path": "D:\\new orchestration\\pipeline\\state\\vanna_live_arena_RUN_20260917_065111.png",
+  "video_asset_path": "D:\\new orchestration\\pipeline\\state\\vanna_subtle_logo_intro.mp4"
+}

@@ -1,0 +1,71 @@
+{
+  "run_id": "test-deliberate-rejection",
+  "reviewer_decision": "REJECT_VISUAL",
+  "decision": "REGENERATE",
+  "quality": "FAIL",
+  "overall_visual_score": "66/100",
+  "scores": {
+    "content": 90,
+    "factual": 98,
+    "visual": 45,
+    "brand": 90,
+    "social": 85,
+    "novelty": 40
+  },
+  "score_breakdown": {
+    "concept_clarity": "9.0/10",
+    "originality": "4.0/10",
+    "brand_consistency": "9.0/10",
+    "composition": "4.0/10",
+    "premium_quality": "4.5/10",
+    "visual_to_copy_relationship": "9.0/10",
+    "generic_ai_penalty": "10.0/10",
+    "total_score": "39.5/60"
+  },
+  "evaluations": {
+    "message_fit": "Visual concept aligns with message.",
+    "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+    "premiumness": "Generic 3D sphere with concentric rings detected. Overused AI crypto cliché.",
+    "novelty": "TEMPLATE REPETITION DETECTED: Current asset repeats the 'headline + subtitle + rows + footer' structure.",
+    "technical_accuracy": "Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit."
+  },
+  "critical_failures": [
+    "TEMPLATE REPETITION DETECTED: Current asset repeats the 'headline + subtitle + rows + footer' structure.",
+    "PROHIBITED TROPE: Generic sphere with concentric rings detected.",
+    "PROHIBITED TROPE: Tabular row cards or generic infographic structure.",
+    "PROHIBITED TROPE: Floating 3D boxes or neon grid background.",
+    "GENERIC-AI PENALTY (10.0/10 > threshold 2.0): Disallowed AI crypto tropes found."
+  ],
+  "failures": [
+    "TEMPLATE REPETITION DETECTED: Current asset repeats the 'headline + subtitle + rows + footer' structure.",
+    "PROHIBITED TROPE: Generic sphere with concentric rings detected.",
+    "PROHIBITED TROPE: Tabular row cards or generic infographic structure.",
+    "PROHIBITED TROPE: Floating 3D boxes or neon grid background.",
+    "GENERIC-AI PENALTY (10.0/10 > threshold 2.0): Disallowed AI crypto tropes found."
+  ],
+  "reasons": [
+    "TEMPLATE REPETITION DETECTED: Current asset repeats the 'headline + subtitle + rows + footer' structure.",
+    "PROHIBITED TROPE: Generic sphere with concentric rings detected.",
+    "PROHIBITED TROPE: Tabular row cards or generic infographic structure.",
+    "PROHIBITED TROPE: Floating 3D boxes or neon grid background.",
+    "GENERIC-AI PENALTY (10.0/10 > threshold 2.0): Disallowed AI crypto tropes found."
+  ],
+  "required_changes": [
+    "Choose a fundamentally different visual archetype from: editorial hero, asymmetric technical diagram, visual metaphor.",
+    "Eliminate generic glowing spheres, floating boxes, and Canva layouts. Use precision architectural or financial diagrams."
+  ],
+  "required_revisions": [
+    "Choose a fundamentally different visual archetype from: editorial hero, asymmetric technical diagram, visual metaphor.",
+    "Eliminate generic glowing spheres, floating boxes, and Canva layouts. Use precision architectural or financial diagrams."
+  ],
+  "why_it_passed": [],
+  "art_direction_action": "REGENERATE",
+  "art_direction_directives": [
+    "Choose a fundamentally different visual archetype from: editorial hero, asymmetric technical diagram, visual metaphor.",
+    "Eliminate generic glowing spheres, floating boxes, and Canva layouts. Use precision architectural or financial diagrams."
+  ],
+  "template_repetition": true,
+  "visual_archetype": "generic_ai_infographic",
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\visual_tests\\vanna_post_01_leverage_att1.png",
+  "timestamp": "2026-09-15T10:18:44.058928+00:00"
+}

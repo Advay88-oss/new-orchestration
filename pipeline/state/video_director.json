@@ -1,0 +1,40 @@
+{
+  "video_run_id": "VID_RUN_20260917_113745",
+  "strategy_id": "STRAT-SIG-OPP-OPP_COMPOSABLE_SANDBOX-202609171138",
+  "visual_thesis": "Visualizing sub-second liquidation deflection and automated margin protection.",
+  "art_direction": {
+    "composition": "Asymmetric 16:9 widescreen, >80% negative space, horizontal flow from left to right.",
+    "lighting": "Disciplined studio edge lighting; muted electric violet and fuchsia ambient washes in far corners.",
+    "materials": "Matte obsidian, optical crystal glass, dark satin reflective floor, 35mm film grain.",
+    "negative_space_ratio": 0.8
+  },
+  "motion_direction": {
+    "camera_move": "Slow cinematic Dolly-In with gentle orbital pan",
+    "pacing": "Contemplative, institutional, tension-free",
+    "duration_seconds": 8,
+    "aspect_ratio": "16:9"
+  },
+  "brand_guardian_audit": {
+    "palette": [
+      "#07020D",
+      "#471485",
+      "#5E0D46"
+    ],
+    "anti_slop_passed": true,
+    "prohibited_elements_checked": [
+      "random floating coins",
+      "glowing spheres with concentric rings",
+      "tron neon grids",
+      "meaningless abstract nodes",
+      "generic stock arrows",
+      "random 3d objects with no architectural purpose",
+      "decorative dashboards with fake numbers",
+      "excessive purple pink neon glow",
+      "fake product ui with unverified buttons",
+      "unmotivated gradients",
+      "text heavy infographic layouts"
+    ]
+  },
+  "veo_prompt": "Cinematic masterwork 4K video. Expansive tranquil obsidian void (#07020D) with tactile 35mm analog film grain. A precision-cut optical crystal prism rests in deep space. A thin, coherent cyan telemetry beam strikes the prism and refracts smoothly upward into a stable, peaceful horizontal orbit, avoiding a faint red boundary plane below. Soft royal violet (#471485) and fuchsia (#5E0D46) ambient blooms in the far background. Slow cinematic camera glide. Zero text, zero floating coins, zero neon grids, photorealistic architectural polish.",
+  "video_asset_path": "D:\\new orchestration\\pipeline\\state\\vanna_subtle_logo_intro.mp4"
+}

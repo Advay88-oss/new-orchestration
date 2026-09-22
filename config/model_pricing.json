@@ -1,0 +1,17 @@
+{
+  "_comment": [
+    "USD per 1,000,000 tokens. Fill in the rates you are actually billed.",
+    "A model absent from this file is reported as 'unpriced' rather than as",
+    "costing $0.00 — a confident zero is the same class of error as the",
+    "wall-clock token estimates this pipeline replaced.",
+    "Image and video models are usually billed per asset, not per token; use",
+    "'per_call' for those."
+  ],
+  "per_token": {
+    "gemini-2.5-flash": { "input": 0.30, "output": 2.50 },
+    "gemini-2.5-flash-lite": { "input": 0.10, "output": 0.40 },
+    "gemini-2.5-pro": { "input": 1.25, "output": 10.00 }
+  },
+  "per_call": {
+  }
+}

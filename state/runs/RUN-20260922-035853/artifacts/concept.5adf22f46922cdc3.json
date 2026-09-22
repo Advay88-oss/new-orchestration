@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The 127x Liquidity Choke Point",
+    "idea": "A stark, high-contrast structural layout anchored by a massive monospace hero metric: '127x'. Beneath the stat, an architectural scale diagram renders a precision cross-section: an immense top-heavy reservoir block labeled 'Blend Lending ($157.16M)' resting entirely on a micro-aperture labeled 'Soroswap AMM ($1.24M)'. Fine hairline callouts trace the mechanical reality: liquidating collateral in a unified pool forces total protocol volume through a secondary market capable of absorbing less than 1% of debt before extreme slippage triggers cascading deficits.",
+    "layout": "hero_stat",
+    "why": "This is the strongest concept because it directly honors the prompt angle: strictly emphasizing the mathematical liquidity mismatch (127:1) rather than assuming active insolvencies. Using the hero_stat layout breaks away from the recently overused comparison and sequence layouts, delivering an immediate, arresting punch that quantifies systemic exposure at a single glance."
+  },
+  "all": [
+    {
+      "title": "The 127x Liquidity Choke Point",
+      "idea": "A stark, high-contrast structural layout anchored by a massive monospace hero metric: '127x'. Beneath the stat, an architectural scale diagram renders a precision cross-section: an immense top-heavy reservoir block labeled 'Blend Lending ($157.16M)' resting entirely on a micro-aperture labeled 'Soroswap AMM ($1.24M)'. Fine hairline callouts trace the mechanical reality: liquidating collateral in a unified pool forces total protocol volume through a secondary market capable of absorbing less than 1% of debt before extreme slippage triggers cascading deficits.",
+      "layout": "hero_stat",
+      "why": "This is the strongest concept because it directly honors the prompt angle: strictly emphasizing the mathematical liquidity mismatch (127:1) rather than assuming active insolvencies. Using the hero_stat layout breaks away from the recently overused comparison and sequence layouts, delivering an immediate, arresting punch that quantifies systemic exposure at a single glance."
+    },
+    {
+      "title": "The Socialization Axiom",
+      "idea": "An austere, editorial typographic layout presenting a single uncompromising structural thesis: 'When secondary liquidity cannot clear a cascade, pooled architecture makes every depositor absorb the deficit.' The typography is set in oversized, surgical Swiss grotesque, enclosed in a tight architectural bounding box with precision coordinate markers. The bottom edge displays fine monospace metadata tracking the raw ledger snapshot: 'BLEND TVL: $157,161,882 // SOROSWAP TVL: $1,238,140 // LEDGER LOAD: 0.08'.",
+      "layout": "quote",
+      "why": "It elevates the brand above standard crypto noise with authoritative editorial design, focusing purely on the systemic mechanism of pooled risk without leaning on repetitive visual diagrams."
+    },
+    {
+      "title": "Shared Basin vs. Watertight Bulkheads",
+      "idea": "A dual-register technical blueprint comparing hydraulic failure modes. The upper panel ('Pooled Lending') depicts a single shared basin where a deep fluid volume of $157.16M breaches a single thin outflow point of $1.24M, causing backpressure that contaminates all connected chambers simultaneously. The lower panel ('Isolated Credit Architecture') depicts the exact same volume segmented into discrete structural bulkheads: a failure at one outflow point remains entirely sealed inside its individual vertical cell, leaving adjacent collateral pools completely uncompromised.",
+      "layout": "comparison",
+      "why": "It physically demonstrates why compartmentalization prevents ecosystem-wide spillover, clearly illustrating risk relief while strictly treating the issue as a spatial structural problem rather than an active balance sheet crisis."
+    }
+  ],
+  "novelty_note": ""
+}

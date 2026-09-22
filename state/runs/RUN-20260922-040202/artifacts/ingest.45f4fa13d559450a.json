@@ -1,0 +1,29 @@
+[
+  {
+    "id": "SIG-36a84d7b3872cc0c",
+    "title": "stellar fee stats: last ledger = 4798013, base fee = 100, ledger capacity usage = 0.08",
+    "summary": "Measured onchain value for stellar_fee_stats as of 2026-09-21T18:00:54.114395+00:00.",
+    "source_name": "onchain:stellar_fee_stats",
+    "source_url": null,
+    "observed_at": "2026-09-21T18:00:54.114395+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-c9301140dae88513",
+    "title": "blend tvl: tvl usd = 157161882.0",
+    "summary": "Measured onchain value for blend_tvl as of 2026-09-21T18:00:56.155171+00:00.",
+    "source_name": "onchain:blend_tvl",
+    "source_url": null,
+    "observed_at": "2026-09-21T18:00:56.155171+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-07324285fd3669c5",
+    "title": "soroswap tvl: tvl usd = 1238140.0",
+    "summary": "Measured onchain value for soroswap_tvl as of 2026-09-21T18:00:54.839731+00:00.",
+    "source_name": "onchain:soroswap_tvl",
+    "source_url": null,
+    "observed_at": "2026-09-21T18:00:54.839731+00:00",
+    "engagement": null
+  }
+]

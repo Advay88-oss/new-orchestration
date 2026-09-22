@@ -1,0 +1,33 @@
+{
+  "layout": "diagram",
+  "headline": "Contain Insolvency at the Account Boundary",
+  "subhead": "Isolated credit architecture eliminates contagion across unrelated collateral.",
+  "blocks": [
+    {
+      "role": "label",
+      "text": "Contained Cell: Liquidation shortfall isolated within position perimeter",
+      "emphasis": "primary"
+    },
+    {
+      "role": "label",
+      "text": "Adjacent Cells: Unaffected collateral maintains normal operation",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "caption",
+      "text": "Segmented accounts prevent localized bad debt from socializing across pools",
+      "emphasis": "muted"
+    }
+  ],
+  "focal": {
+    "block_index": 0,
+    "reason": "Anchors the schematic on the isolated failure event and its impenetrable boundary."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

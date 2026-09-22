@@ -1,0 +1,25 @@
+{
+  "audit_timestamp": "2026-09-19T09:01:52.862893+00:00",
+  "campaigns_count": 83,
+  "series_count": 3,
+  "distinction_rules_enforced": [
+    "One-off post: isolated standalone post with no staged sequence",
+    "Recurring series: requires cadence, fixed structure, and tracked occurrence records (>= 4 for RECURRING_SYSTEM)",
+    "Multi-stage campaign: requires 7 standard stages or explicit omission reasons"
+  ],
+  "campaign_stage_standard": [
+    "AWARENESS",
+    "EDUCATION",
+    "PROOF",
+    "ENGAGEMENT",
+    "CONVERSION",
+    "FOLLOW_UP",
+    "RETENTION"
+  ],
+  "series_recurrence_tiers": [
+    "ONE_OCCURRENCE: 1 observed post",
+    "REPEATED_PATTERN: 2-3 occurrences",
+    "RECURRING_SYSTEM: >= 4 occurrences verified on regular cadence"
+  ],
+  "audit_status": "VERIFIED"
+}

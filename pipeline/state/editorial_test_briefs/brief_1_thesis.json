@@ -1,0 +1,13 @@
+{
+  "visual_archetype": "hero",
+  "category": "ARCHITECTURAL THESIS // STELLAR SOROBAN",
+  "headline": "Credit shouldn't stop\nat one protocol.",
+  "emphasis_phrase": "stop at one protocol.",
+  "subhead": "One isolated SmartAccount sandbox. Direct composable credit across Blend, Soroswap, and Aquarius.",
+  "visual": {
+    "concept": "monolithic isolated credit core",
+    "focal_element": "SMARTACCOUNT"
+  },
+  "tag": "VANNA ARCHITECTURE // ZERO CUSTODIAL RISK",
+  "source": "docs.vanna.finance • 14 Audited Contracts"
+}

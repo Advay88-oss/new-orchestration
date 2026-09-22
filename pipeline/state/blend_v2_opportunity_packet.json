@@ -1,0 +1,36 @@
+{
+  "run_id": "RUN_20260917_BLEND_V2",
+  "opportunity_id": "OPP_BLEND_V2_COMPOSABLE_LEVERAGE",
+  "opportunity_title": "Composable 10x Credit Layer for Blend v2 Pools",
+  "market_signal": "Blend v2 launched on Stellar Soroban with $149.7M TVL, consolidating money market liquidity. However, positions remain overcollateralized with no native cross-pool leverage.",
+  "vehicle_decision": "RECURRING_SERIES",
+  "series_title": "The Soroban Composable Yield Series (Episode #1)",
+  "vehicle_rationale": "Dynamic yield strategies on evolving Blend v2 pools represent a repeatable educational cycle rather than a one-off post or phased conversion campaign.",
+  "gtm_machine": "MACHINE_04: TECHNICAL_EDUCATION_DISPATCH",
+  "target_audience": "A2: Active Quantitative Traders & Yield Farmers",
+  "content": {
+    "x_post": "Blend v2 consolidated $149M+ in lending on Stellar Soroban. But 150% overcollateralization locks capital in stasis.\n\nVanna serves as the composable credit layer on top of Blend v2:\n\n1. Deposit collateral into a dedicated SmartAccount sandbox.\n2. Access up to 10\u00d7 undercollateralized margin.\n3. Deploy directly into Blend vaults in a single atomic transaction.\n\nSub-second Mercury telemetry protects positions before liquidation. Fixed 0.00014 XLM gas.\n\ntest.stellar.vanna.finance",
+    "linkedin_brief": "Why the release of Blend v2 marks the inflection point for composable credit on Stellar Soroban.\n\nPrimitive money markets solve pool liquidity, but they leave capital trapped: pledging $150 to borrow $100 is not capital efficiency.\n\nVanna introduces the composable credit layer designed specifically to unlock leverage on top of Blend v2:\n\n\u2022 Isolated SmartAccount Sandboxes: Borrowers execute within dedicated contract sandboxes. Deficits remain quarantined without compromising shared lending reserves.\n\u2022 Atomic Margin Routing: Deposit collateral once, access up to 10\u00d7 margin, and deploy straight into Blend single-asset vaults in a single transaction.\n\u2022 Sub-Second Telemetry Defense: Mercury streams ledger events in ~320ms, triggering non-custodial rebalances at 1.25\u00d7 Net Health Factor before touching the 1.10\u00d7 liquidation floor.\n\u2022 Deterministic Fees: Fixed execution cost of 0.00014 XLM eliminates priority gas bidding wars.\n\nExplore the architecture on testnet: test.stellar.vanna.finance",
+    "reddit_post": "**Title:** Technical breakdown: Building a 10x composable credit layer on top of Blend v2.\n\nWith Blend v2 rolling out on Stellar Soroban, decentralized money markets have reached meaningful liquidity ($149M+ TVL). However, primitive lending markets share a common bottleneck: capital drag.\n\nIf you want to run a leveraged yield strategy on Blend, you are forced into recursive borrow-deposit loops, incurring multiple transaction fees, execution slippage, and liquidation anxiety if network fees spike.\n\nHere is how we designed Vanna's credit architecture on Soroban Protocol 20 to solve this:\n\n- **Dedicated Contract Instances:** Users do not share a global pool state for their leveraged position. Each user interacts through an isolated SmartAccount contract sandbox.\n- **Atomic Composable Routing:** Collateral is deposited once into the sandbox, amplifying borrowing power up to 10x, and routed directly into Blend v2 b-token vaults in one atomic call.\n- **Off-Chain Telemetry Integration:** Using the Mercury indexer, ledger state streams in ~320ms. When a position reaches 1.25x Net Health Factor, automated keepers execute defensive rebalances before touching the 1.10x hard floor.\n- **Zero Priority Gas Auctions:** Stellar's deterministic fee structure ensures transactions execute for 0.00014 XLM, eliminating MEV searcher front-running during sell-offs.\n\nTestnet deployment and contract documentation are live: test.stellar.vanna.finance\n\n*(Disclosure: Core builder at Vanna Protocol. Testing on Stellar Testnet only.)*"
+  },
+  "visual_concept": {
+    "metaphor": "Precision-cut smoked glass optical prism floating in an obsidian void, refracting a single white coherent beam into ten parallel radiant cyan and lavender laser filaments that loop cleanly through interlocking dark titanium rings.",
+    "brand_palette": "#07020D obsidian void, #471485 electric violet bloom, #5E0D46 fuchsia-magenta bloom.",
+    "textless": true
+  },
+  "review_scores": {
+    "content_review": 88,
+    "creative_review": 97,
+    "pixel_brand_review": 96
+  },
+  "governance": {
+    "publishing_status": "DISABLED_BY_SAFETY_INTERLOCK",
+    "current_state": "WAITING_FOR_HUMAN",
+    "available_actions": [
+      "APPROVE",
+      "REVISE",
+      "REGENERATE",
+      "KILL"
+    ]
+  }
+}

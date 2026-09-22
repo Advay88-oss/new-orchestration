@@ -1,0 +1,100 @@
+{
+  "run_id": "RUN-20260922-060709",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "Leverage is easy. Not getting liquidated is the hard part.",
+  "body": "When collateral declines, unmonitored positions risk falling into bad debt before a protocol can react. On Vanna, risk is bounded structurally. A priced account with debt must maintain a health factor strictly above 1.1 to be considered healthy. Once an account reaches or drops below 1.1, it becomes a liquidation candidate. It is marked as eligible for liquidation subject to oracle, configuration, funding, and execution checks to isolate the position before undercollateralization spreads.",
+  "thread": [
+    "Leverage is easy. Not getting liquidated is the hard part. When collateral values decline, unmonitored positions risk falling into bad debt before a protocol can intervene.",
+    "On Vanna, risk is bounded structurally. A priced account with debt must maintain a health factor strictly above 1.1 to be considered healthy.",
+    "At or below 1.1, the account becomes a liquidation candidate. It is eligible for liquidation subject to oracle, configuration, funding, and execution checks to isolate the failure mode."
+  ],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-060709_r1.png",
+  "visual_accepted": false,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "When collateral declines, unmonitored positions risk falling into bad debt before a protocol can react.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.95
+      },
+      {
+        "text": "On Vanna, risk is bounded structurally.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.95
+      },
+      {
+        "text": "Once an account reaches or drops below 1.1, it becomes a liquidation candidate.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      },
+      {
+        "text": "These checks isolate the position before undercollateralization spreads.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.95
+      },
+      {
+        "text": "When collateral values decline, unmonitored positions risk falling into bad debt before a protocol can intervene.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.98
+      },
+      {
+        "text": "These checks isolate the failure mode.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.95
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 12,
+    "by_status": {
+      "verified": 4,
+      "unverified": 2,
+      "unsupported": 6,
+      "refuted": 0
+    },
+    "blocking": [
+      "When collateral declines, unmonitored positions risk falling into bad debt before a protocol can react.",
+      "On Vanna, risk is bounded structurally.",
+      "Once an account reaches or drops below 1.1, it becomes a liquidation candidate.",
+      "These checks isolate the position before undercollateralization spreads.",
+      "When collateral values decline, unmonitored positions risk falling into bad debt before a protocol can intervene.",
+      "These checks isolate the failure mode."
+    ]
+  },
+  "artifact": "review_packet.ad29df4a9e649681.json"
+}

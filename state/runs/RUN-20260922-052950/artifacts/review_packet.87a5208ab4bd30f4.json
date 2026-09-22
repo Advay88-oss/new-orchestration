@@ -1,0 +1,187 @@
+{
+  "run_id": "RUN-20260922-052950",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "In shared lending pools, leverage amplifies liquidation cascades when high utilization allows distress to spread across the collective pool.",
+  "body": "Containing liquidation shocks requires strict boundary enforcement at the account level. Segregated accounts act as standard wallets and natively enforce token whitelists and transfer rules without wrappers. This structure confines distress to the individual account, enabling institutional credit infrastructure for margin, prime brokerage, and portfolio loans to support an 80% average utilization rate without pool-wide spillover.",
+  "thread": [
+    "In shared lending pools, leverage amplifies systemic liquidation cascades. When utilization climbs, price shocks or liquidations in a single position can spill over to impact the solvency of the entire shared pool.",
+    "Containment requires isolation at the account boundary. Segregated accounts act as standard wallets and natively enforce token whitelists and transfer rules without wrappers, ensuring distressed collateral cannot cross into shared reserves.",
+    "This architecture supports institutional credit infrastructure across margin, prime brokerage, and portfolio loans. Platforms using this model report an average utilization rate of 80% while keeping liquidation risk strictly within account boundaries."
+  ],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-052950_r1.png",
+  "visual_accepted": true,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "In shared lending pools, leverage amplifies liquidation cascades when high utilization allows distress to spread across the collective pool.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "Containing liquidation shocks requires strict boundary enforcement at the account level.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "Segregated accounts act as standard wallets.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      },
+      {
+        "text": "This structure confines distress to the individual account.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "This structure enables institutional credit infrastructure for margin, prime brokerage, and portfolio loans.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      },
+      {
+        "text": "This structure supports an 80% average utilization rate without pool-wide spillover.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.95
+      },
+      {
+        "text": "In shared lending pools, leverage amplifies systemic liquidation cascades.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "When utilization climbs in shared lending pools, price shocks in a single position can spill over to impact the solvency of the entire shared pool.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "When utilization climbs in shared lending pools, liquidations in a single position can spill over to impact the solvency of the entire shared pool.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "Containment requires isolation at the account boundary.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "Segregated accounts ensure distressed collateral cannot cross into shared reserves.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.95
+      },
+      {
+        "text": "This architecture supports institutional credit infrastructure across margin, prime brokerage, and portfolio loans.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      },
+      {
+        "text": "Platforms using this model report an average utilization rate of 80%.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.95
+      },
+      {
+        "text": "Platforms using this model keep liquidation risk strictly within account boundaries.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 16,
+    "by_status": {
+      "verified": 2,
+      "unverified": 0,
+      "unsupported": 14,
+      "refuted": 0
+    },
+    "blocking": [
+      "In shared lending pools, leverage amplifies liquidation cascades when high utilization allows distress to spread across the collective pool.",
+      "Containing liquidation shocks requires strict boundary enforcement at the account level.",
+      "Segregated accounts act as standard wallets.",
+      "This structure confines distress to the individual account.",
+      "This structure enables institutional credit infrastructure for margin, prime brokerage, and portfolio loans.",
+      "This structure supports an 80% average utilization rate without pool-wide spillover.",
+      "In shared lending pools, leverage amplifies systemic liquidation cascades.",
+      "When utilization climbs in shared lending pools, price shocks in a single position can spill over to impact the solvency of the entire shared pool.",
+      "When utilization climbs in shared lending pools, liquidations in a single position can spill over to impact the solvency of the entire shared pool.",
+      "Containment requires isolation at the account boundary.",
+      "Segregated accounts ensure distressed collateral cannot cross into shared reserves.",
+      "This architecture supports institutional credit infrastructure across margin, prime brokerage, and portfolio loans.",
+      "Platforms using this model report an average utilization rate of 80%.",
+      "Platforms using this model keep liquidation risk strictly within account boundaries."
+    ]
+  }
+}

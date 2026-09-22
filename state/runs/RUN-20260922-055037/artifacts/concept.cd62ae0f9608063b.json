@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "Four-Phase Distress Interception",
+    "idea": "A precise vertical sequence documenting distress containment across time: Stage 01 (Unattended Volatility Spike: health factor compresses), Stage 02 (1.10x Boundary Activation: autonomous policy monitors trip before parity), Stage 03 (Floor Division Settlement: exact, zero-protocol-bias collateralization via mul_wad_down), and Stage 04 (Isolated Settlement: account debt resolved without cross-margin contagion).",
+    "layout": "sequence",
+    "why": "It methodically explains the autonomous pipeline, proving to institutional traders and liquidity providers that unattended positions are resolved by deterministic protocol mechanics rather than manual keeper intervention."
+  },
+  "all": [
+    {
+      "title": "The Inviolable 1.1x Hard Floor",
+      "idea": "Monolithic, high-contrast composition dominated by a massive '1.1x' set in stark technical typography. A razor-sharp architectural datum line cuts beneath it labeled 'LIQUIDATION TRIGGER (1.1000 HF)'. Beneath this boundary line, the negative space is demarcated as 'INACCESSIBLE PARITY DEFICIT (≤1.00x)' in muted slate, flanked by micro-annotations displaying the fixed-point math primitives 'mul_wad_down' and 'div_wad_down'. The asset visualizes an unbreachable floor where debt never reaches the break-even line.",
+      "layout": "hero_stat",
+      "why": "It isolates the single most reassuring operational truth for an overleveraged borrower: liquidations do not lag into insolvency while you sleep. The massive 1.1x instantly establishes an engineered safety gap above parity without relying on decorative clutter."
+    },
+    {
+      "title": "Terminal Parity vs. Autonomous Boundary",
+      "idea": "A rigorous two-column comparative diagram. Left side ('Conventional Liquidations at 1.0x Parity'): displays an erosion line dropping into negative equity due to execution latency and adverse rounding. Right side ('Vanna Unified Margin at 1.1x Floor'): displays an engineered stopping plate fixed precisely at 1.1x, where autonomous liquidation execution absorbs the shock with 10% equity reserve remaining, verified by round-down integer math stamps.",
+      "layout": "comparison",
+      "why": "Directly confronts the psychological anxiety of overnight liquidations by showing how conventional 1.0x parity liquidations slide into bad debt, whereas a 1.1x autonomous floor cleanly encapsulates distress before contagion occurs."
+    },
+    {
+      "title": "Four-Phase Distress Interception",
+      "idea": "A precise vertical sequence documenting distress containment across time: Stage 01 (Unattended Volatility Spike: health factor compresses), Stage 02 (1.10x Boundary Activation: autonomous policy monitors trip before parity), Stage 03 (Floor Division Settlement: exact, zero-protocol-bias collateralization via mul_wad_down), and Stage 04 (Isolated Settlement: account debt resolved without cross-margin contagion).",
+      "layout": "sequence",
+      "why": "It methodically explains the autonomous pipeline, proving to institutional traders and liquidity providers that unattended positions are resolved by deterministic protocol mechanics rather than manual keeper intervention."
+    }
+  ],
+  "novelty_note": "novelty gate: 'hero_stat' used in the last 3 assets; switched to 'sequence'"
+}

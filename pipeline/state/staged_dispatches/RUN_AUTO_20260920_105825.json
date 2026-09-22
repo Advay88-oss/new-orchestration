@@ -1,0 +1,40 @@
+{
+  "request_id": "PUB-RUN_AUTO_20260920_105825",
+  "packet_id": "PKT-RUN_AUTO_20260920_105825",
+  "run_id": "RUN_AUTO_20260920_105825",
+  "campaign_id": "ONEOFF-STRAT-SIG-OPP-DI",
+  "pattern_id": "PAT_01_TECHNICAL_TELEMETRY",
+  "approved_by": "PENDING_HUMAN_APPROVAL",
+  "approved_at": "2026-09-20T10:59:13.429334+00:00",
+  "channels": [
+    {
+      "channel": "X",
+      "title": null,
+      "copy": "[1/2] We are proud to announce our strategic integration with the Stellar ecosystem.\n\nTogether, we are unlocking native composable leverage and institutional credit infrastructure on Stellar Soroban Protocol 20.\n\nVanna provides dedicated SmartAccount sandboxes, isolated default",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260920_105825_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "LinkedIn",
+      "title": null,
+      "copy": "Today marks a key milestone for decentralized money markets: our strategic collaboration with the Stellar ecosystem.\n\nTraditional EVM lending protocols suffer from shared liquidity pool contagion and volatile gas auctions during liquidations. On Stellar Soroban, Vanna introduces isolated SmartAccount contract sandboxes where borrower risk is strictly quarantined.\n\nWith sub-second event streaming via the Mercury indexer (~320ms) and deterministic 0.00014 XLM execution fees, we are building the composable credit backbone for Stellar DeFi.\n\nThe institutional architecture is live on testnet: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260920_105825_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "Reddit",
+      "title": "Announcement: How Vanna is bringing composable credit infrastructure to Stellar Soroban",
+      "copy": "**Title:** How Vanna is bringing composable credit infrastructure to Stellar Soroban\n\nWe are excited to share our strategic work within the Stellar ecosystem to deliver native, isolated credit lines on Soroban.\n\nWhy Stellar Soroban?\n- **State Isolation:** Each borrower operates in an isolated SmartAccount sandbox rather than a shared monolithic pool.\n- **Deterministic Low Fees:** Transaction gas is fixed at 0.00014 XLM, eliminating mempool bidding wars.\n- **Sub-Second Telemetry:** Mercury indexer streams ledger state in ~320ms for automated rebalancing.\n\nTry deploying a testnet sandbox today: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance\n\n*(Disclosure: Core builder at Vanna Protocol. Testing on Stellar Testnet only.)*",
+      "media_paths": [],
+      "tags": [],
+      "target_community": null
+    }
+  ],
+  "mode": "SIMULATED_TESTNET"
+}

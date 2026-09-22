@@ -1,0 +1,51 @@
+{
+  "creative_id": "CR-STRAT-SIG-OPP-OPP_COMPOSABLE_SANDBOX-202609190854",
+  "strategy_id": "STRAT-SIG-OPP-OPP_COMPOSABLE_SANDBOX-202609190854",
+  "creative_thesis": "Visualizing state isolation and zero-contagion through modular architectural containment chambers.",
+  "visual_concept": "Three monolithic glass-and-obsidian vault chambers where one safely contains an internal fracture while peers stay pristine.",
+  "visual_metaphor": "Compartmentalized blast-radius: localized risk quarantined at the contract instance level.",
+  "composition": "Cinematic 16:9 widescreen with generous negative space (>75%) framing the central hero subject.",
+  "environment": "Minimalist virtual stage with 35mm film grain on deep #07020D void.",
+  "materials": "Precision-milled dark obsidian, frosted barrier glass, and calm internal luminescence.",
+  "camera": "Slow, elegant camera crane up / tilt down settling on the secure modular architecture.",
+  "lighting": "Clean studio rim lighting defining chamber bevels with soft lavender and cyan ambient washes.",
+  "motion": "Permanent architectural stillness with gentle 0.5Hz breathing luminescence inside vaults.",
+  "typography": {
+    "headline_font": "Plus Jakarta Sans",
+    "telemetry_font": "JetBrains Mono"
+  },
+  "brand_system": {
+    "palette": {
+      "obsidian_void": "#07020D",
+      "royal_violet_bloom": "#471485",
+      "fuchsia_magenta_bloom": "#5E0D46",
+      "lavender_accent": "#A387FF",
+      "coral_risk": "#FC5457",
+      "cyan_telemetry": "#22D3C4",
+      "neutral_white": "#FFFFFF"
+    },
+    "typography": {
+      "primary_sans": "Plus Jakarta Sans",
+      "monospace": "JetBrains Mono"
+    },
+    "surface": "35mm analog film grain, quiet institutional authority, generous negative space"
+  },
+  "negative_constraints": [
+    "generic glowing spheres with concentric rings",
+    "random neon grid floors or Tron aesthetic",
+    "floating 3D cubes with no architectural purpose",
+    "flying golden crypto coins or cartoon dollar signs",
+    "generic stock crypto dashboards or candlestick charts",
+    "holographic sci-fi HUDs with meaningless decorative numbers",
+    "unmotivated particle storms or lens flare spam",
+    "excessive purple/pink neon glow everywhere"
+  ],
+  "generation_format": "video_veo31",
+  "generator_instructions": {
+    "target_model": "veo-3.1-generate-001",
+    "prompt": "Minimalist luxury product motion design video. The official Vanna geometric logo glyph and VANNA wordmark are centered in an expansive, tranquil obsidian void (#07020D). Extremely subtle, soft, restrained studio lighting. The folded geometric ribbon glyph has a quiet, gentle breathing internal glow of soft coral and lavender, with delicate, matte chamfered edge highlights. The clean white VANNA typography remains razor-sharp and steady. The camera executes a very slow, smooth, elegant cinematic pull-back across a clean, dark satin floor with faint, muted reflections. Muted, soft ambient violet (#471485) and fuchsia (#5E0D46) tones stay gracefully in the far background. Tactile 35mm film grain, supreme visual calm, quiet institutional confidence. Photorealistic architectural polish.",
+    "aspect_ratio": "16:9",
+    "duration_seconds": 8,
+    "conditioning_image": "vanna_logo_hero_canvas.png"
+  }
+}

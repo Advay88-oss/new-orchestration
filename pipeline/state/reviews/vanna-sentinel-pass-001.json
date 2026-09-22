@@ -1,0 +1,26 @@
+{
+  "run_id": "vanna-sentinel-pass-001",
+  "decision": "PASS",
+  "scores": {
+    "content": 90,
+    "factual": 98,
+    "visual": 90,
+    "brand": 92,
+    "social": 88,
+    "novelty": 88
+  },
+  "critical_failures": [],
+  "reasons": [],
+  "required_changes": [],
+  "visual_archetype": "cinematic object",
+  "previous_archetypes_checked": [
+    "mechanism visualization",
+    "asymmetric technical diagram",
+    "asymmetric technical diagram",
+    "visual metaphor",
+    "generic 3-row infographic"
+  ],
+  "template_repetition": false,
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_sentinel_guardian_visual.png",
+  "timestamp": "2026-09-15T06:41:03.965424+00:00"
+}

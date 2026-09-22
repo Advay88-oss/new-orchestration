@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "blocking_claims": [],
+  "rule_violations": [],
+  "rules_source": "legacy:claim_safety_gate"
+}

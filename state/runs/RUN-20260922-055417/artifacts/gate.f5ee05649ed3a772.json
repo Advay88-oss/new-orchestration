@@ -1,0 +1,37 @@
+{
+  "passed": false,
+  "blocking_claims": [
+    {
+      "text": "Isolated pools force capital to back only one position at a time.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "The contract derives the position status on demand by dividing total collateral USD by total debt USD.",
+      "kind": "vanna_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "The liquidation threshold enforces a strict health-factor floor of 1.1x.",
+      "kind": "vanna_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    }
+  ],
+  "rule_violations": [],
+  "rules_source": "legacy:claim_safety_gate"
+}

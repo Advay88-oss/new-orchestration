@@ -1,0 +1,121 @@
+{
+  "run_id": "RUN_RESEARCH_DERIVE_1789895945",
+  "entity": "Derive",
+  "elapsed_seconds": 8.96,
+  "scraped_pages_count": 3,
+  "claims_extracted_count": 0,
+  "profile": {
+    "entity_id": "derive",
+    "retrieved_at": "2026-09-20T09:19:14.089122+00:00",
+    "product": {
+      "name": "Derive",
+      "description": "",
+      "features": [
+        "Core lending and margin borrowing capabilities"
+      ],
+      "chains_supported": [
+        "Ethereum"
+      ],
+      "sdk_api_available": false
+    },
+    "audience": {
+      "target_segments": [
+        "DeFi Allocators",
+        "Borrowers"
+      ],
+      "evidence_status": "INFERRED"
+    },
+    "positioning": {
+      "headline": "",
+      "category": "LENDING_AND_CREDIT",
+      "value_proposition": "Composable decentralized credit",
+      "source_hierarchy_level": 2
+    },
+    "conversion": {
+      "primary_cta_links": [],
+      "documentation_url": "https://docs.derive.xyz"
+    },
+    "proof": {
+      "metrics": [
+        "DeFiLlama Verified TVL: $190,647,426.00"
+      ],
+      "confidence": "HIGH"
+    },
+    "visual": {
+      "screenshots": [],
+      "design_patterns": [
+        "Dark obsidian/slate UI",
+        "Modern glassmorphism tables"
+      ]
+    },
+    "sources_crawled": [
+      "https://derive.xyz",
+      "https://docs.derive.xyz",
+      "https://mirror.xyz/derive"
+    ]
+  },
+  "claims": [],
+  "trace": [
+    {
+      "step": "LEVEL_1_MARKET_DISCOVERY",
+      "tool": "urllib.request -> api.llama.fi",
+      "target": "https://api.llama.fi/protocol/derive",
+      "status": "SUCCESS",
+      "data_summary": "TVL: $190647426"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://derive.xyz",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://docs.derive.xyz",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://mirror.xyz/derive",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "EVIDENCE_NORMALIZATION",
+      "claims_extracted": 0,
+      "profile_dimensions_populated": [
+        "entity_id",
+        "retrieved_at",
+        "product",
+        "audience",
+        "positioning",
+        "conversion",
+        "proof",
+        "visual",
+        "sources_crawled"
+      ],
+      "status": "NORMALIZED"
+    },
+    {
+      "step": "BRAIN_DB_INTEGRATION",
+      "evidence_records_appended": 0,
+      "opportunities_derived": 1,
+      "status": "COMMITTED"
+    }
+  ],
+  "brain_sync": {
+    "evidence_added": 0,
+    "opportunities_added": 1
+  },
+  "duration": 8.96
+}

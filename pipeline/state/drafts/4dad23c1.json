@@ -1,0 +1,42 @@
+{
+  "draft_id": "4dad23c1",
+  "message_id": 287,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T11:10:02Z",
+  "sent_unix": 1787224200,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "4dad23c1",
+    "draft_id": "bae0963a",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Siloed pools create ghost liquidations. A flash crash in one asset wipes your credit account, while your idle USDC sits helpless next door.\n\nVanna unifies your margin—one buffer protecting everything.\n\nLeverage is easy. Not getting liquidated is the hard part.",
+    "final_body": "Siloed pools create ghost liquidations. A flash crash in one asset wipes your credit account, while your idle USDC sits helpless next door.\n\nVanna unifies your margin—one buffer protecting everything.\n\nLeverage is easy. Not getting liquidated is the hard part.",
+    "final_hook": "Siloed pools create ghost liquidations.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "infographic",
+      "headline": "Siloed risk. Unnecessary liquidations.",
+      "emphasis_phrase": "Unified margin protects.",
+      "subhead": "How isolated credit accounts compare to Vanna's cross-collateralized architecture.",
+      "data": [
+        {
+          "label": "Liquidation Risk",
+          "value": "Isolated Pools",
+          "note": "A single asset wick liquidates the specific credit account."
+        },
+        {
+          "label": "Vanna Margin Floor",
+          "value": "1.1x Unified Floor",
+          "note": "Entire portfolio backstops positions with a 10% safety buffer."
+        }
+      ],
+      "disclaimer": "Vanna is currently on testnet. Architecture and parameters are subject to change prior to mainnet."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T11:09:55Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

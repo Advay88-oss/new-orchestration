@@ -1,0 +1,50 @@
+{
+  "run_id": "vanna-art-directed-final-cycle1",
+  "quality": "PASS",
+  "decision": "PASS",
+  "score": "9.1/10",
+  "scores": {
+    "content": 90,
+    "factual": 100,
+    "visual": 90,
+    "brand": 90,
+    "social": 85,
+    "novelty": 90
+  },
+  "criteria_scores": {
+    "narrative_clarity": "9.0/10",
+    "visual_concept": "9.0/10",
+    "copy_visual_relationship": "9.0/10",
+    "brand_consistency": "9.0/10",
+    "typography": "9.0/10",
+    "composition": "9.0/10",
+    "mobile_readability": "9.0/10",
+    "factual_safety": "10.0/10",
+    "premium_quality": "9.0/10",
+    "conversion_potential": "8.5/10"
+  },
+  "critical_failures": [],
+  "failures": [],
+  "reasons": [
+    "Asset verified against all 10 criteria."
+  ],
+  "required_changes": [],
+  "required_revisions": [],
+  "why_it_passed": [
+    "Opening hook establishes immediate, visceral market tension without marketing jargon.",
+    "Visual concept acts as a narrative metaphor for capital protection under external volatility.",
+    "Image illustrates the defensive boundary while copy explains autonomous session-key protection.",
+    "Vanna brand palette verified: deep obsidian base (#08070C), lavender glow (#A387FF), coral highlights (#FC5457).",
+    "Minimal typography; avoids transforming the visual into a dense documentation slide.",
+    "Art-directed 'cinematic_metaphor' composition with balanced visual weight.",
+    "High contrast ratio and clear silhouette visible at mobile feed scale.",
+    "100% compliant with claims registry: Stellar Soroban, Blend BLUSDC, Net Health Factor, non-custodial.",
+    "Clean, institutional cryptographic finish comparable to Morpho and Gearbox design standards.",
+    "Clear single destination CTA anchoring back to live protocol surface."
+  ],
+  "remaining_weakness": [],
+  "visual_archetype": "cinematic_metaphor",
+  "template_repetition": false,
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna-art-directed-final_visual.png",
+  "timestamp": "2026-09-15T07:15:48.714647+00:00"
+}

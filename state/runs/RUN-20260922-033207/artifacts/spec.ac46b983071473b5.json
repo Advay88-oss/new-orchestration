@@ -1,0 +1,28 @@
+{
+  "layout": "comparison",
+  "headline": "Shared Pools Spread Shocks. Isolated Credit Walls Them Off.",
+  "subhead": null,
+  "blocks": [
+    {
+      "role": "compare_left",
+      "text": "Shared Liquidity Pools: A single degraded asset triggers cascading fractures across unpartitioned chambers, spreading risk across the broader system.",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "compare_right",
+      "text": "Isolated Credit Accounts: Losses remain sealed within individual position bulkheads, halting contagion before it reaches adjacent reserves.",
+      "emphasis": "primary"
+    }
+  ],
+  "focal": {
+    "block_index": 1,
+    "reason": "Directs focus to isolated credit architecture as the structural mechanism halting systemic failure."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

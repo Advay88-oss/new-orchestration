@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-121542-6va",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787228324.0347703,
+  "ended": 1787228445.8306677,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 121.8,
+  "kind": "content-run",
+  "winner_hook": "Leverage is easy. Surviving the",
+  "winner_body": "Leverage is easy. Surviving the 3 AM wick is the hard part. Siloed accounts liquidate you in pieces. Vanna pools your collateral, using strong assets to shield volatile ones. One health factor—backed by our strict 1.1x borrow guard: (C+B)/(D+B) >= 1.1.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

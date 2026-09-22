@@ -1,0 +1,11 @@
+{
+  "id": "STR-d2bcb389f64555f0",
+  "opportunity_id": "OPP-57201ea630a95d35",
+  "audience": "DeFi traders and yield strategists deploying assets on Stellar Soroban lending pools.",
+  "narrative_arc": "capital_efficiency",
+  "problem_statement": "Traders and liquidity providers with capital tied up in Blend's $159M TVL face stagnant capital productivity when isolated from smaller ecosystem liquidity venues like Soroswap.",
+  "angle": "Blend holds the bulk of ecosystem liquidity at over $159M TVL against Soroswap's $1.24M, but evidence is currently thin on how 10x composable leverage operates safely across these venues without compounding slippage; Vanna must argue that capital efficiency comes from composable credit routing that makes static collateral work across Soroban pools rather than idling in single protocol silos.",
+  "evidence_ids": [
+    "SIG-57201ea630a95d35"
+  ]
+}

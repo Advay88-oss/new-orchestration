@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-125046-t55",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787230279.8559759,
+  "ended": 1787230410.3122463,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 130.5,
+  "kind": "content-run",
+  "winner_hook": "Siloed credit is a liquidation trap.",
+  "winner_body": "Siloed credit is a liquidation trap. With Gearbox, a flash wick in one account wipes you out—even if your other account is over-collateralized. Vanna unifies margin under one health factor. Your idle assets actively back your risk. Leverage is easy. Staying alive is hard.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

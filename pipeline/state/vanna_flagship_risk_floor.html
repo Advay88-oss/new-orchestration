@@ -1,0 +1,528 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  width: 1080px;
+  height: 1080px;
+  overflow: hidden;
+  background-color: #08070C;
+  color: #F3F1F8;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+}
+
+/* Common Shared Components */
+.brand-logo { height: 42px; display: block; }
+.header-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #22D3C4;
+  letter-spacing: 0.12em;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.eyebrow-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #22D3C4;
+  letter-spacing: 0.12em;
+  margin-bottom: 14px;
+}
+
+/* 1. EDITORIAL / MANIFESTO */
+.layout-manifesto {
+  width: 1080px;
+  height: 1080px;
+  padding: 64px 72px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.manifesto-header { display: flex; align-items: center; justify-content: space-between; }
+.manifesto-body { display: flex; flex-direction: column; margin: auto 0; }
+.manifesto-bracket {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #A387FF;
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+}
+.manifesto-headline {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  color: #FFFFFF;
+  margin-bottom: 24px;
+  max-width: 940px;
+}
+.manifesto-lead {
+  font-size: 20px;
+  line-height: 1.5;
+  color: #E2E1E6;
+  margin-bottom: 48px;
+  max-width: 820px;
+}
+.manifesto-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 32px;
+}
+.m-col { display: flex; flex-direction: column; gap: 6px; }
+.m-idx { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #22D3C4; font-weight: 700; }
+.m-title { font-size: 15px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.04em; }
+.m-desc { font-size: 13px; color: #A2A1A6; line-height: 1.45; }
+.manifesto-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.f-lbl { color: #A387FF; font-weight: 700; margin-right: 6px; }
+.f-val { color: #717075; }
+
+/* 2. TECHNICAL ARCHITECTURE */
+.layout-architecture {
+  width: 1080px;
+  height: 1080px;
+  padding: 56px 64px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.arch-top { display: flex; align-items: center; justify-content: space-between; }
+.arch-intro { margin-top: 10px; }
+.arch-headline { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 6px; }
+.arch-sub { font-size: 17px; color: #E2E1E6; }
+.arch-topology-canvas {
+  position: relative;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+.topo-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.stage-col { position: relative; z-index: 3; }
+.col-caller {
+  width: 210px;
+  background: #110E1B;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 18px;
+}
+.node-badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: #22D3C4; margin-bottom: 6px; }
+.node-badge.rose { color: #C4B0F6; }
+.node-name { font-size: 15px; font-weight: 800; color: #FFFFFF; }
+.node-meta { font-size: 12px; color: #A2A1A6; margin-top: 4px; }
+.node-port { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #717075; margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px; }
+.col-vault { width: 280px; display: flex; flex-direction: column; align-items: center; }
+.vault-boundary-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #22D3C4; letter-spacing: 0.1em; margin-bottom: 8px; }
+.vault-chassis {
+  width: 100%;
+  background: #0E071A;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+.vault-indicator { width: 8px; height: 8px; border-radius: 50%; background: #10B981; margin: 0 auto 10px; box-shadow: 0 0 8px #10B981; }
+.vault-title { font-size: 16px; font-weight: 800; letter-spacing: 0.06em; }
+.vault-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #22D3C4; margin-top: 4px; }
+.vault-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 12px; }
+.vm-cell { display: flex; flex-direction: column; }
+.vm-l { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #717075; }
+.vm-v { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #FFFFFF; }
+.vault-ports { display: flex; justify-content: space-between; margin-top: 14px; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 8px; }
+.port-tag { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700; color: #C4B0F6; }
+.port-tag.cyan { color: #22D3C4; }
+.col-targets { display: flex; flex-direction: column; gap: 24px; }
+.target-unit {
+  width: 250px;
+  background: #110E1B;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.arch-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #717075;
+}
+
+/* 3. DATA VISUALIZATION */
+.layout-data-viz {
+  width: 1080px;
+  height: 1080px;
+  padding: 56px 64px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.data-header { display: flex; align-items: center; justify-content: space-between; }
+.data-title-block { margin-top: 10px; }
+.data-headline { font-size: 46px; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+.data-sub { font-size: 18px; color: #E2E1E6; }
+.data-hero-metric { display: flex; align-items: baseline; gap: 28px; margin: 24px 0; }
+.metric-huge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 140px;
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  color: #FFFFFF;
+}
+.metric-descriptor { display: flex; flex-direction: column; gap: 4px; }
+.m-desc-title { font-size: 20px; font-weight: 700; letter-spacing: 0.06em; color: #FFFFFF; }
+.m-desc-sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #22D3C4; letter-spacing: 0.08em; }
+.continuum-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.continuum-labels { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; }
+.c-lbl-bad { color: #EF4444; }
+.c-lbl-floor { color: #C4B0F6; }
+.c-lbl-good { color: #10B981; }
+.continuum-track {
+  position: relative;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 100px;
+  display: flex;
+  overflow: visible;
+}
+.track-bad { width: 50%; background: #EF4444; border-radius: 100px 0 0 100px; }
+.track-buffer { width: 10%; background: #A387FF; }
+.track-good { width: 40%; background: rgba(16, 185, 129, 0.4); border-radius: 0 100px 100px 0; }
+.track-needle-wrap {
+  position: absolute;
+  left: 55%;
+  top: -34px;
+  bottom: -12px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 4;
+}
+.needle-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  background: #A387FF;
+  color: #FFFFFF;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.needle-line { width: 3px; height: 100%; background: #A387FF; }
+.continuum-scale { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #717075; }
+.scale-focal { color: #C4B0F6; font-weight: 800; }
+.data-status-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 20px;
+}
+.status-left { display: flex; align-items: center; gap: 10px; font-size: 15px; color: #E2E1E6; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; }
+.status-code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #22D3C4; }
+.data-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #717075;
+}
+
+/* 4. PRODUCT SYSTEM DIAGRAM */
+.layout-system-diagram {
+  width: 1080px;
+  height: 1080px;
+  padding: 56px 64px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.sys-header { display: flex; align-items: center; justify-content: space-between; }
+.sys-intro { margin-top: 10px; }
+.sys-headline { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+.sys-sub { font-size: 18px; color: #E2E1E6; }
+.pipeline-arena {
+  position: relative;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+.pipeline-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.origin-pod {
+  position: relative;
+  z-index: 3;
+  width: 270px;
+  background: #0C0617;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+.pod-kicker { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: #22D3C4; letter-spacing: 0.1em; margin-bottom: 6px; }
+.pod-title { font-size: 20px; font-weight: 800; color: #FFFFFF; }
+.pod-sub { font-size: 13px; color: #A2A1A6; margin-top: 2px; }
+.pod-details { display: flex; flex-direction: column; gap: 6px; margin: 18px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; }
+.pod-details .cyan { color: #22D3C4; }
+.pod-foot { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #A387FF; letter-spacing: 0.08em; }
+.target-rails {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 320px;
+}
+.rail-row {
+  background: #110E1B;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid #703AE6;
+  border-radius: 10px;
+  padding: 16px 20px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+.rail-row.rail-soroswap { border-left-color: #22D3C4; }
+.rail-row.rail-aquarius { border-left-color: #C4B0F6; }
+.rail-tag-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.r-pill { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+.r-pill.violet { background: rgba(112, 58, 230, 0.2); color: #A387FF; }
+.r-pill.cyan { background: rgba(50, 238, 226, 0.15); color: #22D3C4; }
+.r-pill.rose { background: rgba(163, 135, 255, 0.15); color: #C4B0F6; }
+.r-param { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #717075; }
+.rail-brand { font-size: 16px; font-weight: 800; color: #FFFFFF; }
+.rail-summary { font-size: 12px; color: #A2A1A6; margin-top: 4px; line-height: 1.4; }
+.sys-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #717075;
+}
+
+/* 5. ASYMMETRIC HERO COMPOSITION */
+.layout-asymmetric-hero {
+  width: 1080px;
+  height: 1080px;
+  padding: 56px 64px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.hero-top { display: flex; align-items: center; justify-content: space-between; }
+.asym-container {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 48px;
+  height: 800px;
+}
+.asym-headline { font-size: 54px; font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+.asym-lead { font-size: 18px; color: #E2E1E6; margin-bottom: 36px; line-height: 1.5; }
+.asym-specs { display: flex; flex-direction: column; gap: 20px; }
+.spec-tile { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: baseline; }
+.st-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: #22D3C4; }
+.st-title { font-size: 14px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.04em; display: block; margin-bottom: 4px; }
+.st-desc { font-size: 13px; color: #A2A1A6; line-height: 1.45; }
+.wireframe-chassis {
+  background: #110E1B;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.wf-header, .wf-footer {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #717075;
+}
+.wf-canvas { position: relative; width: 320px; height: 320px; margin: 0 auto; }
+.iso-svg { width: 100%; height: 100%; }
+.wf-badge-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background: rgba(11, 6, 20, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 14px;
+}
+.wfb-kicker { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #22D3C4; font-weight: 700; }
+.wfb-val { font-size: 18px; font-weight: 800; color: #FFFFFF; display: block; margin: 2px 0; }
+.wfb-status { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #717075; }
+.asym-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #717075;
+}
+
+/* 6. CINEMATIC MINIMAL */
+.layout-cinematic-minimal {
+  width: 1080px;
+  height: 1080px;
+  padding: 64px 72px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.cin-top { display: flex; align-items: center; justify-content: space-between; }
+.cin-logo { height: 48px; display: block; }
+.cin-tag { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: #22D3C4; letter-spacing: 0.12em; }
+.cin-center { display: flex; flex-direction: column; justify-content: center; margin: auto 0; }
+.cin-headline { font-size: 88px; font-weight: 800; line-height: 1.02; letter-spacing: -0.04em; color: #FFFFFF; max-width: 920px; }
+.cin-sub { font-size: 26px; font-weight: 500; color: #E2E1E6; margin-top: 36px; letter-spacing: -0.01em; max-width: 820px; line-height: 1.4; }
+.cin-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #717075;
+  letter-spacing: 0.06em;
+}
+.cin-status { display: flex; align-items: center; gap: 10px; }
+.cin-pulse { width: 7px; height: 7px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981; }
+.cin-url { color: #A2A1A6; font-weight: 600; }
+</style>
+</head>
+<body>
+  
+    <div class="layout-data-viz">
+      <header class="data-header">
+        <div class="brand-logo-wrap"><svg width="400" height="125" viewBox="0 0 400 125" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M59.9886 16.0614C63.1147 13.6729 67.3757 13.3951 70.7757 15.3581C74.1757 17.3211 76.0413 21.1361 75.4986 25.0161L72.1417 49.0153L72.1454 49.0174L65.6912 95.1595L102.868 66.755L114.107 73.2444L68.4972 108.093C65.3711 110.481 61.11 110.759 57.7101 108.796C54.3101 106.833 52.4445 103.018 52.9872 99.138L56.3441 75.1388L56.3404 75.1367L62.7946 28.9947L25.6183 57.3991L14.3784 50.9098L59.9886 16.0614Z" fill="url(#paint0_linear_2299_395)"/>
+<path d="M25.6183 57.3991L36.003 63.3948L33.9183 78.2994L45.9557 69.141L56.3404 75.1367L36.6411 90.1879C33.7348 92.4085 29.7734 92.6668 26.6125 90.8418C23.4545 89.0185 21.7201 85.4763 22.2206 81.872L25.6183 57.3991Z" fill="url(#paint1_linear_2299_395)"/>
+<path d="M102.868 66.755L92.4828 60.7594L94.5675 45.8547L82.5301 55.0131L72.1454 49.0174L91.8447 33.9662C94.751 31.7457 98.7124 31.4874 101.873 33.3123C105.031 35.1356 106.766 38.6778 106.265 42.2822L102.868 66.755Z" fill="url(#paint2_linear_2299_395)"/>
+<path d="M247.114 90.226C247.114 90.226 247.057 69.9667 247.057 54.3309C247.057 38.8269 258.378 33.4176 270.969 33.4177C286.92 33.4179 294.825 43.9283 294.825 55.5122V90.226H281.858V58.564C281.858 56.2013 281.396 54.1668 280.472 52.4604C279.548 50.754 278.261 49.4414 276.612 48.5225C275.028 47.5381 273.147 47.0458 270.969 47.0458C268.858 47.0458 266.977 47.5381 265.327 48.5225C263.678 49.4414 262.391 50.754 261.467 52.4604C260.543 54.1668 260.081 56.2013 260.081 58.564V90.226H247.114Z" fill="white"/>
+<path d="M247.114 90.226C247.114 90.226 247.057 69.9667 247.057 54.3309C247.057 38.8269 258.378 33.4176 270.969 33.4177C286.92 33.4179 294.825 43.9283 294.825 55.5122V90.226H281.858V58.564C281.858 56.2013 281.396 54.1668 280.472 52.4604C279.548 50.754 278.261 49.4414 276.612 48.5225C275.028 47.5381 273.147 47.0458 270.969 47.0458C268.858 47.0458 266.977 47.5381 265.327 48.5225C263.678 49.4414 262.391 50.754 261.467 52.4604C260.543 54.1668 260.081 56.2013 260.081 58.564V90.226H247.114Z" fill="white"/>
+<path d="M136.341 32.7905C139.79 44.9848 146.695 67.1417 150.83 80.4719C152.604 86.1925 157.891 90.1187 163.88 90.1187C169.79 90.1187 175.029 86.2856 176.806 80.6489L191.896 32.7905H178.045C178.045 32.7905 168.01 65.4386 164.231 73.9932C160.451 65.9571 149.765 32.7905 149.765 32.7905H136.341Z" fill="white"/>
+<path d="M136.341 32.7905C139.79 44.9848 146.695 67.1417 150.83 80.4719C152.604 86.1925 157.891 90.1187 163.88 90.1187C169.79 90.1187 175.029 86.2856 176.806 80.6489L191.896 32.7905H178.045C178.045 32.7905 168.01 65.4386 164.231 73.9932C160.451 65.9571 149.765 32.7905 149.765 32.7905H136.341Z" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M227.804 89.1951V83.5789C227.121 84.3278 226.395 85.0185 225.627 85.651C223.713 87.1605 221.535 88.3419 219.094 89.1951C216.652 89.9826 213.947 90.3764 210.977 90.3764C207.216 90.3764 203.949 89.7529 201.178 88.5059C198.406 87.259 196.261 85.4869 194.744 83.1899C193.226 80.8272 192.467 78.1035 192.467 75.0188C192.467 72.0655 193.127 69.4403 194.447 67.1432C195.767 64.7805 197.812 62.8116 200.584 61.2364C203.355 59.6613 206.853 58.5456 211.076 57.8893L227.112 55.291V53.5577C227.112 51.2606 226.188 49.3573 224.34 47.8478C222.558 46.2727 220.183 45.4851 217.213 45.4851C214.442 45.4851 211.967 46.2398 209.789 47.7493C207.678 49.1932 206.127 51.1293 205.137 53.5577L194.546 48.4385C195.602 45.6163 197.251 43.188 199.495 41.1535C201.805 39.0533 204.51 37.4125 207.612 36.2312C210.713 35.0498 214.079 34.4591 217.708 34.4591C222.129 34.4591 226.023 35.2795 229.388 36.9203C232.754 38.4954 235.36 40.7269 237.208 43.6146C239.122 46.4367 240.079 49.7511 240.079 53.5577V89.1951H227.804ZM213.551 67.4385L227.112 65.1466V67.3401C227.112 69.7684 226.518 71.9998 225.33 74.0344C224.208 76.0689 222.591 77.6769 220.48 78.8582C218.434 79.974 216.058 80.5318 213.353 80.5318C211.241 80.5318 209.459 80.0068 208.008 78.9567C206.622 77.841 205.929 76.3643 205.929 74.5266C205.929 72.6233 206.556 71.081 207.81 69.8997C209.063 68.7183 210.977 67.8979 213.551 67.4385Z" fill="white"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M387.726 89.1951V83.5789C387.043 84.3278 386.317 85.0185 385.548 85.651C383.635 87.1605 381.457 88.3419 379.015 89.1951C376.574 89.9826 373.868 90.3764 370.898 90.3764C367.137 90.3764 363.871 89.7529 361.099 88.5059C358.328 87.259 356.183 85.4869 354.665 83.1899C353.147 80.8272 352.388 78.1035 352.388 75.0188C352.388 72.0655 353.048 69.4403 354.368 67.1432C355.688 64.7805 357.734 62.8116 360.505 61.2364C363.277 59.6613 366.774 58.5456 370.997 57.8893L387.033 55.291V53.5577C387.033 51.2606 386.109 49.3573 384.261 47.8478C382.48 46.2727 380.104 45.4851 377.135 45.4851C374.363 45.4851 371.888 46.2398 369.711 47.7493C367.599 49.1932 366.048 51.1293 365.058 53.5577L354.467 48.4385C355.523 45.6163 357.173 43.188 359.416 41.1535C361.726 39.0533 364.432 37.4125 367.533 36.2312C370.635 35.0498 374 34.4591 377.629 34.4591C382.051 34.4591 385.944 35.2795 389.31 36.9203C392.675 38.4954 395.282 40.7269 397.129 43.6146C399.043 46.4367 400 49.7511 400 53.5577V89.1951H387.726ZM373.472 67.4385L387.033 65.1466V67.3401C387.033 69.7684 386.439 71.9998 385.251 74.0344C384.129 76.0689 382.513 77.6769 380.401 78.8582C378.355 79.974 375.98 80.5318 373.274 80.5318C371.162 80.5318 369.381 80.0068 367.929 78.9567C366.543 77.841 365.85 76.3643 365.85 74.5266C365.85 72.6233 366.477 71.081 367.731 69.8997C368.985 68.7183 370.899 67.8979 373.472 67.4385Z" fill="white"/>
+<path d="M300.661 90.226C300.661 90.226 300.604 69.9666 300.604 54.3308C300.604 38.8268 311.925 33.4176 324.516 33.4177C340.466 33.4178 348.371 43.9283 348.371 55.5122V90.226H335.404V58.564C335.404 56.2013 334.943 54.1667 334.019 52.4603C333.095 50.754 331.808 49.4413 330.158 48.5225C328.575 47.538 326.694 47.0458 324.516 47.0458C322.405 47.0458 320.524 47.538 318.874 48.5225C317.224 49.4413 315.938 50.754 315.014 52.4603C314.09 54.1667 313.628 56.2013 313.628 58.564V90.226H300.661Z" fill="white"/>
+<path d="M300.661 90.226C300.661 90.226 300.604 69.9666 300.604 54.3308C300.604 38.8268 311.925 33.4176 324.516 33.4177C340.466 33.4178 348.371 43.9283 348.371 55.5122V90.226H335.404V58.564C335.404 56.2013 334.943 54.1667 334.019 52.4603C333.095 50.754 331.808 49.4413 330.158 48.5225C328.575 47.538 326.694 47.0458 324.516 47.0458C322.405 47.0458 320.524 47.538 318.874 48.5225C317.224 49.4413 315.938 50.754 315.014 52.4603C314.09 54.1667 313.628 56.2013 313.628 58.564V90.226H300.661Z" fill="white"/>
+<defs>
+<linearGradient id="paint0_linear_2299_395" x1="44.2096" y1="0.0204605" x2="128.492" y2="50.5742" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FC5457"/>
+<stop offset="1" stop-color="#703AE6"/>
+</linearGradient>
+<linearGradient id="paint1_linear_2299_395" x1="44.2096" y1="0.0204605" x2="128.492" y2="50.5742" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FC5457"/>
+<stop offset="1" stop-color="#703AE6"/>
+</linearGradient>
+<linearGradient id="paint2_linear_2299_395" x1="44.2096" y1="0.0204605" x2="128.492" y2="50.5742" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FC5457"/>
+<stop offset="1" stop-color="#703AE6"/>
+</linearGradient>
+</defs>
+</svg>
+</div>
+        <div class="header-tag">RISK ARCHITECTURE // STELLAR SOROBAN</div>
+      </header>
+
+      <div class="data-title-block">
+        <div class="eyebrow-chip">TELEMETRY // MATHEMATICAL FLOOR</div>
+        <h1 class="data-headline">Liquidation at 1.10x.<br>Not 1.00x.</h1>
+        <p class="data-sub">Slippage and oracle lag shouldn&#x27;t become LP bad debt. A calibrated 10% buffer preserves protocol solvency.</p>
+      </div>
+
+      <div class="data-hero-metric">
+        <span class="metric-huge">1.10x</span>
+        <div class="metric-descriptor">
+          <span class="m-desc-title">STRICT HEALTH FACTOR LIQUIDATION FLOOR</span>
+          <span class="m-desc-sub">CONTRACTUALLY ENFORCED BY VANNA RISKENGINE ON STELLAR</span>
+        </div>
+      </div>
+
+      <!-- Precision Calibrated Range Continuum -->
+      <div class="continuum-container">
+        <div class="continuum-labels">
+          <span class="c-lbl-bad">0.0x INSOLVENT (BAD DEBT)</span>
+          <span class="c-lbl-floor">THRESHOLD // 1.1x FLOOR</span>
+          <span class="c-lbl-good">2.0x+ SOLVENT CAPITAL</span>
+        </div>
+
+        <div class="continuum-track">
+          <div class="track-bad"></div>
+          <div class="track-needle-wrap">
+            <div class="needle-badge">1.10x FLOOR</div>
+            <div class="needle-line"></div>
+          </div>
+          <div class="track-buffer"></div>
+          <div class="track-good"></div>
+        </div>
+
+        <div class="continuum-scale">
+          <span>0.0</span>
+          <span>0.5</span>
+          <span class="scale-focal">1.1x</span>
+          <span>1.5</span>
+          <span>2.0+</span>
+        </div>
+      </div>
+
+      <div class="data-status-strip">
+        <div class="status-left">
+          <span class="status-dot"></span>
+          <span>Positions remain solvent above 1.1x HF. Reverts instantly if collateral degrades.</span>
+        </div>
+        <div class="status-code">RISK_HF &ge; 1.1000 // STRICT_REVERT</div>
+      </div>
+
+      <footer class="data-footer">
+        <span>MERCURY INDEXED // RISK CEILING: 100%</span>
+        <span>docs.vanna.finance • Audited Soroban Smart Contracts</span>
+      </footer>
+    </div>
+    
+</body>
+</html>

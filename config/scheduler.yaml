@@ -1,0 +1,38 @@
+# Vanna Autonomous Scheduler Configuration
+# Supported Intervals: 2m | 30m | 1h | 2h | 6h | 12h | 24h
+
+jobs:
+  gtm_cycle:
+    interval: "6h"
+    enabled: true
+    model_heavy: true
+    min_allowed_interval_m: 60
+    description: "Full autonomous GTM cycle: all 13 agents, selects its own topic, renders visual + video, stops at human review."
+
+  research_collect:
+    interval: "12h"
+    enabled: true
+    description: "Full research collection across all 8 sources via OpenCLI & on-chain RPC."
+    model_heavy: true
+    min_allowed_interval_m: 60
+
+  trend_scan:
+    interval: "12h"
+    enabled: true
+    description: "Zero-cost real-time trend & news monitoring (Google News RSS + Curve/Stellar news)."
+    model_heavy: false
+    min_allowed_interval_m: 2
+
+  ideas_panel:
+    interval: "12h"
+    enabled: true
+    description: "Synthesizes 8-12 claim-gated actionable GTM ideas from newly scraped artefacts."
+    model_heavy: true
+    min_allowed_interval_m: 5
+
+  memes_panel:
+    interval: "12h"
+    enabled: true
+    description: "Scans crypto culture for liquidation/gas humor with strict claim & risk gating."
+    model_heavy: false
+    min_allowed_interval_m: 5

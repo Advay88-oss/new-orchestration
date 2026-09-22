@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "Trapped Buffers vs. Shared Margin",
+    "idea": "A precise top-to-bottom split comparison of balance sheets. The top half depicts 'Isolated Pools': three disconnected vertical columns, each showing duplicated, idle capital buffers trapped in siloed contracts to satisfy separate liquidation buffers (300% aggregate drag). The bottom half depicts 'Vanna SmartAccount': one single wide collateral base supporting the exact same three pool liabilities simultaneously, eliminating redundant buffer reserves entirely.",
+    "layout": "comparison",
+    "why": "This layout directly attacks the user hook regarding isolated lending pools. Contrasting dead buffer cash trapped in separate silos against a lean unified foundation delivers an immediate visceral takeaway for institutional liquidity managers."
+  },
+  "all": [
+    {
+      "title": "The Unified Perimeter",
+      "idea": "An architectural blueprint diagram presenting a single, heavy technical boundary labeled 'SmartAccount Margin Perimeter'. Inside sits a single deposited base collateral anchor (e.g. 50k USDC). Branching directly out from that anchor within the perimeter are three distinct active debt lines to independent lending pools and an external yield allocation, all bound under a single overhead telemetry read-out: 'Account Health Factor: 1.35x'. Faint dotted lines connect retained borrow capital back into the margin numerator, visually grounding the self-collateralization rule without clutter.",
+      "layout": "diagram",
+      "why": "It directly illustrates the structural mechanism of the SmartAccount as an enclosing credit envelope rather than a pipeline. By showing multiple external exposures anchored to one root deposit within a single boundary calculation, it makes the complex credit-efficiency thesis visually undeniable."
+    },
+    {
+      "title": "Trapped Buffers vs. Shared Margin",
+      "idea": "A precise top-to-bottom split comparison of balance sheets. The top half depicts 'Isolated Pools': three disconnected vertical columns, each showing duplicated, idle capital buffers trapped in siloed contracts to satisfy separate liquidation buffers (300% aggregate drag). The bottom half depicts 'Vanna SmartAccount': one single wide collateral base supporting the exact same three pool liabilities simultaneously, eliminating redundant buffer reserves entirely.",
+      "layout": "comparison",
+      "why": "This layout directly attacks the user hook regarding isolated lending pools. Contrasting dead buffer cash trapped in separate silos against a lean unified foundation delivers an immediate visceral takeaway for institutional liquidity managers."
+    },
+    {
+      "title": "The Collateral Multiplier Lifecycle",
+      "idea": "A strict three-step technical sequence tracking the lifecycle of $100k USDC. Step 1 (Singular Ingestion): A single deposit enters the audited SmartAccount shell. Step 2 (Dual-Sided Margin): The account draws external debt pools while counting retained borrowed assets into total gross health. Step 3 (Simultaneous Deployment): Capital flows outward into whitelisted DEX liquidity without breaking pool solvency ties.",
+      "layout": "sequence",
+      "why": "A sequence clearly articulates the counter-intuitive mechanic of 'self-collateralization' step-by-step, dismantling skepticism about how borrowed assets remain counted toward account health."
+    }
+  ],
+  "novelty_note": "novelty gate: 'diagram' used in the last 3 assets; switched to 'comparison'"
+}

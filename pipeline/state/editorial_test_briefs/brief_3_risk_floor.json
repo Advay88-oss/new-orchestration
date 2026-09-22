@@ -1,0 +1,16 @@
+{
+  "visual_archetype": "data_metric",
+  "category": "RISK ENGINE // REAL-TIME DEFENSE",
+  "headline": "1.1x Health Factor Floor.",
+  "emphasis_phrase": "1.1x Health Factor",
+  "subhead": "Strict mathematical threshold between bad debt and fully protected collateral.",
+  "hero_stat": "1.1x",
+  "stat": {
+    "caption": "STRICT HEALTH FACTOR LIQUIDATION FLOOR"
+  },
+  "detail_line": {
+    "text": "Positions stay solvent above 1.1x HF. Reverts instantly if collateral degrades."
+  },
+  "tag": "MERCURY INDEXED // RISK CEILING 100%",
+  "source": "vanna.finance/risk • Block-Speed Telemetry"
+}

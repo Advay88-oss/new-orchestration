@@ -1,0 +1,16 @@
+{
+  "audit_timestamp": "2026-09-22T09:09:44.219224+00:00",
+  "creative_id": "CCB-STRAT-SIG-DOCS-B-202609220907",
+  "approved": true,
+  "score": 96,
+  "generator_bypass_prevented": true,
+  "formats_validated": [
+    "STATIC_VECTOR",
+    "STATIC_IMAGE",
+    "MEME_IMAGE",
+    "VEO_VIDEO_31"
+  ],
+  "slop_violations_count": 0,
+  "brand_compliance": true,
+  "reasoning": "Creative blueprint derived strictly from communication objective. Zero generic crypto slop detected. Canonical brand tokens verified."
+}

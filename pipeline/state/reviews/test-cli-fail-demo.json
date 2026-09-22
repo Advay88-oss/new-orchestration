@@ -1,0 +1,50 @@
+{
+  "run_id": "test-cli-fail-demo",
+  "decision": "REGENERATE",
+  "scores": {
+    "content": 80,
+    "factual": 45,
+    "visual": 75,
+    "brand": 92,
+    "social": 78,
+    "novelty": 40
+  },
+  "critical_failures": [
+    "Unsupported factual violation: Invented high-yield/APY claim",
+    "Unsupported factual violation: Unsupported network (Vanna is built on Stellar/Soroban and EVM L2s, not Solana)",
+    "Unsupported factual violation: Dangerous and prohibited 'zero risk' claim",
+    "Unsupported factual violation: Unsupported guarantee claim in financial derivatives context",
+    "Post copy lacks clear grounding in verified protocol components (Stellar Soroban, Blend BLUSDC, Margin Accounts).",
+    "TEMPLATE REPETITION DETECTED: Current asset repeats the 'headline + subtitle + rows + footer' structure."
+  ],
+  "reasons": [
+    "Generic marketing jargon detected: ['revolutionary', 'next-gen'].",
+    "Fact-check failure: Invented high-yield/APY claim",
+    "Fact-check failure: Unsupported network (Vanna is built on Stellar/Soroban and EVM L2s, not Solana)",
+    "Fact-check failure: Dangerous and prohibited 'zero risk' claim",
+    "Fact-check failure: Unsupported guarantee claim in financial derivatives context",
+    "Copy contains zero references to verified protocol architecture or assets.",
+    "Visual brief specifies generic data rows/boxes instead of an authentic mechanism visualization.",
+    "Opening sentence lacks tension or hook stopping power.",
+    "Current composition uses headline + subtitle + 3 rows + footer, matching repetitive past templates."
+  ],
+  "required_changes": [
+    "Eliminate generic marketing buzzwords and state technical mechanisms directly.",
+    "Remove or correct unsupported claim: Invented high-yield/APY claim",
+    "Remove or correct unsupported claim: Unsupported network (Vanna is built on Stellar/Soroban and EVM L2s, not Solana)",
+    "Remove or correct unsupported claim: Dangerous and prohibited 'zero risk' claim",
+    "Remove or correct unsupported claim: Unsupported guarantee claim in financial derivatives context",
+    "Anchor copy strictly to verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x leverage.",
+    "Do not use row-based infographic boxes. Use a cohesive mechanism diagram or 3D visual metaphor.",
+    "Open with a punchy market tension or counter-intuitive insight.",
+    "Choose a fundamentally different visual archetype from:\n- editorial hero\n- cinematic object\n- asymmetric technical diagram\n- mechanism visualization\n- architecture visualization\n- system flow\n- before/after\n- protocol interaction\n- one dominant metric\n- visual metaphor\n- technical editorial\n- macro/micro composition"
+  ],
+  "visual_archetype": "generic 3-row infographic",
+  "previous_archetypes_checked": [
+    "visual metaphor",
+    "mechanism visualization"
+  ],
+  "template_repetition": true,
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png",
+  "timestamp": "2026-09-15T06:13:49.056196+00:00"
+}

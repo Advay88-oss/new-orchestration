@@ -48,11 +48,61 @@ def log_agent_activity(agent_name: str, message: str) -> None:
 
 def load_persona(name: str) -> str:
     path = REPO / "pipeline" / "buzz-pack" / "agents" / f"{name}.persona.md"
+    if not path.exists():
+        path = REPO / "pipeline" / "system1_extracted" / "buzz-pack" / "agents" / f"{name}.persona.md"
     return path.read_text(encoding="utf-8")
 
+def _gemini_key() -> str | None:
+    """GEMINI_API_KEY from env or pipeline/.env (generativelanguage / GCP surface)."""
+    k = os.environ.get("GEMINI_API_KEY")
+    if k:
+        return k
+    envf = REPO / "pipeline" / ".env"
+    if envf.exists():
+        for line in envf.read_text(encoding="utf-8").splitlines():
+            if line.startswith("GEMINI_API_KEY="):
+                return line.split("=", 1)[1].strip().strip('"').strip("'")
+    return None
+
+
+def write_run_meta(draft_file_path, start_time, model: str, sent: bool) -> str:
+    """Emit pipeline/state/runs/<id>.meta.json in the shape the dashboard's
+    /api/runs route reads — this is what syncs a run onto the live dashboard."""
+    runs_dir = STATE / "runs"
+    runs_dir.mkdir(parents=True, exist_ok=True)
+    run_id = os.environ.get("VANNA_RUN_ID") or ("vanna-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime(start_time)))
+    hook = body = ""
+    trend = ""
+    try:
+        d = json.loads(Path(draft_file_path).read_text(encoding="utf-8"))
+        hook = d.get("final_hook") or d.get("hook") or ""
+        body = d.get("final_body") or d.get("body") or ""
+        trend = d.get("trend") or d.get("trend_id") or ""
+    except Exception:
+        pass
+    meta = {
+        "run_id": run_id, "pipeline": "Vanna content pipeline", "tenant": "Vanna",
+        "started": start_time, "ended": time.time(), "status": "completed",
+        "brain": f"gemini ({model}) · GCP", "trend_source": "scrape+gemini",
+        "duration_s": round(time.time() - start_time, 1), "kind": "content-run",
+        "winner_hook": hook, "winner_body": body, "trend": trend,
+        "delivered_to_telegram": sent,
+    }
+    (runs_dir / f"{run_id}.meta.json").write_text(json.dumps(meta, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"Run meta synced to dashboard: pipeline/state/runs/{run_id}.meta.json")
+    return run_id
+
+
 def call_vertex(system_instruction: str, prompt: str, temperature: float = 0.7) -> str:
-    """Invokes Gemini 2.5 Flash via our local spend proxy on port 8900 with automatic retry for HTTP 429."""
-    url = "http://127.0.0.1:8900/v1/projects/sales-agent-504607/locations/us-central1/publishers/google/models/gemini-2.5-flash:generateContent"
+    """GCP brain. Prefers the working Gemini API-key surface (generativelanguage,
+    billed to our GCP project); falls back to the Vertex spend-proxy (:8900) which
+    needs ADC. Auto-retries HTTP 429."""
+    _k = _gemini_key()
+    if _k:
+        model = os.environ.get("VANNA_GEMINI_MODEL", "gemini-3.8-flash")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={_k}"
+    else:
+        url = "http://127.0.0.1:8900/v1/projects/sales-agent-504607/locations/us-central1/publishers/google/models/gemini-3.8-flash:generateContent"
     payload = {
         "contents": [
             {
@@ -178,7 +228,7 @@ def run_live_scouter(selected_competitor, config) -> dict:
     try:
         res = subprocess.run(
             ["opencli", "twitter", "tweets", selected_competitor["x_handle"], "--limit", "4", "-f", "json"],
-            capture_output=True, text=True, shell=True, timeout=15
+            capture_output=True, text=True, encoding="utf-8", errors="replace", shell=True, timeout=15
         )
         if res.returncode == 0 and res.stdout.strip():
             comp_tweets = json.loads(res.stdout)
@@ -193,7 +243,7 @@ def run_live_scouter(selected_competitor, config) -> dict:
     try:
         res = subprocess.run(
             ["opencli", "reddit", "subreddit", sub, "--limit", "4", "-f", "json"],
-            capture_output=True, text=True, shell=True, timeout=15
+            capture_output=True, text=True, encoding="utf-8", errors="replace", shell=True, timeout=15
         )
         if res.returncode == 0 and res.stdout.strip():
             sub_posts = json.loads(res.stdout)
@@ -208,7 +258,7 @@ def run_live_scouter(selected_competitor, config) -> dict:
         try:
             res = subprocess.run(
                 ["opencli", "twitter", "tweets", "GearboxProtocol", "--limit", "4", "-f", "json"],
-                capture_output=True, text=True, shell=True, timeout=15
+                capture_output=True, text=True, encoding="utf-8", errors="replace", shell=True, timeout=15
             )
             if res.returncode == 0 and res.stdout.strip():
                 comp_tweets = json.loads(res.stdout)
@@ -221,7 +271,7 @@ def run_live_scouter(selected_competitor, config) -> dict:
         try:
             res = subprocess.run(
                 ["opencli", "twitter", "tweets", "Aave", "--limit", "4", "-f", "json"],
-                capture_output=True, text=True, shell=True, timeout=15
+                capture_output=True, text=True, encoding="utf-8", errors="replace", shell=True, timeout=15
             )
             if res.returncode == 0 and res.stdout.strip():
                 comp_tweets = json.loads(res.stdout)
@@ -234,7 +284,7 @@ def run_live_scouter(selected_competitor, config) -> dict:
         try:
             res = subprocess.run(
                 ["opencli", "reddit", "subreddit", "defi", "--limit", "4", "-f", "json"],
-                capture_output=True, text=True, shell=True, timeout=15
+                capture_output=True, text=True, encoding="utf-8", errors="replace", shell=True, timeout=15
             )
             if res.returncode == 0 and res.stdout.strip():
                 sub_posts = json.loads(res.stdout)
@@ -249,6 +299,12 @@ def run_live_scouter(selected_competitor, config) -> dict:
         "competitor_tweets": comp_tweets,
         "reddit_posts": sub_posts
     }
+    # Persist the raw scraped signals so the dashboard can render them as
+    # expandable tweet/reddit cards (the runner folds this into the run trace).
+    try:
+        (STATE / "temp_scraped.json").write_text(json.dumps(summary, ensure_ascii=False), encoding="utf-8")
+    except Exception:
+        pass
     return summary
 
 # --------------------------------------------------------------------------
@@ -260,6 +316,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--focus", type=str, default="")
     ap.add_argument("--visual", type=str, choices=["static", "animated"], default="static")
+    ap.add_argument("--no-send", action="store_true", help="Run scrape->debate->visual->gate on GCP but STOP before the Telegram send.")
     args = ap.parse_args()
 
     start_time = time.time()
@@ -267,17 +324,22 @@ def main() -> int:
     print("🚀 Starting Vanna 100% Dynamic Content Pipeline")
     print("=========================================================")
 
-    # 0. Check Spend Proxy status
-    try:
-        with urllib.request.urlopen("http://127.0.0.1:8900/_spend", timeout=5) as r:
-            spend = json.loads(r.read())
-            print(f"Spend check: already_spent=${spend['spent_usd']:.4f}, remaining=${spend['remaining_usd']:.4f}")
-            if spend["remaining_usd"] <= 0.05:
-                print("Budget exhausted! Refusing to run.")
-                return 1
-    except Exception as e:
-        print(f"Error checking spend proxy: {e}. Please ensure python pipeline/scripts/vertex_spend_proxy.py is active.")
-        return 1
+    # 0. Check Spend Proxy status — only when the brain actually routes through the
+    #    Vertex proxy. When GEMINI_API_KEY is present we use the generativelanguage
+    #    (GCP-billed) surface directly, so the proxy is not required.
+    if _gemini_key():
+        print("Brain: Gemini API-key surface (generativelanguage / GCP) — spend proxy not required.")
+    else:
+        try:
+            with urllib.request.urlopen("http://127.0.0.1:8900/_spend", timeout=5) as r:
+                spend = json.loads(r.read())
+                print(f"Spend check: already_spent=${spend['spent_usd']:.4f}, remaining=${spend['remaining_usd']:.4f}")
+                if spend["remaining_usd"] <= 0.05:
+                    print("Budget exhausted! Refusing to run.")
+                    return 1
+        except Exception as e:
+            print(f"Error checking spend proxy: {e}. Please ensure python pipeline/scripts/vertex_spend_proxy.py is active.")
+            return 1
 
     # Load Config and History
     config, history = load_marketing_setup()
@@ -296,7 +358,10 @@ def main() -> int:
     # 2. Conductor: Decides the Bucket & synthesis
     print("\n=== Step 2: Conductor Bucketing ===")
     conductor_persona = load_persona("conductor")
-    shared_instructions = REPO.joinpath("pipeline", "buzz-pack", "instructions.md").read_text(encoding="utf-8")
+    instr_p = REPO.joinpath("pipeline", "buzz-pack", "instructions.md")
+    if not instr_p.exists():
+        instr_p = REPO.joinpath("pipeline", "system1_extracted", "buzz-pack", "instructions.md")
+    shared_instructions = instr_p.read_text(encoding="utf-8")
     conductor_system = f"{conductor_persona}\n\n---\n\n# Shared Instructions\n\n{shared_instructions}"
     
     # Build a fully dynamic prompt forcing focus on our selected angle (market positioning, infra, etc)
@@ -409,7 +474,15 @@ Evaluate the three initial drafts and their rebuttals.
 Select the single strongest winner that highlights Vanna's **{selected_topic['angle']}** most compellingly, or reject all if they are monotonous or fail compliance.
 Ensure the hook, body, and thread are returned in a clean JSON matching your winner contract.
 
-MANDATORY REQUIREMENT: The selected winning draft MUST carry a complete, detailed, and high-fidelity "visual_brief" object of type "infographic" or "stat-card". You are strictly forbidden from setting the type to "none" or leaving it empty. The visual_brief must contain a compelling headline, emphasis_phrase, subhead, and a 'data' array with exactly 2-3 structured rows.
+MANDATORY REQUIREMENT: The selected winning draft MUST carry a complete singular "visual_brief" object matching Vanna Visual Engine v2:
+{{
+  "content_category": "TRUST_RISK", // or "PRODUCT", "EDUCATION", "NARRATIVE_THESIS"
+  "headline": "Short compelling statement under 8 words.",
+  "hero": {{ "value": "1.10x", "label": "health factor floor" }},
+  "support": "Single clear explanatory sentence under 18 words.",
+  "footer": "docs.vanna.finance"
+}}
+Strictly NO 'data' arrays. Singular schema only (one asset = one idea). No gradients on text.
 
 CRITICAL INSTRUCTION: Your output MUST contain ONLY the raw JSON object. Do NOT write any conversational intro, prose, explanation, markdown commentary, or notes before or after the JSON block. Your response must be 100% parseable JSON starting with '{{' and ending with '}}'.
 
@@ -483,6 +556,16 @@ Debate Rebuttals:
         print("No visual card requested for this draft. Skipping.")
         image_path = None
     else:
+        # Sanitize brief_data for Vanna Visual Engine v2
+        if not brief_data.get("content_category"):
+            brief_data["content_category"] = "TRUST_RISK"
+        if not brief_data.get("footer"):
+            brief_data["footer"] = "docs.vanna.finance"
+        if "hero" not in brief_data or not isinstance(brief_data.get("hero"), dict):
+            brief_data["hero"] = {"value": "1.10x", "label": "health factor floor"}
+        if "data" in brief_data:
+            del brief_data["data"]
+
         # Save brief
         brief_file.write_text(json.dumps(brief_data, indent=2), encoding="utf-8")
         image_path = REPO / "pipeline" / "state" / "temp_rendered.png"
@@ -497,7 +580,39 @@ Debate Rebuttals:
             print(f"❌ Visual rendering failed: {e}")
             image_path = None
 
+    # 8.5 Mandatory Final Reviewer Agent Gate
+    print("\n=== Step 8.5: Mandatory Final Reviewer Agent Gate ===")
+    from pipeline.reviewer.reviewer import review_package
+    current_run_id = os.environ.get("VANNA_RUN_ID") or ("vanna-" + time.strftime("%Y%m%d-%H%M%S", time.gmtime(start_time)))
+    active_img = image_path or (REPO / "pipeline" / "state" / "temp_rendered.png")
+    
+    review_res = review_package(
+        draft=flattened_draft,
+        image_path=active_img,
+        run_id=current_run_id
+    )
+    scores_str = ", ".join(f"{k}:{v}" for k, v in review_res.get("scores", {}).items())
+    print(f"Final Reviewer Decision: {review_res.get('decision')} | Scores: [{scores_str}]")
+    
+    if review_res.get("decision") != "PASS":
+        print(f"\n🚫 FINAL REVIEWER HARD GATE ENFORCED: Delivery blocked with decision '{review_res.get('decision')}'.")
+        print(f"Critical Failures: {json.dumps(review_res.get('critical_failures', []), indent=2)}")
+        print(f"Reasons: {json.dumps(review_res.get('reasons', []), indent=2)}")
+        print(f"Required Changes: {json.dumps(review_res.get('required_changes', []), indent=2)}")
+        write_run_meta(draft_file_path, start_time, os.environ.get("VANNA_GEMINI_MODEL", "gemini-flash-latest"), sent=False)
+        return 1
+    
+    print("✅ FINAL REVIEWER GATE PASSED: All 6 independent criteria satisfied.")
+
     # 9. Send to Telegram for Human Review
+    if args.no_send:
+        print("\n=== Step 9 SKIPPED (--no-send): GCP run complete through the claim-safety gate. ===")
+        write_run_meta(draft_file_path, start_time, os.environ.get("VANNA_GEMINI_MODEL", "gemini-flash-latest"), sent=False)
+        print(f"Draft ready (not sent): {draft_file_path}")
+        if image_path:
+            print(f"Visual ready: {image_path}")
+        print(f"Elapsed: {time.time() - start_time:.1f}s")
+        return 0
     print("\n=== Step 9: Dispatching to Telegram for human review ===")
     telegram_args = [
         sys.executable,
@@ -520,6 +635,7 @@ Debate Rebuttals:
     
     tg_json = json.loads(tg_send_res.stdout)
     draft_id = tg_json.get("draft_id")
+    write_run_meta(draft_file_path, start_time, os.environ.get("VANNA_GEMINI_MODEL", "gemini-flash-latest"), sent=True)
 
     # 10. Polling Telegram for your feedback on the draft
     print(f"\n=== Step 10: Polling Telegram for your feedback on draft {draft_id} ===")

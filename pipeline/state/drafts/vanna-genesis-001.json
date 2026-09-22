@@ -1,0 +1,23 @@
+{
+  "draft_id": "vanna-genesis-001",
+  "message_id": 313,
+  "chat_id": "5501720892",
+  "sent_at": "2026-09-15T06:33:38Z",
+  "sent_unix": 1789454016,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "vanna-genesis-001",
+    "platform": "x",
+    "arc": "capital-efficiency",
+    "trend_id": "Undercollateralized Margin Architecture",
+    "final_hook": "Overcollateralization exists because protocols cannot trust your wallet.",
+    "final_body": "Overcollateralization exists because protocols cannot trust your wallet.\n\nVanna keeps borrowed capital sealed inside an isolated margin account.\n\nBorrow up to 10× in Blend BLUSDC on Stellar Soroban—without locking 150% collateral or surrendering custody.\n\ntest.stellar.vanna.finance",
+    "visual_brief": {
+      "content_category": "PRODUCT",
+      "layout_archetype": "asymmetric technical diagram",
+      "headline": "Sealed Margin Execution Perimeter",
+      "footer": "test.stellar.vanna.finance"
+    }
+  },
+  "image": "pipeline\\state\\vanna_underrated_competitor_visual.png"
+}

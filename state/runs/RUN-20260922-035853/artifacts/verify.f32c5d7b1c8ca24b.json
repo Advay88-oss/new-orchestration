@@ -1,0 +1,92 @@
+[
+  {
+    "text": "Pooled lending models risk systemic spillover when protocol deposits outgrow local exchange liquidity.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "Blend TVL is $157,161,882.",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-4d6daa893001",
+    "source_url": null,
+    "observed_at": "2026-09-21T18:00:56.155171+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Soroswap TVL is $1,238,140.",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-fd3981248d96",
+    "source_url": null,
+    "observed_at": "2026-09-21T18:00:54.839731+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Ledger capacity usage is 0.08.",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-4578f804a1c2",
+    "source_url": null,
+    "observed_at": "2026-09-21T18:00:54.114395+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "When secondary market depth is thin relative to total debt, liquidation shortfalls in shared pools dilute all depositors.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "This failure mode cannot spread across unrelated assets when risk is strictly isolated.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "Compartmentalized credit architecture does not remove liquidation loss.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "Compartmentalized credit architecture restricts shortfalls to the affected silo.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "Compartmentalized credit architecture prevents drawdowns from propagating across the broader ecosystem.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  }
+]

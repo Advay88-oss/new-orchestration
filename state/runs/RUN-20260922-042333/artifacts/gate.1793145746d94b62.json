@@ -1,0 +1,67 @@
+{
+  "passed": false,
+  "blocking_claims": [
+    {
+      "text": "A sharp downturn in a single asset can trigger cascading liquidations across a borrower's entire portfolio.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "These broad figures do not stop cross-position contagion.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "Isolated credit accounts alter this dynamic structurally.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "Each account maintains its own distinct collateral and liabilities.",
+      "kind": "vanna_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "When liquidation occurs, the settlement is strictly bounded to the distressed account.",
+      "kind": "vanna_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "The protocol architecture prevents losses from pulling capital from other balances.",
+      "kind": "vanna_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    }
+  ],
+  "rule_violations": [],
+  "rules_source": "legacy:claim_safety_gate"
+}

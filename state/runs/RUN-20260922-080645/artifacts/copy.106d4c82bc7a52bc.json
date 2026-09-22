@@ -1,0 +1,13 @@
+{
+  "id": "CPY-ef14f4da8b0b2e6a",
+  "strategy_id": "STR-12c92ea115929780",
+  "channel": "x",
+  "hook": "Isolated lending pools fragment collateral by requiring separate deposits for every borrow.",
+  "body": "In Vanna, collateral is deposited once into a SmartAccount, where account health is assessed across the entire account. A SmartAccount can deploy deposited and borrowed assets into approved external protocols while retaining debt to lending pools, allowing one collateral balance to back multiple positions.",
+  "thread": [
+    "Isolated lending pools fragment collateral. Assets deposited into single-purpose pools remain locked for individual borrows. Capital does one job when it could support several positions at once.",
+    "In Vanna, collateral is posted once into a SmartAccount. Account health is assessed across the entire margin account. On testnet, the borrow guard counts borrowed capital on both sides because borrowed funds cannot leave the account.",
+    "A SmartAccount can deploy deposited and borrowed assets into approved external protocols while retaining debt to the lending pools. One collateral deposit backs multiple positions."
+  ],
+  "claims": []
+}

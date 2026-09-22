@@ -1,0 +1,47 @@
+{
+  "draft_id": "d181bccd",
+  "message_id": 297,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T12:56:27Z",
+  "sent_unix": 1787230584,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "d181bccd",
+    "draft_id": "13c28834",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Siloed credit is a liquidation trap. On Gearbox, one dip liquidates you—even if your other sandbox is flush.\n\nVanna cross-margins your risk. One account, one unified safety buffer. Our 1.1x floor protects against oracle lag.\n\nLeverage is easy. Keeping your positions alive is the hard part.\n\nTestnet only.",
+    "final_body": "Siloed credit is a liquidation trap. On Gearbox, one dip liquidates you—even if your other sandbox is flush.\n\nVanna cross-margins your risk. One account, one unified safety buffer. Our 1.1x floor protects against oracle lag.\n\nLeverage is easy. Keeping your positions alive is the hard part.\n\nTestnet only.",
+    "final_hook": "Siloed credit is a liquidation trap.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Siloed risk vs. Unified safety",
+      "emphasis_phrase": "1.1x Liquidation Floor",
+      "subhead": "How cross-margining protects your positions from sudden oracle wicks.",
+      "data": [
+        {
+          "label": "Siloed Accounts",
+          "value": "Isolated Risk",
+          "note": "One position dips, the sandbox liquidates regardless of external collateral."
+        },
+        {
+          "label": "Vanna Unified Margin",
+          "value": "Cross-Margined",
+          "note": "Collateral is pooled across positions to absorb localized volatility."
+        },
+        {
+          "label": "Safety Buffer",
+          "value": "10% Oracle Margin",
+          "note": "Strict 1.1x floor protects against Reflector oracle lag and slippage."
+        }
+      ],
+      "disclaimer": "Vanna is currently on testnet. All features represent architectural specifications."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T12:56:10Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

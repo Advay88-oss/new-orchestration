@@ -1,0 +1,116 @@
+[
+  {
+    "id": "cinematic_post1_subsecond_stream",
+    "title": "Sub-Second Liquidation Deflection",
+    "copy": "In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.\n\nVanna eliminates front-running liquidations with sub-second off-chain telemetry on Stellar Soroban:\n\nMercury streams ledger events in ~320ms. When a position approaches 1.25\u00d7 Net Health Factor, our Risk Guardian executes an automated rebalance inside your SmartAccount sandbox.\n\nExecution gas is fixed at 0.00014 XLM. No mempool bidding wars. No liquidation fee penalty.\n\ntest.stellar.vanna.finance",
+    "image_file": "vanna_cinematic_post1_subsecond.png",
+    "review": {
+      "run_id": "audit-cinematic_post1_subsecond_stream",
+      "reviewer_decision": "APPROVE",
+      "decision": "PASS",
+      "quality": "PASS",
+      "overall_visual_score": "92/100",
+      "scores": {
+        "content": 92,
+        "factual": 98,
+        "visual": 90,
+        "brand": 90,
+        "social": 85,
+        "novelty": 90
+      },
+      "score_breakdown": {
+        "message_fit": "92/100",
+        "brand_fit": "90/100",
+        "premiumness": "90/100",
+        "novelty": "90/100",
+        "technical_accuracy": "98/100"
+      },
+      "evaluations": {
+        "message_fit": "Visual clearly represents risk containment, deflection barrier, or solvency floor.",
+        "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "premiumness": "Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "novelty": "Original visual metaphor and composition; no template repetition detected.",
+        "technical_accuracy": "Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit."
+      },
+      "critical_failures": [],
+      "failures": [],
+      "reasons": [
+        "Verified across all 5 core dimensions."
+      ],
+      "required_changes": [],
+      "required_revisions": [],
+      "why_it_passed": [
+        "MESSAGE FIT (92/100): Visual clearly represents risk containment, deflection barrier, or solvency floor.",
+        "BRAND FIT (90/100): Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "PREMIUMNESS (90/100): Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "NOVELTY (90/100): Original visual metaphor and composition; no template repetition detected.",
+        "TECHNICAL ACCURACY (98/100): Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit.",
+        "Image strengthens the copy; composition creates instant scroll-stop without decorative clutter.",
+        "Visual would look credible beside Morpho, Aave, and Gearbox infrastructure schematics."
+      ],
+      "art_direction_action": "DISPATCH_TO_TELEGRAM",
+      "art_direction_directives": [],
+      "template_repetition": false,
+      "visual_archetype": "technical_architecture",
+      "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_cinematic_post1_subsecond.png",
+      "timestamp": "2026-09-16T10:59:55.091293+00:00"
+    }
+  },
+  {
+    "id": "cinematic_post2_sandbox_containment",
+    "title": "Compartmentalized SmartAccount Sandboxes",
+    "copy": "When an exotic asset depegs in a shared lending pool, every depositor absorbs a haircut\u2014even if you only supplied USDC.\n\nVanna isolates risk at the contract instance level with dedicated SmartAccount sandboxes on Stellar Soroban:\n\nLPs deposit into core LendingPools, but borrowers execute within isolated smart contract instances.\n\nIf an unexpected deficit occurs in an account, it stays quarantined in that contract sandbox. It cannot drain other user accounts or compromise core pool reserves.\n\ndocs.vanna.finance",
+    "image_file": "vanna_cinematic_post2_sandboxes.png",
+    "review": {
+      "run_id": "audit-cinematic_post2_sandbox_containment",
+      "reviewer_decision": "APPROVE",
+      "decision": "PASS",
+      "quality": "PASS",
+      "overall_visual_score": "92/100",
+      "scores": {
+        "content": 90,
+        "factual": 98,
+        "visual": 90,
+        "brand": 90,
+        "social": 85,
+        "novelty": 90
+      },
+      "score_breakdown": {
+        "message_fit": "90/100",
+        "brand_fit": "90/100",
+        "premiumness": "90/100",
+        "novelty": "90/100",
+        "technical_accuracy": "98/100"
+      },
+      "evaluations": {
+        "message_fit": "Visual concept aligns with message.",
+        "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "premiumness": "Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "novelty": "Original visual metaphor and composition; no template repetition detected.",
+        "technical_accuracy": "Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit."
+      },
+      "critical_failures": [],
+      "failures": [],
+      "reasons": [
+        "Verified across all 5 core dimensions."
+      ],
+      "required_changes": [],
+      "required_revisions": [],
+      "why_it_passed": [
+        "MESSAGE FIT (90/100): Visual concept aligns with message.",
+        "BRAND FIT (90/100): Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "PREMIUMNESS (90/100): Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "NOVELTY (90/100): Original visual metaphor and composition; no template repetition detected.",
+        "TECHNICAL ACCURACY (98/100): Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit.",
+        "Image strengthens the copy; composition creates instant scroll-stop without decorative clutter.",
+        "Visual would look credible beside Morpho, Aave, and Gearbox infrastructure schematics."
+      ],
+      "art_direction_action": "DISPATCH_TO_TELEGRAM",
+      "art_direction_directives": [],
+      "template_repetition": false,
+      "visual_archetype": "technical_architecture",
+      "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_cinematic_post2_sandboxes.png",
+      "timestamp": "2026-09-16T11:00:13.375093+00:00"
+    }
+  }
+]

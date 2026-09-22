@@ -1,0 +1,9 @@
+{
+  "id": "CPY-978c72f2ea96d206",
+  "strategy_id": "STR-411aeb0f3f2db084",
+  "channel": "x",
+  "hook": "Blend TVL stands at $159,033,033 while Soroswap TVL is $1,239,028. Seizing collateral without proportional onchain swap depth creates bad debt during market stress.",
+  "body": "The failure mode begins at the swap pool. When liquidators attempt to clear seized collateral against $1,239,028 in decentralized exchange liquidity, slippage increases and underwater loans fail to settle. This contagion cannot spread through a credit network when lending caps are structurally bound to observable exchange reserves rather than total deposits. Insolvency remains localized wherever position sizes are not permitted to exceed verifiable liquidation capacity.",
+  "thread": [],
+  "claims": []
+}

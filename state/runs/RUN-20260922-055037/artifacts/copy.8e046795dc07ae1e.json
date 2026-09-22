@@ -1,0 +1,9 @@
+{
+  "id": "CPY-f62cd19e4469f2fd",
+  "strategy_id": "STR-f1cd6ba1d90b400f",
+  "channel": "x",
+  "hook": "Leverage is easy. Not getting liquidated while you sleep is the hard part.",
+  "body": "When volatility hits unattended positions, delayed intervention risks cascading insolvencies. In Vanna's composable credit infrastructure, risk is stopped at the boundary. The liquidation threshold enforces a 1.1x health factor floor before capital breaches parity. Every calculation uses floor division—mul_wad_down and div_wad_down—to prevent rounding in the protocol's favour. Governed by policy-bounded autonomous risk management within unified margin accounts, distress is isolated before it spreads.",
+  "thread": [],
+  "claims": []
+}

@@ -1,0 +1,9 @@
+{
+  "id": "CPY-0dd06e4aff9788a7",
+  "strategy_id": "STR-f90e325d6bee5030",
+  "channel": "x",
+  "hook": "Preventable liquidations often occur when network fee spikes price out or delay defensive collateral deposits.",
+  "body": "This transaction inclusion failure cannot easily spread on Stellar Soroban. Ledger capacity usage is 0.08 with a base fee of 100, keeping submission costs stable when positions require urgent adjustment. However, risk does not drop to zero. With Blend TVL at $157,161,882 and Soroswap TVL at $1,238,140, the structural vulnerability shifts from gas volatility to secondary market depth.",
+  "thread": [],
+  "claims": []
+}

@@ -1,0 +1,28 @@
+{
+  "layout": "comparison",
+  "headline": "Bad debt must never breach the mutual reserve",
+  "subhead": "Containing systemic risk requires strict mechanical boundaries around each debt position.",
+  "blocks": [
+    {
+      "role": "compare_left",
+      "text": "Pooled Architecture: Slippage leaks into shared capital, forcing passive depositors to absorb mutual haircuts.",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "compare_right",
+      "text": "Isolated Engine: Structural bulkheads quarantine delinquent debt, locking losses inside the distressed position.",
+      "emphasis": "primary"
+    }
+  ],
+  "focal": {
+    "block_index": 1,
+    "reason": "Emphasizes how explicit containment boundaries prevent default contagion across the venue."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

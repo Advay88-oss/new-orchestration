@@ -1,0 +1,119 @@
+[
+  {
+    "id": "SIG-57201ea630a95d35",
+    "title": "stellar fee stats: last ledger = 4805397, base fee = 100, ledger capacity usage = 0.1",
+    "summary": "Measured onchain value for stellar_fee_stats as of 2026-09-22T04:16:18.648761+00:00.",
+    "source_name": "onchain:stellar_fee_stats",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:18.648761+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-56af2b8a77d7e775",
+    "title": "blend tvl: tvl usd = 159033033.0",
+    "summary": "Measured onchain value for blend_tvl as of 2026-09-22T04:16:20.094770+00:00.",
+    "source_name": "onchain:blend_tvl",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:20.094770+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-522e4532f6f15119",
+    "title": "soroswap tvl: tvl usd = 1239028.0",
+    "summary": "Measured onchain value for soroswap_tvl as of 2026-09-22T04:16:19.453237+00:00.",
+    "source_name": "onchain:soroswap_tvl",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:19.453237+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-c5d833dc371a2ca6",
+    "title": "Morpho: Morpho explicitly references integration or compatibility with: Morpho, Base.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Morpho, official_blog, evidence_status=OBSERVED",
+    "source_name": "research:Morpho",
+    "source_url": "https://morpho.org/blog",
+    "observed_at": "2026-09-22T04:17:35.814474+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-052484804eadb0ad",
+    "title": "Morpho: Morpho explicitly references integration or compatibility with: Morpho.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Morpho, official_docs, evidence_status=OBSERVED",
+    "source_name": "research:Morpho",
+    "source_url": "https://docs.morpho.org",
+    "observed_at": "2026-09-21T04:53:43.420943+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-052484804eadb0ad",
+    "title": "Morpho: Morpho explicitly references integration or compatibility with: Morpho.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Morpho, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Morpho",
+    "source_url": "https://morpho.org",
+    "observed_at": "2026-09-20T09:22:17.122818+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-052484804eadb0ad",
+    "title": "Morpho: Morpho explicitly references integration or compatibility with: Morpho.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Morpho, official_docs, evidence_status=OBSERVED",
+    "source_name": "research:Morpho",
+    "source_url": "https://docs.morpho.org",
+    "observed_at": "2026-09-20T09:22:40.789233+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-c5d833dc371a2ca6",
+    "title": "Morpho: Morpho explicitly references integration or compatibility with: Morpho, Base.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Morpho, official_blog, evidence_status=OBSERVED",
+    "source_name": "research:Morpho",
+    "source_url": "https://morpho.org/blog",
+    "observed_at": "2026-09-20T09:18:58.653888+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-fb669650e6adb1e6",
+    "title": "Gearbox: Gearbox explicitly references integration or compatibility with: Curve, Base.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T04:16:50.697630+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-fb669650e6adb1e6",
+    "title": "Gearbox: Gearbox explicitly references integration or compatibility with: Curve, Base.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-21T06:05:31.475991+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-fb669650e6adb1e6",
+    "title": "Gearbox: Gearbox explicitly references integration or compatibility with: Curve, Base.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-21T04:24:17.994442+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-fb669650e6adb1e6",
+    "title": "Gearbox: Gearbox explicitly references integration or compatibility with: Curve, Base.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-20T09:21:09.076679+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-1ee06783b94e72bc",
+    "title": "Derive: Derive explicitly references integration or compatibility with: Ethereum.",
+    "summary": "PRODUCT_INTEGRATIONS claim about Derive, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Derive",
+    "source_url": "https://derive.xyz",
+    "observed_at": "2026-09-20T09:22:57.222030+00:00",
+    "engagement": null
+  }
+]

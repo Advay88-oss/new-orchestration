@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-125059-mks",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787230442.2664645,
+  "ended": 1787230572.98673,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 130.7,
+  "kind": "content-run",
+  "winner_hook": "Siloed credit is a liquidation trap.",
+  "winner_body": "Siloed credit is a liquidation trap. On Gearbox, one dip liquidates you—even if your other sandbox is flush.\n\nVanna cross-margins your risk. One account, one unified safety buffer. Our 1.1x floor protects against oracle lag.\n\nLeverage is easy. Keeping your positions alive is the hard part.\n\nTestnet only.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

@@ -1,0 +1,33 @@
+{
+  "layout": "sequence",
+  "headline": "Where Liquidation Risk Relocates on Stellar",
+  "subhead": null,
+  "blocks": [
+    {
+      "role": "step",
+      "text": "1. Distress: Collateral health deteriorates during asset volatility.",
+      "emphasis": "muted"
+    },
+    {
+      "role": "step",
+      "text": "2. Deterministic Inclusion: Predictable fees eliminate gas latency.",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "step",
+      "text": "3. Absorption Bottleneck: $157,161,882 lending TVL liquidates against $1,238,140 AMM depth.",
+      "emphasis": "primary"
+    }
+  ],
+  "focal": {
+    "block_index": 2,
+    "reason": "Exposes the core structural imbalance between protocol scale and on-chain market depth."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

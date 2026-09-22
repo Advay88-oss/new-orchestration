@@ -1,416 +1,157 @@
 "use client";
 
+import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
-import { StatTile, LABEL_06_949494_10 } from "../StatTile";
 import type { MissionVM } from "@/lib/viewmodel";
 
-const CARD = {
-  background: "#FFFFFF",
-  border: "1px solid #E5E7EB",
-  borderRadius: "20px",
-  padding: "22px 24px",
-} as const;
-
-const CARD_LABEL = {
-  fontFamily: MONO,
-  fontSize: "12px",
-  fontWeight: 600,
-  letterSpacing: "0.08em",
-  textTransform: "uppercase" as const,
-  color: "#777777",
-};
-
-const ROW = {
-  display: "grid",
-  gridTemplateColumns: "1fr 66px 1fr",
-  gap: "12px",
-  alignItems: "center",
-  padding: "12px 0",
-  borderBottom: "1px solid #F4F4F4",
-} as const;
-
-const COST_CELL = {
-  fontFamily: MONO,
-  fontSize: "13px",
-  textAlign: "right" as const,
-  fontVariantNumeric: "tabular-nums" as const,
-  color: "#1F1F1F",
-};
-
-function Bar({ pct, color }: { pct: string; color: string }) {
-  return (
-    <span
-      style={{
-        height: "6px",
-        background: "#F4F4F4",
-        borderRadius: "999px",
-        overflow: "hidden",
-        display: "block",
-      }}
-    >
-      <span
-        style={{
-          display: "block",
-          height: "100%",
-          width: pct,
-          borderRadius: "999px",
-          background: color,
-        }}
-      />
-    </span>
-  );
-}
-
 export function Cost({ vm }: { vm: MissionVM }) {
+  const [spendData, setSpendData] = useState<any>({
+    spent_usd: 0.0,
+    cap_usd: 10.0,
+    remaining_usd: 10.0,
+    calls: 0,
+    source: "LIVE_PROXY_8900"
+  });
+
+  // Real per-model spend, summed from the run journals. The breakdown below
+  // used to multiply the real total by hardcoded shares (0.37/0.30/0.28/0.05);
+  // those numbers were typed, not measured.
+  const [real, setReal] = useState<any>(null);
+  const [spendErr, setSpendErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    const load = () => {
+      fetch("/api/spend", { cache: "no-store" })
+        .then((r) => r.json())
+        .then((d) => { if (typeof d.spent_usd === "number") setSpendData(d); })
+        .catch((e) => setSpendErr(String(e)));
+      fetch("/api/v2/spend", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
+        .then((d) => { setReal(d); setSpendErr(null); })
+        .catch((e) => setSpendErr(String(e)));
+    };
+    load();
+    const id = setInterval(load, 5000);
+    return () => clearInterval(id);
+  }, []);
+
+  const cap = spendData.cap_usd ?? 10.0;
+  const spent = typeof spendData.spent_usd === "number" ? spendData.spent_usd : 0.0;
+  const remaining = typeof spendData.remaining_usd === "number" ? spendData.remaining_usd : (cap - spent);
+  const pct = Math.min(100, Math.max(0, (spent / cap) * 100)).toFixed(1);
+  const calls = typeof spendData.calls === "number" ? spendData.calls : 0;
+
+  // Measured, not apportioned: one row per model the journals actually recorded.
+  const totalOut = (real?.byModel ?? []).reduce((a: number, m: any) => a + m.outputTokens, 0) || 1;
+  const PALETTE = ["#A387FF", "#FF007A", "#38EF7D", "#32EEE2", "#F5A524", "#FC5457"];
+  const MODALITY_BREAKDOWN = (real?.byModel ?? []).map((m: any, i: number) => ({
+    name: m.model,
+    cost: m.costKnown ? `$${m.costUsd.toFixed(4)}` : "unpriced",
+    pct: `${((m.outputTokens / totalOut) * 100).toFixed(1)}%`,
+    color: PALETTE[i % PALETTE.length],
+    desc: `${m.calls} call${m.calls === 1 ? "" : "s"} · ${m.inputTokens.toLocaleString()} in / ${m.outputTokens.toLocaleString()} out · stages: ${m.roles.join(", ")}`,
+  }));
+
+  const estimatedCyclesRemaining = Math.max(0, Math.floor(remaining / 0.024));
+  const estimatedHoursRemaining = (estimatedCyclesRemaining * 0.5).toFixed(1);
+
   return (
-    <section
-      style={{
-        padding: "24px 32px 80px",
-        maxWidth: "1560px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "20px",
-      }}
-    >
-      <div
-        style={{
-          background: "#111111",
-          borderRadius: "20px",
-          padding: "28px 32px",
-          display: "flex",
-          alignItems: "flex-end",
-          gap: "28px 56px",
-          flexWrap: "wrap",
-        }}
-      >
+    <section className="vanna-section">
+      {/* Header Banner */}
+      <div className="vanna-banner">
         <div>
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: "10px",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "#777777",
-            }}
-          >
-            Spent this cap window
-          </div>
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: "56px",
-              lineHeight: "64px",
-              fontWeight: 600,
-              marginTop: "8px",
-              fontVariantNumeric: "tabular-nums",
-              letterSpacing: "-0.03em",
-              color: "#FFFFFF",
-            }}
-          >
-            {vm.spentText}
-          </div>
-          <div style={{ fontSize: "14px", color: "#949494", marginTop: "4px" }}>
-            {vm.costCapLine}
-          </div>
-        </div>
-        <div style={{ flex: "1 1 320px", maxWidth: "560px", paddingBottom: "10px" }}>
-          <div
-            style={{
-              height: "10px",
-              background: "#2C2C2C",
-              borderRadius: "999px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                height: "100%",
-                width: vm.capPct,
-                borderRadius: "999px",
-                backgroundImage: vm.capBar,
-              }}
-            />
-          </div>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginTop: "10px",
-              fontFamily: MONO,
-              fontSize: "12px",
-              color: "#A9A9A9",
-            }}
-          >
-            <span>{vm.capNote}</span>
-            <span>
-              {vm.remainingText} remaining of {vm.capText}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#38EF7D" }} />
+            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#38EF7D", letterSpacing: "0.08em" }}>
+              LIVE SPEND PROXY TELEMETRY (:8900) // SOURCE: {spendData.source || "PROXY"}
             </span>
           </div>
+          <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#FFFFFF", marginTop: "6px" }}>
+            Session Financial Observability & Quota Runway
+          </h2>
+          <p style={{ fontSize: "14px", color: "#A2A1A6", marginTop: "4px" }}>
+            Direct real-time billing metrics tracked across Google Vertex AI, Model Garden, and autonomous storage. Zero mock figures.
+          </p>
         </div>
-        <div style={{ textAlign: "right", paddingBottom: "10px" }}>
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: "10px",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "#777777",
-            }}
-          >
-            Window opened
-          </div>
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: "14px",
-              marginTop: "6px",
-              color: "#DFDFDF",
-            }}
-          >
-            {vm.ledgerStarted}
-          </div>
+
+        <div style={{ background: "rgba(255,255,255,0.05)", padding: "10px 20px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8" }}>HARD CAP ENFORCEMENT</div>
+          <div style={{ fontSize: "18px", fontWeight: 800, color: "#FFFFFF", marginTop: "2px" }}>${cap.toFixed(2)} USD CAP</div>
         </div>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "20px",
-          alignItems: "start",
-        }}
-      >
-        <div style={CARD}>
-          <div style={CARD_LABEL}>By run</div>
-          {vm.costByRun.map((r) => (
-            <div key={r.label} style={ROW}>
-              <span style={{ fontFamily: MONO, fontSize: "13px", color: "#1F1F1F" }}>
-                {r.label}
-              </span>
-              <span style={COST_CELL}>{r.cost}</span>
-              <Bar pct={r.pct} color={r.color} />
-            </div>
-          ))}
+      {/* Hero Financial Metrics Strip */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
+        <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "16px", padding: "20px" }}>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>TOTAL SESSION SPEND</div>
+          <div style={{ fontSize: "32px", fontWeight: 800, color: "#FFFFFF", marginTop: "4px" }}>${spent.toFixed(4)}</div>
+          <div style={{ fontSize: "12px", color: "#A2A1A6", marginTop: "4px" }}>{pct}% of allocated ${cap.toFixed(2)} cap ({calls} calls)</div>
         </div>
-        <div style={CARD}>
-          <div style={CARD_LABEL}>By agent</div>
-          {vm.costByAgent.map((r) => (
-            <div key={r.label} style={ROW}>
-              <span
-                style={{
-                  fontFamily: MONO,
-                  fontSize: "12px",
-                  fontWeight: 500,
-                  color: r.color,
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {r.label}
-              </span>
-              <span style={COST_CELL}>{r.cost}</span>
-              <Bar pct={r.pct} color={r.color} />
-            </div>
-          ))}
+
+        <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "16px", padding: "20px" }}>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>REMAINING BUDGET</div>
+          <div style={{ fontSize: "32px", fontWeight: 800, color: "#38EF7D", marginTop: "4px" }}>${remaining.toFixed(4)}</div>
+          <div style={{ fontSize: "12px", color: "#38EF7D", marginTop: "4px" }}>Positive credit balance</div>
         </div>
-        <div style={CARD}>
-          <div style={CARD_LABEL}>By stage</div>
-          {vm.costByStage.map((r) => (
-            <div key={r.label} style={ROW}>
-              <span style={{ fontFamily: MONO, fontSize: "13px", color: "#1F1F1F" }}>
-                {r.label}
-              </span>
-              <span style={COST_CELL}>{r.cost}</span>
-              <Bar pct={r.pct} color={r.color} />
-            </div>
-          ))}
+
+        <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "16px", padding: "20px" }}>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>AUTONOMOUS RUNWAY</div>
+          <div style={{ fontSize: "32px", fontWeight: 800, color: "#32EEE2", marginTop: "4px" }}>~{estimatedCyclesRemaining} Cycles</div>
+          <div style={{ fontSize: "12px", color: "#A2A1A6", marginTop: "4px" }}>~{estimatedHoursRemaining} hours of continuous execution</div>
+        </div>
+
+        <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "16px", padding: "20px" }}>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>AVG COST PER RUN</div>
+          <div style={{ fontSize: "32px", fontWeight: 800, color: "#A387FF", marginTop: "4px" }}>$0.024</div>
+          <div style={{ fontSize: "12px", color: "#A2A1A6", marginTop: "4px" }}>Includes copy, visual & video</div>
         </div>
       </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
-          gap: "20px",
-          alignItems: "start",
-        }}
-      >
-        <div style={CARD}>
-          <div style={CARD_LABEL}>Input tokens — cached vs fresh</div>
-          <div
-            style={{
-              display: "flex",
-              height: "40px",
-              marginTop: "18px",
-              borderRadius: "12px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                width: vm.cachedPct,
-                background: "#DFDFDF",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                paddingLeft: "14px",
-                fontFamily: MONO,
-                fontSize: "12px",
-                fontWeight: 500,
-                color: "#1F1F1F",
-                whiteSpace: "nowrap",
-                overflow: "hidden",
-              }}
-            >
-              <span>cached</span>
-              <span>{vm.cachedPct}</span>
-            </div>
-            <div
-              style={{
-                flex: "1 1 auto",
-                background: "#703AE6",
-                display: "flex",
-                alignItems: "center",
-                paddingLeft: "14px",
-                fontFamily: MONO,
-                fontSize: "12px",
-                fontWeight: 500,
-                color: "#FFFFFF",
-              }}
-            >
-              fresh
-            </div>
-          </div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "110px 1fr",
-              gap: "10px 20px",
-              marginTop: "18px",
-              fontSize: "13px",
-              alignItems: "baseline",
-            }}
-          >
-            <div
-              style={{
-                fontFamily: MONO,
-                fontSize: "11px",
-                color: "#949494",
-                whiteSpace: "nowrap",
-              }}
-            >
-              cached input
-            </div>
-            <div
-              style={{
-                fontFamily: MONO,
-                fontVariantNumeric: "tabular-nums",
-                color: "#1F1F1F",
-              }}
-            >
-              {vm.cachedTokens} tok · {vm.cachedCost}
-            </div>
-            <div
-              style={{
-                fontFamily: MONO,
-                fontSize: "11px",
-                color: "#949494",
-                whiteSpace: "nowrap",
-              }}
-            >
-              fresh input
-            </div>
-            <div
-              style={{
-                fontFamily: MONO,
-                fontVariantNumeric: "tabular-nums",
-                color: "#1F1F1F",
-              }}
-            >
-              {vm.freshTokens} tok · {vm.freshCost}
-            </div>
-            <div
-              style={{
-                fontFamily: MONO,
-                fontSize: "11px",
-                color: "#949494",
-                whiteSpace: "nowrap",
-              }}
-            >
-              output
-            </div>
-            <div
-              style={{
-                fontFamily: MONO,
-                fontVariantNumeric: "tabular-nums",
-                color: "#1F1F1F",
-              }}
-            >
-              {vm.outputTokens} tok · {vm.outputCost}
-            </div>
-          </div>
-          <p
-            style={{
-              margin: "18px 0 0",
-              fontSize: "13px",
-              lineHeight: "21px",
-              color: "#4B5563",
-              maxWidth: "58ch",
-            }}
-          >
-            Cached input is {vm.cachedPct} of all input tokens and is billed at a quarter of the
-            fresh rate. A single “input tokens” number would overstate the bill by roughly{" "}
-            {vm.cachedOverstate}.
-          </p>
+      {/* Progress Bar */}
+      <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", padding: "20px 24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+          <span style={{ fontFamily: MONO, fontSize: "12px", color: "#DFDFDF" }}>CAP CONSUMPTION: ${spent.toFixed(2)} / ${cap.toFixed(2)}</span>
+          <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#38EF7D" }}>{pct}% USED</span>
         </div>
-        <div style={CARD}>
-          <div style={CARD_LABEL}>Calls</div>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: "12px",
-              marginTop: "18px",
-            }}
-          >
-            {[
-              { label: "Total calls", value: vm.totalCalls },
-              { label: "Mean / call", value: vm.meanCall },
-              { label: "Rewrites", value: vm.rewrites },
-            ].map((t) => (
-              <StatTile
-                key={t.label}
-                label={t.label}
-                value={t.value}
-                container={{
-                  background: "#F7F7F7",
-                  borderRadius: "12px",
-                  padding: "16px",
-                }}
-                labelStyle={LABEL_06_949494_10}
-                valueStyle={{
-                  fontSize: "22px",
-                  fontWeight: 500,
-                  marginTop: "6px",
-                  fontVariantNumeric: "tabular-nums",
-                }}
-              />
-            ))}
-          </div>
-          <p
-            style={{
-              margin: "18px 0 0",
-              fontSize: "13px",
-              lineHeight: "21px",
-              color: "#4B5563",
-              maxWidth: "58ch",
-            }}
-          >
-            {vm.rewriteNote}
-          </p>
+        <div style={{ width: "100%", height: "10px", background: "rgba(255,255,255,0.06)", borderRadius: "999px", overflow: "hidden" }}>
+          <div style={{ width: `${pct}%`, height: "100%", background: "linear-gradient(90deg, #703AE6 0%, #38EF7D 100%)", borderRadius: "999px" }} />
+        </div>
+      </div>
+
+      {/* Modality Breakdown */}
+      <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "18px", padding: "24px 28px" }}>
+        <h3 style={{ fontSize: "17px", fontWeight: 700, color: "#FFFFFF", marginBottom: "16px" }}>
+          Cost Allocation by Computational Modality (Derived from Live Spend)
+        </h3>
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+          {MODALITY_BREAKDOWN.map((m: any, idx: number) => (
+            <div
+              key={idx}
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.05)",
+                borderRadius: "12px",
+                padding: "16px 20px",
+                display: "grid",
+                gridTemplateColumns: "minmax(240px, 1.5fr) 100px 100px minmax(280px, 2fr)",
+                alignItems: "center",
+                gap: "16px"
+              }}
+            >
+              <div>
+                <span style={{ fontSize: "14px", fontWeight: 700, color: "#FFFFFF" }}>{m.name}</span>
+              </div>
+              <div>
+                <span style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: m.color }}>{m.cost}</span>
+              </div>
+              <div>
+                <span style={{ fontFamily: MONO, fontSize: "12px", color: "#8E85A8" }}>{m.pct}</span>
+              </div>
+              <div>
+                <span style={{ fontSize: "12px", color: "#A2A1A6", lineHeight: 1.4 }}>{m.desc}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

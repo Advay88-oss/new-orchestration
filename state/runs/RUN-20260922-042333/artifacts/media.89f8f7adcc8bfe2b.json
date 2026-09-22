@@ -1,0 +1,9 @@
+{
+  "kind": "video",
+  "path": "D:\\new orchestration\\state\\media\\RUN-20260922-042333_veo.mp4",
+  "model": "veo-3.1-generate-preview",
+  "bytes": 5131099,
+  "operation": "models/veo-3.1-generate-preview/operations/kxmxmg4gr521",
+  "polls": 11,
+  "post_production": "hand off to Remotion / motion graphics"
+}

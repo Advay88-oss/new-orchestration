@@ -1,0 +1,9 @@
+{
+  "id": "CPY-38542bf7cd8cd7f0",
+  "strategy_id": "STR-9a4229d0be3d23c5",
+  "channel": "x",
+  "hook": "Liquidation cascades can travel through shared pools when one collateral asset degrades rapidly.",
+  "body": "Isolated credit accounts confine risk to individual positions. If an asset suffers bad debt, the impact remains within that specific account boundary instead of spreading across the broader system. This structure halts contagion, though it does not eliminate the risk of individual position loss.",
+  "thread": [],
+  "claims": []
+}

@@ -1,0 +1,9 @@
+{
+  "id": "CPY-26a3a491013dcc2b",
+  "strategy_id": "STR-c9c64946873e9706",
+  "channel": "x",
+  "hook": "In pooled credit, the primary failure mode is contagion.",
+  "body": "A forced liquidation in a shared pool transmits bad debt across solvent participants. Containing this risk requires confining shortfalls to the individual position. When losses cannot cross the boundary of a single account, bad debt cannot dilute broader capital reserves.",
+  "thread": [],
+  "claims": []
+}

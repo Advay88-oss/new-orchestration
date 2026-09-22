@@ -1,0 +1,18 @@
+{
+  "playbook": {
+    "id": "PB_CAPITAL",
+    "shape": "Lead with the inefficiency, then the mechanism, then the number.",
+    "forbidden": [
+      "yield farming framing",
+      "APY chasing"
+    ],
+    "arc": "capital_efficiency"
+  },
+  "vehicle": {
+    "id": "VH_SINGLE",
+    "channel": "x",
+    "shape": "single",
+    "max_parts": 1,
+    "reason": "thin support (score 0.3, 1 signals)"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "id": "CPY-d4806e15c973932f",
+  "strategy_id": "STR-da788a5800e97f4e",
+  "channel": "x",
+  "hook": "A sharp downturn in a single asset can trigger cascading liquidations across a borrower's entire portfolio.",
+  "body": "Aggregate network telemetry tracks macro metrics, including Blend's $159,033,033 TVL, Soroswap's $1,239,028 TVL, and 0.1 ledger capacity usage. These broad figures do not stop cross-position contagion. Isolated credit accounts alter this dynamic structurally. Each account maintains its own distinct collateral and liabilities. When liquidation occurs, the settlement is strictly bounded to the distressed account. The protocol architecture prevents losses from pulling capital from other balances.",
+  "thread": [],
+  "claims": []
+}

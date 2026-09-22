@@ -1,0 +1,9 @@
+{
+  "id": "CPY-e428180889a524a6",
+  "strategy_id": "STR-22f29ded0f53231b",
+  "channel": "x",
+  "hook": "Liquidation slippage is the primary failure mode when lending balances decouple from decentralized exchange depth.",
+  "body": "Blend TVL is 159,033,033 USD, while Soroswap TVL is 1,239,028 USD. Liquidating large debt positions against available AMM pools creates severe price impact and risk of bad debt. This failure cannot spread into network-level settlement bottlenecks. Stellar ledger capacity usage is currently 0.1 with a base fee of 100, keeping transaction submission stable and isolating distress strictly to local pool depth.",
+  "thread": [],
+  "claims": []
+}

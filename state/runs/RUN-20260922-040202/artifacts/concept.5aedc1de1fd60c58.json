@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The Failure Boundary Axiom",
+    "idea": "An austere, structural typographic manifesto set on a matte industrial steel plate. High-contrast sans-serif type delivers the core quote: 'Isolation does not remove market risk, but it restricts the boundary of failure.' Below, a small monospaced ledger footer anchors the reality of current Stellar Soroban capital: 'Blend Pool TVL: $157,161,882 | Base Fee: 100 | Risk Radius: Bounded'. No floating tokens or decorative crypto gradients; purely editorial, authoritative, and sobering.",
+    "layout": "quote",
+    "why": "Since hero_stat, sequence, diagram, and comparison have all been recently deployed, moving to a pure typographic quote breaks visual fatigue while delivering maximum intellectual punch. It treats isolation as an engineering discipline rather than a flashy feature, directly speaking to sophisticated risk managers."
+  },
+  "all": [
+    {
+      "title": "The Failure Boundary Axiom",
+      "idea": "An austere, structural typographic manifesto set on a matte industrial steel plate. High-contrast sans-serif type delivers the core quote: 'Isolation does not remove market risk, but it restricts the boundary of failure.' Below, a small monospaced ledger footer anchors the reality of current Stellar Soroban capital: 'Blend Pool TVL: $157,161,882 | Base Fee: 100 | Risk Radius: Bounded'. No floating tokens or decorative crypto gradients; purely editorial, authoritative, and sobering.",
+      "layout": "quote",
+      "why": "Since hero_stat, sequence, diagram, and comparison have all been recently deployed, moving to a pure typographic quote breaks visual fatigue while delivering maximum intellectual punch. It treats isolation as an engineering discipline rather than a flashy feature, directly speaking to sophisticated risk managers."
+    },
+    {
+      "title": "Mutualized Cistern vs. Watertight Bulkheads",
+      "idea": "A dual-state technical cross-section comparing pool architectures. The left pane depicts a shared reservoir holding $157.1M where an insolvency fissure at the bottom drags down the entire water level across all unnamed participant markers. The right pane shows discrete, sealed vertical bulkheads; one compartment experiences a complete internal drop, but the neighboring cells remain undisturbed at full reserve capacity, accompanied by minimal technical blueprint annotations.",
+      "layout": "comparison",
+      "why": "Visually grounds the maritime engineering analogy of watertight compartments, making the mathematical reality of segregated bad debt immediately intelligible without relying on generic DeFi charts or neon crypto tropes."
+    },
+    {
+      "title": "Perimeter Containment Blueprint",
+      "idea": "An engineering schematic mapping default propagation. A single redlined collateral failure node attempts to bleed outward, but hits an impermeable double-line partition wall labeled 'Isolated Account Boundary'. Beyond the partition, the primary liquidity pool representing $157.16M Blend TVL is shaded in calm slate-grey, untouched by the stress event, supported by ledger metrics (capacity usage: 0.08) noted in the ledger status box.",
+      "layout": "diagram",
+      "why": "Provides a rigorous, structural depiction of contagion containment that clearly demonstrates how isolation halts cascading liquidations before they cross into shared system liquidity."
+    }
+  ],
+  "novelty_note": ""
+}

@@ -1,0 +1,240 @@
+{
+  "trace_id": "TRACE-2533F2F1D8AA",
+  "run_id": "RUN-20260919-085456",
+  "overall_status": "HUMAN_REVIEW_REQUIRED",
+  "stages": [
+    {
+      "stage": "intelligence",
+      "status": "SUCCESS",
+      "started_at": "2026-09-19T08:54:56.283545+00:00",
+      "completed_at": "2026-09-19T08:54:56.284606+00:00",
+      "input_data": {
+        "source_type": "SOCIAL_CORPUS",
+        "category": "LENDING"
+      },
+      "output_data": {
+        "signal_id": "SIG-UNCERTAIN",
+        "headline": "Potential New Exotic Collateral Whitelisted on Stellar",
+        "description": "Unconfirmed reports of an unverified stablecoin pool on Soroban.",
+        "market_category": "LENDING",
+        "entities_involved": [],
+        "observed_metric_change": null,
+        "source": "https://reddit.com",
+        "source_root": "D:\\marketing intelligence system\\intelligence",
+        "dataset": null,
+        "source_type": "SOCIAL_CORPUS",
+        "record_id": "rec_unc_01",
+        "observed_at": "2026-09-10",
+        "data_as_of": null,
+        "confidence": "LOW",
+        "evidence_status": "INSUFFICIENT"
+      },
+      "agent": "IntelligenceProvider",
+      "model": "BrainDB/RulesEngine",
+      "errors": []
+    },
+    {
+      "stage": "strategy",
+      "status": "HUMAN_REVIEW_REQUIRED",
+      "started_at": "2026-09-19T08:54:56.284606+00:00",
+      "completed_at": "2026-09-19T08:54:56.286117+00:00",
+      "input_data": {
+        "signal_id": "SIG-UNCERTAIN",
+        "headline": "Potential New Exotic Collateral Whitelisted on Stellar",
+        "description": "Unconfirmed reports of an unverified stablecoin pool on Soroban.",
+        "market_category": "LENDING",
+        "entities_involved": [],
+        "observed_metric_change": null,
+        "source": "https://reddit.com",
+        "source_root": "D:\\marketing intelligence system\\intelligence",
+        "dataset": null,
+        "source_type": "SOCIAL_CORPUS",
+        "record_id": "rec_unc_01",
+        "observed_at": "2026-09-10",
+        "data_as_of": null,
+        "confidence": "LOW",
+        "evidence_status": "INSUFFICIENT"
+      },
+      "output_data": {
+        "strategy_id": "STRAT-SIG-UNCERTAIN-202609190854",
+        "action_status": "HUMAN_REVIEW_REQUIRED",
+        "decision_reason_class": "SIGNAL_EVIDENCE_INSUFFICIENT",
+        "no_action_rationale": null,
+        "kill_rationale": null,
+        "human_review_rationale": "Market signal 'Potential New Exotic Collateral Whitelisted on Stellar' has evidence_status='INSUFFICIENT'. Strategic hypothesis is sound, but underlying data is unconfirmed.",
+        "objective": "Verify market data before approving public positioning.",
+        "audience_segment": "A1: Stellar & Soroban DeFi Farmers",
+        "problem": "Capital drag from idle deposits; high friction jumping between DEX and lending tabs.",
+        "market_context": "Unconfirmed reports of an unverified stablecoin pool on Soroban.",
+        "strategic_opportunity": "Showcase 10x composable credit deployed atomically across Blend b-tokens and Aquarius AMM pools.",
+        "narrative_pillar": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+        "positioning": "Vanna is the composable credit layer for Stellar Soroban, providing isolated SmartAccount sandboxes and sub-second defense.",
+        "proof": [
+          "10x multiplier applied to initial collateral",
+          "Atomic execution across Blend BLUSDC and Aquarius pools in single transaction",
+          "Non-custodial SmartAccount sandbox custody"
+        ],
+        "claims": [
+          {
+            "claim_id": "CLM-001",
+            "text": "10x multiplier applied to initial collateral",
+            "claim_type": "MARKETING_OPPORTUNITY",
+            "evidence_status": "DERIVED",
+            "evidence_refs": [
+              "D:\\marketing intelligence system\\intelligence\\db\\opportunities.jsonl"
+            ],
+            "confidence": "MEDIUM",
+            "source_records": [
+              "BRAIN_OPPORTUNITIES_RECORD"
+            ],
+            "calculation_method": null,
+            "action": "USE",
+            "rationale": "Derived strategic positioning angle."
+          },
+          {
+            "claim_id": "CLM-002",
+            "text": "Atomic execution across Blend BLUSDC and Aquarius pools in single transaction",
+            "claim_type": "VANNA_FACT",
+            "evidence_status": "OBSERVED",
+            "evidence_refs": [
+              "D:\\marketing intelligence system\\knowledge\\internal\\approved-claims.md"
+            ],
+            "confidence": "HIGH",
+            "source_records": [
+              "APPROVED_CLAIMS_INTERNAL_V1"
+            ],
+            "calculation_method": "Direct documentation invariant verification.",
+            "action": "USE",
+            "rationale": "Verified against approved Vanna testnet architecture documentation."
+          },
+          {
+            "claim_id": "CLM-003",
+            "text": "Non-custodial SmartAccount sandbox custody",
+            "claim_type": "VANNA_FACT",
+            "evidence_status": "OBSERVED",
+            "evidence_refs": [
+              "D:\\marketing intelligence system\\knowledge\\internal\\approved-claims.md"
+            ],
+            "confidence": "HIGH",
+            "source_records": [
+              "APPROVED_CLAIMS_INTERNAL_V1"
+            ],
+            "calculation_method": "Direct documentation invariant verification.",
+            "action": "USE",
+            "rationale": "Verified against approved Vanna testnet architecture documentation."
+          }
+        ],
+        "cta": "Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+        "channel": "X",
+        "content_type": "product_deep_dive",
+        "gtm_machine_id": "MACHINE_01: NEW_INTEGRATION_DISPATCH",
+        "machine_eligibility": {
+          "machine_id": "MACHINE_01: NEW_INTEGRATION_DISPATCH",
+          "eligibility_status": "ELIGIBLE",
+          "evidence_count": 5,
+          "independent_campaign_count": 2,
+          "independent_player_count": 3,
+          "evidence_refs": [
+            "D:\\marketing intelligence system\\intelligence\\db\\campaigns.jsonl"
+          ],
+          "confidence": "HIGH",
+          "selection_reason": "Empirically observed in Aave v3 deployment and Blend Protocol launch dossiers."
+        },
+        "reasoning": [
+          "Signal evidence status requires human confirmation before dispatch."
+        ],
+        "evidence": [
+          {
+            "record_id": "rec_unc_01",
+            "source": "https://reddit.com",
+            "status": "INSUFFICIENT"
+          }
+        ],
+        "title": null
+      },
+      "agent": "GTMStrategist",
+      "model": "Gemini-3.1-Pro",
+      "errors": [
+        "Market signal 'Potential New Exotic Collateral Whitelisted on Stellar' has evidence_status='INSUFFICIENT'. Strategic hypothesis is sound, but underlying data is unconfirmed."
+      ]
+    }
+  ],
+  "confidence_matrix": {
+    "intelligence_confidence": 0.9,
+    "evidence_confidence": 0.67,
+    "strategy_confidence": 0.5,
+    "content_quality": 0.0,
+    "creative_quality": 0.0,
+    "claim_safety": 1.0,
+    "reviewer_score": 0
+  },
+  "provenance_chain": [
+    {
+      "source_root": "D:\\marketing intelligence system\\intelligence",
+      "dataset": "signals",
+      "signal_id": "SIG-UNCERTAIN",
+      "headline": "Potential New Exotic Collateral Whitelisted on Stellar",
+      "source": "https://reddit.com",
+      "source_type": "SOCIAL_CORPUS",
+      "record_id": "rec_unc_01",
+      "evidence_status": "INSUFFICIENT"
+    }
+  ],
+  "human_review_packet": {
+    "decision_status": "HUMAN_REVIEW_REQUIRED",
+    "decision_reason_class": "SIGNAL_EVIDENCE_INSUFFICIENT",
+    "why_this_strategy": "Showcase 10x composable credit deployed atomically across Blend b-tokens and Aquarius AMM pools.",
+    "why_this_audience": "A1: Stellar & Soroban DeFi Farmers",
+    "why_this_narrative": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+    "kill_or_review_rationale": "Market signal 'Potential New Exotic Collateral Whitelisted on Stellar' has evidence_status='INSUFFICIENT'. Strategic hypothesis is sound, but underlying data is unconfirmed.",
+    "evidence_supporting": [
+      {
+        "record_id": "rec_unc_01",
+        "source": "https://reddit.com",
+        "status": "INSUFFICIENT"
+      }
+    ],
+    "claims_evaluated": [
+      {
+        "claim_id": "CLM-001",
+        "text": "10x multiplier applied to initial collateral",
+        "type": "MARKETING_OPPORTUNITY",
+        "evidence_status": "DERIVED",
+        "action": "USE"
+      },
+      {
+        "claim_id": "CLM-002",
+        "text": "Atomic execution across Blend BLUSDC and Aquarius pools in single transaction",
+        "type": "VANNA_FACT",
+        "evidence_status": "OBSERVED",
+        "action": "USE"
+      },
+      {
+        "claim_id": "CLM-003",
+        "text": "Non-custodial SmartAccount sandbox custody",
+        "type": "VANNA_FACT",
+        "evidence_status": "OBSERVED",
+        "action": "USE"
+      }
+    ],
+    "content_summary": null,
+    "creative_concept": null,
+    "reviewer_verdict": null,
+    "actions_available": [
+      "APPROVE_AND_DISPATCH",
+      "REVISE_COPY",
+      "REGENERATE_CREATIVE",
+      "KILL"
+    ]
+  },
+  "performance_metadata": {
+    "campaign_id": null,
+    "content_id": null,
+    "platform": null,
+    "impressions": null,
+    "engagements": null,
+    "clicks": null,
+    "conversions": null,
+    "measured_at": null
+  }
+}

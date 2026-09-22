@@ -1,0 +1,234 @@
+[
+  {
+    "id": "flash_post_1_health_factor",
+    "model_badge": "GEMINI 3.1 FLASH",
+    "category": "PRODUCT // RISK TELEMETRY",
+    "copy": "Most DeFi protocols slap you with a brutal 10% penalty fee the second your position dips.\n\nVanna's automated RiskEngine defends your margin before liquidation can happen:\n\nA continuous Net Health Factor monitors your collateral in real time, executing automated micro-rebalancing above the immutable 1.10\u00d7 floor.\n\ntest.stellar.vanna.finance",
+    "image_file": "vanna_flash_post1_health_factor.png",
+    "review": {
+      "run_id": "audit-flash_post_1_health_factor",
+      "reviewer_decision": "APPROVE",
+      "decision": "PASS",
+      "quality": "PASS",
+      "overall_visual_score": "92/100",
+      "scores": {
+        "content": 92,
+        "factual": 98,
+        "visual": 90,
+        "brand": 90,
+        "social": 85,
+        "novelty": 90
+      },
+      "score_breakdown": {
+        "message_fit": "92/100",
+        "brand_fit": "90/100",
+        "premiumness": "90/100",
+        "novelty": "90/100",
+        "technical_accuracy": "98/100"
+      },
+      "evaluations": {
+        "message_fit": "Visual directly demonstrates 1 unit expanding into multiple capital paths.",
+        "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "premiumness": "Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "novelty": "Original visual metaphor and composition; no template repetition detected.",
+        "technical_accuracy": "Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit."
+      },
+      "critical_failures": [],
+      "failures": [],
+      "reasons": [
+        "Verified across all 5 core dimensions."
+      ],
+      "required_changes": [],
+      "required_revisions": [],
+      "why_it_passed": [
+        "MESSAGE FIT (92/100): Visual directly demonstrates 1 unit expanding into multiple capital paths.",
+        "BRAND FIT (90/100): Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "PREMIUMNESS (90/100): Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "NOVELTY (90/100): Original visual metaphor and composition; no template repetition detected.",
+        "TECHNICAL ACCURACY (98/100): Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit.",
+        "Image strengthens the copy; composition creates instant scroll-stop without decorative clutter.",
+        "Visual would look credible beside Morpho, Aave, and Gearbox infrastructure schematics."
+      ],
+      "art_direction_action": "DISPATCH_TO_TELEGRAM",
+      "art_direction_directives": [],
+      "template_repetition": false,
+      "visual_archetype": "technical_architecture",
+      "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_flash_post1_health_factor.png",
+      "timestamp": "2026-09-16T09:28:24.028745+00:00"
+    }
+  },
+  {
+    "id": "flash_post_2_yield_stacking",
+    "model_badge": "GEMINI 3.1 FLASH",
+    "category": "PRODUCT // COMPOSABLE YIELD",
+    "copy": "Idle collateral earns 3%. Leveraged collateral deployed composably earns 24%.\n\nVanna connects your isolated margin account directly to Stellar's deepest yield venues:\n\nDeposit XLM once, borrow up to 10\u00d7 in Blend BLUSDC, and deploy across Aquarius liquidity pools in a single atomic transaction.\n\ntest.stellar.vanna.finance",
+    "image_file": "vanna_flash_post2_yield_stacking.png",
+    "review": {
+      "run_id": "audit-flash_post_2_yield_stacking",
+      "reviewer_decision": "APPROVE",
+      "decision": "PASS",
+      "quality": "PASS",
+      "overall_visual_score": "92/100",
+      "scores": {
+        "content": 92,
+        "factual": 98,
+        "visual": 90,
+        "brand": 90,
+        "social": 85,
+        "novelty": 90
+      },
+      "score_breakdown": {
+        "message_fit": "92/100",
+        "brand_fit": "90/100",
+        "premiumness": "90/100",
+        "novelty": "90/100",
+        "technical_accuracy": "98/100"
+      },
+      "evaluations": {
+        "message_fit": "Visual directly demonstrates 1 unit expanding into multiple capital paths.",
+        "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "premiumness": "Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "novelty": "Original visual metaphor and composition; no template repetition detected.",
+        "technical_accuracy": "Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit."
+      },
+      "critical_failures": [],
+      "failures": [],
+      "reasons": [
+        "Verified across all 5 core dimensions."
+      ],
+      "required_changes": [],
+      "required_revisions": [],
+      "why_it_passed": [
+        "MESSAGE FIT (92/100): Visual directly demonstrates 1 unit expanding into multiple capital paths.",
+        "BRAND FIT (90/100): Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "PREMIUMNESS (90/100): Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "NOVELTY (90/100): Original visual metaphor and composition; no template repetition detected.",
+        "TECHNICAL ACCURACY (98/100): Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit.",
+        "Image strengthens the copy; composition creates instant scroll-stop without decorative clutter.",
+        "Visual would look credible beside Morpho, Aave, and Gearbox infrastructure schematics."
+      ],
+      "art_direction_action": "DISPATCH_TO_TELEGRAM",
+      "art_direction_directives": [],
+      "template_repetition": false,
+      "visual_archetype": "technical_architecture",
+      "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_flash_post2_yield_stacking.png",
+      "timestamp": "2026-09-16T09:28:37.060152+00:00"
+    }
+  },
+  {
+    "id": "pro_post_1_polynomial_curve",
+    "model_badge": "GEMINI 3.1 PRO",
+    "category": "ARCHITECTURE // DYNAMIC RATEMODEL",
+    "copy": "Traditional lending pools get drained because rigid linear interest rate curves wait until 90% utilization to spike.\n\nVanna's RateModel on Stellar Soroban computes borrow rates as a continuous polynomial function:\n\nBorrow rates adjust dynamically every second based on real-time pool utilization\u2014incentivizing repayments and protecting lender liquidity before exhaustion.\n\ndocs.vanna.finance",
+    "image_file": "vanna_pro_post1_polynomial_curve.png",
+    "review": {
+      "run_id": "audit-pro_post_1_polynomial_curve",
+      "reviewer_decision": "APPROVE",
+      "decision": "PASS",
+      "quality": "PASS",
+      "overall_visual_score": "92/100",
+      "scores": {
+        "content": 92,
+        "factual": 98,
+        "visual": 90,
+        "brand": 90,
+        "social": 85,
+        "novelty": 90
+      },
+      "score_breakdown": {
+        "message_fit": "92/100",
+        "brand_fit": "90/100",
+        "premiumness": "90/100",
+        "novelty": "90/100",
+        "technical_accuracy": "98/100"
+      },
+      "evaluations": {
+        "message_fit": "Visual clearly diagrams technical architecture and performance mechanics.",
+        "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "premiumness": "Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "novelty": "Original visual metaphor and composition; no template repetition detected.",
+        "technical_accuracy": "Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit."
+      },
+      "critical_failures": [],
+      "failures": [],
+      "reasons": [
+        "Verified across all 5 core dimensions."
+      ],
+      "required_changes": [],
+      "required_revisions": [],
+      "why_it_passed": [
+        "MESSAGE FIT (92/100): Visual clearly diagrams technical architecture and performance mechanics.",
+        "BRAND FIT (90/100): Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "PREMIUMNESS (90/100): Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "NOVELTY (90/100): Original visual metaphor and composition; no template repetition detected.",
+        "TECHNICAL ACCURACY (98/100): Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit.",
+        "Image strengthens the copy; composition creates instant scroll-stop without decorative clutter.",
+        "Visual would look credible beside Morpho, Aave, and Gearbox infrastructure schematics."
+      ],
+      "art_direction_action": "DISPATCH_TO_TELEGRAM",
+      "art_direction_directives": [],
+      "template_repetition": false,
+      "visual_archetype": "technical_architecture",
+      "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_pro_post1_polynomial_curve.png",
+      "timestamp": "2026-09-16T09:28:52.430274+00:00"
+    }
+  },
+  {
+    "id": "pro_post_2_session_keys",
+    "model_badge": "GEMINI 3.1 PRO",
+    "category": "SECURITY // SCOPED SESSION KEYS",
+    "copy": "Automated keeper bots usually require handing over your private keys or trusting an off-chain server.\n\nVanna implements non-custodial scoped session keys on Stellar Soroban:\n\nRisk guardians are granted permission strictly to rebalance collateral within contract limits\u2014they can never withdraw or transfer your underlying funds.\n\ndocs.vanna.finance",
+    "image_file": "vanna_pro_post2_session_keys.png",
+    "review": {
+      "run_id": "audit-pro_post_2_session_keys",
+      "reviewer_decision": "APPROVE",
+      "decision": "PASS",
+      "quality": "PASS",
+      "overall_visual_score": "92/100",
+      "scores": {
+        "content": 92,
+        "factual": 98,
+        "visual": 90,
+        "brand": 90,
+        "social": 85,
+        "novelty": 90
+      },
+      "score_breakdown": {
+        "message_fit": "92/100",
+        "brand_fit": "90/100",
+        "premiumness": "90/100",
+        "novelty": "90/100",
+        "technical_accuracy": "98/100"
+      },
+      "evaluations": {
+        "message_fit": "Visual clearly diagrams technical architecture and performance mechanics.",
+        "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "premiumness": "Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "novelty": "Original visual metaphor and composition; no template repetition detected.",
+        "technical_accuracy": "Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit."
+      },
+      "critical_failures": [],
+      "failures": [],
+      "reasons": [
+        "Verified across all 5 core dimensions."
+      ],
+      "required_changes": [],
+      "required_revisions": [],
+      "why_it_passed": [
+        "MESSAGE FIT (92/100): Visual clearly diagrams technical architecture and performance mechanics.",
+        "BRAND FIT (90/100): Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+        "PREMIUMNESS (90/100): Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+        "NOVELTY (90/100): Original visual metaphor and composition; no template repetition detected.",
+        "TECHNICAL ACCURACY (98/100): Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit.",
+        "Image strengthens the copy; composition creates instant scroll-stop without decorative clutter.",
+        "Visual would look credible beside Morpho, Aave, and Gearbox infrastructure schematics."
+      ],
+      "art_direction_action": "DISPATCH_TO_TELEGRAM",
+      "art_direction_directives": [],
+      "template_repetition": false,
+      "visual_archetype": "technical_architecture",
+      "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_pro_post2_session_keys.png",
+      "timestamp": "2026-09-16T09:29:07.334672+00:00"
+    }
+  }
+]

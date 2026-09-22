@@ -1,0 +1,7 @@
+{
+  "id": "VH_SINGLE",
+  "channel": "x",
+  "shape": "single",
+  "max_parts": 1,
+  "reason": "thin support (score 0.3, 1 signals)"
+}

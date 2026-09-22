@@ -1,0 +1,76 @@
+{
+  "results": [
+    {
+      "player_id": "gearbox",
+      "artefacts": 10,
+      "patterns": 4,
+      "file": "exports\\competitors\\gearbox.md",
+      "status": "COMPLETE"
+    },
+    {
+      "player_id": "aave",
+      "artefacts": 10,
+      "patterns": 4,
+      "file": "exports\\competitors\\aave.md",
+      "status": "COMPLETE"
+    },
+    {
+      "player_id": "uniswap",
+      "artefacts": 10,
+      "patterns": 4,
+      "file": "exports\\competitors\\uniswap.md",
+      "status": "COMPLETE"
+    },
+    {
+      "player_id": "compound",
+      "artefacts": 10,
+      "patterns": 4,
+      "file": "exports\\competitors\\compound.md",
+      "status": "COMPLETE"
+    },
+    {
+      "player_id": "morpho",
+      "artefacts": 0,
+      "patterns": 0,
+      "file": "exports\\competitors\\morpho.md",
+      "status": "NO_DATA"
+    },
+    {
+      "player_id": "makerdao",
+      "artefacts": 0,
+      "patterns": 0,
+      "file": "exports\\competitors\\makerdao.md",
+      "status": "NO_DATA"
+    },
+    {
+      "player_id": "curve",
+      "artefacts": 0,
+      "patterns": 0,
+      "file": "exports\\competitors\\curve.md",
+      "status": "NO_DATA"
+    },
+    {
+      "player_id": "synthetix",
+      "artefacts": 0,
+      "patterns": 0,
+      "file": "exports\\competitors\\synthetix.md",
+      "status": "NO_DATA"
+    },
+    {
+      "player_id": "yearn",
+      "artefacts": 0,
+      "patterns": 0,
+      "file": "exports\\competitors\\yearn.md",
+      "status": "NO_DATA"
+    },
+    {
+      "player_id": "ethena",
+      "artefacts": 0,
+      "patterns": 0,
+      "file": "exports\\competitors\\ethena.md",
+      "status": "NO_DATA"
+    }
+  ],
+  "failures": 6,
+  "total_files": 10
+}

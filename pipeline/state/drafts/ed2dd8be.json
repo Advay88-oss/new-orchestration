@@ -1,0 +1,47 @@
+{
+  "draft_id": "ed2dd8be",
+  "message_id": 289,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T12:03:24Z",
+  "sent_unix": 1787227401,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "ed2dd8be",
+    "draft_id": "2af858ab",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Agents can pay. Agents can't borrow.\n\nSiloed credit accounts force autonomous agents to run complex rebalancing math and burn gas across isolated pools.\n\nVanna’s Unified Margin Account offers a single aggregated credit line. Simpler policy execution — on testnet.",
+    "final_body": "Agents can pay. Agents can't borrow.\n\nSiloed credit accounts force autonomous agents to run complex rebalancing math and burn gas across isolated pools.\n\nVanna’s Unified Margin Account offers a single aggregated credit line. Simpler policy execution — on testnet.",
+    "final_hook": "Agents can pay. Agents can't borrow.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Agent Liquidity. Unified.",
+      "emphasis_phrase": "Single credit line.",
+      "subhead": "Contrasting agent credit execution models",
+      "data": [
+        {
+          "label": "Agent Execution",
+          "value": "1 Unified Account",
+          "note": "Vanna aggregates collateral under a single policy-bounded credit line"
+        },
+        {
+          "label": "Siloed Model",
+          "value": "Isolated Accounts",
+          "note": "Requires constant rebalancing math and multi-hop gas routing"
+        },
+        {
+          "label": "Max Borrowing Capacity",
+          "value": "Up to 10x",
+          "note": "Via cross-margining on Stellar Soroban testnet"
+        }
+      ],
+      "disclaimer": "Vanna is currently on testnet. Performance metrics are architectural targets."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T12:03:03Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

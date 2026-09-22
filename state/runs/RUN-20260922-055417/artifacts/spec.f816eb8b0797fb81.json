@@ -1,0 +1,33 @@
+{
+  "layout": "hero_stat",
+  "headline": "Unified Margin Solvency Floor",
+  "subhead": "Total Collateral ($) / Total Debt ($)",
+  "blocks": [
+    {
+      "role": "stat",
+      "text": "1.10x",
+      "emphasis": "primary"
+    },
+    {
+      "role": "label",
+      "text": "Strict Liquidation Threshold",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "caption",
+      "text": "Single collateral deposits back multiple debt positions simultaneously via real-time solvency math.",
+      "emphasis": "muted"
+    }
+  ],
+  "focal": {
+    "block_index": 0,
+    "reason": "Monolithic 1.10x metric anchors the visual as the critical solvency boundary."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

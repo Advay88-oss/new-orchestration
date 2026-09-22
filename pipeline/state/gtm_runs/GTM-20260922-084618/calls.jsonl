@@ -1,0 +1,4 @@
+{"agent": "A02_opportunity_selector", "role": "reasoning", "model": "gemini-3.8-flash", "ok": true, "duration_s": 5.36, "input_tokens": 406, "output_tokens": 357, "note": "", "transport": "apikey", "at": "2026-09-22T08:46:24.326539+00:00"}
+{"agent": "A03_gtm_strategist", "role": "reasoning", "model": "gemini-3.8-flash", "ok": true, "duration_s": 7.08, "input_tokens": 2209, "output_tokens": 514, "note": "", "transport": "apikey", "at": "2026-09-22T08:46:31.445348+00:00"}
+{"agent": "A06_channel_adapter", "role": "reasoning", "model": "gemini-3.8-flash", "ok": true, "duration_s": 11.54, "input_tokens": 716, "output_tokens": 963, "note": "", "transport": "apikey", "at": "2026-09-22T08:46:42.990588+00:00"}
+{"agent": "A07_creative_director", "role": "reasoning", "model": "gemini-3.8-flash", "ok": true, "duration_s": 12.58, "input_tokens": 487, "output_tokens": 826, "note": "", "transport": "apikey", "at": "2026-09-22T08:46:55.580422+00:00"}

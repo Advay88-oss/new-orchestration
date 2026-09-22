@@ -1,0 +1,9 @@
+{
+  "id": "PB_RISK",
+  "shape": "Name the failure mode first, then the structural reason it cannot spread.",
+  "forbidden": [
+    "fear-mongering about competitors",
+    "implying zero risk"
+  ],
+  "arc": "risk_relief"
+}

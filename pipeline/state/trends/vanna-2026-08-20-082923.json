@@ -1,0 +1,486 @@
+{
+  "tenant": "vanna",
+  "bundle": "okf",
+  "gathered_at_utc": "2026-08-20T08:29:23Z",
+  "keywords": [
+    "agent credit",
+    "onchain agent",
+    "liquidation survival",
+    "composable liquidity",
+    "unified margin",
+    "oracle latency"
+  ],
+  "subreddits": [
+    "defi",
+    "Stellar",
+    "ethereum",
+    "cryptocurrency"
+  ],
+  "counts": {
+    "total": 51,
+    "google_news": 30,
+    "reddit": 12,
+    "twitter": 9
+  },
+  "items": [
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "A Warning to All: Coinbase is holding $16,000 USD Hostage with no ability to buy, sell, withdraw, or close account and has provided Zero customer support or solution.",
+      "url": "https://www.reddit.com/r/CryptoCurrency/comments/7xfic6/a_warning_to_all_coinbase_is_holding_16000_usd/",
+      "published": 1518582555,
+      "source": "r/cryptocurrency",
+      "engagement": 2245
+    },
+    {
+      "channel": "twitter",
+      "keyword": "liquidation survival",
+      "title": "BREAKING: 🚨 HUGE SHORT SQUEEZE IN THE CRYPTO MARKET.\n\nBitcoin surges 7.6% within 3 hours.\n\nEthereum surges 10% within 3 hours.\n\n$1.25 BILLION worth of shorts liquidated. https://t.co/ELpBNViigS",
+      "url": "https://x.com/i/status/2090101051072401493",
+      "published": "Wed Aug 19 15:38:17 +0000 2026",
+      "source": "@cryptorover",
+      "engagement": 1142
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "Bidens executive order, America competes and a history lesson about AmericaExecutive Order 6102",
+      "url": "https://www.reddit.com/r/CryptoCurrency/comments/sf1qbh/bidens_executive_order_america_competes_and_a/",
+      "published": 1643406669,
+      "source": "r/cryptocurrency",
+      "engagement": 1033
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "I've worked in crypto for 8 years (Circle, Messari, Coinbase, Crossmint). Long post on how its all played out, and how different it is from what we expected.",
+      "url": "https://www.reddit.com/r/CryptoCurrency/comments/1t6djf8/ive_worked_in_crypto_for_8_years_circle_messari/",
+      "published": 1778166965,
+      "source": "r/cryptocurrency",
+      "engagement": 858
+    },
+    {
+      "channel": "twitter",
+      "keyword": "onchain agent",
+      "title": "Base is for sports\n\n@BracketHQ is bringing competition onchain\n\nBuild brackets and track results, starting with a new onchain agent-powered experience for March Madness https://t.co/Gv0Cop1BvI",
+      "url": "https://x.com/i/status/1904941429652414767",
+      "published": "Wed Mar 26 17:00:03 +0000 2025",
+      "source": "@base",
+      "engagement": 334
+    },
+    {
+      "channel": "twitter",
+      "keyword": "liquidation survival",
+      "title": "An AI hedge fund lost 67% in July.\n\nLeopold Aschenbrenner, the former OpenAI researcher behind Situational Awareness, was margin-called. His public equity portfolio was liquidated and sold to Citadel.",
+      "url": "https://x.com/i/status/2083500488667091345",
+      "published": "Sat Aug 01 10:30:00 +0000 2026",
+      "source": "@Antseer_ai",
+      "engagement": 117
+    },
+    {
+      "channel": "twitter",
+      "keyword": "agent credit",
+      "title": "If you run AI agents, the real cost can come from paying for separate subscriptions for every tool your agent uses.\n\nAident Credits solve this by giving you one balance you can use across 50+ tools.\n\n",
+      "url": "https://x.com/i/status/2090314927214825496",
+      "published": "Thu Aug 20 05:48:09 +0000 2026",
+      "source": "@mikenevermiss",
+      "engagement": 101
+    },
+    {
+      "channel": "twitter",
+      "keyword": "agent credit",
+      "title": "https://t.co/MjydEjF9kl",
+      "url": "https://x.com/i/status/2052362326347489682",
+      "published": "Thu May 07 12:18:04 +0000 2026",
+      "source": "@Morpho",
+      "engagement": 70
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "Syscoin Platform’s Great Reddit Scaling Bake-off Proposal",
+      "url": "https://www.reddit.com/r/ethereum/comments/i1ct52/syscoin_platforms_great_reddit_scaling_bakeoff/",
+      "published": 1596220263,
+      "source": "r/ethereum",
+      "engagement": 68
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "Coinbase holding close to $1M deposit hostage for 15 days - support admits \"technical failure\" & told me to contact regulators",
+      "url": "https://www.reddit.com/r/ethereum/comments/1pj331i/coinbase_holding_close_to_1m_deposit_hostage_for/",
+      "published": 1765374703,
+      "source": "r/ethereum",
+      "engagement": 47
+    },
+    {
+      "channel": "twitter",
+      "keyword": "onchain agent",
+      "title": "El meta de Robinhood sigue MUY fuerte y el próximo proyecto que estoy mirando es WIF.\n\nNo lo veo simplemente como otro PFP intentando aprovechar el hype.\n\nDetrás está @RobinWifHat y están intentando c",
+      "url": "https://x.com/i/status/2088210793527439709",
+      "published": "Fri Aug 14 10:27:04 +0000 2026",
+      "source": "@VitoApH",
+      "engagement": 26
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "Meet the Stellar Ecosystem Podcast",
+      "url": "https://www.reddit.com/r/Stellar/comments/1u7ibjb/meet_the_stellar_ecosystem_podcast/",
+      "published": 1781627086,
+      "source": "r/Stellar",
+      "engagement": 24
+    },
+    {
+      "channel": "twitter",
+      "keyword": "onchain agent",
+      "title": "UPDATE: Robinhood expands AI agent trading to crypto\n\nEligible users can now run trading agents 24/7 through a dedicated Agentic Account, funded only by their own deposits. Agents can tap limited marg",
+      "url": "https://x.com/i/status/2090038596518686842",
+      "published": "Wed Aug 19 11:30:07 +0000 2026",
+      "source": "@RobinHub_xyz",
+      "engagement": 19
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "X402 Real Use Cases",
+      "url": "https://www.reddit.com/r/ethereum/comments/1rlmuqu/x402_real_use_cases/",
+      "published": 1772729870,
+      "source": "r/ethereum",
+      "engagement": 18
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "Stellar Weekly Roundup: Week of Jul 24, 2026",
+      "url": "https://www.reddit.com/r/Stellar/comments/1vc1rr3/stellar_weekly_roundup_week_of_jul_24_2026/",
+      "published": 1785528440,
+      "source": "r/Stellar",
+      "engagement": 13
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "Stellar Weekly Roundup — week of Jul 10, 2026",
+      "url": "https://www.reddit.com/r/Stellar/comments/1uz5vsa/stellar_weekly_roundup_week_of_jul_10_2026/",
+      "published": 1784308448,
+      "source": "r/Stellar",
+      "engagement": 13
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "WEBAI3 - We built a pay-per-use AI platform that runs on USDC instead of subscriptions — presale is live",
+      "url": "https://www.reddit.com/r/defi/comments/1sauz45/webai3_we_built_a_payperuse_ai_platform_that_runs/",
+      "published": 1775166817,
+      "source": "r/defi",
+      "engagement": 1
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "0G launches $20M Apollo Accelerator with Stanford blockchain veterans and Google Cloud backing",
+      "url": "https://www.reddit.com/r/defi/comments/1rgatym/0g_launches_20m_apollo_accelerator_with_stanford/",
+      "published": 1772208571,
+      "source": "r/defi",
+      "engagement": 1
+    },
+    {
+      "channel": "twitter",
+      "keyword": "liquidation survival",
+      "title": "@cryptorover Liquidation cascades blowing out $1.25B in shorts within 3 hours shows why over-leveraging derivatives is lethal.",
+      "url": "https://x.com/i/status/2090101920442560656",
+      "published": "Wed Aug 19 15:41:44 +0000 2026",
+      "source": "@FBYTio",
+      "engagement": 1
+    },
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "Silicon Valley startups are about to hand corporate credit cards to AI agents - Fast Company",
+      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxNaFQ3ZktfTjBZbzZBWGJJUHd3UlJuN0I4eDNpSlgwQWlUdTNJdF9aRGxtSS1feFhKOGhkWjNRV2dGbXFyT3ozNklHbi1vcjBhRTRTVWw5Y2FVMmpVc3ZNY1BjbWRWTGxja3pvTmpaa0dGWGNtaG9pNlZiVmpYcXVNc3JaSmtfVDl0X1pDdg?oc=5",
+      "published": "Tue, 11 Aug 2026 15:12:20 GMT",
+      "source": "Fast Company",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "Giving AI Agents the Keys? USC Engineers Develop Tools to Audit and Monitor AI Agents - USC Viterbi School of Engineering",
+      "url": "https://news.google.com/rss/articles/CBMixwFBVV95cUxQVDJoREJ2emVRUjM1VjZ3eTZ1RWstWk5fa200dnl3Z0dSTmlpM2JCbzN2ZWI3dVNYVS1hSG83X1ZwYVdIYWhtczNLVXh6TlBldnY2Wi1EeklIdXZfRVdYTkdkZ0U5TlNIanNncmNrM3Q0OEpHUWI5a1dyaUhxU3lKaHhSdWdNbm9xTWI3elY3NFZPTzJjX3VPUGNOd0I5ekFsMXZVR2FJeGl4endNTlg2V0kySE1wcTAya19zRllIWC1fOVphcVNB?oc=5",
+      "published": "Wed, 19 Aug 2026 18:33:13 GMT",
+      "source": "USC Viterbi School of Engineering",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "Copilot Credit Complaints Keep Coming: 'Too Expensive to Use' - Visual Studio Magazine",
+      "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxQSC0zWm1ZRnNIZ3NqRU4xcW1MZnlmRkcyZ3ExOXF2eTI0X1VVMUM5NE9nMXUzZzc0QnRNV3Rwa24yOU5Kb0VnNmhJWWtNZnl2UU5XaWNkN3VxRmVrangtOVBHU2tBREJadC0yTzg1Uml6OVJTWVZ5SzZUWDgxV1R4bHpsR3dkQnBHemRwZUtUNkRWdkxqVTRpMzFkd0o1M3E5VTNnaW5IbUtXQ1BlOWtqcFloZW0xZ1U?oc=5",
+      "published": "Fri, 07 Aug 2026 07:00:00 GMT",
+      "source": "Visual Studio Magazine",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "AI Agents Just Got Their Own Company Credit Cards - PYMNTS.com",
+      "url": "https://news.google.com/rss/articles/CBMiqwFBVV95cUxPVzVwS0pveTJocC1SOWZ1YXJYQzFLRWNQblhKUHJDckR6dFczcVZKVWZkNzZwVVJBZWgwTTVvdWlRc3dvYk5tbmh3bDRrMmhTaGZLN2F1azNmX21YbUNyVjRobEFGNDRWNWs3VER3VG1LUGRxQlZPc3JnN3BkajZqdlkwcDJVZkxrd05qY0VaVkoyOTZvcUVrcndxaG1yaTFHaXFBdXVfd2t5UUE?oc=5",
+      "published": "Wed, 12 Aug 2026 19:56:45 GMT",
+      "source": "PYMNTS.com",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "agent credit",
+      "title": "ccRCC PET Imaging Agent Earns FDA Breakthrough Therapy, Fast Track Statuses - CancerNetwork",
+      "url": "https://news.google.com/rss/articles/CBMirgFBVV95cUxQYjBlbnA4N3NwbkFVOHRMbmJFT2U1N0tSbl9XTGZadjNlTHlrdVhaTTJlWkFDSVFzX2xDZEU2MjFja0NQVU84MTVOUnpCRFJhNjlCVzV6YU5rcUVCR0t5RXZhRE54TUV0SHF4MTFoUG1qS1VfdTM5Y3ZUQmlZbEdwXzBESHpYR3NxYVg5akIwYmVMUkZ0NTJJTERDV21reTZqcHZ6TEp0MHh1aVhJTFE?oc=5",
+      "published": "Wed, 19 Aug 2026 17:07:16 GMT",
+      "source": "CancerNetwork",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "DGrid's AI Routing Experiment: Can Onchain Agents Improve Model Selection? - CertiK",
+      "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE1ORzQ0b0cxY19ON0RlOG9KZHlraDlMNFNROS1YN0FyVDBGQ0p3d0t0dENpa0Q3c2JYYV96SEszQjJ0QmhKcklsNmpDR3VkaXlSaUVMOXplYlY4VlN4M2dicDlOSU0yQQ?oc=5",
+      "published": "Sat, 15 Aug 2026 05:43:12 GMT",
+      "source": "CertiK",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "SEC Staff Issues No-Action Letter Permitting Franklin Templeton Funds' \"Self-Custody\" of Shares in Affiliated Money Market Fund with Blockchain-Integrated Recordkeeping - Faegre Drinker Biddle & Reath LLP",
+      "url": "https://news.google.com/rss/articles/CBMiywJBVV95cUxNNmVSNFpDNE9IUEVoQkFBNk1BcVZjbFQzUTl4QS16ZU9DakthYUNzYTZXQXdLSnRyb0E2OTFQVlhrcmVGM2tURzdYTkNUVndvdmk0ZWo2V3Y3c3cwVjBCYUNIMjl1ZTdCOTRsQ19nUXU1LXRBQ2RBSm92NlpyQ0dzdnlKWGRQdzZ4NGlGb2l4QnRXR3NrS2hBZE53N0I5ZFFPMTlIZXE1b2lmMkNTN0ZzNElqVlhud1ZVaXN6d3NndDZNbXlvS3NHS0thZjV3ZWM2SkxRZlVBM1NzOVVILVFhcnZxZVBuN016R3IwSkpIazFTVHljSDZ2X0VULVpKc0t5N3E0T2RrU1NhQzBYWDFqa3hvb2h1V0U3b1dtenFxbnlaVGlwQm9tTjhCMHprQzlaTnhnMHBFX1V1TWdwaUhBTVZBcXAwTHV3YVlz?oc=5",
+      "published": "Wed, 19 Aug 2026 21:22:59 GMT",
+      "source": "Faegre Drinker Biddle & Reath LLP",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "LBank Exchange Listed OAI (OMNI Agents AI) - TMX Newsfile",
+      "url": "https://news.google.com/rss/articles/CBMijAFBVV95cUxQaWxaN1VWeHlNYTBRcUZfVi01UTdkYVI4MnlTWm5ia0JGelRUU3B5bDVJMlZ3bGhqSndqNTFaTllxMGhUNmRmME5RRkJRUF9HWGotLWZjWXdNQ1JHeDNpM2hCdTUwaVdoT1JsLWhJYmd1emZxcWVSWnZNSXA5TmRDSEVNMWJ6VThaZHl6NQ?oc=5",
+      "published": "Fri, 14 Aug 2026 14:13:00 GMT",
+      "source": "TMX Newsfile",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "Injective becomes SEC-registered transfer agent as it expands tokenization push - The Block",
+      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOTUN3RTRsbnMxclFCNERCcE5JSF90aFBFMFNOWUN6eGpBRFJxb3EybXBnNWdvdHgyRE53dVlMNWctUTFSbjFBcllZb3REaVUzeEZRZGFieFVQNmItaDc1T0RadlhGdTFIN1M0djVQQUtBX3dwTFVLb0p0YkdfUndCd2IybXBJSFF1OU9UVDF5dlJIa1VVUmYwM2RKdmlhRTVCTWJGTGw0cVJDRlIyRlYxc0FlU0IydG9UbmFna3FUV0VOSVpINmFhUi1xQQ?oc=5",
+      "published": "Wed, 19 Aug 2026 16:24:24 GMT",
+      "source": "The Block",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "onchain agent",
+      "title": "Talus: Protocol v2.0 introduces a unified agent standard - 11 Aug 2026 - TradingView",
+      "url": "https://news.google.com/rss/articles/CBMiywFBVV95cUxOcVNrYld1Yk55LW9lNFhocEdVTUc3Zkl6elp1TkFRRGFnSU1QVmJucUJlb0czU2VFR0ZmMnQ0eGtxdl80WXhXcHVrNVlMQTJwYm9vZThUX1NfZzJ2by1ncDVmUERhN1FxNkhKeUY5Tjh4LUdTY2xyVXBMTGUwUVdFNW9saE5qUWZqYW9uZE55aHhib1hza2tTVlNycUc3RWpneURhQUc2Y2Rna3FFMEk2LURFeHA0akM4RU4xTXYyUENKV0pGQUJzWnE2TQ?oc=5",
+      "published": "Tue, 11 Aug 2026 17:00:32 GMT",
+      "source": "TradingView",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "Machi Big Brother sells 3 Bored Apes to cut his Ethereum long in 52%, but liquidation moved to just $22 away - Cryptonews.net",
+      "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFA5N0tXczc5bmU5dlRpVE9fa0V0dFNJRWtQeW9NLTdRNkM1QXpmcEdraTRRV2dadDhoVmdUNTUxQ0lJMUpjbU9ocVItY0Z2U2hLcldKMjNfc0tJZw?oc=5",
+      "published": "Sat, 15 Aug 2026 06:19:03 GMT",
+      "source": "Cryptonews.net",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "Binance Doubles Leverage for XRP and Ripple USD: How to Pivot Your Strategy Before August 21 - TradingView",
+      "url": "https://news.google.com/rss/articles/CBMi4wFBVV95cUxOTE4xRnZ4bjNfQkNZNWk1OWtjRlFpOVM3cGFnekxFYzU1LWw3VFNLQm5FZUJJajEySWpKdEhoN25jay0ydTZ3RXpySTFUdlZDNlo1VE50N3lYQ2g1bFNUNVlOaEwxRHQ2dmNVamxiUjIzWll0ZGVRdC1jaXdjcnUyVzNDRVpjUmdncEZDQldvR1hyYldfbTBrQVdBNTZSQXNZekVBRTMyOWQzMkIxSExMQjJyaTVRQVFzQk82ZVMxUzE4akhKeHBWbkNFWkRXTEk2ZGhwX0J4Y092WUhiVGNCODhVTQ?oc=5",
+      "published": "Tue, 18 Aug 2026 12:41:45 GMT",
+      "source": "TradingView",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "Dita Von Teese to the High Court: What went wrong at Harvey Nichols - The Currency",
+      "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxNLWI5UXJ0YnFWX2tPSzhhbzJUVmhXdENXMlllU1lveVZtcXpxZUp1TzROX0hkTlJRU3NnZUVEVy1xTEstV2RYRHhmNmhkZ2xZMXBsYTlwTlBsaFBDdHFNTUlMOFFwN1ZQTVp1MWZCMVdhY0VXUlJxd2VVWEEyeFBZaDlXV0w2MlktWktMbjVGUENBa3lDYVJEaXRPaXBzU05LbWRKeU4zZ3MxRHBVUW9qbHphc0ZtRGRfZjRtTGZJd1BFZw?oc=5",
+      "published": "Wed, 19 Aug 2026 05:08:41 GMT",
+      "source": "The Currency",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "Homeplus enters crucial test for turnaround as 67 stores reopen - The Korea Times",
+      "url": "https://news.google.com/rss/articles/CBMivAFBVV95cUxPaXNmSEFaNEJ6dEVXQUVYN3NSbEVQY2U4SkJCMm1kbUotVHU4akhackdjQkxhQkNyRTNZNDk3dGZja0VKVzdwMTdKVmNmN0J5X2tqU2JHc05PcG9hRHJldHV5bDlFMlo3LUotNnN6NFJVTlVsR2dTZVVoZmNkbGFhMnlWMTJwRkxUa3pzZ3JGclZSTGVad0VuVlBVOTJta3lkaFVENjdUMHl6UVcwdE01Nm45SmF3ckZIT0gyUdIBwgFBVV95cUxPTFdTNndueW1TTU1ka0JtZTdQY0VtbFdxNDlka0lHd013S05GRTA2NTQyZUVZM25IWHJVS1VQM1pmcWFFOHUtWHJUTUQ0STFhZ0pXRlI1Z1JINUFiRFBHSVJ2ZUp4T0pMU2tlOXJMVFpOVWpLaGxYV2F0S21INjB0eTZ1X05JVGlSdWZFbjZpdXFuaVBQeFNLYy1sT0hta3hBVktlQUxnaUxTOGNZYW83aXJyOFZUd3JjQ2E4SHIxTy1qQQ?oc=5",
+      "published": "Thu, 13 Aug 2026 06:34:06 GMT",
+      "source": "The Korea Times",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "liquidation survival",
+      "title": "Taxpayers left carrying the can as major SA company goes bust - Adelaide Now",
+      "url": "https://news.google.com/rss/articles/CBMihgJBVV95cUxQa3A5T0tXZFFFS0JSMEZXb3lOUVRURm9DakdSc3pvbWFGUFBjaHJPWVBCVEZQTjdNUGJpZFd0Yi1WVmRPM1NDMVlaSGVxMWtKdHUtXzVMbHpLUmN5MFgyWUZXLWZZMU9qdzIxemRMejlHeG9RcE1qcHFDcmdXNTFuNTlCNVRYeTRjcHRvQ1laYXpCRF9OTWZjbDRoN2R6WGhxT0dTQ2EzaVB0d2xDdzhmSHg3YTdoNmRQTllLNFdZNjdZeEx5Sko4ZERfbWlsV05tZS1XWDUzeXh4cUcySlR4S3B6Z1lhNkhRdk03NUFMYWh5dThiWmpGSEZ0bUZrMFhubVVzUlBB0gGLAkFVX3lxTE1XMTR3U0REN2VFMkpKblJGVTJKOEc3TXZ0OVVUQTc4SG1uOUVBSXhTOEtTZDlhQld3TzI3ZEwzSkR0S1NpYUFqWmJIYmVUcjRTZHI5WnZNdGlXTnF4a180RGt1eEhnV0RkbGFWSVZSMzRPTm1RWmVQUEZkT1NJTkQ4ajhiTlRNY1NzQzhYU2tpRC1MejA4Nm1iYjBmbVpvVVA4SnVWQmlSb2lIT0M3anZESHR4S3hSSU8wVHNzUVF1VWJ5MU9JT2pXVUd4eEJ1ODVYNVdvZzY4M1NQb0dqanExZnhiR1c4RjFMVjdWSnp4TGxnZ1B3SmsxWTZOVUtkX1l4N2YyZjY5WUR4RQ?oc=5",
+      "published": "Tue, 11 Aug 2026 09:18:11 GMT",
+      "source": "Adelaide Now",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "composable liquidity",
+      "title": "Introducing mWIN: Midas Brings Institutional Credit Strategies Onchain with Wellington Management - TradingView",
+      "url": "https://news.google.com/rss/articles/CBMi7AFBVV95cUxOYk1jRkpEZXprbjhIVW1DeTZtV0N0S0tJSHpLaE9ocm80Zl90UkpSSDgtOFBpUTRMTTluT3ZadEtMYlRzZWY4akpYUGVlMUhTR0Zma2tUMmNLZm5TenJXaHZQOGhONm9ZeV9MbjNobGo5Slh2ZU5xUEVlWE1RSDJ0R0E2ZFc1V09pV2dWSFJzQ2FhM0NaaDBKTE5PbzlWaHI1clo4ZHFyYnRlcXJsdjNWdm1FakhYMkpCdkdITnhqSzhlRElyX3NSYld6emZsRlpPb3k1VGFHR3BTT1QwaTZyMTNoR2VQRTZ2VXh2eg?oc=5",
+      "published": "Mon, 10 Aug 2026 10:20:17 GMT",
+      "source": "TradingView",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "composable liquidity",
+      "title": "Wall Street put $7B into tokenized funds, but under 1% is actually being used in DeFi - Cryptonews.net",
+      "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE43U281LUd6d1h1TGNuSnE3dWxqdDVHblFKREplMVA4b1ViS285bTJkUWlPUWlkMFBzZ2JkWXV2X1NPa3ZkT05Ib1dFcXhfQVRickNPZA?oc=5",
+      "published": "Sun, 09 Aug 2026 16:01:55 GMT",
+      "source": "Cryptonews.net",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "composable liquidity",
+      "title": "𝐓𝐡𝐞 𝐅𝐮𝐭𝐮𝐫𝐞 𝐎𝐟 𝐃𝐞𝐅𝐢 𝐖𝐢𝐥𝐥 𝐁𝐞 𝐃𝐞𝐟𝐢𝐧𝐞 - KuCoin",
+      "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE5LQTluSnBBOTNjbGlXYXpMZWFLTXlqdmdRUldWb09QcktyblM3ZGhZWXVjNW9xWW1OWklpclViSjNfMEF6bzZpdFFNbW0yV3VWWDd0ODkxYllTbThwT183U0tnbTNkeERPdFpLeFB1UFdiUQ?oc=5",
+      "published": "Tue, 11 Aug 2026 12:57:08 GMT",
+      "source": "KuCoin",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "composable liquidity",
+      "title": "TRON Industry Weekly Report: Stubborn Inflation and Oil Prices May Continue to Weigh on BTC Rebound - odaily.news",
+      "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE83eWhZNFgzMW5NTVlxRFRhMjBqNUg5NnRBSkpvbVBydmpFeHNEZTlFTDlxZGh1T3ZoZnpQallKLVZLZ1R4eXdVLXE0ZEtvZVBR?oc=5",
+      "published": "Sun, 16 Aug 2026 16:42:36 GMT",
+      "source": "odaily.news",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "composable liquidity",
+      "title": "Navi Protocol launches NAVI Prime on Sui for ta... - Pluang",
+      "url": "https://news.google.com/rss/articles/CBMipAFBVV95cUxOcjlqXzVvbXZLV3habVE2bmtiM0ktVXNBb0NVMjE4dWp1OXhVaGhzWVo1MUF3QnVTNi1Za21WakNLSE1VX2hBeDhoNWJMdm50Y01NX19pSlo5TkxCU2JCenNjVndfcTZfakkwT0R4TDQ3bFIyeUhLT0Fja1pvYktORkc1SEZKcTMzenlvcHBRNjlBcEdHLVlfRmhJU1RKVXUzNDE1Qg?oc=5",
+      "published": "Mon, 17 Aug 2026 17:45:02 GMT",
+      "source": "Pluang",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "Gibson-Gray: Why I Decided Not to File for City Council Run - Contra Costa News",
+      "url": "https://news.google.com/rss/articles/CBMioAFBVV95cUxPdGJ6YXBuWjNPUWNzdjV2YXVBNkRaaU5hMDhPSC1wODM3WTJWSWhNV2l2NDNxSW9lNXlkMlJoYWpmc3RuZUpxdUZqNjE1SGdWTDNsVkpaU0FUd2VidUswbmgtdjZLbjhla1hhMlNHTFFKak9BelJfZ3JyRFdvWVl3LWNLZ0wtYmNEWWo5UTVuSVVnOXFMcHF1Z3lfV2RydFRN?oc=5",
+      "published": "Fri, 07 Aug 2026 07:00:00 GMT",
+      "source": "Contra Costa News",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "How Bybit's Unified Trading Account improves capital efficiency - Bybit",
+      "url": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBMMTdhRlVTMG1TMzd6OFZIclpNQWdhNms2b1BJYmE1RzZ6c1pLY0habzBwMG1lcy02NlRUQ3M3M1owM1k4ZW9hVzB4bEF6d3NkaXpNek9JdU04R2FYS2xaejdrREZoTXJ1WFA2b01CNDM5WWI5NFpZLWl3TnhpZw?oc=5",
+      "published": "Wed, 19 Aug 2026 04:34:24 GMT",
+      "source": "Bybit",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "Upgrade to Unified Trading Account (UTA) - Expanded Eligibility & Enhanced Functionalities - KuCoin",
+      "url": "https://news.google.com/rss/articles/CBMihwFBVV95cUxPVWo3SkhuQkdBMUd4M0h5b1JweUh6Q1k0eXl2Zi1fN2xIcDNkR1pCa05rcEh1UlJud2ZvVk9IejF1ZlJQQzFoXzhoNUgxS3VaUmRFVUtMNjEyVklnVDRJWHNSNU9JcVotb1RpTHk3azRPU29wb2pZdG93QVViYkJvcm5xbUhsaDA?oc=5",
+      "published": "Tue, 18 Aug 2026 07:51:43 GMT",
+      "source": "KuCoin",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "Derive: Integrates with PulsarX for onchain trading - 10 Aug 2026 - TradingView",
+      "url": "https://news.google.com/rss/articles/CBMixAFBVV95cUxQb1VEelpiS3VxNlZSazFlQURKNkl0SUxVUWhDczhCUU9yTHpBekp6QjEwVkVmbW5MNm15U3NjdUdZVHh3NEtOTUtWcmFRSVpTM0ZadXhuWTlmVjIxRlE1aVNTZTlXT3ZYT0djdi1uSEx2Sm9Ka1NNc19lZi1ac0NEN2xIOXFJYjlZX00xUE9sYzJIT19qMGUxcTE3T3k2T1J1NnltNy1TanhSWkNvV2R2NVFhWHgxNkJqRU52QmtEVnBYTTlI?oc=5",
+      "published": "Mon, 10 Aug 2026 20:00:25 GMT",
+      "source": "TradingView",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "unified margin",
+      "title": "The 5 Most Interesting Analyst Questions From Fastly’s Q2 Earnings Call - StockStory",
+      "url": "https://news.google.com/rss/articles/CBMizwFBVV95cUxPYXhodEExVFFVWm1pQ18xSWRqYjN1aDRMVWtOLV9mR1RfelpfM2xpNWJqQ1RIb094LXppSVowdmdQbExPMkZXZkNPMTQ5TFhzWXJNdVptYUZCVFNjNU9HOWpyVTJJZkVzdmlhWF91a3ItT29kLUoyTVlfRUpaUng0WDBURWZpQVhxcDB4VmRmN0ZlRVlxQ2l1Wkwtd2V3OUlFdWlwdmdjVGpodmtnS1oyd2l3amxhbF9qaUhrN3BUQ08xaERxWFFEMFMxdC1VZkE?oc=5",
+      "published": "Wed, 12 Aug 2026 08:17:06 GMT",
+      "source": "StockStory",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "Characterizing SQL*Net latency in your application for Oracle Database@AWS migrations - Amazon Web Services (AWS)",
+      "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxOZDMxQjZnSU5kbFJ1Rk1ZYnN1dTlFOVpSZmJLWUcwd1VtSGpEY3c4UnVpOUdWUldxVWR0UUJZSzFXcU5FdDdTSEUzMjRtQU9xNGZPb1o2cksyUWxBczFiUlF3bTRMdlhWSUpENTVKNkpFVzJ1TzRrZDVzM0s5VzlWMktubVp1dzQwcmdhTWVtNVF0Q2Q4eDM3TWN6M1ZoeEw1Q3pUYkVvOWlEanpkZFJVd00tU3pTV3NLOEFTZFZxSQ?oc=5",
+      "published": "Tue, 18 Aug 2026 18:17:28 GMT",
+      "source": "Amazon Web Services (AWS)",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "Oracle Multicloud – What’s News - Oracle Blogs",
+      "url": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQQ3c3aDc3aW1CbVN4Q2MydlhuNVhPZm4wZmZrVFdoQXdiTHdBOUl4d1ZsNXpvY19iWXgxXzNjMmY0MXIzN3VhOVJxQXNNVXN0aHFyekotcHJKalFTbG5INDZkbUFLMEQ3OHZRZ0NETlhxSjlhUko0QWU1ZlhUS0NJSy1JVlI?oc=5",
+      "published": "Wed, 12 Aug 2026 07:00:00 GMT",
+      "source": "Oracle Blogs",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "Oracle and AWS Deepen Strategic Collaboration as Enterprise Adoption of Oracle AI Database@AWS Accelerates - PR Newswire",
+      "url": "https://news.google.com/rss/articles/CBMi8wFBVV95cUxPbUlENG5nQmdNY0tSeHI1bVMxbW9TTmx0LUpTOGM2bW9JcmpGa2FLQkFqazlKUHpaNThNY0tiZTJ0U0dNMFVCSjhhYWY0SFc1MUZpMUpXbFhzMkh5WjVrU1YxQ3FMWXNMTUR4enNQWjhOQXh1MHo2UVhEaElqckFpOHllOXVmZ0ttSTBFSUk0R0duTjFncS1KNXM1dDVtRFdMRW03U3p3allQckdFWXdyWGxBM1BJU1ljTnVWUEh6NkdrQm5EM0F0NW9VeUhWemxLcTh0dmJKOVBwc1lfbVM4Tzg1dURRa0t1UWhFa0kybG5WR0U?oc=5",
+      "published": "Thu, 13 Aug 2026 12:00:00 GMT",
+      "source": "PR Newswire",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "IBC 2026: Oracle to Showcase Cloud Media Workflows - Sports Video Group",
+      "url": "https://news.google.com/rss/articles/CBMikwFBVV95cUxQSElUY1E5WGN3LXpna2RWOUN6VkZrbFViY3d6RHcteXBYWGVrN2FKajFCVzJ1OEV3b2dtZVAwcDg5WnRzakoxaVpMQmdrTWVzNWRiajR0SWF6TWpCVGx6MEJibVp4bDRweTJBd3c1LV9Mc09TNVdELWVCYmgwU25halZlZjl5aHA3dGgxTWFyZW5ISXc?oc=5",
+      "published": "Thu, 13 Aug 2026 15:51:07 GMT",
+      "source": "Sports Video Group",
+      "engagement": null
+    },
+    {
+      "channel": "google-news",
+      "keyword": "oracle latency",
+      "title": "Quantinuum and Oracle Partner to Bring Helios Quantum Computer to Oracle Cloud Infrastructure - Quantum Computing Report",
+      "url": "https://news.google.com/rss/articles/CBMiyAFBVV95cUxQblc1RXpNQVR2Tmc3TW55VFdGOTBBUDJTS1Z5cGVEUE9nSFgxa1VDQThlQ0NlMmkydENpWEI3UjI3YXJXMTRUZXJpREFMOGpOQWZzOWplM3plQWw4Y29FZ2dEVGNqZl9uZGFGX2lJbTk2S2RDQTJObGotTmlOc1NXVGFjZHR6NVlmZEJBWFpJWFlvNzRUQlNPZzl0NmpmUVNYdGI4VHhqWVl0WkwycmpoZE5aNElhalppdFdCSTBMSlljRHdDdEFVRtIBzgFBVV95cUxQMzFNcjd5bmJOdXByN1A1RWV4NlRZTHMzYXl2aEN0cWFYNU1NQTRJNjZqS0tyVHRjTUZ3YnBGSUk5VTRPdllPYjAwNmJqNm1OejdkUVZCVzBVODNWMmIxZzV1QkpITWZjWUJHMDNQWjBsMk00SDJVSVg4ejZWR2tLYUVoZFlKRGR6TFRGRU5QVFowUkppa1JGa2Z5U1lLRjRkelZNM1RrQjRReUxSekxqWW44cDBieS1reVRUY3hFVml1ODFoYzJ3dHBkbXBsdw?oc=5",
+      "published": "Wed, 12 Aug 2026 19:18:38 GMT",
+      "source": "Quantum Computing Report",
+      "engagement": null
+    },
+    {
+      "channel": "reddit",
+      "keyword": "agent credit",
+      "title": "Looking for help testing a protocol in a devnet",
+      "url": "https://www.reddit.com/r/defi/comments/1sjoyca/looking_for_help_testing_a_protocol_in_a_devnet/",
+      "published": 1776024193,
+      "source": "r/defi",
+      "engagement": null
+    },
+    {
+      "channel": "twitter",
+      "keyword": "agent credit",
+      "title": "AI agents just got their own company credit cards.\n\nOur story: https://t.co/syQDAIJafS",
+      "url": "https://x.com/i/status/2088000134311198950",
+      "published": "Thu Aug 13 20:29:59 +0000 2026",
+      "source": "@pymnts",
+      "engagement": 0
+    }
+  ]
+}

@@ -41,7 +41,7 @@ ENV_FILES = [
     Path("C:/Users/Advay Anand/AppData/Local/hermes/.env"),
     Path.home() / ".agent-reach" / "tools" / "telegram-bot" / ".env",
     Path.home() / ".agent-reach" / ".env",
-    Path("D:/new orchestration/Agent-Reach/.env"),
+    Path(os.environ.get("VANNA_ROOT", Path(__file__).resolve().parents[2])) / Path("/Agent-Reach/.env"),
 ]
 
 APPROVE = {"ok", "okay", "approve", "approved", "haan", "ha", "yes", "y", "ship", "go"}

@@ -1,0 +1,30 @@
+{
+  "run_id": "AUDIT-20260919-085456",
+  "timestamp": "2026-09-19T08:54:56.171442+00:00",
+  "canonical_intelligence_root": "D:\\marketing intelligence system\\intelligence",
+  "legacy_path_detected": false,
+  "signals_evaluated": 20,
+  "decisions": {
+    "ACTION": 7,
+    "NO_ACTION": 5,
+    "HUMAN_REVIEW_REQUIRED": 4,
+    "KILL": 4
+  },
+  "claims": {
+    "total": 35,
+    "supported": 30,
+    "unsupported": 5,
+    "comparative": 8,
+    "inferred": 4
+  },
+  "gtm_machine_checks": {
+    "MACHINE_01": "ELIGIBLE",
+    "MACHINE_02": "ELIGIBLE",
+    "MACHINE_03": "ELIGIBLE",
+    "MACHINE_UNSUPPORTED": "INSUFFICIENT_EVIDENCE"
+  },
+  "provenance_integrity": true,
+  "brain_mutated": false,
+  "tests_passed": 18,
+  "tests_failed": 0
+}

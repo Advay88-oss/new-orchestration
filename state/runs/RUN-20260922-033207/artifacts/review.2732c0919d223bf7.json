@@ -1,0 +1,85 @@
+{
+  "run_id": "RUN-20260922-033207",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "Liquidation cascades can travel through shared pools when one collateral asset degrades rapidly.",
+  "body": "Isolated credit accounts confine risk to individual positions. If an asset suffers bad debt, the impact remains within that specific account boundary instead of spreading across the broader system. This structure halts contagion, though it does not eliminate the risk of individual position loss.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-033207_r2.png",
+  "visual_accepted": true,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "Liquidation cascades can travel through shared pools when one collateral asset degrades rapidly.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Isolated credit accounts confine risk to individual positions.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "If an asset suffers bad debt, the impact remains within that specific account boundary instead of spreading across the broader system.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "This structure halts contagion.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "This structure does not eliminate the risk of individual position loss.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 5,
+    "by_status": {
+      "verified": 0,
+      "unverified": 0,
+      "unsupported": 5,
+      "refuted": 0
+    },
+    "blocking": [
+      "Liquidation cascades can travel through shared pools when one collateral asset degrades rapidly.",
+      "Isolated credit accounts confine risk to individual positions.",
+      "If an asset suffers bad debt, the impact remains within that specific account boundary instead of spreading across the broader system.",
+      "This structure halts contagion.",
+      "This structure does not eliminate the risk of individual position loss."
+    ]
+  },
+  "artifact": "review_packet.3e0836d477c1d845.json"
+}

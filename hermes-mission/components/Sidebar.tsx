@@ -1,243 +1,196 @@
 "use client";
 
+import React from "react";
 import { HoverButton } from "./Hover";
 import type { MissionVM } from "@/lib/viewmodel";
 
-export function Sidebar({ vm }: { vm: MissionVM }) {
-  return (
-    <aside
+interface SidebarProps {
+  vm: MissionVM;
+  mobileOpen?: boolean;
+  onCloseMobile?: () => void;
+}
+
+export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps) {
+  const sidebarContent = (
+    <div
       style={{
-        width: "236px",
-        flex: "0 0 236px",
-        background: "#111111",
+        width: "100%",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
-        position: "sticky",
-        top: 0,
-        height: "100vh",
+        justifyContent: "space-between",
+        background: "#0C0716",
         padding: "24px 16px",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          padding: "0 8px 24px",
-        }}
-      >
+      <div>
+        {/* Brand Lockup */}
         <div
           style={{
-            width: "32px",
-            height: "32px",
-            borderRadius: "10px",
-            backgroundImage: "linear-gradient(135deg, #FC5457 10%, #703AE6 80%)",
-            flex: "0 0 32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "0 8px 24px",
           }}
-        />
-        <div>
-          <div
-            style={{
-              fontSize: "16px",
-              lineHeight: "24px",
-              fontWeight: 600,
-              color: "#FFFFFF",
-              letterSpacing: "-0.01em",
-            }}
-          >
-            Mission Control
-          </div>
-          <div
-            style={{
-              fontFamily: "var(--font-jetbrains-mono), monospace",
-              fontSize: "10px",
-              lineHeight: "15px",
-              fontWeight: 500,
-              letterSpacing: "0.06em",
-              color: "#777777",
-              textTransform: "uppercase",
-            }}
-          >
-            7-agent pipeline
-          </div>
-        </div>
-      </div>
-
-      <nav style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-        {vm.nav.map((n) => (
-          <HoverButton
-            key={n.id}
-            onClick={n.go}
-            style={n.style}
-            hoverStyle={{ background: "#1E1E1E", color: "#FFFFFF" }}
-          >
-            <span
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+            <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              <span style={n.dot} />
-              {n.label}
-            </span>
-            <span
-              style={{
-                fontFamily: "var(--font-jetbrains-mono), monospace",
-                fontSize: "10px",
-                fontWeight: 500,
-                color: "#595959",
-              }}
-            >
-              {n.count}
-            </span>
-          </HoverButton>
-        ))}
-      </nav>
-
-      <div
-        style={{
-          marginTop: "auto",
-          display: "flex",
-          flexDirection: "column",
-          gap: "12px",
-        }}
-      >
-        <div style={{ background: "#1E1E1E", borderRadius: "16px", padding: "16px" }}>
-          <div
-            style={{
-              fontFamily: "var(--font-jetbrains-mono), monospace",
-              fontSize: "10px",
-              lineHeight: "15px",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "#777777",
-            }}
-          >
-            Source
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              marginTop: "10px",
-            }}
-          >
-            <span
-              style={{
-                width: "7px",
-                height: "7px",
-                borderRadius: "999px",
-                background: vm.relayDotColor,
-                flex: "0 0 7px",
+                width: "32px",
+                height: "32px",
+                borderRadius: "10px",
+                backgroundImage: "linear-gradient(135deg, #FC5457 10%, #703AE6 80%)",
+                flex: "0 0 32px",
+                boxShadow: "0 4px 12px rgba(112, 58, 230, 0.4)"
               }}
             />
-            <span
-              style={{
-                fontFamily: "var(--font-jetbrains-mono), monospace",
-                fontSize: "12px",
-                color: "#DFDFDF",
-              }}
-            >
-              {vm.relayLabel}
-            </span>
+            <div>
+              <div
+                style={{
+                  fontSize: "16px",
+                  lineHeight: "22px",
+                  fontWeight: 700,
+                  color: "#FFFFFF",
+                  letterSpacing: "-0.01em",
+                }}
+              >
+                Mission Control
+              </div>
+              <div
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono), monospace",
+                  fontSize: "10px",
+                  lineHeight: "14px",
+                  fontWeight: 600,
+                  letterSpacing: "0.06em",
+                  color: "#38EF7D",
+                  textTransform: "uppercase",
+                }}
+              >
+                System 2: 13-Agent GTM OS
+              </div>
+            </div>
           </div>
-          <div
-            style={{
-              fontSize: "12px",
-              lineHeight: "18px",
-              color: "#949494",
-              marginTop: "6px",
-            }}
-          >
-            {vm.relayNote}
-          </div>
-          <HoverButton
-            onClick={vm.tryRelay}
-            style={{
-              marginTop: "10px",
-              background: "transparent",
-              border: "1px solid #2C2C2C",
-              borderRadius: "8px",
-              padding: "6px 10px",
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "#BDA4F4",
-              cursor: "pointer",
-              width: "100%",
-            }}
-            hoverStyle={{ borderColor: "#703AE6", color: "#FFFFFF" }}
-          >
-            Retry relay
-          </HoverButton>
-        </div>
 
-        <div style={{ background: "#1E1E1E", borderRadius: "16px", padding: "16px" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div
+          {/* Mobile Close Button */}
+          {onCloseMobile && (
+            <button
+              onClick={onCloseMobile}
+              className="mobile-only"
               style={{
-                fontFamily: "var(--font-jetbrains-mono), monospace",
-                fontSize: "10px",
-                lineHeight: "15px",
-                fontWeight: 600,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: "#777777",
-              }}
-            >
-              Polling
-            </div>
-            <div
-              style={{
-                fontFamily: "var(--font-jetbrains-mono), monospace",
-                fontSize: "11px",
-                color: "#DFDFDF",
-                fontVariantNumeric: "tabular-nums",
-              }}
-            >
-              {vm.pollStatus}
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: "6px", marginTop: "12px" }}>
-            <HoverButton
-              onClick={vm.togglePause}
-              style={{
-                flex: "1 1 auto",
-                background: "#2C2C2C",
+                background: "rgba(255,255,255,0.08)",
                 border: "none",
-                borderRadius: "8px",
-                padding: "7px 0",
-                fontSize: "12px",
-                fontWeight: 600,
                 color: "#FFFFFF",
+                borderRadius: "8px",
+                padding: "6px 10px",
+                fontSize: "14px",
                 cursor: "pointer",
               }}
-              hoverStyle={{ background: "#703AE6" }}
             >
-              {vm.pollButton}
-            </HoverButton>
-            {vm.intervals.map((iv) => (
-              <HoverButton
-                key={iv.label}
-                onClick={iv.set}
-                style={iv.style}
-                hoverStyle={{ borderColor: "#703AE6" }}
+              ✕
+            </button>
+          )}
+        </div>
+
+        {/* Navigation List */}
+        <nav style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+          {vm.nav.map((n) => (
+            <HoverButton
+              key={n.id}
+              onClick={() => {
+                n.go();
+                if (onCloseMobile) onCloseMobile();
+              }}
+              style={n.style}
+              hoverStyle={{ background: "#1E1E28", color: "#FFFFFF" }}
+            >
+              <span style={{ display: "flex", alignItems: "center", gap: "10px", whiteSpace: "nowrap" }}>
+                <span style={n.dot} />
+                {n.label}
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-jetbrains-mono), monospace",
+                  fontSize: "10px",
+                  fontWeight: 500,
+                  color: "#7E7598",
+                }}
               >
-                {iv.label}
-              </HoverButton>
-            ))}
+                {n.count}
+              </span>
+            </HoverButton>
+          ))}
+        </nav>
+      </div>
+
+      {/* Footer Info Cards */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto", paddingTop: "20px" }}>
+        <div style={{ background: "#130B22", borderRadius: "12px", padding: "14px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+          <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "10px", fontWeight: 700, color: "#8E85A8", textTransform: "uppercase" }}>
+            AUTONOMOUS DAEMON
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px" }}>
+            <span style={{ width: "7px", height: "7px", borderRadius: "999px", background: "#38EF7D" }} />
+            <span style={{ fontSize: "12px", fontWeight: 600, color: "#FFFFFF" }}>Active · 30m cycle</span>
+          </div>
+        </div>
+
+        <div style={{ background: "#130B22", borderRadius: "12px", padding: "14px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "10px", color: "#8E85A8" }}>SPEND CAP</span>
+            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "11px", color: "#38EF7D", fontWeight: 700 }}>
+              {vm.spentText} / {vm.capText}
+            </span>
           </div>
         </div>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Pinned Sidebar */}
+      <aside
+        className="desktop-sidebar-pin"
+        style={{
+          width: "240px",
+          flex: "0 0 240px",
+          background: "#0C0716",
+          borderRight: "1px solid rgba(255, 255, 255, 0.08)",
+          position: "sticky",
+          top: 0,
+          height: "100vh",
+        }}
+      >
+        {sidebarContent}
+      </aside>
+
+      {/* Mobile Drawer Overlay */}
+      {mobileOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 100,
+            display: "flex",
+            background: "rgba(0, 0, 0, 0.75)",
+            backdropFilter: "blur(8px)",
+          }}
+          onClick={onCloseMobile}
+        >
+          <div
+            style={{
+              width: "280px",
+              maxWidth: "80vw",
+              height: "100vh",
+              boxShadow: "0 0 40px rgba(0,0,0,0.9)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }

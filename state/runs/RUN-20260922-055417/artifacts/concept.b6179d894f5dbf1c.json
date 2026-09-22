@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The 1.10x Floor",
+    "idea": "A stark, high-contrast monospace typographic monument featuring '1.10x' as the monolithic hero stat, styled like architectural gauge engraving on brushed dark slate. Running directly under the number is the contract's real-time derivation formula: 'HF = ∑ Collateral($) / ∑ Debt($)'. Beneath the divider line, a structured data readout demonstrates how a single collateral deposit simultaneously collateralizes three live debt vectors up to the deterministic floor, replacing pool fragmentation with solvency math.",
+    "layout": "hero_stat",
+    "why": "Recent assets have leaned heavily on sequences and diagrams; a monolithic hero-stat provides immediate visual relief and authority. It crystallizes the technical unlock into the single non-negotiable metric that makes unified capital pooling safe without systemic contagion."
+  },
+  "all": [
+    {
+      "title": "The 1.10x Floor",
+      "idea": "A stark, high-contrast monospace typographic monument featuring '1.10x' as the monolithic hero stat, styled like architectural gauge engraving on brushed dark slate. Running directly under the number is the contract's real-time derivation formula: 'HF = ∑ Collateral($) / ∑ Debt($)'. Beneath the divider line, a structured data readout demonstrates how a single collateral deposit simultaneously collateralizes three live debt vectors up to the deterministic floor, replacing pool fragmentation with solvency math.",
+      "layout": "hero_stat",
+      "why": "Recent assets have leaned heavily on sequences and diagrams; a monolithic hero-stat provides immediate visual relief and authority. It crystallizes the technical unlock into the single non-negotiable metric that makes unified capital pooling safe without systemic contagion."
+    },
+    {
+      "title": "Isolated Silos vs. Continuous Lintel",
+      "idea": "An architectural structural cross-section contrasting balance sheet mechanics. On the left ('Isolated Pools'), three narrow vertical concrete chambers show collateral trapped in separate compartments, with dead space trapped inside each silo backing single obligations. On the right ('Unified Margin'), a single contiguous precast concrete lintel spans across multiple load-bearing debt columns, demonstrating how one posted capital block absorbs collective stress and terminates exactly at a continuous 1.1x load line.",
+      "layout": "comparison",
+      "why": "Translates the abstract concept of capital fragmentation into an undeniable structural engineering failure: segmented foundations require redundant material, whereas a unified lintel redistributes load with zero wasted capacity."
+    },
+    {
+      "title": "On-Demand Ratio Ledger",
+      "idea": "A clinical balance sheet diagram configured as an institutional audit manifest. The top tier feeds diverse posted assets into a single aggregate numerator box ('Total Collateral USD'). The lower tier clusters outstanding positions into a unified denominator box ('Total Debt USD'). A central precision balance marker indexes their quotient against a laser-scribed datum line set at 1.10x, explicitly mapping how status derivation occurs on demand in a single contract call.",
+      "layout": "diagram",
+      "why": "Speaks directly to protocol risk engineers by visualizing the contract's computational logic rather than market sentiment, proving that unified margin is a deterministic calculation rather than a complex synthetic hedge."
+    }
+  ],
+  "novelty_note": ""
+}

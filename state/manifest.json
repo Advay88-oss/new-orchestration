@@ -1,0 +1,135 @@
+{
+  "stages": [
+    {
+      "n": 1,
+      "stage": "ingest",
+      "kind": "STAGE",
+      "purpose": "Read collected intelligence into typed signals"
+    },
+    {
+      "n": 2,
+      "stage": "select",
+      "kind": "AGENT",
+      "purpose": "Judge which topic is worth publishing, and why not the others"
+    },
+    {
+      "n": 3,
+      "stage": "debate",
+      "kind": "AGENT",
+      "purpose": "Three strategists argue competing arcs; a judge rules"
+    },
+    {
+      "n": 4,
+      "stage": "plan",
+      "kind": "STAGE",
+      "purpose": "Bind arc to structure, format and length"
+    },
+    {
+      "n": 5,
+      "stage": "copy",
+      "kind": "AGENT",
+      "purpose": "Write the post from evidence only"
+    },
+    {
+      "n": 6,
+      "stage": "extract",
+      "kind": "AGENT",
+      "purpose": "Decompose copy into atomic claims"
+    },
+    {
+      "n": 7,
+      "stage": "verify",
+      "kind": "AGENT",
+      "purpose": "Entailment-check every claim against evidence"
+    },
+    {
+      "n": 8,
+      "stage": "concept",
+      "kind": "AGENT",
+      "purpose": "Three competing visual concepts + novelty gate"
+    },
+    {
+      "n": 9,
+      "stage": "spec",
+      "kind": "AGENT",
+      "purpose": "Emit a schema-validated VisualSpec"
+    },
+    {
+      "n": 10,
+      "stage": "media",
+      "kind": "AGENT",
+      "purpose": "Generate media: texture, meme or Veo video"
+    },
+    {
+      "n": 11,
+      "stage": "visual",
+      "kind": "AGENT",
+      "purpose": "Render deterministically, critique, revise"
+    },
+    {
+      "n": 12,
+      "stage": "gate",
+      "kind": "STAGE",
+      "purpose": "Vocabulary rules + blocking-claim check"
+    },
+    {
+      "n": 13,
+      "stage": "review",
+      "kind": "STAGE",
+      "purpose": "Stage the asset for human approval"
+    }
+  ],
+  "agents": 9,
+  "deterministic": 4,
+  "routing": [
+    {
+      "role": "reasoning",
+      "model": "gemini-3.8-flash",
+      "preferred_transport": "vertex",
+      "effective_transport": "vertex",
+      "served_by_key": true,
+      "degraded": null,
+      "note": "strategy, copy, claims, concepts, specs"
+    },
+    {
+      "role": "critic",
+      "model": "gemini-3.8-flash",
+      "preferred_transport": "vertex",
+      "effective_transport": "vertex",
+      "served_by_key": true,
+      "degraded": null,
+      "note": "multimodal visual critique"
+    },
+    {
+      "role": "image",
+      "model": "gemini-3.1-flash-image",
+      "preferred_transport": "apikey",
+      "effective_transport": "apikey",
+      "served_by_key": true,
+      "degraded": null,
+      "note": "nano banana \u2014 background texture only, never text"
+    },
+    {
+      "role": "meme_image",
+      "model": "nano-banana-pro-preview",
+      "preferred_transport": "apikey",
+      "effective_transport": "apikey",
+      "served_by_key": true,
+      "degraded": null,
+      "note": "nano banana pro \u2014 memes page"
+    },
+    {
+      "role": "video",
+      "model": "veo-3.1-generate-preview",
+      "preferred_transport": "apikey",
+      "effective_transport": "apikey",
+      "served_by_key": true,
+      "degraded": null,
+      "note": "Veo 3.1 + motion graphics + Remotion"
+    }
+  ],
+  "vertex": {
+    "available": true,
+    "reason": ""
+  }
+}

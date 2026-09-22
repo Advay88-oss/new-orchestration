@@ -1,0 +1,26 @@
+{
+  "run_id": "vanna-humanized-pass-001",
+  "decision": "PASS",
+  "scores": {
+    "content": 90,
+    "factual": 98,
+    "visual": 90,
+    "brand": 92,
+    "social": 88,
+    "novelty": 88
+  },
+  "critical_failures": [],
+  "reasons": [],
+  "required_changes": [],
+  "visual_archetype": "asymmetric technical diagram",
+  "previous_archetypes_checked": [
+    "asymmetric technical diagram",
+    "visual metaphor",
+    "generic 3-row infographic",
+    "generic 3-row infographic",
+    "visual metaphor"
+  ],
+  "template_repetition": false,
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_underrated_competitor_visual.png",
+  "timestamp": "2026-09-15T06:22:04.011487+00:00"
+}

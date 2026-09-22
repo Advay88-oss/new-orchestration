@@ -34,7 +34,13 @@ from trendjack_news_orchestrator import (  # noqa: E402
 )
 
 TENANT = os.environ.get("PIPELINE_TENANT_NAME", "Vanna")
-BUNDLE = Path(os.environ.get("OKF_BUNDLE") or (REPO / "okf"))
+def _default_bundle() -> Path:
+    p = REPO / "okf"
+    if p.exists():
+        return p
+    return REPO / "pipeline" / "system1_extracted" / "okf"
+
+BUNDLE = Path(os.environ.get("OKF_BUNDLE") or _default_bundle())
 # Optional schedule constraint. Empty = the planner picks the window from research;
 # set e.g. "1 week" to compress the whole campaign into a single 7-day sprint.
 CAMPAIGN_WINDOW = os.environ.get("CAMPAIGN_WINDOW", "").strip()
@@ -74,7 +80,7 @@ def build_research_brief() -> tuple[str, list[dict]]:
 
 def shared_context() -> str:
     ctx = ""
-    for rel in ("pipeline/buzz-pack/campaign-doctrine.md",):
+    for rel in ("pipeline/buzz-pack/campaign-doctrine.md", "pipeline/system1_extracted/buzz-pack/campaign-doctrine.md"):
         p = REPO / rel
         if p.exists():
             ctx += "\n\n" + p.read_text(encoding="utf-8")[:1800]

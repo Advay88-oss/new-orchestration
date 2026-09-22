@@ -1,0 +1,122 @@
+[
+  {
+    "text": "Leverage is easy.",
+    "kind": "creative",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "creative-exempt",
+    "confidence": 0.0
+  },
+  {
+    "text": "Not getting liquidated is the hard part.",
+    "kind": "creative",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "creative-exempt",
+    "confidence": 0.0
+  },
+  {
+    "text": "When collateral declines, unmonitored positions risk falling into bad debt before a protocol can react.",
+    "kind": "competitor_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.95
+  },
+  {
+    "text": "On Vanna, risk is bounded structurally.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.95
+  },
+  {
+    "text": "On Vanna, a priced account with debt must maintain a health factor strictly above 1.1 to be considered healthy.",
+    "kind": "vanna_fact",
+    "status": "verified",
+    "source_id": "EV-ba587024f66b",
+    "source_url": "https://docs.vanna.finance/learn/health-factor.md",
+    "observed_at": "2026-09-22T06:03:58.781418+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Once an account reaches or drops below 1.1, it becomes a liquidation candidate.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.85
+  },
+  {
+    "text": "An account reaching or dropping below 1.1 is marked as eligible for liquidation subject to oracle, configuration, funding, and execution checks.",
+    "kind": "vanna_fact",
+    "status": "verified",
+    "source_id": "EV-f785b42731c4",
+    "source_url": "https://docs.vanna.finance/learn/liquidation.md",
+    "observed_at": "2026-09-22T06:03:58.781418+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.95
+  },
+  {
+    "text": "These checks isolate the position before undercollateralization spreads.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.95
+  },
+  {
+    "text": "When collateral values decline, unmonitored positions risk falling into bad debt before a protocol can intervene.",
+    "kind": "competitor_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.98
+  },
+  {
+    "text": "At or below 1.1, the account becomes a liquidation candidate.",
+    "kind": "vanna_fact",
+    "status": "verified",
+    "source_id": "EV-630ad908c433",
+    "source_url": "https://docs.vanna.finance/learn/health-factor.md",
+    "observed_at": "2026-09-22T06:02:03.997950+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.95
+  },
+  {
+    "text": "An account at or below 1.1 is eligible for liquidation subject to oracle, configuration, funding, and execution checks.",
+    "kind": "vanna_fact",
+    "status": "verified",
+    "source_id": "EV-f785b42731c4",
+    "source_url": "https://docs.vanna.finance/learn/liquidation.md",
+    "observed_at": "2026-09-22T06:03:58.781418+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "These checks isolate the failure mode.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.95
+  }
+]

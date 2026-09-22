@@ -1,0 +1,107 @@
+{
+  "passed": false,
+  "blocking_claims": [
+    {
+      "text": "In pooled lending, bad debt from a single defaulted asset spreads across every participant sharing the pool.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "When debt mutualizes, an insolvency in one collateral type reduces the backing for unrelated balances.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 1.0
+    },
+    {
+      "text": "Structural isolation keeps position balances segregated.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "Under structural isolation, a shortfall remains bounded to the specific position rather than migrating across the protocol.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "Across Stellar Soroban, Blend TVL stands at $157,161,882.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "Across Stellar Soroban, Soroswap TVL is $1,238,140.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "The Stellar Soroban ledger is operating at 0.08 capacity usage.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "The Stellar Soroban ledger operates at a base fee of 100.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "Isolation does not remove market risk.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "Isolation restricts the boundary of failure.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    }
+  ],
+  "rule_violations": [],
+  "rules_source": "legacy:claim_safety_gate"
+}

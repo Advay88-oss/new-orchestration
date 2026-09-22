@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "Static Balance vs. Continuous Solvency",
+    "idea": "A precise split-column technical spec sheet. The left side represents a legacy autonomous wallet: a static ledger state showing raw balance, zero risk computation, and dead capital ceiling. The right side displays an active agentic credit position on Vanna: continuous WAD-precision telemetry calculating Collateral USD over Debt USD, real-time derived Health Factor (1.428e18), and automated liquidation buffer thresholds. Stark, editorial, terminal-inspired styling with high-density data and minimal monochrome accents.",
+    "layout": "comparison",
+    "why": "This is the recommended concept because it directly confronts the hook's premise: agents holding balances vs. agents operating credit. Contrasting a static primitive against dynamic deterministic math immediately proves why credit infrastructure is functionally distinct from basic wallet rails."
+  },
+  "all": [
+    {
+      "title": "Static Balance vs. Continuous Solvency",
+      "idea": "A precise split-column technical spec sheet. The left side represents a legacy autonomous wallet: a static ledger state showing raw balance, zero risk computation, and dead capital ceiling. The right side displays an active agentic credit position on Vanna: continuous WAD-precision telemetry calculating Collateral USD over Debt USD, real-time derived Health Factor (1.428e18), and automated liquidation buffer thresholds. Stark, editorial, terminal-inspired styling with high-density data and minimal monochrome accents.",
+      "layout": "comparison",
+      "why": "This is the recommended concept because it directly confronts the hook's premise: agents holding balances vs. agents operating credit. Contrasting a static primitive against dynamic deterministic math immediately proves why credit infrastructure is functionally distinct from basic wallet rails."
+    },
+    {
+      "title": "The Deterministic Solvency Gate",
+      "idea": "An architectural state-machine diagram mapping an autonomous transaction cycle. Rather than generic flowcharts or glowing boxes, it takes the form of an engineering blueprint on dark slate: an Agent Execution Intent passes into a hardened math verification gate executing the exact Soroban smart contract formula: HF = (Sigma Collateral USD * 1e18) / Sigma Debt USD. Branching logic demonstrates deterministic solvency settlement vs auto-signed debt rebalancing before state commit.",
+      "layout": "diagram",
+      "why": "It unpacks the internal mechanics of agentic credit rails, visually demystifying how on-chain deterministic math prevents liquidation before an agent commits borrowed funds."
+    },
+    {
+      "title": "The 18-Decimal Boundary",
+      "idea": "A hero stat display centering on 1.000000000000000000 WAD—the critical solvency threshold between autonomous survival and liquidation. Rendered in clean, monumental monospace typography with an micro-annotated caliper scale measuring safe operational spread against systemic insolvency. Secondary micro-text breaks down the continuous deterministic inputs: collateral valuation, debt accumulation, and auto-signed rebalancing triggers.",
+      "layout": "hero_stat",
+      "why": "It reduces the entire abstract problem of agentic credit risk to its purest mathematical reality: an 18-decimal fixed-point threshold that autonomous code cannot negotiate with."
+    }
+  ],
+  "novelty_note": ""
+}

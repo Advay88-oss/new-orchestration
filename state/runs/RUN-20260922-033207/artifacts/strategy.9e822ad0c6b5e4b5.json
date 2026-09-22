@@ -1,0 +1,9 @@
+{
+  "id": "STR-9a4229d0be3d23c5",
+  "opportunity_id": "OPP-41c4fd208cd73569",
+  "audience": "Soroban DeFi developers and institutional credit risk managers",
+  "narrative_arc": "risk_relief",
+  "problem_statement": "Shared-pool lending models expose entire portfolios to liquidation cascades when a single collateral type degrades rapidly under volatile market conditions.",
+  "angle": "Isolated credit accounts physically compartmentalise bad debt to halt liquidation contagion, though support for this cycle is currently restricted to a founder directive without empirical protocol telemetry or market data.",
+  "evidence_ids": []
+}

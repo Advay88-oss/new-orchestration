@@ -1,0 +1,33 @@
+{
+  "layout": "comparison",
+  "headline": "Static Balance vs. Continuous Solvency",
+  "subhead": "Autonomous leverage requires continuous risk infrastructure to prevent liquidation.",
+  "blocks": [
+    {
+      "role": "compare_left",
+      "text": "Static Wallet Balance: Fixed ledger tracking with zero automated solvency calculation.",
+      "emphasis": "muted"
+    },
+    {
+      "role": "compare_right",
+      "text": "Continuous Solvency: Dynamic health factor derived on demand from collateral against debt.",
+      "emphasis": "primary"
+    },
+    {
+      "role": "caption",
+      "text": "Deterministic risk computation is essential for autonomous agent credit rails.",
+      "emphasis": "secondary"
+    }
+  ],
+  "focal": {
+    "block_index": 1,
+    "reason": "Focuses the visual hierarchy on real-time calculated health factors over passive balances."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

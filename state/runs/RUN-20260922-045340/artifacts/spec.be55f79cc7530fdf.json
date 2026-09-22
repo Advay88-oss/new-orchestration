@@ -1,0 +1,33 @@
+{
+  "layout": "diagram",
+  "headline": "In pooled credit, the primary failure mode is contagion.",
+  "subhead": "Containing shortfalls to individual positions protects broader capital.",
+  "blocks": [
+    {
+      "role": "compare_left",
+      "text": "Shared Pool: A localized liquidation fracture transmits bad debt across communal reserves.",
+      "emphasis": "muted"
+    },
+    {
+      "role": "compare_right",
+      "text": "Segmented Bulkhead: Structural isolation arrests default shortfalls strictly within the position.",
+      "emphasis": "primary"
+    },
+    {
+      "role": "caption",
+      "text": "Confining losses to individual boundaries prevents balance dilution.",
+      "emphasis": "secondary"
+    }
+  ],
+  "focal": {
+    "block_index": 1,
+    "reason": "Draws immediate attention to the bulkhead architecture that halts default propagation."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

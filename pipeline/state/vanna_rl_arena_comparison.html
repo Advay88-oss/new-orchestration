@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vanna GTM — Reinforcement Learning Model Arena</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #07020D;
+    background-image: 
+      radial-gradient(circle at 10% 20%, rgba(71, 20, 133, 0.25) 0%, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(94, 13, 70, 0.2) 0%, transparent 40%);
+    color: #F3F4F6;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    padding: 40px 24px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  .container { max-width: 1280px; width: 100%; }
+  .badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #22D3C4;
+    background: rgba(34, 211, 196, 0.1); border: 1px solid rgba(34, 211, 196, 0.25);
+    padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 12px;
+  }
+  h1 { font-size: 28px; font-weight: 800; color: #FFF; margin-bottom: 8px; }
+  .lead { font-size: 14px; color: #9CA3AF; margin-bottom: 32px; max-width: 800px; line-height: 1.5; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+  th { text-align: left; padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #8A8598; }
+</style>
+</head>
+<body>
+<div class="container">
+  <span class="badge">EMPIRICAL REINFORCEMENT LEARNING BANDIT</span>
+  <h1>Vanna GTM OS — Model Arena Comparison & Learned Routing</h1>
+  <p class="lead">5 Real Vanna Briefs tested independently across integrated models (Gemini 2.5 Pro vs Gemini 2.5 Flash vs Vanna Channel Engine). Shows live text outputs, latency, costs, critic rewards, and learned policy preferences.</p>
+
+  <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 24px; margin-bottom: 40px;">
+    <h2 style="font-size: 18px; color: #FFF; margin-bottom: 6px;">Learned Contextual Bandit Policy Arms (UCB1)</h2>
+    <p style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">Q(task, model) = average reward incorporating human feedback signals (APPROVE: +0.25, REVISE: -0.15).</p>
+    <table>
+      <thead>
+        <tr>
+          <th>TASK TYPE</th>
+          <th>MODEL IDENTIFIER</th>
+          <th style="text-align: center;">TRIALS</th>
+          <th style="text-align: center;">AVG REWARD (Q)</th>
+          <th style="text-align: center;">UCB SCORE</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; color: #A387FF;">x_post</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; font-weight: 700;">gemini-2.5-flash</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">5</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 700; color: #22D3C4;">0.632</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; color: #8A8598;">1.500</td>
+    </tr>
+    
+
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; color: #A387FF;">x_post</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; font-weight: 700;">vanna-deterministic-engine</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">5</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 700; color: #22D3C4;">0.822</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; color: #8A8598;">1.500</td>
+    </tr>
+    
+
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; color: #A387FF;">product_visual</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; font-weight: 700;">gemini-3.1-flash-image</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">1</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 700; color: #22D3C4;">1.000</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; color: #8A8598;">1.500</td>
+    </tr>
+    
+
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; color: #A387FF;">product_visual</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; font-weight: 700;">headless-vector-renderer</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">1</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 700; color: #22D3C4;">0.710</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; color: #8A8598;">1.500</td>
+    </tr>
+    
+
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; color: #A387FF;">technical_schematic</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; font-weight: 700;">gemini-3.1-flash-image</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">1</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 700; color: #22D3C4;">1.000</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; color: #8A8598;">1.500</td>
+    </tr>
+    
+
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; color: #A387FF;">technical_schematic</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'JetBrains Mono', monospace; font-weight: 700;">headless-vector-renderer</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">1</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; font-weight: 700; color: #22D3C4;">0.700</td>
+      <td style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; color: #8A8598;">1.500</td>
+    </tr>
+    
+      </tbody>
+    </table>
+  </div>
+
+  <h2 style="font-size: 22px; color: #FFF; margin-bottom: 20px;">Side-by-Side Model Outputs Across 5 Briefs</h2>
+  
+    <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+      <h3 style="color: #FFF; font-size: 18px; margin-bottom: 16px; font-weight: 700;">Brief 1: 10x Margin Engine (Capital Efficiency)</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #A387FF;">gemini-2.5-flash</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">REVISE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 5.11s | Cost: $0.00024 | Reward: <strong>0.59</strong> (Base: 0.74)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+EVM traders, quant funds: Overcollateralization locks capital, forcing $150 for $10
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ⚠️ Missing explicit testnet disclosure.<br>⚠️ Output is truncated or too brief (< 15 words).<br>⚠️ Does not identify Vanna Protocol.
+          </div>
+        </div>
+        
+
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid #22D3C4; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #22D3C4;">vanna-deterministic-engine</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">APPROVE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 0.00s | Cost: $0.00000 | Reward: <strong>1.00</strong> (Base: 0.92)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+Overcollateralization locks capital in stasis. You shouldn't have to pledge $150 to access $100.
+
+Vanna enables up to 10× undercollateralized margin borrowing through isolated SmartAccounts on Stellar Soroban.
+
+Deposit collateral into a dedicated sandbox, access amplified borrowing power, and deploy straight to Blend and Aquarius—without surrendering wallet custody.
+
+test.stellar.vanna.finance
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ✅ All 10 dimensions passed threshold
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+    <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+      <h3 style="color: #FFF; font-size: 18px; margin-bottom: 16px; font-weight: 700;">Brief 2: Sub-Second Telemetry vs EVM Mempool MEV</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #A387FF;">gemini-2.5-flash</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">REVISE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 5.44s | Cost: $0.00024 | Reward: <strong>0.60</strong> (Base: 0.75)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+EVM traders: punitive liquidations from mempool front-running and 150 gwei gas spikes are
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ⚠️ Missing explicit testnet disclosure.<br>⚠️ Output is truncated or too brief (< 15 words).<br>⚠️ Does not identify Vanna Protocol.
+          </div>
+        </div>
+        
+
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #A387FF;">vanna-deterministic-engine</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">REVISE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 0.00s | Cost: $0.00000 | Reward: <strong>0.69</strong> (Base: 0.84)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+If you borrow on EVM, you know the drill when volatility hits: gas jumps to 150 gwei, your defensive rebalance hangs in the mempool, and a searcher bot liquidates you for a 10% fee.
+
+Vanna eliminates front-running liquidations with sub-second off-chain telemetry on Stellar Soroban:
+
+Mercury streams ledger state in ~320ms. When an account drops toward 1.25x Net Health Factor, our Risk Guardian rebalances directly inside the sandbox before the 1.10x liquidation floor. Fixed 0.00014 XLM gas.
+
+test.stellar.vanna.finance
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ⚠️ Falsely claimed 1.25x as the liquidation floor (canonical is 1.10x).<br>⚠️ Hook is too long (> 140 chars for first line).<br>⚠️ Exceeds standard X post length.
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+    <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+      <h3 style="color: #FFF; font-size: 18px; margin-bottom: 16px; font-weight: 700;">Brief 3: 1.10x Net Health Factor Solvency Rail</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #A387FF;">gemini-2.5-flash</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">REVISE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 5.20s | Cost: $0.00024 | Reward: <strong>0.64</strong> (Base: 0.79)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+Institutional LPs & Risk Architects: Lending protocols liquidating at 1.0x Health Factor absorb bad debt due to
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ⚠️ Missing explicit testnet disclosure.<br>⚠️ Does not identify Vanna Protocol.
+          </div>
+        </div>
+        
+
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid #22D3C4; border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #22D3C4;">vanna-deterministic-engine</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">APPROVE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 0.00s | Cost: $0.00000 | Reward: <strong>1.00</strong> (Base: 0.93)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+Most lending protocols liquidate at 1.0x health factor, leaving zero buffer for slippage or oracle delay.
+
+Vanna enforces a strict 1.10x Net Health Factor floor on Stellar Soroban. The 10% safety gap protects depositors from bad debt while automated keepers rebalance at 1.25x.
+
+Tested on Stellar Testnet across 14 contracts: docs.vanna.finance
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ✅ All 10 dimensions passed threshold
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+    <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+      <h3 style="color: #FFF; font-size: 18px; margin-bottom: 16px; font-weight: 700;">Brief 4: Isolated SmartAccount Sandboxes</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #A387FF;">gemini-2.5-flash</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">REVISE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 5.02s | Cost: $0.00023 | Reward: <strong>0.67</strong> (Base: 0.81)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+Institutional LPs & Risk Architects: Monolithic lending pools force all depositors to absorb haircuts when exotic collateral depegs.
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ⚠️ Missing explicit testnet disclosure.<br>⚠️ Does not identify Vanna Protocol.
+          </div>
+        </div>
+        
+
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #A387FF;">vanna-deterministic-engine</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">REVISE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 0.00s | Cost: $0.00000 | Reward: <strong>0.72</strong> (Base: 0.87)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+In shared lending pools, when one exotic collateral depegs, all depositors take the haircut.
+
+Vanna isolates risk at the contract instance level with dedicated SmartAccount sandboxes on Stellar Soroban.
+
+Borrowers execute in isolated vaults. A deficit in one account stays quarantined and never drains core LendingPool reserves.
+
+docs.vanna.finance
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ⚠️ Missing explicit testnet disclosure.
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+    <div style="background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+      <h3 style="color: #FFF; font-size: 18px; margin-bottom: 16px; font-weight: 700;">Brief 5: Continuous Polynomial RateModel</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+        
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #A387FF;">gemini-2.5-flash</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">REVISE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 4.80s | Cost: $0.00023 | Reward: <strong>0.67</strong> (Base: 0.82)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+Institutional LPs & Risk Architects: Kinked piecewise interest rate models cause catastrophic borrow rate spikes at 80%
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ⚠️ Missing explicit testnet disclosure.<br>⚠️ Does not identify Vanna Protocol.
+          </div>
+        </div>
+        
+
+        <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #A387FF;">vanna-deterministic-engine</span>
+              <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 4px;">REVISE</span>
+            </div>
+            <div style="font-size: 12px; color: #8A8598; font-family: 'JetBrains Mono', monospace; margin-bottom: 12px;">
+              Latency: 0.00s | Cost: $0.00000 | Reward: <strong>0.70</strong> (Base: 0.85)
+            </div>
+            <div style="font-family: ui-monospace, monospace; font-size: 13px; line-height: 1.55; color: #E1DFE8; white-space: pre-wrap; background: rgba(0,0,0,0.35); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); margin-bottom: 12px;">
+Kinked piecewise borrow models cause sharp interest rate spikes at 80% utilization.
+
+Vanna implements a continuous polynomial RateModel on Stellar Soroban: R(U) = 4% + 12%U + 48%U^2.
+
+Rates adjust smoothly as demand rises, eliminating jump-rate volatility for borrowers and LPs.
+
+docs.vanna.finance
+            </div>
+          </div>
+          <div style="font-size: 11px; color: #FC5457; font-family: 'JetBrains Mono', monospace; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 8px;">
+            ⚠️ Missing explicit testnet disclosure.
+          </div>
+        </div>
+        
+      </div>
+    </div>
+    
+
+</div>
+</body>
+</html>

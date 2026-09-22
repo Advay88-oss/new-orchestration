@@ -1,0 +1,514 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  width: 1080px;
+  height: 1080px;
+  overflow: hidden;
+  background-color: #06030B;
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+}
+
+/* Common Shared Components */
+.brand-logo { height: 42px; display: block; }
+.header-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #32EEE2;
+  letter-spacing: 0.12em;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.eyebrow-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #32EEE2;
+  letter-spacing: 0.12em;
+  margin-bottom: 14px;
+}
+
+/* 1. EDITORIAL / MANIFESTO */
+.layout-manifesto {
+  width: 1080px;
+  height: 1080px;
+  padding: 64px 72px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.manifesto-header { display: flex; align-items: center; justify-content: space-between; }
+.manifesto-body { display: flex; flex-direction: column; margin: auto 0; }
+.manifesto-bracket {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9F7BEE;
+  letter-spacing: 0.1em;
+  margin-bottom: 18px;
+}
+.manifesto-headline {
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  color: #FFFFFF;
+  margin-bottom: 24px;
+  max-width: 940px;
+}
+.manifesto-lead {
+  font-size: 20px;
+  line-height: 1.5;
+  color: #D4D4D8;
+  margin-bottom: 48px;
+  max-width: 820px;
+}
+.manifesto-columns {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 32px;
+}
+.m-col { display: flex; flex-direction: column; gap: 6px; }
+.m-idx { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #32EEE2; font-weight: 700; }
+.m-title { font-size: 15px; font-weight: 800; color: #FFFFFF; letter-spacing: 0.04em; }
+.m-desc { font-size: 13px; color: #A1A1AA; line-height: 1.45; }
+.manifesto-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+}
+.f-lbl { color: #9F7BEE; font-weight: 700; margin-right: 6px; }
+.f-val { color: #71717A; }
+
+/* 2. TECHNICAL ARCHITECTURE */
+.layout-architecture {
+  width: 1080px;
+  height: 1080px;
+  padding: 56px 64px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.arch-top { display: flex; align-items: center; justify-content: space-between; }
+.arch-intro { margin-top: 10px; }
+.arch-headline { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 6px; }
+.arch-sub { font-size: 17px; color: #D4D4D8; }
+.arch-topology-canvas {
+  position: relative;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+}
+.topo-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.stage-col { position: relative; z-index: 3; }
+.col-caller {
+  width: 210px;
+  background: #0B0614;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 18px;
+}
+.node-badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: #32EEE2; margin-bottom: 6px; }
+.node-badge.rose { color: #FF54A6; }
+.node-name { font-size: 15px; font-weight: 800; color: #FFFFFF; }
+.node-meta { font-size: 12px; color: #A1A1AA; margin-top: 4px; }
+.node-port { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #71717A; margin-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 8px; }
+.col-vault { width: 280px; display: flex; flex-direction: column; align-items: center; }
+.vault-boundary-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #32EEE2; letter-spacing: 0.1em; margin-bottom: 8px; }
+.vault-chassis {
+  width: 100%;
+  background: #0E071A;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 24px 20px;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+.vault-indicator { width: 8px; height: 8px; border-radius: 50%; background: #10B981; margin: 0 auto 10px; box-shadow: 0 0 8px #10B981; }
+.vault-title { font-size: 16px; font-weight: 800; letter-spacing: 0.06em; }
+.vault-subtitle { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: #32EEE2; margin-top: 4px; }
+.vault-metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 12px; }
+.vm-cell { display: flex; flex-direction: column; }
+.vm-l { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #71717A; }
+.vm-v { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: #FFFFFF; }
+.vault-ports { display: flex; justify-content: space-between; margin-top: 14px; border-top: 1px dashed rgba(255, 255, 255, 0.08); padding-top: 8px; }
+.port-tag { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700; color: #FF54A6; }
+.port-tag.cyan { color: #32EEE2; }
+.col-targets { display: flex; flex-direction: column; gap: 24px; }
+.target-unit {
+  width: 250px;
+  background: #0B0614;
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+.arch-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #71717A;
+}
+
+/* 3. DATA VISUALIZATION */
+.layout-data-viz {
+  width: 1080px;
+  height: 1080px;
+  padding: 56px 64px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.data-header { display: flex; align-items: center; justify-content: space-between; }
+.data-title-block { margin-top: 10px; }
+.data-headline { font-size: 46px; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+.data-sub { font-size: 18px; color: #D4D4D8; }
+.data-hero-metric { display: flex; align-items: baseline; gap: 28px; margin: 24px 0; }
+.metric-huge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 140px;
+  font-weight: 800;
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  color: #FFFFFF;
+}
+.metric-descriptor { display: flex; flex-direction: column; gap: 4px; }
+.m-desc-title { font-size: 20px; font-weight: 700; letter-spacing: 0.06em; color: #FFFFFF; }
+.m-desc-sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #32EEE2; letter-spacing: 0.08em; }
+.continuum-container { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+.continuum-labels { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; }
+.c-lbl-bad { color: #EF4444; }
+.c-lbl-floor { color: #FF54A6; }
+.c-lbl-good { color: #10B981; }
+.continuum-track {
+  position: relative;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 100px;
+  display: flex;
+  overflow: visible;
+}
+.track-bad { width: 50%; background: #7F1D1D; border-radius: 100px 0 0 100px; }
+.track-buffer { width: 10%; background: #FF007A; }
+.track-good { width: 40%; background: rgba(16, 185, 129, 0.4); border-radius: 0 100px 100px 0; }
+.track-needle-wrap {
+  position: absolute;
+  left: 55%;
+  top: -34px;
+  bottom: -12px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 4;
+}
+.needle-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  background: #FF007A;
+  color: #FFFFFF;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+.needle-line { width: 3px; height: 100%; background: #FF007A; }
+.continuum-scale { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #71717A; }
+.scale-focal { color: #FF54A6; font-weight: 800; }
+.data-status-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 20px;
+}
+.status-left { display: flex; align-items: center; gap: 10px; font-size: 15px; color: #D4D4D8; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; }
+.status-code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #32EEE2; }
+.data-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #71717A;
+}
+
+/* 4. PRODUCT SYSTEM DIAGRAM */
+.layout-system-diagram {
+  width: 1080px;
+  height: 1080px;
+  padding: 56px 64px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.sys-header { display: flex; align-items: center; justify-content: space-between; }
+.sys-intro { margin-top: 10px; }
+.sys-headline { font-size: 44px; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+.sys-sub { font-size: 18px; color: #D4D4D8; }
+.pipeline-arena {
+  position: relative;
+  height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+}
+.pipeline-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.origin-pod {
+  position: relative;
+  z-index: 3;
+  width: 270px;
+  background: #0C0617;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+}
+.pod-kicker { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700; color: #32EEE2; letter-spacing: 0.1em; margin-bottom: 6px; }
+.pod-title { font-size: 20px; font-weight: 800; color: #FFFFFF; }
+.pod-sub { font-size: 13px; color: #A1A1AA; margin-top: 2px; }
+.pod-details { display: flex; flex-direction: column; gap: 6px; margin: 18px 0; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 12px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; }
+.pod-details .cyan { color: #32EEE2; }
+.pod-foot { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700; color: #9F7BEE; letter-spacing: 0.08em; }
+.target-rails {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 320px;
+}
+.rail-row {
+  background: #0B0614;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 3px solid #703AE6;
+  border-radius: 10px;
+  padding: 16px 20px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+.rail-row.rail-soroswap { border-left-color: #32EEE2; }
+.rail-row.rail-aquarius { border-left-color: #FF54A6; }
+.rail-tag-row { display: flex; justify-content: space-between; margin-bottom: 6px; }
+.r-pill { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 4px; }
+.r-pill.violet { background: rgba(112, 58, 230, 0.2); color: #9F7BEE; }
+.r-pill.cyan { background: rgba(50, 238, 226, 0.15); color: #32EEE2; }
+.r-pill.rose { background: rgba(255, 0, 122, 0.15); color: #FF54A6; }
+.r-param { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #71717A; }
+.rail-brand { font-size: 16px; font-weight: 800; color: #FFFFFF; }
+.rail-summary { font-size: 12px; color: #A1A1AA; margin-top: 4px; line-height: 1.4; }
+.sys-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #71717A;
+}
+
+/* 5. ASYMMETRIC HERO COMPOSITION */
+.layout-asymmetric-hero {
+  width: 1080px;
+  height: 1080px;
+  padding: 56px 64px 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.hero-top { display: flex; align-items: center; justify-content: space-between; }
+.asym-container {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 48px;
+  height: 800px;
+}
+.asym-headline { font-size: 54px; font-weight: 800; line-height: 1.1; margin-bottom: 16px; }
+.asym-lead { font-size: 18px; color: #D4D4D8; margin-bottom: 36px; line-height: 1.5; }
+.asym-specs { display: flex; flex-direction: column; gap: 20px; }
+.spec-tile { display: grid; grid-template-columns: 40px 1fr; gap: 12px; align-items: baseline; }
+.st-num { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: #32EEE2; }
+.st-title { font-size: 14px; font-weight: 700; color: #FFFFFF; letter-spacing: 0.04em; display: block; margin-bottom: 4px; }
+.st-desc { font-size: 13px; color: #A1A1AA; line-height: 1.45; }
+.wireframe-chassis {
+  background: #0B0614;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.wf-header, .wf-footer {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: #71717A;
+}
+.wf-canvas { position: relative; width: 320px; height: 320px; margin: 0 auto; }
+.iso-svg { width: 100%; height: 100%; }
+.wf-badge-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  background: rgba(11, 6, 20, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 8px 14px;
+}
+.wfb-kicker { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #32EEE2; font-weight: 700; }
+.wfb-val { font-size: 18px; font-weight: 800; color: #FFFFFF; display: block; margin: 2px 0; }
+.wfb-status { font-family: 'JetBrains Mono', monospace; font-size: 8px; color: #71717A; }
+.asym-footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 18px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: #71717A;
+}
+
+/* 6. CINEMATIC MINIMAL */
+.layout-cinematic-minimal {
+  width: 1080px;
+  height: 1080px;
+  padding: 64px 72px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.cin-top { display: flex; align-items: center; justify-content: space-between; }
+.cin-logo { height: 48px; display: block; }
+.cin-tag { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: #32EEE2; letter-spacing: 0.12em; }
+.cin-center { display: flex; flex-direction: column; justify-content: center; margin: auto 0; }
+.cin-headline { font-size: 88px; font-weight: 800; line-height: 1.02; letter-spacing: -0.04em; color: #FFFFFF; max-width: 920px; }
+.cin-sub { font-size: 26px; font-weight: 500; color: #D4D4D8; margin-top: 36px; letter-spacing: -0.01em; max-width: 820px; line-height: 1.4; }
+.cin-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: #71717A;
+  letter-spacing: 0.06em;
+}
+.cin-status { display: flex; align-items: center; gap: 10px; }
+.cin-pulse { width: 7px; height: 7px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981; }
+.cin-url { color: #A1A1AA; font-weight: 600; }
+</style>
+</head>
+<body>
+  
+    <div class="layout-system-diagram">
+      <header class="sys-header">
+        <img src="data:image/png;base64,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" class="brand-logo" alt="VANNA" />
+        <div class="header-tag">CAPITAL ARCHITECTURE // STELLAR SOROBAN</div>
+      </header>
+
+      <div class="sys-intro">
+        <div class="eyebrow-chip">COMPOSABILITY NETWORK // DIRECTIONAL ROUTING</div>
+        <h1 class="sys-headline">Up to 10x leverage.<br>Zero contagion.</h1>
+        <p class="sys-sub">SmartAccount sandboxes compartmentalize risk upfront. One liquidation never imperils your book.</p>
+      </div>
+
+      <div class="pipeline-arena">
+        <svg class="pipeline-svg" viewBox="0 0 940 380" fill="none">
+          <line x1="280" y1="190" x2="420" y2="190" stroke="#703AE6" stroke-width="3" />
+          <path d="M 420 190 L 480 190 L 520 70 L 610 70" stroke="#9F7BEE" stroke-width="2.5" />
+          <polygon points="615,70 605,65 605,75" fill="#9F7BEE" />
+          <line x1="420" y1="190" x2="610" y2="190" stroke="#32EEE2" stroke-width="2.5" />
+          <polygon points="615,190 605,185 605,195" fill="#32EEE2" />
+          <path d="M 420 190 L 480 190 L 520 310 L 610 310" stroke="#FF54A6" stroke-width="2.5" />
+          <polygon points="615,310 605,305 605,315" fill="#FF54A6" />
+          <circle cx="280" cy="190" r="5" fill="#32EEE2" />
+          <circle cx="420" cy="190" r="6" fill="#703AE6" />
+        </svg>
+
+        <!-- Left: Single Credit Origin -->
+        <div class="origin-pod">
+          <div class="pod-kicker">CREDIT ORIGIN</div>
+          <div class="pod-title">SMARTACCOUNT</div>
+          <div class="pod-sub">Isolated Collateral Vault</div>
+          <div class="pod-details">
+            <span>10x CREDIT LINE</span>
+            <span class="cyan">XLM / USDC POOL</span>
+          </div>
+          <div class="pod-foot">SINGLE ATOMIC HOP &#10142;</div>
+        </div>
+
+        <!-- Right: 3 Protocol Targets (Open Rows, NOT generic cards) -->
+        <div class="target-rails">
+          <div class="rail-row rail-blend">
+            <div class="rail-tag-row">
+              <span class="r-pill violet">LENDING & YIELD</span>
+              <span class="r-param">b-TOKENS ACTIVE</span>
+            </div>
+            <div class="rail-brand">BLEND CAPITAL</div>
+            <div class="rail-summary">Recursive yield loops and collateralized lending rates</div>
+          </div>
+
+          <div class="rail-row rail-soroswap">
+            <div class="rail-tag-row">
+              <span class="r-pill cyan">DEX & MARGIN</span>
+              <span class="r-param">XLM/USDC POOLS</span>
+            </div>
+            <div class="rail-brand">SOROSWAP AMM</div>
+            <div class="rail-summary">Direct margin trading swaps with up to 10x leverage upfront</div>
+          </div>
+
+          <div class="rail-row rail-aquarius">
+            <div class="rail-tag-row">
+              <span class="r-pill rose">LIQUIDITY RAILS</span>
+              <span class="r-param">LP YIELD BOOST</span>
+            </div>
+            <div class="rail-brand">AQUARIUS PROTOCOL</div>
+            <div class="rail-summary">Automated liquidity provision paired into Soroban AMM pools</div>
+          </div>
+        </div>
+      </div>
+
+      <footer class="sys-footer">
+        <span>FREIGHTER WALLET COMPATIBLE • TESTNET LIVE</span>
+        <span>docs.vanna.finance • 14 Audited Smart Contracts</span>
+      </footer>
+    </div>
+    
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "id": "JOB-20260922034027.-d00f35",
+  "directive": "Deterministic fees and what they change about liquidation timing",
+  "created_at": "2026-09-22T03:40:27.593Z",
+  "attempts": 1,
+  "idempotency_key": null,
+  "requested_by": "dashboard",
+  "run_id": "RUN-20260922-034032",
+  "last_error": null
+}

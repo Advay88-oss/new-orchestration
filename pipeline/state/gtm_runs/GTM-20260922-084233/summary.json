@@ -1,0 +1,164 @@
+{
+  "run_id": "GTM-20260922-084233",
+  "started_at": "2026-09-22T08:42:33.164437+00:00",
+  "directive": null,
+  "status": "completed",
+  "signal": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+  "action_status": "ACTION",
+  "machine": "MACH_02_B2B_PARTNER_ONBOARDING",
+  "pillar": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+  "posts": {
+    "x": {
+      "hook": "The hidden math behind Isolated SmartAccount Credit Sandbox for Soroban Ecosystem.",
+      "copy": "When volatility hits EVM money markets, priority gas auctions push transaction fees past $50. Small borrowers get wiped out because liquidation transactions get front-run.\n\nWe took a different approach on Stellar Soroban for Isolated SmartAccount Credit Sandbox for Soroban Ecosystem.\n\nInstead of putting every borrower into one big pool, Vanna gives each user an isolated SmartAccount contract. If a position drops, the loss stays inside that sandbox. Shared pools do not take a haircut.\n\nBecause Stellar uses deterministic fees, transactions confirm at 0.00014 XLM. No priority gas wars. Our Mercury indexer stream detects position health in ~320ms, giving keepers enough runway to rebalance at 1.25x before hitting the 1.10x liquidation floor.\n\nYou can test the contract sandboxes on tes..."
+    },
+    "linkedin": {
+      "hook": "Institutional Credit Mechanics: Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+      "copy": "Why Isolated SmartAccount Credit Sandbox for Soroban Ecosystem requires a structural shift away from pooled lending risk.\n\nDuring market turbulence, decentralized money markets face two major bottlenecks: mempool congestion and shared pool contagion. When bad debt accumulates in a shared pool, passive liquidity providers absorb the haircut.\n\nVanna isolates credit execution at the smart contract level on Stellar Soroban. Each borrower manages leverage inside an independent SmartAccount sandbox. Deficits remain quarantined without haircutting global lending reserves.\n\nThe architecture is live on Stellar Testnet: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+    },
+    "reddit": {
+      "hook": "Technical breakdown: Isolated SmartAccount Credit Sandbox for Soroban Ecosystem on Stellar Soroban",
+      "copy": "**Title:** Technical breakdown: Isolated SmartAccount Credit Sandbox for Soroban Ecosystem on Stellar Soroban\n\nHere is how we designed Vanna's credit architecture on Soroban Protocol 20:\n\n- State isolation inside dedicated SmartAccount contracts rather than monolithic pools\n- Sub-second Mercury indexer streaming (~320ms) for real-time solvency monitoring\n- Deterministic transaction fees fixed at 0.00014 XLM, eliminating MEV front-running\n\nDocumentation and testnet deployments: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance\n\n*(Disclosure: Core builder at Vanna Protocol. Testing on Stellar Testnet.)*"
+    }
+  },
+  "visual_concept": "A precision-milled optical routing prism linking two disparate raw stone reservoirs across an immaculate obsidian floor.",
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\GTM-20260922-084233_visual.png",
+  "visual_public_url": "/GTM-20260922-084233_visual.png",
+  "video_path": "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260922-084233\\GTM-20260922-084233_video.mp4",
+  "review_passed": true,
+  "review_notes": {
+    "blocked_claims": [],
+    "slop": []
+  },
+  "packet_built": true,
+  "duration_s": 134.52,
+  "ended_at": "2026-09-22T08:44:47.684455+00:00",
+  "model_calls": 5,
+  "model_calls_ok": 5,
+  "input_tokens": 3820,
+  "output_tokens": 2393,
+  "models_used": [
+    "gemini-3.8-flash",
+    "veo-3.1-generate-001"
+  ],
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "collected market signals (0.02s)",
+      "outputs": [],
+      "at": "2026-09-22T08:42:33.181703+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "chose a signal to pursue (7.69s)",
+      "outputs": [],
+      "at": "2026-09-22T08:42:40.875533+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "formulated strategy (7.06s)",
+      "outputs": [],
+      "at": "2026-09-22T08:42:47.933265+00:00"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "role": "none",
+      "status": "ok",
+      "detail": "verified machine MACH_02_B2B_PARTNER_ONBOARDING (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:42:47.933265+00:00"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "role": "none",
+      "status": "ok",
+      "detail": "selected campaign vehicle (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:42:47.933265+00:00"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "generated channel posts (17.2s)",
+      "outputs": [],
+      "at": "2026-09-22T08:43:05.134342+00:00"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "art-directed the campaign (7.91s)",
+      "outputs": [],
+      "at": "2026-09-22T08:43:13.044528+00:00"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "role": "image",
+      "status": "ok",
+      "detail": "completed (15.64s)",
+      "outputs": [],
+      "at": "2026-09-22T08:43:28.680010+00:00"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "role": "video",
+      "status": "ok",
+      "detail": "completed (78.92s)",
+      "outputs": [],
+      "at": "2026-09-22T08:44:47.611670+00:00"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "role": "none",
+      "status": "ok",
+      "detail": "ran the pre-delivery firewalls (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:44:47.611737+00:00"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "role": "none",
+      "status": "skipped",
+      "detail": "awaiting human approval; dispatch never runs unprompted",
+      "outputs": [],
+      "at": "2026-09-22T08:44:47.611737+00:00"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "role": "none",
+      "status": "ok",
+      "detail": "built the human review packet (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:44:47.611737+00:00"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "processed the outcome feedback loop (0.07s)",
+      "outputs": [],
+      "at": "2026-09-22T08:44:47.684455+00:00"
+    }
+  ],
+  "agents_ran": 12
+}

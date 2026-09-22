@@ -1,0 +1,46 @@
+{
+  "approved": true,
+  "score": 94,
+  "critical_failures": [],
+  "scene_reviews": [
+    {
+      "scene_id": 1,
+      "concept_alignment": "HIGH",
+      "narrative_fidelity": "VERIFIED",
+      "brand_compliance": "PASS",
+      "duration_check": "4.0s scheduled",
+      "status": "APPROVED"
+    },
+    {
+      "scene_id": 2,
+      "concept_alignment": "HIGH",
+      "narrative_fidelity": "VERIFIED",
+      "brand_compliance": "PASS",
+      "duration_check": "4.0s scheduled",
+      "status": "APPROVED"
+    },
+    {
+      "scene_id": 3,
+      "concept_alignment": "HIGH",
+      "narrative_fidelity": "VERIFIED",
+      "brand_compliance": "PASS",
+      "duration_check": "4.0s scheduled",
+      "status": "APPROVED"
+    },
+    {
+      "scene_id": 4,
+      "concept_alignment": "HIGH",
+      "narrative_fidelity": "VERIFIED",
+      "brand_compliance": "PASS",
+      "duration_check": "3.0s scheduled",
+      "status": "APPROVED"
+    }
+  ],
+  "brand_issues": [],
+  "technical_issues": [
+    "Soroban micro-gas invariant ($0.00014 XLM) omitted from execution details."
+  ],
+  "required_fixes": [],
+  "route_to_agent": null,
+  "reasoning": "Video production strictly adheres to the approved video_director.json contract. Textless architectural visual metaphors faithfully communicate sub-second liquidation deflection and modular sandbox isolation on Stellar Soroban without generic AI slop."
+}

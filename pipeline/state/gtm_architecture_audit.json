@@ -1,0 +1,76 @@
+{
+  "audit_version": "1.0.0",
+  "audit_timestamp": "2026-09-16T20:30:00Z",
+  "canonical_intelligence_root": "D:\\marketing intelligence system\\intelligence",
+  "legacy_workspace_root": "D:\\new orchestration",
+  "files_inspected": [
+    "pipeline/gtm_orchestration/schemas.py",
+    "pipeline/gtm_orchestration/config.py",
+    "pipeline/gtm_orchestration/intelligence_provider.py",
+    "pipeline/gtm_orchestration/claim_evidence_gate.py",
+    "pipeline/gtm_orchestration/gtm_strategist.py",
+    "pipeline/gtm_orchestration/content_creator.py",
+    "pipeline/gtm_orchestration/creative_director.py",
+    "pipeline/gtm_orchestration/trace_logger.py",
+    "pipeline/gtm_orchestration/gtm_orchestrator.py",
+    "pipeline/gtm_orchestration/run_phase1.py",
+    "pipeline/gtm_engine/brain/schemas.py",
+    "pipeline/gtm_engine/brain/intelligence_brain.py",
+    "D:/marketing intelligence system/intelligence/db/opportunities.jsonl",
+    "D:/marketing intelligence system/intelligence/db/whitespace.jsonl",
+    "D:/marketing intelligence system/intelligence/db/gtm_machines.jsonl",
+    "D:/marketing intelligence system/intelligence/db/patterns.jsonl",
+    "D:/marketing intelligence system/intelligence/db/campaigns.jsonl",
+    "D:/marketing intelligence system/intelligence/db/posts.jsonl",
+    "D:/marketing intelligence system/intelligence/registry/claims.jsonl",
+    "knowledge/internal/approved-claims.md",
+    "knowledge/internal/audience.md",
+    "knowledge/internal/customer-objections.md",
+    "knowledge/internal/positioning.md",
+    "pipeline/reviewer/reviewer.py",
+    "pipeline/video_pipeline/video_reviewer.py"
+  ],
+  "existing_reusable_components": [
+    "D:/marketing intelligence system/intelligence/db/ (11 verified datasets)",
+    "D:/marketing intelligence system/intelligence/registry/ (18 verified registries)",
+    "knowledge/internal/*.md (Audience segments A1-A4, customer objections, approved testnet claims)",
+    "pipeline/reviewer/reviewer.py (5-rubric Pillow pixel inspector)",
+    "pipeline/video_pipeline/video_reviewer.py (Video contract auditor)",
+    "pipeline/scripts/gemini_flash_image.py (Vertex Model Garden image generator)",
+    "pipeline/scripts/generate_vanna_logo_veo_intro.py (Veo 3.1 Image-to-Video synthesis)"
+  ],
+  "duplicate_components": [
+    "pipeline/gtm_engine/brain/db/ duplicates D:/marketing intelligence system/intelligence/db/",
+    "Legacy brief_builder.py duplicated logic now handled by GTMStrategist"
+  ],
+  "unsafe_dependencies": [
+    "Treating whitespace inferences as observed factual absence of competition (resolved via ClaimEvidenceGate)",
+    "Selecting GTM machines without verifying empirical counts in campaigns.jsonl (resolved via GTMMachineEligibility)",
+    "Collapsing strategic truth confidence into aesthetic reviewer scores (resolved via ConfidenceMatrix)"
+  ],
+  "legacy_path_references": [
+    "pipeline/gtm_engine/tier1_scanner.py: hardcodes D:/new orchestration",
+    "pipeline/gtm_engine/brain/intelligence_brain.py: hardcodes D:/new orchestration DB_DIR",
+    "pipeline/gtm_engine/scripts/*: multiple hardcoded references to D:/new orchestration"
+  ],
+  "missing_contracts_addressed_in_roadmap": [
+    "Phase 2: GTMMachineSpec and empirical eligibility contract",
+    "Phase 3: CampaignSpec, CampaignStage, SeriesSpec, SeriesOccurrence contracts",
+    "Phase 4: ChannelAdaptationSpec for X, LinkedIn, Reddit with native formatting",
+    "Phase 5: CreativeDirectorSpec with strict negative constraint validation",
+    "Phase 8: OutcomeRecord with strict null != 0 typing for performance metrics",
+    "Phase 9: OpportunityRankingSpec with transparent multi-factor scoring"
+  ],
+  "recommended_implementation_order": [
+    "Phase 1.1: Harden existing orchestration (canonical paths, evidence gates, 4 action states, 20-signal tests)",
+    "Phase 2: GTM Machine Library validation and empirical thresholds",
+    "Phase 3: Campaign and Series Engine in pipeline/gtm_campaigns/",
+    "Phase 4: Strategy-to-Content execution with X, LinkedIn, Reddit channel adaptation",
+    "Phase 5: Creative Director visual and motion brief generation with anti-slop firewall",
+    "Phase 6: Central GTM Orchestrator state machine with localized retries",
+    "Phase 7: Human approval packet and Telegram dispatch payload",
+    "Phase 8: Performance capture and closed-loop learning engine",
+    "Phase 9: Autonomous opportunity selector",
+    "Phase 10: End-to-end scenario verification suite"
+  ]
+}

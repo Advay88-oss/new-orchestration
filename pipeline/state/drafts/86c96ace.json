@@ -1,0 +1,42 @@
+{
+  "draft_id": "86c96ace",
+  "message_id": 296,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T12:53:49Z",
+  "sent_unix": 1787230426,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "86c96ace",
+    "draft_id": "b3332d82",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Siloed credit is a liquidation trap. With Gearbox, a flash wick in one account wipes you out—even if your other account is over-collateralized. Vanna unifies margin under one health factor. Your idle assets actively back your risk. Leverage is easy. Staying alive is hard.",
+    "final_body": "Siloed credit is a liquidation trap. With Gearbox, a flash wick in one account wipes you out—even if your other account is over-collateralized. Vanna unifies margin under one health factor. Your idle assets actively back your risk. Leverage is easy. Staying alive is hard.",
+    "final_hook": "Siloed credit is a liquidation trap.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Siloed risk. Unified safety.",
+      "emphasis_phrase": "One health factor.",
+      "subhead": "Why isolate your collateral when wicks don't isolate your market risk?",
+      "data": [
+        {
+          "label": "Liquidation Trigger",
+          "value": "Portfolio-Wide Health",
+          "note": "Vanna unifies collateral to defend volatile positions; Gearbox liquidates isolated accounts independently."
+        },
+        {
+          "label": "Liquidation Floor",
+          "value": "1.1x Buffer",
+          "note": "A strict 10% buffer to absorb Reflector oracle latency and slippage during market stress."
+        }
+      ],
+      "disclaimer": "Vanna is currently live on testnet. All architectural features and parameters represent testnet specifications."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T12:53:26Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

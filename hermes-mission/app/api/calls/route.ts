@@ -1,64 +1,43 @@
 import { NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
+import { listRunIds, runView } from '@/lib/v2';
 
-const CALL_LOG_PATH = path.resolve('D:/new orchestration/pipeline/logs/vertex-calls.jsonl');
+export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const since = searchParams.get('since');
-    const sinceTime = since ? new Date(since).getTime() : 0;
+/**
+ * Model calls, from the run journal.
+ *
+ * The previous source was the retired spend proxy's log, whose entries carry
+ * `"rewritten_from": "gemini-3.8-flash"` next to `"model": "gemini-2.5-flash"` —
+ * the silent downgrade the audit documented. Journal entries record the model
+ * the provider itself reported, so no rewrite can hide in them.
+ */
+export async function GET(req: Request) {
+  const limit = Number(new URL(req.url).searchParams.get('limit') ?? 200);
+  const calls: Record<string, unknown>[] = [];
+  let seq = 0;
 
-    if (!fs.existsSync(CALL_LOG_PATH)) {
-      return NextResponse.json([]);
+  for (const id of listRunIds(50)) {
+    const run = runView(id);
+    if (!run) continue;
+    for (const s of run.stages) {
+      if (!s.model) continue;
+      calls.push({
+        seq: ++seq,
+        run_id: run.runId,
+        stage: s.stage,
+        kind: s.kind,
+        model: s.model,
+        prompt_version: s.promptVersion,
+        usage: { promptTokenCount: s.inputTokens, candidatesTokenCount: s.outputTokens },
+        cost_usd: s.costUsd,
+        cost_known: s.costKnown,
+        attempts: s.attempts,
+        duration_s: s.durationS,
+        tools: s.toolCalls,
+        status: s.status,
+      });
+      if (calls.length >= limit) return NextResponse.json(calls);
     }
-
-    const raw = fs.readFileSync(CALL_LOG_PATH, 'utf-8');
-    const lines = raw.split('\n').filter(l => l.trim() !== '');
-    
-    const calls = [];
-    let seq = 1;
-
-    for (const line of lines) {
-      try {
-        const item = JSON.parse(line);
-        const itemTime = new Date(item.ts).getTime();
-
-        if (sinceTime && itemTime <= sinceTime) {
-          continue;
-        }
-
-        // Map fields to match the VertexCall interface in lib/types.ts
-        const usage = item.usage ?? {
-          promptTokenCount: 0,
-          cachedContentTokenCount: 0,
-          candidatesTokenCount: 0,
-          thoughtsTokenCount: 0
-        };
-
-        calls.push({
-          seq: seq++,
-          ts: item.ts,
-          stage: item.stage ?? 'research', // Map to valid StageId
-          agent: item.agent ?? 'trend-scout',
-          model: item.model,
-          rewritten_from: item.rewritten_from ?? null,
-          usage: {
-            promptTokenCount: usage.promptTokenCount ?? 0,
-            cachedContentTokenCount: usage.cachedContentTokenCount ?? 0,
-            candidatesTokenCount: usage.candidatesTokenCount ?? 0,
-            thoughtsTokenCount: usage.thoughtsTokenCount ?? 0
-          },
-          cost_usd: item.cost_usd ?? 0.0
-        });
-      } catch (e) {
-        // Skip malformed JSONL lines
-      }
-    }
-
-    return NextResponse.json(calls);
-  } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 });
   }
+  return NextResponse.json(calls);
 }

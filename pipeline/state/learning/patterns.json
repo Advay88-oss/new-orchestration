@@ -1,20 +1,20 @@
 {
-  "generated_at": "2026-08-19T06:31:04Z",
-  "n_competitive_signals": 92,
+  "generated_at": "2026-09-10T18:41:24Z",
+  "n_competitive_signals": 111,
   "n_own_posts": 0,
   "n_own_measured": 0,
   "market": {
     "by_hook_type": [
       {
         "value": "comparison",
-        "n": 12,
-        "avg": 797.7,
-        "max": 2237.0
+        "n": 16,
+        "avg": 795.2,
+        "max": 2245.0
       },
       {
         "value": "stat-led",
-        "n": 54,
-        "avg": 187.7,
+        "n": 66,
+        "avg": 196.9,
         "max": 3784.0
       },
       {
@@ -25,8 +25,8 @@
       },
       {
         "value": "statement",
-        "n": 13,
-        "avg": 50.6,
+        "n": 16,
+        "avg": 48.5,
         "max": 179.0
       },
       {
@@ -39,32 +39,38 @@
     "by_theme": [
       {
         "value": "regulation",
-        "n": 4,
-        "avg": 980.8,
+        "n": 5,
+        "avg": 794.0,
         "max": 3784.0
       },
       {
-        "value": "infrastructure",
-        "n": 12,
-        "avg": 231.0,
-        "max": 1367.0
+        "value": "security",
+        "n": 8,
+        "avg": 260.1,
+        "max": 1142.0
       },
       {
         "value": "general",
-        "n": 68,
-        "avg": 216.5,
-        "max": 2237.0
+        "n": 78,
+        "avg": 247.9,
+        "max": 2245.0
       },
       {
-        "value": "security",
-        "n": 5,
-        "avg": 164.2,
-        "max": 397.0
+        "value": "infrastructure",
+        "n": 15,
+        "avg": 191.0,
+        "max": 1367.0
+      },
+      {
+        "value": "credit",
+        "n": 1,
+        "avg": 101.0,
+        "max": 101.0
       },
       {
         "value": "competitive",
-        "n": 2,
-        "avg": 50.5,
+        "n": 3,
+        "avg": 40.0,
         "max": 100.0
       },
       {
@@ -76,16 +82,16 @@
     ],
     "by_channel": [
       {
-        "value": "twitter",
-        "n": 42,
-        "avg": 258.6,
-        "max": 3784.0
+        "value": "reddit",
+        "n": 61,
+        "avg": 259.2,
+        "max": 2245.0
       },
       {
-        "value": "reddit",
+        "value": "twitter",
         "n": 50,
-        "avg": 229.8,
-        "max": 2237.0
+        "avg": 253.4,
+        "max": 3784.0
       }
     ]
   },

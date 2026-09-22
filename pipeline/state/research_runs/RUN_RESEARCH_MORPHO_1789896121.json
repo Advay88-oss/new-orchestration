@@ -1,0 +1,368 @@
+{
+  "run_id": "RUN_RESEARCH_MORPHO_1789896121",
+  "entity": "Morpho",
+  "elapsed_seconds": 51.12,
+  "scraped_pages_count": 3,
+  "claims_extracted_count": 16,
+  "profile": {
+    "entity_id": "morpho",
+    "retrieved_at": "2026-09-20T09:22:52.206862+00:00",
+    "product": {
+      "name": "Morpho",
+      "description": "# Morpho | The open credit network for the world\n> \u4f5c\u8005: @Morpho\n> \u539f\u6587\u94fe\u63a5: https://morpho.org\n\n---\n\n# Connect to the open credit network for the world\n\n## Access global liquidity with the best possible terms\n\n##### Deposits\n\n$15,831,763,046\n\n##### Loans\n\n$5,185,927,010\n\nScroll to explore\n\n# Powered by M",
+      "features": [
+        "Core lending and margin borrowing capabilities"
+      ],
+      "chains_supported": [
+        "Ethereum",
+        "Arbitrum",
+        "Optimism",
+        "Base"
+      ],
+      "sdk_api_available": true
+    },
+    "audience": {
+      "target_segments": [
+        "Ecosystem developers & smart contract integrators",
+        "Autonomous AI agents & keeper bots"
+      ],
+      "evidence_status": "OBSERVED"
+    },
+    "positioning": {
+      "headline": "Morpho | The open credit network for the world",
+      "category": "LENDING_AND_CREDIT",
+      "value_proposition": "nnect to the open credit network for the world\n\n## Access global liquidity with the best possible terms\n\n##### Deposits\n\n$15,831,763,046\n\n##### Loans\n\n$5,185,927,010\n\nScroll to explore\n\n# Powered by Morpho\n\n## Businesses connect with Morpho to power onchain credit solutions at scale.\n\n## Built for s",
+      "source_hierarchy_level": 2
+    },
+    "conversion": {
+      "primary_cta_links": [],
+      "documentation_url": "https://docs.morpho.org"
+    },
+    "proof": {
+      "metrics": [
+        "DeFiLlama Verified TVL: $10,633,891,346.00"
+      ],
+      "confidence": "HIGH"
+    },
+    "visual": {
+      "screenshots": [
+        "D:\\new orchestration\\pipeline\\state\\morpho_homepage_visual.png"
+      ],
+      "design_patterns": [
+        "Dark obsidian/slate UI",
+        "Modern glassmorphism tables"
+      ]
+    },
+    "sources_crawled": [
+      "https://morpho.org",
+      "https://docs.morpho.org",
+      "https://morpho.org/blog"
+    ]
+  },
+  "claims": [
+    {
+      "claim_id": "CLM_MORPHO_TITLE_fc3c0992",
+      "entity_id": "morpho",
+      "claim": "Morpho | The open credit network for the world \u2014 official title on morpho.org",
+      "category": "POSITIONING",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://morpho.org",
+      "source_record_id": "https://morpho.org",
+      "observed_at": "2026-09-20T09:22:17.122818+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_c3caf6ae",
+      "entity_id": "morpho",
+      "claim": "[![](https://evcop6xwrqrpqrf9.",
+      "category": "PROOF",
+      "metric_extracted": "6x",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://morpho.org",
+      "source_record_id": "https://morpho.org",
+      "observed_at": "2026-09-20T09:22:17.122818+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_c3caf6ae",
+      "entity_id": "morpho",
+      "claim": "[![](https://evcop6xwrqrpqrf9.",
+      "category": "PROOF",
+      "metric_extracted": "6x",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://morpho.org",
+      "source_record_id": "https://morpho.org",
+      "observed_at": "2026-09-20T09:22:17.122818+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_c3caf6ae",
+      "entity_id": "morpho",
+      "claim": "[![](https://evcop6xwrqrpqrf9.",
+      "category": "PROOF",
+      "metric_extracted": "6x",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://morpho.org",
+      "source_record_id": "https://morpho.org",
+      "observed_at": "2026-09-20T09:22:17.122818+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_c3caf6ae",
+      "entity_id": "morpho",
+      "claim": "[![](https://evcop6xwrqrpqrf9.",
+      "category": "PROOF",
+      "metric_extracted": "6x",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://morpho.org",
+      "source_record_id": "https://morpho.org",
+      "observed_at": "2026-09-20T09:22:17.122818+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_c3caf6ae",
+      "entity_id": "morpho",
+      "claim": "[![](https://evcop6xwrqrpqrf9.",
+      "category": "PROOF",
+      "metric_extracted": "6x",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://morpho.org",
+      "source_record_id": "https://morpho.org",
+      "observed_at": "2026-09-20T09:22:17.122818+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_INTEG_22793f24",
+      "entity_id": "morpho",
+      "claim": "Morpho explicitly references integration or compatibility with: Morpho.",
+      "category": "PRODUCT_INTEGRATIONS",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://morpho.org",
+      "source_record_id": "https://morpho.org",
+      "observed_at": "2026-09-20T09:22:17.122818+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_TITLE_e0c4332e",
+      "entity_id": "morpho",
+      "claim": "Get Started \u2014 official title on docs.morpho.org",
+      "category": "POSITIONING",
+      "source_type": "official_docs",
+      "source_hierarchy_level": 3,
+      "source_url": "https://docs.morpho.org",
+      "source_record_id": "https://docs.morpho.org",
+      "observed_at": "2026-09-20T09:22:40.789233+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_INTEG_22793f24",
+      "entity_id": "morpho",
+      "claim": "Morpho explicitly references integration or compatibility with: Morpho.",
+      "category": "PRODUCT_INTEGRATIONS",
+      "source_type": "official_docs",
+      "source_hierarchy_level": 3,
+      "source_url": "https://docs.morpho.org",
+      "source_record_id": "https://docs.morpho.org",
+      "observed_at": "2026-09-20T09:22:40.789233+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_TITLE_be8df1f2",
+      "entity_id": "morpho",
+      "claim": "Blog \u2014 official title on morpho.org",
+      "category": "POSITIONING",
+      "source_type": "official_blog",
+      "source_hierarchy_level": 4,
+      "source_url": "https://morpho.org/blog",
+      "source_record_id": "https://morpho.org/blog",
+      "observed_at": "2026-09-20T09:22:46.079330+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_8c718fc5",
+      "entity_id": "morpho",
+      "claim": "# [Morpho Association Raises $175M To Build The Open Credit Network For The World](https://morpho.",
+      "category": "PROOF",
+      "metric_extracted": "$175M",
+      "source_type": "official_blog",
+      "source_hierarchy_level": 4,
+      "source_url": "https://morpho.org/blog",
+      "source_record_id": "https://morpho.org/blog",
+      "observed_at": "2026-09-20T09:22:46.079330+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_251a90ce",
+      "entity_id": "morpho",
+      "claim": "Metric observed: 175m",
+      "category": "PROOF",
+      "metric_extracted": "175m",
+      "source_type": "official_blog",
+      "source_hierarchy_level": 4,
+      "source_url": "https://morpho.org/blog",
+      "source_record_id": "https://morpho.org/blog",
+      "observed_at": "2026-09-20T09:22:46.079330+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_8c718fc5",
+      "entity_id": "morpho",
+      "claim": "# [Morpho Association Raises $175M To Build The Open Credit Network For The World](https://morpho.",
+      "category": "PROOF",
+      "metric_extracted": "$175M",
+      "source_type": "official_blog",
+      "source_hierarchy_level": 4,
+      "source_url": "https://morpho.org/blog",
+      "source_record_id": "https://morpho.org/blog",
+      "observed_at": "2026-09-20T09:22:46.079330+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_c3caf6ae",
+      "entity_id": "morpho",
+      "claim": "[![](https://evcop6xwrqrpqrf9.",
+      "category": "PROOF",
+      "metric_extracted": "6x",
+      "source_type": "official_blog",
+      "source_hierarchy_level": 4,
+      "source_url": "https://morpho.org/blog",
+      "source_record_id": "https://morpho.org/blog",
+      "observed_at": "2026-09-20T09:22:46.079330+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_METRIC_251a90ce",
+      "entity_id": "morpho",
+      "claim": "Metric observed: 175m",
+      "category": "PROOF",
+      "metric_extracted": "175m",
+      "source_type": "official_blog",
+      "source_hierarchy_level": 4,
+      "source_url": "https://morpho.org/blog",
+      "source_record_id": "https://morpho.org/blog",
+      "observed_at": "2026-09-20T09:22:46.079330+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_INTEG_4cd0591f",
+      "entity_id": "morpho",
+      "claim": "Morpho explicitly references integration or compatibility with: Morpho, Base.",
+      "category": "PRODUCT_INTEGRATIONS",
+      "source_type": "official_blog",
+      "source_hierarchy_level": 4,
+      "source_url": "https://morpho.org/blog",
+      "source_record_id": "https://morpho.org/blog",
+      "observed_at": "2026-09-20T09:22:46.079330+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    }
+  ],
+  "trace": [
+    {
+      "step": "LEVEL_1_MARKET_DISCOVERY",
+      "tool": "urllib.request -> api.llama.fi",
+      "target": "https://api.llama.fi/protocol/morpho",
+      "status": "SUCCESS",
+      "data_summary": "TVL: $10633891346"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://morpho.org",
+      "status": "OBSERVED",
+      "page_title": "Morpho | The open credit network for the world",
+      "chars_extracted": 34601,
+      "links_discovered": 77
+    },
+    {
+      "step": "VISUAL_ASSET_CAPTURE",
+      "tool": "opencli browser screenshot",
+      "target_url": "https://morpho.org",
+      "screenshot_path": "D:\\new orchestration\\pipeline\\state\\morpho_homepage_visual.png",
+      "status": "OBSERVED"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://docs.morpho.org",
+      "status": "OBSERVED",
+      "page_title": "Get Started",
+      "chars_extracted": 1515,
+      "links_discovered": 7
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://morpho.org/blog",
+      "status": "OBSERVED",
+      "page_title": "Blog",
+      "chars_extracted": 5206,
+      "links_discovered": 15
+    },
+    {
+      "step": "EVIDENCE_NORMALIZATION",
+      "claims_extracted": 16,
+      "profile_dimensions_populated": [
+        "entity_id",
+        "retrieved_at",
+        "product",
+        "audience",
+        "positioning",
+        "conversion",
+        "proof",
+        "visual",
+        "sources_crawled"
+      ],
+      "status": "NORMALIZED"
+    },
+    {
+      "step": "BRAIN_DB_INTEGRATION",
+      "evidence_records_appended": 3,
+      "opportunities_derived": 0,
+      "status": "COMMITTED"
+    }
+  ],
+  "brain_sync": {
+    "evidence_added": 3,
+    "opportunities_added": 0
+  },
+  "duration": 51.12
+}

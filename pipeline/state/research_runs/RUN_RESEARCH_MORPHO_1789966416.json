@@ -1,0 +1,151 @@
+{
+  "run_id": "RUN_RESEARCH_MORPHO_1789966416",
+  "entity": "Morpho",
+  "elapsed_seconds": 11.3,
+  "scraped_pages_count": 3,
+  "claims_extracted_count": 2,
+  "profile": {
+    "entity_id": "morpho",
+    "retrieved_at": "2026-09-21T04:53:48.237424+00:00",
+    "product": {
+      "name": "Morpho",
+      "description": "# Get Started\n> \u539f\u6587\u94fe\u63a5: https://docs.morpho.org\n\n---\n\n#\n\nMorpho Docs\n\nLearn how Morpho works, explore its products, and build on the open credit network.\n\n## What can I help you with?\n\nWhat is Morpho?How do Morpho Vaults work?How does borrowing on Morpho work?\n\n## Use cases\n\n### For app builders\n\nAdd",
+      "features": [
+        "Core lending and margin borrowing capabilities"
+      ],
+      "chains_supported": [
+        "Ethereum",
+        "Arbitrum",
+        "Optimism",
+        "Base"
+      ],
+      "sdk_api_available": true
+    },
+    "audience": {
+      "target_segments": [
+        "Ecosystem developers & smart contract integrators",
+        "Autonomous AI agents & keeper bots"
+      ],
+      "evidence_status": "OBSERVED"
+    },
+    "positioning": {
+      "headline": "",
+      "category": "LENDING_AND_CREDIT",
+      "value_proposition": "its products, and build on the open credit network.\n\n## What can I help you with?\n\nWhat is Morpho?How do Morpho Vaults work?How does borrowing on Morpho work?\n\n## Use cases\n\n### For app builders\n\nAdd lending and borrowing features to any app\n\n[Integrate Earn](https://docs.morpho.org/developers/earn/",
+      "source_hierarchy_level": 2
+    },
+    "conversion": {
+      "primary_cta_links": [],
+      "documentation_url": "https://docs.morpho.org"
+    },
+    "proof": {
+      "metrics": [],
+      "confidence": "MEDIUM"
+    },
+    "visual": {
+      "screenshots": [],
+      "design_patterns": [
+        "Dark obsidian/slate UI",
+        "Modern glassmorphism tables"
+      ]
+    },
+    "sources_crawled": [
+      "https://morpho.org",
+      "https://docs.morpho.org",
+      "https://morpho.org/blog"
+    ]
+  },
+  "claims": [
+    {
+      "claim_id": "CLM_MORPHO_TITLE_e0c4332e",
+      "entity_id": "morpho",
+      "claim": "Get Started \u2014 official title on docs.morpho.org",
+      "category": "POSITIONING",
+      "source_type": "official_docs",
+      "source_hierarchy_level": 3,
+      "source_url": "https://docs.morpho.org",
+      "source_record_id": "https://docs.morpho.org",
+      "observed_at": "2026-09-21T04:53:43.420943+00:00",
+      "data_as_of": "2026-09-21",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_MORPHO_INTEG_22793f24",
+      "entity_id": "morpho",
+      "claim": "Morpho explicitly references integration or compatibility with: Morpho.",
+      "category": "PRODUCT_INTEGRATIONS",
+      "source_type": "official_docs",
+      "source_hierarchy_level": 3,
+      "source_url": "https://docs.morpho.org",
+      "source_record_id": "https://docs.morpho.org",
+      "observed_at": "2026-09-21T04:53:43.420943+00:00",
+      "data_as_of": "2026-09-21",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    }
+  ],
+  "trace": [
+    {
+      "step": "LEVEL_1_MARKET_DISCOVERY",
+      "tool": "urllib.request -> api.llama.fi",
+      "target": "https://api.llama.fi/protocol/morpho",
+      "status": "NOT_OBSERVED",
+      "data_summary": "No live DeFiLlama record"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://morpho.org",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://docs.morpho.org",
+      "status": "OBSERVED",
+      "page_title": "Get Started",
+      "chars_extracted": 1515,
+      "links_discovered": 7
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://morpho.org/blog",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "EVIDENCE_NORMALIZATION",
+      "claims_extracted": 2,
+      "profile_dimensions_populated": [
+        "entity_id",
+        "retrieved_at",
+        "product",
+        "audience",
+        "positioning",
+        "conversion",
+        "proof",
+        "visual",
+        "sources_crawled"
+      ],
+      "status": "NORMALIZED"
+    },
+    {
+      "step": "BRAIN_DB_INTEGRATION",
+      "evidence_records_appended": 0,
+      "opportunities_derived": 0,
+      "status": "COMMITTED"
+    }
+  ],
+  "brain_sync": {
+    "evidence_added": 0,
+    "opportunities_added": 0
+  },
+  "duration": 11.3
+}

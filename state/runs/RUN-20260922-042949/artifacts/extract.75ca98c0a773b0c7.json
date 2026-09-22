@@ -1,0 +1,52 @@
+[
+  {
+    "text": "Lending collateral on Stellar Soroban currently idles within isolated protocol silos.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "When deposited assets remain locked inside a single venue, they cannot back liquidity elsewhere.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Composable credit routing allows collateral to support exposure across separate venues rather than sitting dormant.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Blend holds $159,033,033 in TVL.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Soroswap holds $1,239,028 in TVL.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  }
+]

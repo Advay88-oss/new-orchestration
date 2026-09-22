@@ -1,0 +1,47 @@
+{
+  "passed": false,
+  "blocking_claims": [
+    {
+      "text": "Isolated lending pools require separate deposits for every borrow.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "In Vanna, collateral is deposited once into a SmartAccount.",
+      "kind": "vanna_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "Assets deposited into single-purpose pools remain locked for individual borrows.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.95
+    },
+    {
+      "text": "In Vanna, collateral is posted once into a SmartAccount.",
+      "kind": "vanna_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    }
+  ],
+  "rule_violations": [],
+  "rules_source": "legacy:claim_safety_gate"
+}

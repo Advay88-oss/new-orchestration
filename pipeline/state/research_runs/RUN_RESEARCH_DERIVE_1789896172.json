@@ -1,0 +1,238 @@
+{
+  "run_id": "RUN_RESEARCH_DERIVE_1789896172",
+  "entity": "Derive",
+  "elapsed_seconds": 42.63,
+  "scraped_pages_count": 3,
+  "claims_extracted_count": 7,
+  "profile": {
+    "entity_id": "derive",
+    "retrieved_at": "2026-09-20T09:23:34.861032+00:00",
+    "product": {
+      "name": "Derive",
+      "description": "# Derive.xyz | Trade Onchain Crypto Options & Perps\n> \u539f\u6587\u94fe\u63a5: https://derive.xyz\n\n---\n\n# Crypto Options & Futures Protocol\n\n## Institutional-grade options &\nfutures trading onchain.\n\n### Start trading Crypto Options & Perps on BTC, ETH, and Altcoins.\n\n[\n\nTrade Now\n\n](https://app.derive.xyz/)\n\n![](http",
+      "features": [
+        "![](https://framerusercontent.com/images/JLFCSiIlRf1iK8qKKwmY2RxpJM.png?width=3229&height=435)"
+      ],
+      "chains_supported": [
+        "Ethereum"
+      ],
+      "sdk_api_available": false
+    },
+    "audience": {
+      "target_segments": [
+        "Retail & active leverage traders",
+        "Institutional allocators & funds"
+      ],
+      "evidence_status": "OBSERVED"
+    },
+    "positioning": {
+      "headline": "Derive.xyz | Trade Onchain Crypto Options & Perps",
+      "category": "LENDING_AND_CREDIT",
+      "value_proposition": "s & Futures Protocol\n\n## Institutional-grade options &\nfutures trading onchain.\n\n### Start trading Crypto Options & Perps on BTC, ETH, and Altcoins.\n\n[\n\nTrade Now\n\n](https://app.derive.xyz/)\n\n![](https://framerusercontent.com/images/BRrWXkbBv81kMIiyMjuOu3YnM.png?width=1927&height=565)\n\n![](https://f",
+      "source_hierarchy_level": 2
+    },
+    "conversion": {
+      "primary_cta_links": [
+        "https://storage.ghost.io/c/d4/b0/d4b0d8d6-38f7-4189-97b7-c417fe4c379b/content/images/2026/09/How-to-trade-a-Covered-Call-on-Derive.xyz-1.png",
+        "https://storage.ghost.io/c/d4/b0/d4b0d8d6-38f7-4189-97b7-c417fe4c379b/content/images/2026/09/How-to-trade-a-Covered-Call-on-Derive.xyz--2-.png",
+        "https://storage.ghost.io/c/d4/b0/d4b0d8d6-38f7-4189-97b7-c417fe4c379b/content/images/2026/09/How-to-trade-a-Covered-Call-on-Derive.xyz--1-.png"
+      ],
+      "documentation_url": "https://docs.derive.xyz"
+    },
+    "proof": {
+      "metrics": [
+        "DeFiLlama Verified TVL: $190,647,426.00"
+      ],
+      "confidence": "HIGH"
+    },
+    "visual": {
+      "screenshots": [
+        "D:\\new orchestration\\pipeline\\state\\derive_homepage_visual.png"
+      ],
+      "design_patterns": [
+        "Dark obsidian/slate UI",
+        "Modern glassmorphism tables"
+      ]
+    },
+    "sources_crawled": [
+      "https://derive.xyz",
+      "https://docs.derive.xyz",
+      "https://mirror.xyz/derive"
+    ]
+  },
+  "claims": [
+    {
+      "claim_id": "CLM_DERIVE_TITLE_88a36643",
+      "entity_id": "derive",
+      "claim": "Derive.xyz | Trade Onchain Crypto Options & Perps \u2014 official title on derive.xyz",
+      "category": "POSITIONING",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://derive.xyz",
+      "source_record_id": "https://derive.xyz",
+      "observed_at": "2026-09-20T09:22:57.222030+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_DERIVE_METRIC_eeaef75e",
+      "entity_id": "derive",
+      "claim": "com/images/BRrWXkbBv81kMIiyMjuOu3YnM.",
+      "category": "PROOF",
+      "metric_extracted": "81k",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://derive.xyz",
+      "source_record_id": "https://derive.xyz",
+      "observed_at": "2026-09-20T09:22:57.222030+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_DERIVE_METRIC_0240f400",
+      "entity_id": "derive",
+      "claim": "com/images/XASJRLE0Bd4JNKYb9NeIszBjtk.",
+      "category": "PROOF",
+      "metric_extracted": "0B",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://derive.xyz",
+      "source_record_id": "https://derive.xyz",
+      "observed_at": "2026-09-20T09:22:57.222030+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_DERIVE_METRIC_5019274c",
+      "entity_id": "derive",
+      "claim": "Metric observed: $37.5B",
+      "category": "PROOF",
+      "metric_extracted": "$37.5B",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://derive.xyz",
+      "source_record_id": "https://derive.xyz",
+      "observed_at": "2026-09-20T09:22:57.222030+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_DERIVE_METRIC_db5cff13",
+      "entity_id": "derive",
+      "claim": "Metric observed: $10.1M",
+      "category": "PROOF",
+      "metric_extracted": "$10.1M",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://derive.xyz",
+      "source_record_id": "https://derive.xyz",
+      "observed_at": "2026-09-20T09:22:57.222030+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_DERIVE_METRIC_da8d91b8",
+      "entity_id": "derive",
+      "claim": "Metric observed: 4.9M",
+      "category": "PROOF",
+      "metric_extracted": "4.9M",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://derive.xyz",
+      "source_record_id": "https://derive.xyz",
+      "observed_at": "2026-09-20T09:22:57.222030+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_DERIVE_INTEG_94195b7b",
+      "entity_id": "derive",
+      "claim": "Derive explicitly references integration or compatibility with: Ethereum.",
+      "category": "PRODUCT_INTEGRATIONS",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://derive.xyz",
+      "source_record_id": "https://derive.xyz",
+      "observed_at": "2026-09-20T09:22:57.222030+00:00",
+      "data_as_of": "2026-09-20",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    }
+  ],
+  "trace": [
+    {
+      "step": "LEVEL_1_MARKET_DISCOVERY",
+      "tool": "urllib.request -> api.llama.fi",
+      "target": "https://api.llama.fi/protocol/derive",
+      "status": "SUCCESS",
+      "data_summary": "TVL: $190647426"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://derive.xyz",
+      "status": "OBSERVED",
+      "page_title": "Derive.xyz | Trade Onchain Crypto Options & Perps",
+      "chars_extracted": 5465,
+      "links_discovered": 18
+    },
+    {
+      "step": "VISUAL_ASSET_CAPTURE",
+      "tool": "opencli browser screenshot",
+      "target_url": "https://derive.xyz",
+      "screenshot_path": "D:\\new orchestration\\pipeline\\state\\derive_homepage_visual.png",
+      "status": "OBSERVED"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://docs.derive.xyz",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://mirror.xyz/derive",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "EVIDENCE_NORMALIZATION",
+      "claims_extracted": 7,
+      "profile_dimensions_populated": [
+        "entity_id",
+        "retrieved_at",
+        "product",
+        "audience",
+        "positioning",
+        "conversion",
+        "proof",
+        "visual",
+        "sources_crawled"
+      ],
+      "status": "NORMALIZED"
+    },
+    {
+      "step": "BRAIN_DB_INTEGRATION",
+      "evidence_records_appended": 7,
+      "opportunities_derived": 0,
+      "status": "COMMITTED"
+    }
+  ],
+  "brain_sync": {
+    "evidence_added": 7,
+    "opportunities_added": 0
+  },
+  "duration": 42.63
+}

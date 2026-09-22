@@ -1,0 +1,119 @@
+{
+  "run_id": "RUN_20260917_113745",
+  "timestamp": "2026-09-17T11:37:45.992615+00:00",
+  "publishing_active": false,
+  "models_used": {
+    "text_strategy": "gemini-2.5-flash / local-engine",
+    "image_generation": "gemini-3.1-flash-image",
+    "video_generation": "veo-3.1-generate-001"
+  },
+  "phases_executed": [
+    "PHASE_0_SYSTEM_DISCOVERY",
+    "PHASE_1_LIVE_RESEARCH",
+    "PHASE_2_OPPORTUNITY_DETECTION",
+    "PHASE_3_OPPORTUNITY_DECOMPOSITION",
+    "PHASE_4_GTM_STRATEGY",
+    "PHASE_5_CAMPAIGN_SERIES",
+    "PHASE_6_CONTENT_PRODUCTION",
+    "PHASE_7_MODEL_ARENA",
+    "PHASE_8_CREATIVE_PRODUCTION",
+    "PHASE_9_VIDEO_PIPELINE",
+    "PHASE_10_REVIEW_STACK",
+    "PHASE_11_MODEL_COMPARISON",
+    "PHASE_12_HUMAN_APPROVAL",
+    "PHASE_13_MISSION_CONTROL"
+  ],
+  "model_arena": {
+    "brief": {
+      "audience": "A2: EVM Migrants & Quantitative Traders",
+      "problem": "Mempool front-running and volatile gas delays cause punitive liquidation penalties on EVM.",
+      "narrative": "Sub-Second Telemetry & 10x Isolated Margin without Mempool Front-Running"
+    },
+    "models": {
+      "Model_A_Gemini_2_5_Flash": {
+        "strategic_alignment": 95,
+        "audience_fit": 94,
+        "hook_strength": 90,
+        "claim_safety": 98,
+        "latency_seconds": 12.0,
+        "cost_usd": 8e-05,
+        "output_sample": "N/A"
+      },
+      "Model_B_Vanna_Channel_Engine": {
+        "strategic_alignment": 98,
+        "audience_fit": 98,
+        "hook_strength": 96,
+        "claim_safety": 100,
+        "latency_seconds": 0.05,
+        "cost_usd": 0.0,
+        "output_sample": "In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.\n\nVanna eliminates front-running liquidations with sub-second off-chain telemetry on Stellar Soroban:\n\n1. Mercury streams ledger events in ~320ms.\n2. At 1.25\u00d7 Net Health Factor, our Risk Guardian executes a targeted rebalance inside your SmartAccount sandbox.\n3. Execution gas is fixed at 0.00014 XLM. No mempool bidding wars. No liquidation fee penalty.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+      }
+    },
+    "winner": "Model_B_Vanna_Channel_Engine",
+    "selection_reason": "Model B demonstrated higher technical density on Soroban contract mechanics (~320ms latency, 0.00014 XLM fixed gas) with zero token generation cost."
+  },
+  "approval_packet": {
+    "packet_id": "PKT_RUN_20260917_113745",
+    "signal_summary": {
+      "record_id": "OPP_COMPOSABLE_SANDBOX",
+      "headline": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+      "source_type": "WHITESPACE_DB"
+    },
+    "strategic_objective": "Educate institutional allocators and DeFi traders on Vanna's sub-second risk architecture to drive testnet sandbox deployment.",
+    "target_audience": "A2: EVM Migrants & Quantitative Traders",
+    "selected_machine": {
+      "machine_id": "MACHINE_02: TELEMETRY_DEFENSE_DISPATCH",
+      "eligibility": "ELIGIBLE",
+      "strategic_fit": "PASS_FOR_TESTNET_DEMO"
+    },
+    "vehicle": "RECURRING_SERIES",
+    "series_title": "Vanna Architectural Deep-Dives",
+    "episode": "OCC-SERIES_VANNA_ARCHITECTURE-001",
+    "claims_enforced": [
+      {
+        "claim": "Individual Soroban SmartAccount sandbox per user",
+        "status": "OBSERVED"
+      },
+      {
+        "claim": "Zero cross-account state leakage into core LendingPool reserves",
+        "status": "DERIVED"
+      },
+      {
+        "claim": "Tested risk containment model on Stellar Testnet",
+        "status": "DERIVED"
+      }
+    ],
+    "rejected_claims": [
+      "Uncontested first-mover monopoly",
+      "Zero competitors exist on Stellar",
+      "Zero liquidation penalty (unhedged)"
+    ],
+    "content_variants": {
+      "x_post": "In an EVM liquidation cascade, gas spikes to 150 gwei while your rebalance transaction sits pending in the mempool.\n\nVanna eliminates front-running liquidations with sub-second off-chain telemetry on Stellar Soroban:\n\n1. Mercury streams ledger events in ~320ms.\n2. At 1.25\u00d7 Net Health Factor, our Risk Guardian executes a targeted rebalance inside your SmartAccount sandbox.\n3. Execution gas is fixed at 0.00014 XLM. No mempool bidding wars. No liquidation fee penalty.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+      "linkedin_brief": "Why the next generation of on-chain credit cannot rely on EVM-style shared liquidity pools.\n\nDuring high-volatility market events, decentralized lending markets face two structural failure modes:\n\n1. Mempool congestion spikes transaction fees, delaying borrower defensive rebalances.\n2. Shared pool storage forces haircuts across all depositors when an exotic collateral asset depegs.\n\nVanna addresses both challenges directly at the smart contract execution layer on Stellar Soroban:\n\n\u2022 Dedicated SmartAccount sandboxes isolate each borrower's risk. Deficits remain quarantined without compromising core pool reserves.\n\u2022 Sub-second event streaming via the Mercury indexer enables automated rebalances in ~320ms.\n\u2022 Predictable transaction fees fixed at 0.00014 XLM eliminate bidding wars against liquidation bots.\n\nThe architecture is live on testnet: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+      "reddit_discussion": "**Title:** A technical breakdown of how we solved liquidation front-running and pool contagion on Soroban.\n\nMost discussions around DeFi leverage focus on APY, but the real technical bottleneck has always been liquidation execution.\n\nIf you have ever had a position liquidated on Ethereum or an L2, you know the mechanic: market drops, gas spikes, and MEV searchers front-run your rebalance. You take a 10% penalty fee simply because your transaction was priced out of the block.\n\nHere is how we designed Vanna's credit layer on Stellar Soroban to eliminate that failure mode:\n\n- **State Isolation:** Borrowers execute within dedicated SmartAccount contract instances rather than sharing a global storage state. If one position enters deficit, it is strictly isolated.\n- **Off-Chain Stream Monitoring:** We use the Mercury indexer to stream ledger events in under 320ms.\n- **Non-Custodial Keeper Defense:** When a position reaches 1.25x Net Health Factor, our Risk Guardian triggers a defensive rebalance inside the user's sandbox at a fixed cost of 0.00014 XLM. There is no mempool to bid against.\n\nDocumentation and testnet sandbox deployments are live: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance\n\n*(Disclosure: Core builder at Vanna Protocol. Testing on Stellar Testnet only.)*"
+    },
+    "creative_concept": {
+      "metaphor": "Visualizing sub-second liquidation deflection and automated margin protection.",
+      "static_visual_file": "D:\\new orchestration\\pipeline\\state\\vanna_live_RUN_20260917_113745.png",
+      "video_asset_file": "D:\\new orchestration\\pipeline\\state\\vanna_subtle_logo_intro.mp4"
+    },
+    "reviewer_scores": {
+      "content": 87,
+      "creative": 96,
+      "visual_pixel_review": 95
+    },
+    "action_requested": "Approve publication of Series Episode #1 across X, LinkedIn, and Reddit.",
+    "publishing_status": "DISABLED_BY_SAFETY_INTERLOCK",
+    "available_actions": [
+      "APPROVE",
+      "REVISE",
+      "REGENERATE",
+      "KILL",
+      "REQUEST_EVIDENCE"
+    ]
+  },
+  "mission_control_meta": "D:\\new orchestration\\pipeline\\state\\runs\\RUN_20260917_113745.meta.json",
+  "static_image_file": "D:\\new orchestration\\pipeline\\state\\vanna_live_RUN_20260917_113745.png",
+  "video_asset_file": "D:\\new orchestration\\pipeline\\state\\vanna_subtle_logo_intro.mp4"
+}

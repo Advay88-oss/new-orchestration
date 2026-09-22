@@ -1,0 +1,28 @@
+{
+  "layout": "comparison",
+  "headline": "Cross-Margin Contagion vs. Isolated Containment",
+  "subhead": "Structural boundaries prevent asset shocks from cascading across portfolio collateral.",
+  "blocks": [
+    {
+      "role": "compare_left",
+      "text": "Cross-Margin Protocol: A single asset shock drains shared collateral pools, spreading liquidation risk portfolio-wide.",
+      "emphasis": "muted"
+    },
+    {
+      "role": "compare_right",
+      "text": "Isolated Architecture: Structural firewalls strictly seal settlement to the distressed position, preserving adjacent capital.",
+      "emphasis": "primary"
+    }
+  ],
+  "focal": {
+    "block_index": 1,
+    "reason": "Demonstrates structural containment of liquidation risk to a single account without balance spillover."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

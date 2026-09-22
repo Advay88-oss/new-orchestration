@@ -1,0 +1,121 @@
+{
+  "run_id": "RUN_RESEARCH_MORPHO_1789970787",
+  "entity": "Morpho",
+  "elapsed_seconds": 24.87,
+  "scraped_pages_count": 3,
+  "claims_extracted_count": 0,
+  "profile": {
+    "entity_id": "morpho",
+    "retrieved_at": "2026-09-21T06:06:51.962026+00:00",
+    "product": {
+      "name": "Morpho",
+      "description": "",
+      "features": [
+        "Core lending and margin borrowing capabilities"
+      ],
+      "chains_supported": [
+        "Ethereum"
+      ],
+      "sdk_api_available": false
+    },
+    "audience": {
+      "target_segments": [
+        "DeFi Allocators",
+        "Borrowers"
+      ],
+      "evidence_status": "INFERRED"
+    },
+    "positioning": {
+      "headline": "",
+      "category": "LENDING_AND_CREDIT",
+      "value_proposition": "Composable decentralized credit",
+      "source_hierarchy_level": 2
+    },
+    "conversion": {
+      "primary_cta_links": [],
+      "documentation_url": "https://docs.morpho.org"
+    },
+    "proof": {
+      "metrics": [
+        "DeFiLlama Verified TVL: $10,700,629,306.00"
+      ],
+      "confidence": "HIGH"
+    },
+    "visual": {
+      "screenshots": [],
+      "design_patterns": [
+        "Dark obsidian/slate UI",
+        "Modern glassmorphism tables"
+      ]
+    },
+    "sources_crawled": [
+      "https://morpho.org",
+      "https://docs.morpho.org",
+      "https://morpho.org/blog"
+    ]
+  },
+  "claims": [],
+  "trace": [
+    {
+      "step": "LEVEL_1_MARKET_DISCOVERY",
+      "tool": "urllib.request -> api.llama.fi",
+      "target": "https://api.llama.fi/protocol/morpho",
+      "status": "SUCCESS",
+      "data_summary": "TVL: $10700629306"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://morpho.org",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://docs.morpho.org",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://morpho.org/blog",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "EVIDENCE_NORMALIZATION",
+      "claims_extracted": 0,
+      "profile_dimensions_populated": [
+        "entity_id",
+        "retrieved_at",
+        "product",
+        "audience",
+        "positioning",
+        "conversion",
+        "proof",
+        "visual",
+        "sources_crawled"
+      ],
+      "status": "NORMALIZED"
+    },
+    {
+      "step": "BRAIN_DB_INTEGRATION",
+      "evidence_records_appended": 0,
+      "opportunities_derived": 0,
+      "status": "COMMITTED"
+    }
+  ],
+  "brain_sync": {
+    "evidence_added": 0,
+    "opportunities_added": 0
+  },
+  "duration": 24.87
+}

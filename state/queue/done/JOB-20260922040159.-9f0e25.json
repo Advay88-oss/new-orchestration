@@ -1,0 +1,10 @@
+{
+  "id": "JOB-20260922040159.-9f0e25",
+  "directive": "meme about pooled lending contagion vs isolated accounts",
+  "created_at": "2026-09-22T04:01:59.210Z",
+  "attempts": 1,
+  "idempotency_key": null,
+  "requested_by": "mission-control",
+  "run_id": "RUN-20260922-040202",
+  "last_error": null
+}

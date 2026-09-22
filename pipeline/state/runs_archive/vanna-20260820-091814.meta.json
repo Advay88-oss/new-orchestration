@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-091814",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787217369.1886148,
+  "ended": 1787217494.1886168,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 125.1,
+  "kind": "content-run",
+  "winner_hook": "Why split capital across isolated credit accounts?",
+  "winner_body": "Why split capital across isolated credit accounts? One strategy per box is a margin drag. Vanna unifies your entire book under a single health factor—unlocking up to 10x borrowing capacity. Your collateral is doing one job. It should be doing six.",
+  "trend": "capital-efficiency / unified-margin",
+  "delivered_to_telegram": true
+}

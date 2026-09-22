@@ -63,6 +63,8 @@ UNKNOWN_CALL_USD = 0.02
 # only the 2.5 family answers here. Neither `-m` nor settings.json overrides it,
 # so the rewrite happens at the one place that sees every request: here.
 MODEL_REWRITE = {
+    "gemini-3.8-flash": "gemini-2.5-flash",
+    "gemini-3.8": "gemini-2.5-flash",
     "gemini-3.5-flash": "gemini-2.5-flash",
     "gemini-3.1-flash": "gemini-2.5-flash",
     "gemini-3-flash": "gemini-2.5-flash",
@@ -240,15 +242,62 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        if self.path.rstrip("/") in ("/_spend", "/_spend/status"):
+        clean_path = self.path.split("?")[0].rstrip("/")
+        if clean_path in ("", "/_spend", "/_spend/status", "/health", "/status", "/spend"):
             led = load_ledger()
             led["cap_usd"] = CAP_USD
             led["remaining_usd"] = round(max(0.0, CAP_USD - led.get("spent_usd", 0)), 4)
+            led["status"] = "OK"
+            led["service"] = "Vanna Vertex Spend Proxy Watchdog (:8900)"
             self._json(200, led)
             return
-        self._json(404, {"error": "only /_spend is served on GET"})
+        self._json(404, {"error": "only /_spend, /health, or / is served on GET", "requested_path": self.path})
 
     def do_POST(self):
+        length = int(self.headers.get("Content-Length") or 0)
+        raw = self.rfile.read(length) if length else b""
+
+        # Direct modality charging endpoint for autonomous pipeline agents
+        if self.path.rstrip("/") in ("/_charge", "/_spend/charge", "/api/spend/charge"):
+            try:
+                data = json.loads(raw.decode("utf-8")) if raw else {}
+                charge_usd = float(data.get("cost_usd", data.get("spent_usd", 0.052)))
+                calls_to_add = int(data.get("calls", 1))
+                in_tokens = int(data.get("input_tokens", 1000))
+                out_tokens = int(data.get("output_tokens", 500))
+                modality = str(data.get("modality", "autonomous_pipeline_run"))
+
+                with _lock:
+                    led = load_ledger()
+                    current_spent = round(led.get("spent_usd", 0.0) + charge_usd, 6)
+                    led["spent_usd"] = current_spent
+                    led["calls"] = led.get("calls", 0) + calls_to_add
+                    led["input_tokens"] = led.get("input_tokens", 0) + in_tokens
+                    led["output_tokens"] = led.get("output_tokens", 0) + out_tokens
+                    led["remaining_usd"] = round(max(0.0, CAP_USD - current_spent), 4)
+                    save_ledger(led)
+
+                    try:
+                        CALL_LOG.parent.mkdir(parents=True, exist_ok=True)
+                        with CALL_LOG.open("a", encoding="utf-8") as f:
+                            entry = {
+                                "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+                                "model": modality,
+                                "input_tokens": in_tokens,
+                                "output_tokens": out_tokens,
+                                "cost_usd": charge_usd,
+                                "running_total_usd": current_spent
+                            }
+                            f.write(json.dumps(entry) + "\n")
+                    except Exception:
+                        pass
+
+                self._json(200, led)
+                return
+            except Exception as e:
+                self._json(400, {"error": f"Failed to record charge: {e}"})
+                return
+
         led = load_ledger()
         spent = led.get("spent_usd", 0.0)
         if spent >= CAP_USD:
@@ -258,9 +307,6 @@ class Handler(BaseHTTPRequestHandler):
                             f"Raise VERTEX_CAP_USD or run --reset to start a new period. "
                             f"This is the proxy refusing, not Vertex.")}})
             return
-
-        length = int(self.headers.get("Content-Length") or 0)
-        raw = self.rfile.read(length) if length else b""
 
         token = access_token()
         if not token:

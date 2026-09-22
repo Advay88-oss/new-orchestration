@@ -1,0 +1,33 @@
+{
+  "layout": "quote",
+  "headline": "The Boundary Principle",
+  "subhead": "Structural isolation versus collective pool risk",
+  "blocks": [
+    {
+      "role": "caption",
+      "text": "“Contagion is not an inevitable market force. It is an architectural failure.”",
+      "emphasis": "primary"
+    },
+    {
+      "role": "caption",
+      "text": "Segregated accounts natively enforce token whitelists and transfer rules without wrappers, confining distress to the source.",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "label",
+      "text": "ISOLATION: STRICT // ENFORCEMENT: NATIVE",
+      "emphasis": "muted"
+    }
+  ],
+  "focal": {
+    "block_index": 0,
+    "reason": "The stark provocation that reframes market contagion as a preventable structural failure."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

@@ -1,0 +1,7 @@
+{
+  "status": "RUNNING",
+  "pid": 37384,
+  "started_at": "2026-09-20T11:45:53.963221+00:00",
+  "interval_seconds": 1800,
+  "last_health_check": "2026-09-20T11:45:53.963221+00:00"
+}

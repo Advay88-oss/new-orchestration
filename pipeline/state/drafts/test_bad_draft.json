@@ -1,0 +1,20 @@
+{
+  "final_hook": "Next-gen revolutionary DeFi credit with guaranteed 40% APY!",
+  "final_body": "Next-gen revolutionary DeFi credit with guaranteed 40% APY! Vanna eliminates all cross-account contagion on Solana with zero risk.",
+  "visual_brief": {
+    "type": "infographic",
+    "headline": "Generic Infographic",
+    "subhead": "Subtitle",
+    "data": [
+      {
+        "label": "A",
+        "value": "1"
+      },
+      {
+        "label": "B",
+        "value": "2"
+      }
+    ],
+    "footer": "docs.vanna.finance"
+  }
+}

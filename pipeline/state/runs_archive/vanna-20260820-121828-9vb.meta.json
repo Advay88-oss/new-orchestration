@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-121828-9vb",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787228473.7127001,
+  "ended": 1787228589.6075346,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 115.9,
+  "kind": "content-run",
+  "winner_hook": "Siloed credit pools trap capital.",
+  "winner_body": "Siloed credit pools trap capital. Split your assets across isolated accounts and you pay a fragmentation tax. Vanna unifies your entire book under one health factor—unlocking up to 10x borrowing capacity on testnet. Your collateral should do six jobs.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

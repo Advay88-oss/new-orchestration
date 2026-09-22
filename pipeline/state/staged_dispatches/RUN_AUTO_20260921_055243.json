@@ -1,0 +1,40 @@
+{
+  "request_id": "PUB-RUN_AUTO_20260921_055243",
+  "packet_id": "PKT-RUN_AUTO_20260921_055243",
+  "run_id": "RUN_AUTO_20260921_055243",
+  "campaign_id": "SERIES_STRAT-SIG-OPP-DI",
+  "pattern_id": "PAT_01_TECHNICAL_TELEMETRY",
+  "approved_by": "PENDING_HUMAN_APPROVAL",
+  "approved_at": "2026-09-21T05:53:36.370642+00:00",
+  "channels": [
+    {
+      "channel": "X",
+      "title": null,
+      "copy": "[1/3] When volatility hits EVM money markets, priority gas auctions push transaction fees past $50. Small borrowers get wiped out because liquidation transactions get front-run.\n\nWe took a different approach on Stellar Soroban for Dedicated Soroban SmartAccount Margin",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260921_055243_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "LinkedIn",
+      "title": null,
+      "copy": "Why Dedicated Soroban SmartAccount Margin Sandboxes requires a structural shift away from pooled lending risk.\n\nDuring market turbulence, decentralized money markets face two major bottlenecks: mempool congestion and shared pool contagion. When bad debt accumulates in a shared pool, passive liquidity providers absorb the haircut.\n\nVanna isolates credit execution at the smart contract level on Stellar Soroban. Each borrower manages leverage inside an independent SmartAccount sandbox. Deficits remain quarantined without haircutting global lending reserves.\n\nThe architecture is live on Stellar Testnet: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260921_055243_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "Reddit",
+      "title": "Technical breakdown: Dedicated Soroban SmartAccount Margin Sandboxes on Stellar Soroban",
+      "copy": "**Title:** Technical breakdown: Dedicated Soroban SmartAccount Margin Sandboxes on Stellar Soroban\n\nHere is how we designed Vanna's credit architecture on Soroban Protocol 20:\n\n- State isolation inside dedicated SmartAccount contracts rather than monolithic pools\n- Sub-second Mercury indexer streaming (~320ms) for real-time solvency monitoring\n- Deterministic transaction fees fixed at 0.00014 XLM, eliminating MEV front-running\n\nDocumentation and testnet deployments: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance\n\n*(Disclosure: Core builder at Vanna Protocol. Testing on Stellar Testnet.)*",
+      "media_paths": [],
+      "tags": [],
+      "target_community": null
+    }
+  ],
+  "mode": "SIMULATED_TESTNET"
+}

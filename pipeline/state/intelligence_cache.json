@@ -1,0 +1,16 @@
+{
+  "stellar_fee_stats": {
+    "last_ledger": "4805397",
+    "base_fee": 100,
+    "ledger_capacity_usage": 0.1,
+    "updated_at": "2026-09-22T04:16:18.648761+00:00"
+  },
+  "blend_tvl": {
+    "tvl_usd": 159033033.0,
+    "updated_at": "2026-09-22T04:16:20.094770+00:00"
+  },
+  "soroswap_tvl": {
+    "tvl_usd": 1239028.0,
+    "updated_at": "2026-09-22T04:16:19.453237+00:00"
+  }
+}

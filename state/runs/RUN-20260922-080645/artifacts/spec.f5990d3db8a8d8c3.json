@@ -1,0 +1,28 @@
+{
+  "layout": "comparison",
+  "headline": "Fragmented Collateral vs. Unified Margin",
+  "subhead": "Isolated pools restrict capital efficiency. SmartAccounts assess health across your entire portfolio.",
+  "blocks": [
+    {
+      "role": "compare_left",
+      "text": "Isolated Pools: Collateral is fragmented across separate deposits for every borrow, trapping capital in silos.",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "compare_right",
+      "text": "Vanna SmartAccount: One collateral balance backs multiple positions, evaluated across the entire account.",
+      "emphasis": "primary"
+    }
+  ],
+  "focal": {
+    "block_index": 1,
+    "reason": "Directs focus to the primary value proposition of a single collateral balance backing multiple positions simultaneously."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "gradient",
+  "disclaimer": null
+}

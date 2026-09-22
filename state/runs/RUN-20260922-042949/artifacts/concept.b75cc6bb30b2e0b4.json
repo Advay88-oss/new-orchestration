@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The 128:1 Disparity Ratio",
+    "idea": "A stark typographic layout anchored by a massive '128:1' ratio graphic rendered in precision hairline typography against an obsidian dark slate ground. Subordinate ledger blocks sit directly underneath: Blend recorded at $159,033,033 in static deposit TVL versus Soroswap at $1,239,028 in active pool liquidity. Micro-callouts clarify that ecosystem capital is heavily concentrated in single-protocol lockups, illustrating the quantitative scale of dormant collateral waiting to be routed into secondary venues.",
+    "layout": "hero_stat",
+    "why": "It forces an immediate confrontation with the core economic friction: the absurd 128x ratio of capital idling in lending pools compared to exchange pool liquidity."
+  },
+  "all": [
+    {
+      "title": "The 128:1 Disparity Ratio",
+      "idea": "A stark typographic layout anchored by a massive '128:1' ratio graphic rendered in precision hairline typography against an obsidian dark slate ground. Subordinate ledger blocks sit directly underneath: Blend recorded at $159,033,033 in static deposit TVL versus Soroswap at $1,239,028 in active pool liquidity. Micro-callouts clarify that ecosystem capital is heavily concentrated in single-protocol lockups, illustrating the quantitative scale of dormant collateral waiting to be routed into secondary venues.",
+      "layout": "hero_stat",
+      "why": "It forces an immediate confrontation with the core economic friction: the absurd 128x ratio of capital idling in lending pools compared to exchange pool liquidity."
+    },
+    {
+      "title": "Bilateral Collateral Routing Conduit",
+      "idea": "A clean architectural schematic contrasting physical collateral placement against routed credit lines. A dense monolithic vault foundation represents Blend's $159M collateral reserve on the lower tier. Directly above it, a Vanna credit router module broadcasts dual-directional active balance assertions into a Soroswap AMM pool cluster without physically transferring the underlying tokens or crossing price impact curves. Fine coordinate lines and telemetry labels document zero collateral rehypothecation and slippage isolation.",
+      "layout": "diagram",
+      "why": "This is the strongest concept because it directly answers the analytical angle: demonstrating how composable credit routing allows $159M of locked assets to back liquidity across separate venues without physically moving collateral or incurring AMM slippage."
+    },
+    {
+      "title": "Siloed Lockup vs Composable Credit Rail",
+      "idea": "A dual-panel mechanical contrast. The left side, 'Isolated Silo', depicts collateral held inside a sealed container marked Blend ($159M TVL) with terminated endpoints, denoting zero utility beyond passive yield earning. The right side, 'Routed Credit Rail', maps the identical deposit base acting as an active collateral anchor while Vanna issues cross-venue margin lines into Soroswap AMM depth, showing capital velocity doubled without collateral fragmentation.",
+      "layout": "comparison",
+      "why": "It visually isolates the operational difference between capital idling in a single protocol silo and capital actively routed across multiple Soroban venues."
+    }
+  ],
+  "novelty_note": "novelty gate: 'diagram' used in the last 3 assets; switched to 'hero_stat'"
+}

@@ -1,0 +1,40 @@
+{
+  "request_id": "PUB-RUN_AUTO_20260921_053310",
+  "packet_id": "PKT-RUN_AUTO_20260921_053310",
+  "run_id": "RUN_AUTO_20260921_053310",
+  "campaign_id": "SERIES_STRAT-SIG-OPP-DI",
+  "pattern_id": "PAT_01_TECHNICAL_TELEMETRY",
+  "approved_by": "PENDING_HUMAN_APPROVAL",
+  "approved_at": "2026-09-21T05:33:57.190875+00:00",
+  "channels": [
+    {
+      "channel": "X",
+      "title": null,
+      "copy": "[1/3] Building out 10x USDC margin on Stellar Soroban means rethinking risk. Vanna Protocol's dedicated SmartAccount sandboxes give you isolated control over your leverage positions.\n\nOur architecture ensures sub-second risk management. Think 0.00014 XLM fixed gas per",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260921_053310_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "LinkedIn",
+      "title": null,
+      "copy": "Institutional participation in DeFi requires a fundamental shift in how leverage and risk are managed. Traditional pooled liquidity models often present unacceptable counterparty risk and lack the granular control demanded by sophisticated allocators. Vanna Protocol addresses this by deploying dedicated SmartAccount sandboxes on Stellar Soroban.\n\nOur approach ensures each leverage position operates within its own isolated environment. This design choice moves away from shared risk pools, providing a robust framework where a user's risk profile is entirely separate from others. The underlying Soroban infrastructure, coupled with Vanna's optimized risk engine, facilitates sub-second execution and liquidation processes, critical for managing high-leverage positions effectively.\n\nThis architecture empowers institutions to deploy capital with precise risk parameters for 10x USDC leverage, knowing their exposure is contained and managed with high efficiency. It's about providing the tools for self-custodied, isolated risk management in a composable DeFi landscape. Explore how this changes the game for institutional allocators and risk architects. Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260921_053310_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "Reddit",
+      "title": "Vanna Protocol: Deep Dive into Soroban SmartAccount Margin & Risk Architecture",
+      "copy": "Hey r/defi and r/stellar, I'm part of the Vanna Protocol team, and I wanted to share some details on how we're approaching isolated 10x margin on Stellar Soroban. We're building for a future where institutions can deploy capital on-chain with minimal shared risk.\n\nOur core innovation is the dedicated SmartAccount sandbox. Unlike many protocols that pool user funds, each Vanna user gets their own Soroban smart contract for their margin positions. This means your 10x USDC leverage is isolated; the health of your position is independent of any other user's. Liquidation logic is executed swiftly, driven by a ~320ms Mercury indexer latency, ensuring positions are closed if they drop below a 1.10x Health Factor floor. This design minimizes cascading risks and provides predictable outcomes.\n\nTransaction costs are also optimized, with a fixed 0.00014 XLM gas fee. We believe this level of isolation and efficiency is crucial for institutional adoption. We've been working hard on the testnet, and we'd love for you to kick the tires. You can deploy your own testnet SmartAccount sandbox and experiment with leverage at test.stellar.vanna.finance\n\nDisclosure: I am a core builder at Vanna Protocol.",
+      "media_paths": [],
+      "tags": [],
+      "target_community": null
+    }
+  ],
+  "mode": "SIMULATED_TESTNET"
+}

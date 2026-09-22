@@ -1,0 +1,52 @@
+[
+  {
+    "text": "In pooled lending architectures, bad debt from slippage spills directly into the mutual reserve.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "When a liquidation fails to clear in time, passive depositors absorb the resulting haircut.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Containing this systemic risk requires structural isolation around each debt position.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "By enforcing explicit risk boundaries rather than sharing default exposure, a distressed account cannot dilute the broader pool.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Losses remain localized to the position rather than compounding across the venue.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  }
+]

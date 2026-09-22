@@ -1,0 +1,43 @@
+{
+  "company_id": "vanna",
+  "name": "Vanna Protocol",
+  "tagline": "Composable Credit for DeFi",
+  "industry": "Decentralized Finance (DeFi) / Web3 Infrastructure",
+  "core_proposition": "Undercollateralized credit up to 10x leverage deployed across DeFi primitives from isolated on-chain SmartAccount sandboxes without surrendering wallet custody.",
+  "target_audience": {
+    "personas": ["DeFi Yield Farmers", "Arbitrageurs", "Soroban Developers", "Institutional LPs"],
+    "subreddits": ["defi", "Stellar", "ethereum", "cryptocurrency"],
+    "search_keywords": ["undercollateralized lending", "soroban leverage", "flash crash protection", "smartaccount margin"]
+  },
+  "competitors": [
+    {"name": "Morpho", "handle": "Morpho", "focus": "Peer-to-peer lending optimization on EVM"},
+    {"name": "Gearbox Protocol", "handle": "GearboxProtocol", "focus": "Credit accounts for leverage on EVM"},
+    {"name": "Aave", "handle": "aave", "focus": "Monolithic pooled liquidity market"}
+  ],
+  "claims_registry": "registry/claims.jsonl",
+  "brand_design": {
+    "canvas_void": "#07020D",
+    "ambient_blooms": {
+      "bottom_left": "rgba(71, 20, 133, 0.85)",
+      "top_right": "rgba(94, 13, 70, 0.75)"
+    },
+    "accents": {
+      "primary": "#A387FF",
+      "secondary": "#FC5457",
+      "success": "#22D3C4"
+    },
+    "typography": {
+      "display": "Plus Jakarta Sans",
+      "mono": "JetBrains Mono"
+    },
+    "visual_families": [
+      "financial_mechanism_visualization",
+      "technical_architecture",
+      "editorial_comparative_schematic"
+    ]
+  },
+  "destinations": {
+    "cta_url": "test.stellar.vanna.finance",
+    "docs_url": "docs.vanna.finance"
+  }
+}

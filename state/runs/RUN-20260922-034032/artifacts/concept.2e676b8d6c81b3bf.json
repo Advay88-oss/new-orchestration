@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "Anatomy of Relocated Liquidation Risk",
+    "idea": "A vertical 3-step audit trail showing the life cycle of a distressed position on Soroban: Step 1 (Distress Trigger: collateral ratio degrades), Step 2 (Deterministic Inclusion: instant execution at 0.08 capacity and 100 stroops, eliminating fee latency), Step 3 (Secondary Market Absorptive Limit: position hits $1.24M AMM depth against $157M protocol scale).",
+    "layout": "sequence",
+    "why": "This is the strongest concept because the thesis hinges on a mechanical handoff: solving the transaction inclusion bottleneck simply passes the burden to secondary market depth. A sequence layout is the only format that shows this operational shift step-by-step rather than abstracting it away."
+  },
+  "all": [
+    {
+      "title": "The Deterministic Ceiling",
+      "idea": "An ultra-minimalist, high-density typographic asset dominated by '0.08' in stark off-white on a deep carbon background, framed by structural telemetry markers denoting the fixed 100 stroop base fee and a stark baseline warning showing the 126:1 ratio between Blend lending exposure and Soroswap AMM depth.",
+      "layout": "hero_stat",
+      "why": "Focuses the viewer instantly on network throughput slack, immediately debunking the standard DeFi fear of gas-spike liquidations before directing attention to where the true risk actually relocated."
+    },
+    {
+      "title": "Anatomy of Relocated Liquidation Risk",
+      "idea": "A vertical 3-step audit trail showing the life cycle of a distressed position on Soroban: Step 1 (Distress Trigger: collateral ratio degrades), Step 2 (Deterministic Inclusion: instant execution at 0.08 capacity and 100 stroops, eliminating fee latency), Step 3 (Secondary Market Absorptive Limit: position hits $1.24M AMM depth against $157M protocol scale).",
+      "layout": "sequence",
+      "why": "This is the strongest concept because the thesis hinges on a mechanical handoff: solving the transaction inclusion bottleneck simply passes the burden to secondary market depth. A sequence layout is the only format that shows this operational shift step-by-step rather than abstracting it away."
+    },
+    {
+      "title": "The Cost of Execution Thesis",
+      "idea": "An austere editorial layout centering a single provocative thesis statement set in bold architectural grotesque typography: 'Gas spikes will not liquidate your Soroban collateral; thin secondary liquidity will.' The statement is anchored in four corners by live ledger telemetry coordinates: ledger load, base fee, lending TVL, and AMM TVL.",
+      "layout": "quote",
+      "why": "Delivers the thesis with direct intellectual friction, treating the observation as an institutional market reality rather than an educational infographic."
+    }
+  ],
+  "novelty_note": ""
+}

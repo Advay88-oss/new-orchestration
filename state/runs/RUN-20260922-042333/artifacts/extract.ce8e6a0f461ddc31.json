@@ -1,0 +1,92 @@
+[
+  {
+    "text": "A sharp downturn in a single asset can trigger cascading liquidations across a borrower's entire portfolio.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Blend's TVL is $159,033,033.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Soroswap's TVL is $1,239,028.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Ledger capacity usage is 0.1.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "These broad figures do not stop cross-position contagion.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Isolated credit accounts alter this dynamic structurally.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Each account maintains its own distinct collateral and liabilities.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "When liquidation occurs, the settlement is strictly bounded to the distressed account.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "The protocol architecture prevents losses from pulling capital from other balances.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  }
+]

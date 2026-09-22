@@ -1,0 +1,102 @@
+[
+  {
+    "text": "Liquidation slippage is the primary failure mode when lending balances decouple from decentralized exchange depth.",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Blend TVL is 159,033,033 USD",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-c939357b13e5",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:20.094770+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Soroswap TVL is 1,239,028 USD",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-9f1c3933ff73",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:19.453237+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Liquidating large debt positions against available AMM pools creates severe price impact",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "Liquidating large debt positions against available AMM pools creates risk of bad debt",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  },
+  {
+    "text": "This failure cannot spread into network-level settlement bottlenecks",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Stellar ledger capacity usage is currently 0.1",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-7d8153a97626",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:18.648761+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Stellar has a base fee of 100",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-4578f804a1c2",
+    "source_url": null,
+    "observed_at": "2026-09-21T18:00:54.114395+00:00",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Stellar ledger capacity usage and base fee keep transaction submission stable",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.98
+  },
+  {
+    "text": "Distress is isolated strictly to local pool depth",
+    "kind": "inference",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "retrieval/no-candidates",
+    "confidence": 1.0
+  }
+]

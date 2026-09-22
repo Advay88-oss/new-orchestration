@@ -1,0 +1,40 @@
+{
+  "request_id": "PUB-RUN_AUTO_20260920_120828",
+  "packet_id": "PKT-RUN_AUTO_20260920_120828",
+  "run_id": "RUN_AUTO_20260920_120828",
+  "campaign_id": "ONEOFF-STRAT-SIG-OPP-DI",
+  "pattern_id": "PAT_01_TECHNICAL_TELEMETRY",
+  "approved_by": "PENDING_HUMAN_APPROVAL",
+  "approved_at": "2026-09-20T12:09:28.927836+00:00",
+  "channels": [
+    {
+      "channel": "X",
+      "title": null,
+      "copy": "[1/3] We are collaborating with the Stellar ecosystem to solve an issue that has plagued money markets on EVM for years: pooled contagion.\n\nOn Stellar Soroban, Vanna deploys dedicated SmartAccount contracts for each user. When a position drops, the loss stays inside that",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260920_120828_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "LinkedIn",
+      "title": null,
+      "copy": "If you look at major DeFi liquidations over the past two years, the root cause is rarely the math. It is execution latency.\n\nIn monolithic lending pools, all user debts sit in the same contract. When an asset depegs or a market drops fast, liquidators bid against each other in priority gas auctions. This creates two problems: network congestion blocks normal transactions, and cascading bad debt forces haircuts on passive depositors.\n\nWe built Vanna around isolated contract sandboxes on Stellar Soroban Protocol 20. Each user borrows from a dedicated smart contract instance. Deficits remain quarantined within that specific sandbox.\n\nStellar consensus provides predictable execution: network fees stay at 0.00014 XLM, and the Mercury indexer streams contract updates in roughly 320 milliseconds. This gives automated keepers predictable execution windows to defend the 1.10x health factor floor without front-running.\n\nThe contracts are currently deployed on Stellar Testnet for institutional review: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance\n\nInstitutional architecture is documented at test.stellar.vanna.finance",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260920_120828_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "Reddit",
+      "title": "Why pooled debt models fail during volatility (and how we designed isolated sandboxes on Soroban)",
+      "copy": "**Title:** Why pooled debt models fail during volatility (and how we designed isolated sandboxes on Soroban)\n\nTraditional lending pools pool all borrower liabilities into a single smart contract. When things go wrong, everyone shares the loss.\n\nHere is how we set up the architecture for Vanna on Stellar Soroban:\n\n1. Account Isolation: Every borrower gets their own SmartAccount instance. If an account defaults, the deficit is trapped inside that contract. Depositors in the primary lending pool are protected.\n\n2. Predictable Gas: Execution costs 0.00014 XLM flat. There are no priority gas auctions or MEV searchers front-running keeper transactions.\n\n3. Fast Telemetry: We stream ledger state through Mercury with ~320ms latency, which lets keepers trigger defensive rebalances at 1.25x Health Factor before hitting the 1.10x hard floor.\n\nContracts and documentation are live on testnet: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance\n\n*(Disclosure: I am a core contributor at Vanna Protocol. Testing on Stellar Testnet.)*",
+      "media_paths": [],
+      "tags": [],
+      "target_community": null
+    }
+  ],
+  "mode": "SIMULATED_TESTNET"
+}

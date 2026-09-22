@@ -1,0 +1,30 @@
+{
+  "total_players": 10,
+  "player_ids": [
+    "aave",
+    "morpho",
+    "uniswap",
+    "curve-finance",
+    "hyperliquid",
+    "dydx",
+    "pendle",
+    "lido",
+    "ethena",
+    "pareto-credit"
+  ],
+  "missing_players": [],
+  "unsourced_players": [],
+  "total_posts_in_db": 13,
+  "x_observed_count": 12,
+  "primary_observed_count": 1,
+  "player_post_counts": {
+    "aave": 7,
+    "morpho": 6
+  },
+  "under_evidenced_patterns": [],
+  "incomplete_series": [],
+  "unmapped_campaign_stages": [],
+  "future_timestamps": [],
+  "fabricated_x_urls": [],
+  "gtm_machines_count": 2
+}

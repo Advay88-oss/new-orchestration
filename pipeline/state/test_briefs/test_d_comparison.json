@@ -1,0 +1,21 @@
+{
+  "type": "comparison",
+  "category": "ARCHITECTURAL PARADIGM SHIFT",
+  "headline": "Leverage isn't the problem.\nUnmanaged risk is.",
+  "emphasis_phrase": "Unmanaged risk is.",
+  "subhead": "Why legacy recursive looping breaks while Vanna SmartAccounts hold.",
+  "comparison": {
+    "left": [
+      {"title": "Recursive Manual Looping", "desc": "10+ transactions, heavy gas, fragile exit workflows"},
+      {"title": "Cross-Collateral Contagion", "desc": "One bad position cascades through your entire portfolio"},
+      {"title": "Lagging Oracle Traps", "desc": "Slow updates trigger unexpected, unfair liquidations"}
+    ],
+    "right": [
+      {"title": "1-Click SmartAccount", "desc": "Single transaction deploys isolated leverage upfront"},
+      {"title": "Zero Contagion Sandbox", "desc": "Positions strictly compartmentalized inside dedicated contracts"},
+      {"title": "Strict 1.1x HF Guardrail", "desc": "Mercury block-speed indexing prevents bad debt before it happens"}
+    ]
+  },
+  "tag": "ARCHITECTURE COMPARISON // AUDITED RAILS",
+  "source": "Vanna Risk Whitepaper • Section 4.2"
+}

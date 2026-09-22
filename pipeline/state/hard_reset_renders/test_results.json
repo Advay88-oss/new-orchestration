@@ -1,0 +1,50 @@
+{
+  "editorial_manifesto": {
+    "primitive": "editorial_manifesto",
+    "png": "pipeline\\state\\hard_reset_renders\\primitive_editorial_manifesto.png",
+    "bytes": 21564,
+    "composition": "editorial_broadsheet",
+    "primary_focal": "typography",
+    "art_direction_rationale": "Employs Massive left-aligned typography with hairline dividers and zero container boxes. Designed specifically for narrative focus on thesis."
+  },
+  "technical_architecture": {
+    "primitive": "technical_architecture",
+    "png": "pipeline\\state\\hard_reset_renders\\primitive_technical_architecture.png",
+    "bytes": 31080,
+    "composition": "spatial_topology",
+    "primary_focal": "schematic_blueprint",
+    "art_direction_rationale": "Employs Multi-layer systems architecture with explicit ingress/egress ports and orthogonal buses. Designed specifically for narrative focus on smartaccounts."
+  },
+  "data_visualization": {
+    "primitive": "data_visualization",
+    "png": "pipeline\\state\\hard_reset_renders\\primitive_data_visualization.png",
+    "bytes": 22746,
+    "composition": "quantitative_telemetry",
+    "primary_focal": "calibrated_gauge_curve",
+    "art_direction_rationale": "Employs Dominant metric hero with a continuous mathematical safety continuum. Designed specifically for narrative focus on risk."
+  },
+  "product_system_diagram": {
+    "primitive": "product_system_diagram",
+    "png": "pipeline\\state\\hard_reset_renders\\primitive_product_system_diagram.png",
+    "bytes": 33761,
+    "composition": "directional_pipeline",
+    "primary_focal": "routing_tree",
+    "art_direction_rationale": "Employs Active directional execution pipeline routing from vault into external protocol rails. Designed specifically for narrative focus on composability."
+  },
+  "asymmetric_hero_composition": {
+    "primitive": "asymmetric_hero_composition",
+    "png": "pipeline\\state\\hard_reset_renders\\primitive_asymmetric_hero_composition.png",
+    "bytes": 40923,
+    "composition": "asymmetric_65_35",
+    "primary_focal": "isometric_3d_wireframe",
+    "art_direction_rationale": "Employs Heavy typographic headline on left paired with multi-tier isometric 3D wireframe vault on right. Designed specifically for narrative focus on leverage."
+  },
+  "cinematic_minimal": {
+    "primitive": "cinematic_minimal",
+    "png": "pipeline\\state\\hard_reset_renders\\primitive_cinematic_minimal.png",
+    "bytes": 19844,
+    "composition": "minimal_billboard",
+    "primary_focal": "brand_authority",
+    "art_direction_rationale": "Employs 75%+ obsidian void with massive 88px title and under 10 words total. Designed specifically for narrative focus on launch."
+  }
+}

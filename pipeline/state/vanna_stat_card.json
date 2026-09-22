@@ -1,0 +1,16 @@
+{
+  "type": "stat-card",
+  "headline": "Liquidation anxiety kills leverage.\nWe built the antidote.",
+  "emphasis_phrase": "built the antidote",
+  "subhead": "Real-time risk engine indexed at block-speed by Mercury on Stellar.",
+  "stat": {
+    "value": "1.1x",
+    "caption": "STRICT HEALTH FACTOR LIQUIDATION FLOOR"
+  },
+  "detail_line": {
+    "text": "SmartAccounts stay protected until 1.1x HF. Up to 10x leverage deployed composably.",
+    "mono_terms": ["1.1x", "10x"],
+    "mono_color": "blue"
+  },
+  "disclaimer": "vanna.finance • 14 Smart Contracts • Audited Architecture on Soroban"
+}

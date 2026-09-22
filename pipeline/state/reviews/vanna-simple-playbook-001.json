@@ -1,0 +1,39 @@
+{
+  "run_id": "vanna-simple-playbook-001",
+  "quality": "FAIL",
+  "decision": "REGENERATE",
+  "score": "8.8/10",
+  "scores": {
+    "content": 70,
+    "factual": 100,
+    "visual": 90,
+    "brand": 90,
+    "social": 85,
+    "novelty": 90
+  },
+  "criteria_scores": {
+    "narrative_clarity": "7.0/10",
+    "visual_concept": "9.0/10",
+    "copy_visual_relationship": "8.5/10",
+    "brand_consistency": "9.0/10",
+    "typography": "9.0/10",
+    "composition": "9.0/10",
+    "mobile_readability": "9.0/10",
+    "factual_safety": "10.0/10",
+    "premium_quality": "9.0/10",
+    "conversion_potential": "8.5/10"
+  },
+  "critical_failures": [],
+  "failures": [],
+  "reasons": [
+    "Asset verified against all 10 criteria."
+  ],
+  "required_changes": [],
+  "required_revisions": [],
+  "why_it_passed": [],
+  "remaining_weakness": [],
+  "visual_archetype": "cinematic_metaphor",
+  "template_repetition": false,
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_playbook_card_simple.png",
+  "timestamp": "2026-09-15T09:20:56.798528+00:00"
+}

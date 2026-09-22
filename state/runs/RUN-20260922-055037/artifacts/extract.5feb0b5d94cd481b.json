@@ -1,0 +1,92 @@
+[
+  {
+    "text": "Leverage is easy.",
+    "kind": "creative",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Not getting liquidated while you sleep is the hard part.",
+    "kind": "creative",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "When volatility hits unattended positions, delayed intervention risks cascading insolvencies.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "In Vanna's composable credit infrastructure, risk is stopped at the boundary.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "The liquidation threshold enforces a 1.1x health factor floor before capital breaches parity.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Every calculation uses floor division—mul_wad_down and div_wad_down.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Floor division prevents rounding in the protocol's favour.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Vanna is governed by policy-bounded autonomous risk management within unified margin accounts.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Distress is isolated before it spreads.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  }
+]

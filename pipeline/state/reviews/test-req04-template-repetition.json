@@ -1,0 +1,39 @@
+{
+  "run_id": "test-req04-template-repetition",
+  "timestamp": "2026-09-20T10:25:40Z",
+  "decision": "REGENERATE",
+  "score": "100/100",
+  "scores": {
+    "factual": 98,
+    "content": 90,
+    "visual": 92,
+    "brand": 92,
+    "social": 85,
+    "novelty": 60,
+    "overall": 100
+  },
+  "critical_failures": [
+    "TEMPLATE REPETITION DETECTED"
+  ],
+  "reasons": [
+    "Generic 3-row infographic detected. Brand mandates bespoke physical metaphors."
+  ],
+  "required_changes": [
+    "Shift layout archetype from infographic to editorial hero or asymmetric technical diagram"
+  ],
+  "template_repetition": true,
+  "visual_archetype": "infographic",
+  "rubric_breakdown": {
+    "claim_integrity": 30,
+    "hook_strength": 20,
+    "arc_coherence": 15,
+    "voice_fidelity": 15,
+    "trend_fit": 10,
+    "virality_mechanics": 10
+  },
+  "adversarial_audit": {
+    "model": "gemini-3.8-flash",
+    "em_dash_free": true,
+    "calibrated_thresholds": true
+  }
+}

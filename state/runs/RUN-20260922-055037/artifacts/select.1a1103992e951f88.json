@@ -1,0 +1,14 @@
+{
+  "id": "OPP-07ede6142a69ffdb",
+  "title": "how the 1.1x health factor floor and per-account isolation prevent contagion",
+  "rationale": "Top of 7 matching signals; matched credit, margin.",
+  "audience": "A1: Stellar & Soroban DeFi builders",
+  "score": 0.55,
+  "signal_ids": [
+    "SIG-776e15dff49eda99",
+    "SIG-57201ea630a95d35",
+    "SIG-74c694417e47bb28",
+    "SIG-ae946143770989da",
+    "SIG-360dc3b014f401bd"
+  ]
+}

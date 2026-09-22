@@ -1,0 +1,32 @@
+{
+  "run_id": "debug-test-07",
+  "decision": "REGENERATE",
+  "scores": {
+    "content": 90,
+    "factual": 98,
+    "visual": 90,
+    "brand": 92,
+    "social": 88,
+    "novelty": 45
+  },
+  "critical_failures": [
+    "TEMPLATE REPETITION DETECTED: Visual archetype 'mechanism visualization' used repeatedly across recent runs."
+  ],
+  "reasons": [
+    "Archetype 'mechanism visualization' appeared in consecutive runs."
+  ],
+  "required_changes": [
+    "Switch away from 'mechanism visualization' to an alternate valid archetype."
+  ],
+  "visual_archetype": "mechanism visualization",
+  "previous_archetypes_checked": [
+    "mechanism visualization",
+    "mechanism visualization",
+    "mechanism visualization",
+    "mechanism visualization",
+    "mechanism visualization"
+  ],
+  "template_repetition": true,
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_competitor_matched_post1.png",
+  "timestamp": "2026-09-15T06:09:58.358858+00:00"
+}

@@ -29,7 +29,8 @@ import learning as L  # noqa: E402
 
 
 def bundle_for(tenant: str) -> Path:
-    return REPO / "okf" if tenant == "vanna" else REPO / f"okf-{tenant}"
+    okf_root = REPO / "okf" if (REPO / "okf").exists() else REPO / "pipeline" / "system1_extracted" / "okf"
+    return okf_root if tenant == "vanna" else REPO / f"okf-{tenant}"
 
 
 def gate(draft_body: str, bundle: Path) -> dict:

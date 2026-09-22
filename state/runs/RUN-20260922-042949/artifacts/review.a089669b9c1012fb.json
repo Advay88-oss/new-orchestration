@@ -1,0 +1,63 @@
+{
+  "run_id": "RUN-20260922-042949",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "Lending collateral on Stellar Soroban currently idles within isolated protocol silos.",
+  "body": "When deposited assets remain locked inside a single venue, they cannot back liquidity elsewhere. Composable credit routing allows collateral to support exposure across separate venues rather than sitting dormant. Blend holds $159,033,033 in TVL, while Soroswap holds $1,239,028 in TVL.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-042949_r0.png",
+  "visual_accepted": true,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "Lending collateral on Stellar Soroban currently idles within isolated protocol silos.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "When deposited assets remain locked inside a single venue, they cannot back liquidity elsewhere.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Composable credit routing allows collateral to support exposure across separate venues rather than sitting dormant.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 5,
+    "by_status": {
+      "verified": 2,
+      "unverified": 0,
+      "unsupported": 3,
+      "refuted": 0
+    },
+    "blocking": [
+      "Lending collateral on Stellar Soroban currently idles within isolated protocol silos.",
+      "When deposited assets remain locked inside a single venue, they cannot back liquidity elsewhere.",
+      "Composable credit routing allows collateral to support exposure across separate venues rather than sitting dormant."
+    ]
+  },
+  "artifact": "review_packet.b4ccaba23fa044d6.json"
+}

@@ -1,0 +1,67 @@
+{
+  "passed": false,
+  "blocking_claims": [
+    {
+      "text": "Preventable liquidations often occur when network fee spikes price out or delay defensive collateral deposits.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 1.0
+    },
+    {
+      "text": "This transaction inclusion failure cannot easily spread on Stellar Soroban.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.99
+    },
+    {
+      "text": "Ledger capacity usage is 0.08 on Stellar Soroban.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "Stellar Soroban has a base fee of 100.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.85
+    },
+    {
+      "text": "Submission costs are kept stable when positions require urgent adjustment.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "The structural vulnerability shifts from gas volatility to secondary market depth.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    }
+  ],
+  "rule_violations": [],
+  "rules_source": "legacy:claim_safety_gate"
+}

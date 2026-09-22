@@ -1,0 +1,48 @@
+{
+  "campaign": {
+    "title": "Introducing Vanna Protocol",
+    "objective": "Official Protocol Introduction: Composable Credit Infrastructure on Stellar Soroban",
+    "target_audience": "DeFi builders, liquidity providers, institutional crypto allocators"
+  },
+  "core_message": "Vanna introduces composable credit to Stellar Soroban: dedicated on-chain SmartAccount sandboxes, 10x capital efficiency, and sub-second liquidation defense.",
+  "hook": "Traditional DeFi lending forces you to choose between capital drag and catastrophic shared-pool liquidations.",
+  "narrative_arc": "For years, DeFi borrowers have been trapped in monolithic liquidity pools where bad debt is socialized and slow block times trigger painful liquidation penalties. Vanna changes the paradigm: dedicated smart contract sandboxes that isolate user positions, programmatic leverage across Stellar's native DEX and lending protocols, and sub-second automated risk defense.",
+  "scenes": [
+    {
+      "scene_id": 1,
+      "title": "The Monolithic Liquidity Problem",
+      "duration": 4.0,
+      "voiceover": "Traditional DeFi lending forces all capital into shared pools. When one position breaks, everyone takes a haircut.",
+      "on_screen_text": "MONOLITHIC POOLS // SHARED CONTAGION",
+      "narrative_purpose": "Establish the systemic risk of legacy lending protocols."
+    },
+    {
+      "scene_id": 2,
+      "title": "Introducing Vanna SmartAccounts",
+      "duration": 4.0,
+      "voiceover": "Meet Vanna: Composable credit infrastructure on Stellar Soroban. Your capital is quarantined in dedicated on-chain sandboxes.",
+      "on_screen_text": "VANNA PROTOCOL // ISOLATED SMARTACCOUNTS",
+      "narrative_purpose": "Introduce Vanna's core structural differentiator: isolated risk sandboxes."
+    },
+    {
+      "scene_id": 3,
+      "title": "10x Composable Capital Expansion",
+      "duration": 4.0,
+      "voiceover": "Deposit once. Unlock up to 10x margin to deploy atomically across Blend lending and Aquarius liquidity pools.",
+      "on_screen_text": "10X LEVERAGE // COMPOSABLE ROUTING",
+      "narrative_purpose": "Showcase atomic yield harvesting across the Stellar ecosystem."
+    },
+    {
+      "scene_id": 4,
+      "title": "Sub-Second Risk Guardian Defense",
+      "duration": 3.0,
+      "voiceover": "Sub-second event monitoring defends your position before liquidation can strike. Test live at vanna.finance.",
+      "on_screen_text": "VANNA.FINANCE // TESTNET IS LIVE",
+      "narrative_purpose": "Institutional call to action and solvency certainty."
+    }
+  ],
+  "ending_cta": {
+    "headline": "LAUNCH TESTNET",
+    "url": "test.stellar.vanna.finance"
+  }
+}

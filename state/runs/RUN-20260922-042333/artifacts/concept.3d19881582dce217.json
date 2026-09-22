@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "Cross-Margin Contagion vs. Isolated Containment",
+    "idea": "A precise stark bifurcated layout. The left column ('Cross-Margin Protocol') maps a red shockwave originating from a single token dip, propagating downward and siphoning collateral from three unrelated pools until total account balance drops. The right column ('Isolated Architecture') shows the identical price shock striking Account 01, where an immediate structural clamp seals the liquidation event within Account 01's boundaries, leaving Accounts 02 and 03 completely green and untouched.",
+    "layout": "comparison",
+    "why": "The contrast mechanism directly addresses the hook. Placing the catastrophic cascade side-by-side with the localized liquidation boundary makes the risk relief instantly readable in under two seconds."
+  },
+  "all": [
+    {
+      "title": "The Bulkhead Partition",
+      "idea": "An architectural structural schematic of a user's balance sheet rendered as a naval bulkhead system. On the left, Account A experiences an acute asset drawdown marked by a localized hazard stripe and liquidation settlement stamp, while high-tensile structural boundary lines seal off adjacent vaults (Account B and Account C). Callouts display specific token balances and distinct liability ledgers, proving zero collateral spillover beyond the breach line.",
+      "layout": "diagram",
+      "why": "This directly demonstrates the physical logic of compartmentalization. By framing the balance sheet as an engineering bulkhead rather than an abstract cloud of tokens, viewers visually grasp how a liquidation shock hits an impenetrable perimeter before reaching peripheral holdings."
+    },
+    {
+      "title": "Cross-Margin Contagion vs. Isolated Containment",
+      "idea": "A precise stark bifurcated layout. The left column ('Cross-Margin Protocol') maps a red shockwave originating from a single token dip, propagating downward and siphoning collateral from three unrelated pools until total account balance drops. The right column ('Isolated Architecture') shows the identical price shock striking Account 01, where an immediate structural clamp seals the liquidation event within Account 01's boundaries, leaving Accounts 02 and 03 completely green and untouched.",
+      "layout": "comparison",
+      "why": "The contrast mechanism directly addresses the hook. Placing the catastrophic cascade side-by-side with the localized liquidation boundary makes the risk relief instantly readable in under two seconds."
+    },
+    {
+      "title": "Chronology of an Isolated Liquidation",
+      "idea": "A four-stage horizontal technical trace detailing the exact lifecycle of localized liquidation: Step 1 shows localized asset draw in Account 01; Step 2 displays the boundary lock triggering as health ratio approaches 1.0; Step 3 depicts programmatic liquidation executed solely against Account 01's collateral; Step 4 confirms external portfolio telemetry unaffected, citing macro baseline numbers while verifying isolated solvency.",
+      "layout": "sequence",
+      "why": "It demystifies the mechanics behind isolated credit risk. Showing the stepwise progression from stress detection to contained resolution reassures institutional capital that liquidation is an orderly local protocol event, not a systemic threat."
+    }
+  ],
+  "novelty_note": "novelty gate: all three concepts reuse recent layouts (comparison)"
+}

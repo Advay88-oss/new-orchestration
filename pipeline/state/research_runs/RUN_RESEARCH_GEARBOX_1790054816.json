@@ -1,0 +1,321 @@
+{
+  "run_id": "RUN_RESEARCH_GEARBOX_1790054816",
+  "entity": "Gearbox",
+  "elapsed_seconds": 61.93,
+  "scraped_pages_count": 3,
+  "claims_extracted_count": 11,
+  "profile": {
+    "entity_id": "gearbox",
+    "retrieved_at": "2026-09-22T05:27:58.673444+00:00",
+    "product": {
+      "name": "Gearbox",
+      "description": "# Gearbox Protocol\n> \u539f\u6587\u94fe\u63a5: https://gearbox.fi\n\n---\n\n![](https://www.gearbox.finance/assets/hero/hero@1x.png)\n\n![](https://www.gearbox.finance/assets/hero/hero@1x.png)\n\n# Tokenisation Lending Stack\n\nReal-World Assets need Real-World Lending. Gearbox provides institutional credit infrastructure: margi",
+      "features": [
+        "Per-account allowlists and role policies",
+        "Jurisdiction filters",
+        "Per-user risk limits",
+        "Direct access to issuer functions (e.g., Provenance)",
+        "Custom deposit and redemption options",
+        "Support for legal enforcement cases (inheritance, freezes)"
+      ],
+      "chains_supported": [
+        "Ethereum",
+        "Arbitrum",
+        "Optimism",
+        "Base"
+      ],
+      "sdk_api_available": false
+    },
+    "audience": {
+      "target_segments": [
+        "Institutional allocators & funds"
+      ],
+      "evidence_status": "OBSERVED"
+    },
+    "positioning": {
+      "headline": "Gearbox Protocol",
+      "category": "LENDING_AND_CREDIT",
+      "value_proposition": "@1x.png)\n\n![](https://www.gearbox.finance/assets/hero/hero@1x.png)\n\n# Tokenisation Lending Stack\n\nReal-World Assets need Real-World Lending. Gearbox provides institutional credit infrastructure: margin, prime brokerage, portfolio loans.\n\n**$12B+**\n\nTransaction Volume\n\n**$3M+**\n\nSpent on Security\n\n**",
+      "source_hierarchy_level": 2
+    },
+    "conversion": {
+      "primary_cta_links": [
+        "https://app.gearbox.finance/pools",
+        "https://app.gearbox.finance/strategies/list"
+      ],
+      "documentation_url": "https://docs.gearbox.fi"
+    },
+    "proof": {
+      "metrics": [],
+      "confidence": "MEDIUM"
+    },
+    "visual": {
+      "screenshots": [
+        "D:\\new orchestration\\pipeline\\state\\gearbox_homepage_visual.png"
+      ],
+      "design_patterns": [
+        "Dark obsidian/slate UI",
+        "Modern glassmorphism tables"
+      ]
+    },
+    "sources_crawled": [
+      "https://gearbox.fi",
+      "https://docs.gearbox.fi",
+      "https://blog.gearbox.fi"
+    ]
+  },
+  "claims": [
+    {
+      "claim_id": "CLM_GEARBOX_eb852255",
+      "entity_id": "gearbox",
+      "claim": "Gearbox provides institutional credit infrastructure including margin, prime brokerage, and portfolio loans.",
+      "category": "POSITIONING",
+      "supporting_quote": "Gearbox provides institutional credit infrastructure: margin, prime brokerage, portfolio loans.",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_07e8ce02",
+      "entity_id": "gearbox",
+      "claim": "Gearbox segregated accounts act as standard wallets and natively enforce token whitelists and transfer rules without wrappers.",
+      "category": "PRODUCT",
+      "supporting_quote": "Segregated accounts act as standard wallets, enforcing token whitelists and transfer rules natively - no wrappers, no bypass of issuer compliance.",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_bb090799",
+      "entity_id": "gearbox",
+      "claim": "Gearbox supports modular enforcement workflows including freezes, transfers, and compliance actions without modifying core contracts.",
+      "category": "PRODUCT",
+      "supporting_quote": "Modular enforcement (freezes, transfers, compliance actions) without changing core contracts.",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_96117395",
+      "entity_id": "gearbox",
+      "claim": "Gearbox provides direct access to issuer functions such as Provenance.",
+      "category": "INTEGRATION",
+      "supporting_quote": "Direct access to issuer functions (e.g., Provenance)",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_ce761f0c",
+      "entity_id": "gearbox",
+      "claim": "Gearbox has achieved $3.7B in cumulative supply.",
+      "category": "PROOF",
+      "supporting_quote": "Cumulative Supply**$3.7B**",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "metric_extracted": "$3.7B",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_3ed16fcf",
+      "entity_id": "gearbox",
+      "claim": "Gearbox reports an average utilization rate of 80%.",
+      "category": "PROOF",
+      "supporting_quote": "Av. Utilization Rate**80%**",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "metric_extracted": "80%",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_ea815cc7",
+      "entity_id": "gearbox",
+      "claim": "Gearbox reports $1.5B in all-time borrowed volume.",
+      "category": "PROOF",
+      "supporting_quote": "All-time Borrowed**$1.5B**",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "metric_extracted": "$1.5B",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_ec8aeadc",
+      "entity_id": "gearbox",
+      "claim": "Gearbox has spent more than $3M on security.",
+      "category": "PROOF",
+      "supporting_quote": "More Than $3M Spent on Security",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "metric_extracted": "$3M",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_4fd80af3",
+      "entity_id": "gearbox",
+      "claim": "Gearbox has been live since 2021 with 0 breaches and incidents.",
+      "category": "PROOF",
+      "supporting_quote": "Gearbox has been live since 2021 with 0 breaches and incidents.",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "metric_extracted": "0 breaches and incidents",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_99bd2dbc",
+      "entity_id": "gearbox",
+      "claim": "Gearbox has completed 30+ audits by leading firms.",
+      "category": "PROOF",
+      "supporting_quote": "30+ Audits by Leading Firms",
+      "source_type": "official_website",
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-22T05:27:01.996729+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "metric_extracted": "30+ Audits",
+      "source_hierarchy_level": 2
+    },
+    {
+      "claim_id": "CLM_GEARBOX_d0f50e70",
+      "entity_id": "gearbox",
+      "claim": "Gearbox is building global lending rails for tokenised assets.",
+      "category": "POSITIONING",
+      "supporting_quote": "At Gearbox, we are building global lending rails for tokenised assets",
+      "source_type": "official_blog",
+      "source_url": "https://blog.gearbox.fi",
+      "source_record_id": "https://blog.gearbox.fi",
+      "observed_at": "2026-09-22T05:27:22.660454+00:00",
+      "data_as_of": "2026-09-22",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH",
+      "extractor": "research-claims/v1",
+      "source_hierarchy_level": 4
+    }
+  ],
+  "trace": [
+    {
+      "step": "LEVEL_1_MARKET_DISCOVERY",
+      "tool": "urllib.request -> api.llama.fi",
+      "target": "https://api.llama.fi/protocol/gearbox",
+      "status": "NOT_OBSERVED",
+      "data_summary": "No live DeFiLlama record"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://gearbox.fi",
+      "status": "OBSERVED",
+      "page_title": "Gearbox Protocol",
+      "chars_extracted": 6327,
+      "links_discovered": 31
+    },
+    {
+      "step": "VISUAL_ASSET_CAPTURE",
+      "tool": "opencli browser screenshot",
+      "target_url": "https://gearbox.fi",
+      "screenshot_path": "D:\\new orchestration\\pipeline\\state\\gearbox_homepage_visual.png",
+      "status": "OBSERVED"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://docs.gearbox.fi",
+      "status": "OBSERVED",
+      "page_title": "Gearbox Protocol Docs",
+      "chars_extracted": 60,
+      "links_discovered": 0
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://blog.gearbox.fi",
+      "status": "OBSERVED",
+      "page_title": "Gearbox Protocol Blog",
+      "chars_extracted": 619,
+      "links_discovered": 1
+    },
+    {
+      "step": "EVIDENCE_NORMALIZATION",
+      "claims_extracted": 11,
+      "profile_dimensions_populated": [
+        "entity_id",
+        "retrieved_at",
+        "product",
+        "audience",
+        "positioning",
+        "conversion",
+        "proof",
+        "visual",
+        "sources_crawled"
+      ],
+      "status": "NORMALIZED"
+    },
+    {
+      "step": "BRAIN_DB_INTEGRATION",
+      "evidence_records_appended": 11,
+      "opportunities_derived": 0,
+      "status": "COMMITTED"
+    }
+  ],
+  "brain_sync": {
+    "evidence_added": 11,
+    "opportunities_added": 0
+  },
+  "duration": 61.93
+}

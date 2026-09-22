@@ -1,0 +1,45 @@
+{
+  "run": "2026-08-20-robinhood-agentic-riskrelief",
+  "stages": {
+    "1_scout": {
+      "trend_scout": "ok · 51 live signals (30 gnews / 12 reddit / 9 twitter) + agent scan",
+      "competitor_watch": "ok · 10 targets, all real dated results"
+    },
+    "2_decision": {
+      "acted": true,
+      "winner_trend": "Robinhood agentic trading -> crypto (limited margin)",
+      "score": 89
+    },
+    "3_strategists": {
+      "capital-efficiency": "draft ok",
+      "risk-relief": "draft ok",
+      "agentic-credit": "draft ok"
+    },
+    "4_judge": {
+      "verdict": "ship",
+      "winner": "risk-relief",
+      "scores": {
+        "risk-relief": 95,
+        "capital-efficiency": 72,
+        "agentic-credit": 40
+      },
+      "caught": "agentic-credit had 2 unsourced/smuggled claims (MCP clients, 'spending permission not credit line') -> rejected",
+      "graft": "up to 10x from agentic-credit"
+    },
+    "5_visual": {
+      "png": "pipeline/state/2026-08-20-risk-relief-quote-card.png",
+      "ai_pixels": false,
+      "self_check": "pass"
+    },
+    "6_gate": {
+      "result": "pass",
+      "block_count": 0,
+      "warn_count": 0,
+      "rule_count": 33
+    },
+    "7_telegram": {
+      "status": "pending user confirmation (outbound message)"
+    }
+  },
+  "final_post": "Robinhood's own risk disclosure: agents \"can act rapidly and prove hard to stop in real time.\" You could lose the whole deposit.\n\nLeverage is easy — up to 10x. Not getting liquidated is the hard part.\n\nVanna: health factor floored at 1.1x, isolated per account. Testnet, Stellar."
+}

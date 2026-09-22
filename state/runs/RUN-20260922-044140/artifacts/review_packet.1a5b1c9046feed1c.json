@@ -1,0 +1,84 @@
+{
+  "run_id": "RUN-20260922-044140",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "In pooled lending architectures, bad debt from slippage spills directly into the mutual reserve.",
+  "body": "When a liquidation fails to clear in time, passive depositors absorb the resulting haircut. Containing this systemic risk requires structural isolation around each debt position. By enforcing explicit risk boundaries rather than sharing default exposure, a distressed account cannot dilute the broader pool. Losses remain localized to the position rather than compounding across the venue.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-044140_r0.png",
+  "visual_accepted": false,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "In pooled lending architectures, bad debt from slippage spills directly into the mutual reserve.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "When a liquidation fails to clear in time, passive depositors absorb the resulting haircut.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Containing this systemic risk requires structural isolation around each debt position.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "By enforcing explicit risk boundaries rather than sharing default exposure, a distressed account cannot dilute the broader pool.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Losses remain localized to the position rather than compounding across the venue.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 5,
+    "by_status": {
+      "verified": 0,
+      "unverified": 0,
+      "unsupported": 5,
+      "refuted": 0
+    },
+    "blocking": [
+      "In pooled lending architectures, bad debt from slippage spills directly into the mutual reserve.",
+      "When a liquidation fails to clear in time, passive depositors absorb the resulting haircut.",
+      "Containing this systemic risk requires structural isolation around each debt position.",
+      "By enforcing explicit risk boundaries rather than sharing default exposure, a distressed account cannot dilute the broader pool.",
+      "Losses remain localized to the position rather than compounding across the venue."
+    ]
+  }
+}

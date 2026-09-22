@@ -1,0 +1,52 @@
+[
+  {
+    "text": "Isolated pools fragment collateral.",
+    "kind": "competitor_fact",
+    "status": "verified",
+    "source_id": "EV-59eca1bff3bb",
+    "source_url": null,
+    "observed_at": "2026-08-10T00:00:00Z",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "Isolated pools force capital to back only one position at a time.",
+    "kind": "competitor_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.85
+  },
+  {
+    "text": "Unified margin accounts allow the same capital, posted once, to support several positions simultaneously.",
+    "kind": "vanna_fact",
+    "status": "verified",
+    "source_id": "EV-59eca1bff3bb",
+    "source_url": null,
+    "observed_at": "2026-08-10T00:00:00Z",
+    "method": "entailment/verify-claim/v1",
+    "confidence": 1.0
+  },
+  {
+    "text": "The contract derives the position status on demand by dividing total collateral USD by total debt USD.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.85
+  },
+  {
+    "text": "The liquidation threshold enforces a strict health-factor floor of 1.1x.",
+    "kind": "vanna_fact",
+    "status": "unsupported",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": "entailment/verify-claim/v1",
+    "confidence": 0.85
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "visual_archetype": "hero",
+  "category": "CAPITAL ARCHITECTURE // STELLAR SOROBAN",
+  "headline": "Up to 10x leverage.\nZero contagion.",
+  "emphasis_phrase": "Zero contagion.",
+  "subhead": "SmartAccount sandboxes compartmentalize risk upfront. One liquidation never imperils your book.",
+  "visual": {
+    "concept": "Isolated SmartAccount Vault Core with Open Telemetry Pins",
+    "focal_element": "SMARTACCOUNT"
+  },
+  "tag": "SMARTACCOUNT V1 // ATOMIC SOROBAN OPS",
+  "source": "docs.vanna.finance • 14 Audited Smart Contracts"
+}

@@ -1,0 +1,40 @@
+{
+  "request_id": "PUB-RUN_AUTO_20260920_105255",
+  "packet_id": "PKT-RUN_AUTO_20260920_105255",
+  "run_id": "RUN_AUTO_20260920_105255",
+  "campaign_id": "ONEOFF-STRAT-SIG-OPP-DI",
+  "pattern_id": "PAT_01_TECHNICAL_TELEMETRY",
+  "approved_by": "PENDING_HUMAN_APPROVAL",
+  "approved_at": "2026-09-20T10:53:50.659702+00:00",
+  "channels": [
+    {
+      "channel": "X",
+      "title": null,
+      "copy": "[1/2] Strategic Announcement: explain 10x composable margin on Blend v2 pools ($148.5M TVL) and make a post on vanna.\n\nVanna Protocol introduces isolated SmartAccount sandboxes on Stellar Soroban Protocol 20 to eliminate pool contagion and front-running liquidations.\n\nFeatures",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260920_105255_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "LinkedIn",
+      "title": null,
+      "copy": "Why the next generation of on-chain credit cannot rely on monolithic liquidity pools.\n\nDuring volatility spikes, decentralized money markets face two major failure modes: mempool congestion and shared pool contagion. Vanna resolves these structural bottlenecks at the smart contract level on Stellar Soroban.\n\nBy deploying dedicated SmartAccount sandboxes, risk is localized. Deficits remain quarantined without compromising depositors.\n\nExplore the institutional architecture on testnet: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+      "media_paths": [
+        "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260920_105255_visual.png"
+      ],
+      "tags": [],
+      "target_community": null
+    },
+    {
+      "channel": "Reddit",
+      "title": "Technical breakdown: Strategic Announcement: explain 10x composable margin on Blend v2 pools ($148.5M TVL) and make a post on vanna",
+      "copy": "**Title:** Technical breakdown: Strategic Announcement: explain 10x composable margin on Blend v2 pools ($148.5M TVL) and make a post on vanna\n\nHere is how we designed Vanna's credit architecture on Soroban Protocol 20:\n\n- State isolation inside dedicated SmartAccount contracts\n- Sub-second Mercury indexer streaming (~320ms)\n- Deterministic fees fixed at 0.00014 XLM\n\nDocumentation and testnet deployments: Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance\n\n*(Disclosure: Core builder at Vanna Protocol. Testing on Stellar Testnet only.)*",
+      "media_paths": [],
+      "tags": [],
+      "target_community": null
+    }
+  ],
+  "mode": "SIMULATED_TESTNET"
+}

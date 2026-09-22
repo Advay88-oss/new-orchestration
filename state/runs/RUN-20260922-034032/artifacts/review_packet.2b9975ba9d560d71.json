@@ -1,0 +1,95 @@
+{
+  "run_id": "RUN-20260922-034032",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "Preventable liquidations often occur when network fee spikes price out or delay defensive collateral deposits.",
+  "body": "This transaction inclusion failure cannot easily spread on Stellar Soroban. Ledger capacity usage is 0.08 with a base fee of 100, keeping submission costs stable when positions require urgent adjustment. However, risk does not drop to zero. With Blend TVL at $157,161,882 and Soroswap TVL at $1,238,140, the structural vulnerability shifts from gas volatility to secondary market depth.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-034032_r0.png",
+  "visual_accepted": true,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "Preventable liquidations often occur when network fee spikes price out or delay defensive collateral deposits.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "This transaction inclusion failure cannot easily spread on Stellar Soroban.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.99
+      },
+      {
+        "text": "Ledger capacity usage is 0.08 on Stellar Soroban.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      },
+      {
+        "text": "Stellar Soroban has a base fee of 100.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      },
+      {
+        "text": "Submission costs are kept stable when positions require urgent adjustment.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "The structural vulnerability shifts from gas volatility to secondary market depth.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 9,
+    "by_status": {
+      "verified": 2,
+      "unverified": 1,
+      "unsupported": 6,
+      "refuted": 0
+    },
+    "blocking": [
+      "Preventable liquidations often occur when network fee spikes price out or delay defensive collateral deposits.",
+      "This transaction inclusion failure cannot easily spread on Stellar Soroban.",
+      "Ledger capacity usage is 0.08 on Stellar Soroban.",
+      "Stellar Soroban has a base fee of 100.",
+      "Submission costs are kept stable when positions require urgent adjustment.",
+      "The structural vulnerability shifts from gas volatility to secondary market depth."
+    ]
+  }
+}

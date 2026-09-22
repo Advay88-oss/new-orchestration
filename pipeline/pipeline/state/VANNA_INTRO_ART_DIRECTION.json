@@ -1,0 +1,31 @@
+{
+  "project": "Vanna Official Introduction",
+  "creative_thesis": "Visualizing sovereign credit architecture through monolithic obsidian vaults and laser-precise refractive conduits.",
+  "brand_system": {
+    "palette": {
+      "obsidian": "#07020D",
+      "royal_violet": "#471485",
+      "fuchsia_magenta": "#5E0D46",
+      "lavender": "#A387FF",
+      "cyan": "#22D3C4"
+    },
+    "aesthetic": "Ultra-premium, cinematic, institutional, tactile materials, 35mm film grain, vast negative space."
+  },
+  "hero_veo_scene": {
+    "scene_name": "Vanna Introduction Hero Visual",
+    "concept": "Sovereign architectural monoliths resting in a deep cosmic obsidian void, channeling crystalline laser conduits of lavender and electric cyan.",
+    "camera": "Slow cinematic wide tracking dolly pulling back to reveal three monumental frosted-glass and obsidian vaults, with volumetric violet and magenta light blooms reflecting off a mirror-polished floor.",
+    "materials": "Matte obsidian composite, optical leaded crystal with subtle caustics, dark polished liquid floor, fine 35mm film grain.",
+    "negative_constraints": [
+      "no text",
+      "no words",
+      "no letters",
+      "no floating 3D coins",
+      "no cartoon characters",
+      "no cheap neon grids",
+      "no generic glowing spheres",
+      "no stock crypto symbols"
+    ],
+    "veo_31_prompt": "Cinematic masterwork 4K video. An expansive, atmospheric obsidian void (#07020D) with tactile 35mm analog film grain. A monumental, precision-milled architectural monolith composed of matte black stone and ultra-clear refractive crystal glass. Glowing internal conduits of soft lavender (#A387FF) and electric cyan (#22D3C4) pulse calmly within the central core. Volumetric royal violet bloom (#471485) emerges from the bottom-left corner, while a warm fuchsia-magenta atmospheric glow (#5E0D46) radiates across the upper-right. The structure rests upon a mirror-polished dark obsidian floor with gentle, photorealistic reflections. Smooth, slow, cinematic camera dolly backwards and tilting slightly upward. High-end studio rim lighting, pristine optical caustics, supreme architectural restraint, quiet institutional authority. Absolutely zero text, zero typography, zero logos, zero floating spheres."
+  }
+}

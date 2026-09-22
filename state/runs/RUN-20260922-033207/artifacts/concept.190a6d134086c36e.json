@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The Bulkhead Divide",
+    "idea": "A brutalist cross-section comparison split vertically into two halves. On the left ('Shared Liquidity Pool'), a single fractured asset cell triggers a cascading structural fracture across interconnected, unpartitioned chambers. On the right ('Isolated Credit Architecture'), the identical shock is sealed inside an impermeable concrete bulkhead; Chamber 03 shows internal failure, while adjacent chambers remain completely undisturbed behind mechanical airgaps.",
+    "layout": "comparison",
+    "why": "This is the strongest concept because it directly contrasts the catastrophic reality of shared pool contagion against physical structural containment, proving the architectural premise visually without fabricating fake telemetry or unverified performance metrics."
+  },
+  "all": [
+    {
+      "title": "The Bulkhead Divide",
+      "idea": "A brutalist cross-section comparison split vertically into two halves. On the left ('Shared Liquidity Pool'), a single fractured asset cell triggers a cascading structural fracture across interconnected, unpartitioned chambers. On the right ('Isolated Credit Architecture'), the identical shock is sealed inside an impermeable concrete bulkhead; Chamber 03 shows internal failure, while adjacent chambers remain completely undisturbed behind mechanical airgaps.",
+      "layout": "comparison",
+      "why": "This is the strongest concept because it directly contrasts the catastrophic reality of shared pool contagion against physical structural containment, proving the architectural premise visually without fabricating fake telemetry or unverified performance metrics."
+    },
+    {
+      "title": "Cross-Section of Containment",
+      "idea": "An isometric engineering schematic of a multi-cell credit vault. A single cell in the cluster is flagged in high-contrast safety orange, registering 100% local collateral depletion and internal bad debt. Heavy perimeter isolation boundaries enclose the cell, with schematic annotations confirming that zero risk transfer breaches the external firewall into surrounding positions, accompanied by a technical memo stamp: 'Directive Enforced'.",
+      "layout": "diagram",
+      "why": "It treats the isolated account as an industrial failsafe mechanism, using cold blueprint aesthetics to communicate risk containment without turning into generic crypto charts."
+    },
+    {
+      "title": "Three-Phase Arrest",
+      "idea": "A horizontal sequence of three dense monochrome panels depicting the progression of an isolated default: Panel 01 'Asset Degradation' shows microscopic stress lines forming in collateral; Panel 02 'Local Liquidation' shows the position boundary sealing off external liquidity routes; Panel 03 'Contagion Arrest' shows the bad debt fully contained within the perimeter while the master pool line passes safely overhead.",
+      "layout": "sequence",
+      "why": "It deconstructs the temporal mechanics of a default event into clear mechanical stages, establishing that while an individual account can still fail, systemic propagation stops immediately at the perimeter."
+    }
+  ],
+  "novelty_note": ""
+}

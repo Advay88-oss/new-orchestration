@@ -1,0 +1,47 @@
+{
+  "passed": false,
+  "blocking_claims": [
+    {
+      "text": "In pooled credit, the primary failure mode is contagion.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 1.0
+    },
+    {
+      "text": "A forced liquidation in a shared pool transmits bad debt across solvent participants.",
+      "kind": "competitor_fact",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "Containing this risk requires confining shortfalls to the individual position.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 1.0
+    },
+    {
+      "text": "When losses cannot cross the boundary of a single account, bad debt cannot dilute broader capital reserves.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 1.0
+    }
+  ],
+  "rule_violations": [],
+  "rules_source": "legacy:claim_safety_gate"
+}

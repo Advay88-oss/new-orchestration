@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-124445-xiz",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787229903.8112695,
+  "ended": 1787230021.0222855,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 117.2,
+  "kind": "content-run",
+  "winner_hook": "You've been liquidated by a single wick",
+  "winner_body": "You've been liquidated by a single wick while holding idle collateral elsewhere. Isolated credit accounts force that risk.\n\nVanna’s Unified Margin pools your positions to absorb volatility. A strict 1.1x floor, not 1.0x.\n\nBuilt on testnet.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

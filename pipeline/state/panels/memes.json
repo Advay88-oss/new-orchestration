@@ -1,0 +1,123 @@
+{
+  "generated": "2026-09-22T04:23:09.475291+00:00",
+  "total_memes": 6,
+  "low_risk_count": 6,
+  "medium_risk_count": 0,
+  "high_risk_count": 0,
+  "memes": [
+    {
+      "id": "meme_1790050822_1",
+      "format": "two-panel",
+      "reference": "SorobanSafetyNet",
+      "reference_url": "https://knowyourmeme.com",
+      "vanna_angle": "Vanna Protocol: Because even on Soroban, you need a safety net.",
+      "copy": "Vanna Protocol: Because even on Soroban, you need a safety net.",
+      "visual_spec": {
+        "template": "two_panel_comparison",
+        "top_label": "Stellar Soroban DeFi",
+        "bottom_label": "Vanna's Risk Floor",
+        "archetype": "risk_floor"
+      },
+      "claims_gate": "PASS",
+      "risk": "LOW",
+      "risk_reason": "General mechanism humor highlighting fee differences.",
+      "freshness": "in circulation",
+      "visual_url": "/meme_meme_1790050822_1_visual.png"
+    },
+    {
+      "id": "meme_1790050837_2",
+      "format": "two-panel",
+      "reference": "NoMoreRugPulls",
+      "reference_url": "https://knowyourmeme.com",
+      "vanna_angle": "When Vanna's risk floor prevents the ultimate dump.",
+      "copy": "When Vanna's risk floor prevents the ultimate dump.",
+      "visual_spec": {
+        "template": "two_panel_comparison",
+        "top_label": "My portfolio after a new DeFi project",
+        "bottom_label": "My portfolio with Vanna Protocol",
+        "archetype": "risk_floor"
+      },
+      "claims_gate": "PASS",
+      "risk": "LOW",
+      "risk_reason": "General mechanism humor highlighting fee differences.",
+      "freshness": "in circulation",
+      "visual_url": "/meme_meme_1790050837_2_visual.png"
+    },
+    {
+      "id": "meme_1790050852_3",
+      "format": "two-panel",
+      "reference": "LeverageLikeAPro",
+      "reference_url": "https://knowyourmeme.com",
+      "vanna_angle": "Vanna Protocol: Making your Soroban credit go further.",
+      "copy": "Vanna Protocol: Making your Soroban credit go further.",
+      "visual_spec": {
+        "template": "two_panel_comparison",
+        "top_label": "Me trying to leverage my assets",
+        "bottom_label": "Me with Vanna Protocol's margin accounts",
+        "archetype": "margin_account"
+      },
+      "claims_gate": "PASS",
+      "risk": "LOW",
+      "risk_reason": "General mechanism humor highlighting fee differences.",
+      "freshness": "in circulation",
+      "visual_url": "/meme_meme_1790050852_3_visual.png"
+    },
+    {
+      "id": "meme_1790050868_4",
+      "format": "two-panel",
+      "reference": "SmartBorrowing",
+      "reference_url": "https://knowyourmeme.com",
+      "vanna_angle": "When you borrow on Vanna and actually understand the risks.",
+      "copy": "When you borrow on Vanna and actually understand the risks.",
+      "visual_spec": {
+        "template": "two_panel_comparison",
+        "top_label": "Traditional DeFi lending",
+        "bottom_label": "Vanna Protocol's intelligent margin accounts",
+        "archetype": "margin_account"
+      },
+      "claims_gate": "PASS",
+      "risk": "LOW",
+      "risk_reason": "General mechanism humor highlighting fee differences.",
+      "freshness": "in circulation",
+      "visual_url": "/meme_meme_1790050868_4_visual.png"
+    },
+    {
+      "id": "meme_1790050883_5",
+      "format": "two-panel",
+      "reference": "SandboxSavvy",
+      "reference_url": "https://knowyourmeme.com",
+      "vanna_angle": "Keeping your risky bets separate and safe with Vanna's isolated sandboxes.",
+      "copy": "Keeping your risky bets separate and safe with Vanna's isolated sandboxes.",
+      "visual_spec": {
+        "template": "two_panel_comparison",
+        "top_label": "My entire crypto portfolio in one pool",
+        "bottom_label": "My portfolio spread across Vanna's isolated sandboxes",
+        "archetype": "isolated_sandboxes"
+      },
+      "claims_gate": "PASS",
+      "risk": "LOW",
+      "risk_reason": "General mechanism humor highlighting fee differences.",
+      "freshness": "in circulation",
+      "visual_url": "/meme_meme_1790050883_5_visual.png"
+    },
+    {
+      "id": "meme_1790050897_6",
+      "format": "two-panel",
+      "reference": "ContainTheChaos",
+      "reference_url": "https://knowyourmeme.com",
+      "vanna_angle": "When one bad debt doesn't sink the whole ship.",
+      "copy": "When one bad debt doesn't sink the whole ship.",
+      "visual_spec": {
+        "template": "two_panel_comparison",
+        "top_label": "Cascading liquidations in typical DeFi",
+        "bottom_label": "Vanna Protocol's isolated sandboxes at work",
+        "archetype": "isolated_sandboxes"
+      },
+      "claims_gate": "PASS",
+      "risk": "LOW",
+      "risk_reason": "General mechanism humor highlighting fee differences.",
+      "freshness": "in circulation",
+      "visual_url": "/meme_meme_1790050897_6_visual.png"
+    }
+  ]
+}

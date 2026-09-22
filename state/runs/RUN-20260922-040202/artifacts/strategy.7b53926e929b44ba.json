@@ -1,0 +1,11 @@
+{
+  "id": "STR-7fb99018f70eea90",
+  "opportunity_id": "OPP-36a84d7b3872cc0c",
+  "audience": "DeFi lenders and borrowers on Stellar Soroban evaluating liquidation and pool-contagion risks.",
+  "narrative_arc": "risk_relief",
+  "problem_statement": "DeFi participants using pooled lending protocols face systemic contagion, where sudden liquidations or bad debt from one asset pool can compromise the solvency and collateral of unrelated positions.",
+  "angle": "With Blend holding $157,161,882 in TVL dominating Stellar credit while Soroswap holds only $1,238,140, shared pool exposure creates concentrated contagion risk; moving to isolated accounts prevents cascade liquidations, though current on-chain evidence is limited to these TVL figures and ledger fee metrics (capacity usage at 0.08) rather than specific contagion loss data.",
+  "evidence_ids": [
+    "SIG-36a84d7b3872cc0c"
+  ]
+}

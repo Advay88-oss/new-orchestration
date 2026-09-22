@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "phase": 1,
+  "total_violations": 0,
+  "violations": [],
+  "url_metrics": {
+    "total_urls": 1,
+    "resolved_count": 1,
+    "dead_count": 0,
+    "unknown_count": 0,
+    "resolution_rate": 1.0
+  },
+  "unknown_rate": 0.0,
+  "model_fields_checked": 48,
+  "summary": {
+    "L0_schema_errors": 0,
+    "L1_invariant_errors": 0,
+    "L1_numeric_errors": 0,
+    "L3_unknown_alerts": 0,
+    "gate_errors": 0
+  }
+}

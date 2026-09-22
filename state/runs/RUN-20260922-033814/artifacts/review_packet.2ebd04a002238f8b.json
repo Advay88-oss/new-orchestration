@@ -1,0 +1,139 @@
+{
+  "run_id": "RUN-20260922-033814",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "In shared-pool lending, a liquidation failure in a single asset can socialize bad debt across all lenders.",
+  "body": "Pooled architectures aggregate deposits into common liquidity reserves. When an asset experiences a liquidation shortfall, that bad debt is absorbed by the shared pool, exposing conservative positions to risks taken elsewhere.\n\nIsolated credit accounts change this boundary. Because debt and collateral are segmented into distinct accounts, an insolvency event is confined to the specific position that incurred it. The shortfall cannot cross into unrelated collateral.\n\nThis structural containment does not mean zero risk. Individual positions still face liquidation under adverse price action, and empirical onchain risk comparisons between these models remain limited.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-033814_r0.png",
+  "visual_accepted": false,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "In shared-pool lending, a liquidation failure in a single asset can socialize bad debt across all lenders.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Pooled architectures aggregate deposits into common liquidity reserves.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "When an asset experiences a liquidation shortfall, that bad debt is absorbed by the shared pool.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Shared pool absorption of bad debt exposes conservative positions to risks taken elsewhere.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "In isolated credit accounts, debt and collateral are segmented into distinct accounts.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "In isolated credit accounts, an insolvency event is confined to the specific position that incurred it.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "The shortfall cannot cross into unrelated collateral in isolated credit accounts.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Structural containment in isolated credit accounts does not mean zero risk.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Individual positions still face liquidation under adverse price action.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Empirical onchain risk comparisons between these models remain limited.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 11,
+    "by_status": {
+      "verified": 0,
+      "unverified": 1,
+      "unsupported": 10,
+      "refuted": 0
+    },
+    "blocking": [
+      "In shared-pool lending, a liquidation failure in a single asset can socialize bad debt across all lenders.",
+      "Pooled architectures aggregate deposits into common liquidity reserves.",
+      "When an asset experiences a liquidation shortfall, that bad debt is absorbed by the shared pool.",
+      "Shared pool absorption of bad debt exposes conservative positions to risks taken elsewhere.",
+      "In isolated credit accounts, debt and collateral are segmented into distinct accounts.",
+      "In isolated credit accounts, an insolvency event is confined to the specific position that incurred it.",
+      "The shortfall cannot cross into unrelated collateral in isolated credit accounts.",
+      "Structural containment in isolated credit accounts does not mean zero risk.",
+      "Individual positions still face liquidation under adverse price action.",
+      "Empirical onchain risk comparisons between these models remain limited."
+    ]
+  }
+}

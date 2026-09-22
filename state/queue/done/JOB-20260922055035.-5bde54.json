@@ -1,0 +1,10 @@
+{
+  "id": "JOB-20260922055035.-5bde54",
+  "directive": "how the 1.1x health factor floor and per-account isolation prevent contagion",
+  "created_at": "2026-09-22T05:50:35.227Z",
+  "attempts": 1,
+  "idempotency_key": null,
+  "requested_by": "mission-control",
+  "run_id": "RUN-20260922-055037",
+  "last_error": null
+}

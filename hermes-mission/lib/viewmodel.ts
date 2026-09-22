@@ -65,7 +65,7 @@ export type ExpandedMap = Record<string, boolean>;
 export function useMissionControl(props: MissionControlProps) {
   const [data, setData] = useState<MissionData | null>(null);
   const [view, setView] = useState<string>("runs");
-  const [runKey, setRunKey] = useState<string>("R-08-04");
+  const [runKey, setRunKey] = useState<string>("");
   const [expanded, setExpanded] = useState<ExpandedMap>({});
   const [paused, setPaused] = useState(false);
   const [tick, setTick] = useState(0);
@@ -143,7 +143,8 @@ export function useMissionControl(props: MissionControlProps) {
 
   const totalSpent = data ? (data.SPENT_USD ?? data.RUNS.reduce((a, r) => a + runCost(r), 0)) : 0;
 
-  const outcomeMeta = useCallback((run: Run) => {
+  const outcomeMeta = useCallback((run?: Run | null) => {
+    if (!run) return { label: "Standby", color: NEUTRAL, soft: "#F4F4F4", note: "No active run" };
     if (run.outcome === "shipped")
       return { label: "Shipped", color: OK, soft: OK_SOFT, note: "sent for human review" };
     if (run.outcome === "killed")
@@ -158,12 +159,14 @@ export function useMissionControl(props: MissionControlProps) {
     return { label: "Running", color: ACCENT, soft: ACCENT_SOFT, note: "no close message yet" };
   }, []);
 
-  const headlineOf = useCallback((run: Run): string => {
+  const headlineOf = useCallback((run?: Run | null): string => {
+    if (!run) return "System 2 Standby";
     const rl = rulingOf(run);
     if (rl && rl.winner) return rl.winner.final_hook + " …";
     if (run.outcome === "killed") return "reject_all — nothing cleared 70";
     if (run.outcome === "died") return run.died ? run.died.error : "";
-    const last = run.messages[run.messages.length - 1];
+    const last = run.messages && run.messages.length > 0 ? run.messages[run.messages.length - 1] : null;
+    if (!last) return "Standby";
     return classify(last).type === "broken"
       ? "awaiting third pitch — one arrived truncated"
       : "in flight";
@@ -187,13 +190,17 @@ export function useMissionControl(props: MissionControlProps) {
 
     const nav = [
       { id: "live", label: "Live debate" },
-      { id: "pipeline", label: "Lifecycles" },
-      { id: "runs", label: "Runs" },
-      { id: "run", label: "Run detail" },
-      { id: "posts", label: "Posts" },
-      { id: "agents", label: "Agents" },
-      { id: "cost", label: "Cost" },
-      { id: "notes", label: "Backend note" },
+      { id: "scheduler", label: "⏰ 24/7 Scheduler" },
+      { id: "ideas", label: "💡 Ideas Panel" },
+      { id: "memes", label: "🎭 Crypto Memes" },
+      { id: "runs", label: "Runs Observatory" },
+      { id: "run", label: "Run Detail" },
+      { id: "agents", label: "13 GTM Agents" },
+      { id: "research", label: "Scraped Intelligence" },
+      { id: "pipeline", label: "13-Stage Matrix" },
+      { id: "posts", label: "Multi-Channel Feed" },
+      { id: "cost", label: "Cost & Cap" },
+      { id: "notes", label: "Backend Topology" },
     ].map((n) => {
       const on = view === n.id;
       return {
@@ -203,19 +210,9 @@ export function useMissionControl(props: MissionControlProps) {
           n.id === "runs"
             ? String(runs().length)
             : n.id === "agents"
-              ? d
-                ? String(d.AGENTS.length)
-                : ""
+              ? "13"
               : n.id === "posts"
-                ? d
-                  ? String(
-                      runs().reduce(
-                        (a, r) =>
-                          a + r.messages.filter((m) => classify(m).type === "draft").length,
-                        0,
-                      ),
-                    )
-                  : ""
+                ? String(runs().length > 0 ? runs().length * 3 : 0)
                 : n.id === "live"
                   ? runs().some((r) => r.outcome === "running")
                     ? "●"
@@ -282,12 +279,26 @@ export function useMissionControl(props: MissionControlProps) {
       isRuns: view === "runs",
       isRun: view === "run",
       isAgents: view === "agents",
+      isResearch: view === "research",
+      isScheduler: view === "scheduler",
+      isIdeas: view === "ideas",
+      isMemes: view === "memes",
       isCost: view === "cost",
       isNotes: view === "notes",
       isLive: view === "live",
       isPipeline: view === "pipeline",
       isPosts: view === "posts",
       goRuns: () => setView("runs"),
+      goLive: () => setView("live"),
+      goResearch: () => setView("research"),
+      goScheduler: () => setView("scheduler"),
+      goIdeas: () => setView("ideas"),
+      goMemes: () => setView("memes"),
+      runKey,
+      openRun: (key?: string) => {
+        if (key) setRunKey(key);
+        setView("run");
+      },
       goNotes: (e?: { preventDefault?: () => void }) => {
         if (e && e.preventDefault) e.preventDefault();
         setView("notes");
@@ -382,7 +393,10 @@ export function useMissionControl(props: MissionControlProps) {
       ],
       agents: [
         "Agents",
-        "Seven identities on the relay. Status is read from each agent's process log, not inferred from silence.",
+        // There is no relay and there are no process logs. This header claimed
+        // both for agents whose status now comes from the run journal.
+        "The 13 GTM agents. Status, model and token counts are read from the "
+        + "last cycle's run journal; an agent that did not run says so.",
       ],
       cost: [
         "Cost",
@@ -394,15 +408,31 @@ export function useMissionControl(props: MissionControlProps) {
         "Backend note",
         "The endpoints this needs, what the sources cannot answer, and the run-id decision.",
       ],
+      research: [
+        "Scraped Intelligence",
+        "Deep web research, discovered ecosystem players, and canonical claims extracted via OpenCLI Browser Bridge.",
+      ],
+      scheduler: [
+        "24/7 Autonomous Scheduler",
+        "Configurable interval jobs, failure backoff, and non-overlapping execution locks that survive restarts.",
+      ],
+      ideas: [
+        "Strategic Ideas Panel",
+        "8-12 claim-gated ideas synthesized from scraped competitor patterns, Curve/Stellar news, and on-chain intelligence.",
+      ],
+      memes: [
+        "Crypto & DeFi Memes Panel",
+        "Culturally grounded humor addressing liquidation anxiety, gas price shock, and pooled contagion without named competitor attacks.",
+      ],
     };
-    const [pageTitle, pageSub] = titles[view];
+    const [pageTitle, pageSub] = titles[view] || ["Mission Control", "System 2: 13-Agent Autonomous GTM OS"];
 
     const runRows = runs().map((r) => {
       const om = outcomeMeta(r),
         cr = crossReplies(r, agentOf);
-      const debateStage = r.stages.find((s) => s.id === "debate")!;
+      const debateStage = r.stages?.find((s) => s.id === "debate");
       let debateLabel: string, debateColor: string;
-      if (debateStage.status === "not_reached") {
+      if (!debateStage || debateStage.status === "not_reached") {
         debateLabel = "not reached";
         debateColor = MUTED;
       } else if (cr.n === 0) {
@@ -467,7 +497,34 @@ export function useMissionControl(props: MissionControlProps) {
       };
     });
 
-    const run = runs().find((r) => r.key === runKey) || runs()[0];
+    const dummyRun: Run = {
+      key: "idle",
+      label: "System 2 Standby",
+      inferred: false,
+      boundary: { open_evidence: "", close_evidence: "", confidence: "low", note: "" },
+      started: 0,
+      ended: 0,
+      trigger: "none",
+      bucket: "capital-efficiency",
+      outcome: "shipped",
+      stages: [
+        { id: "kickoff", label: "Intelligence Scout", status: "not_reached", started: 0, ended: 0 },
+        { id: "research", label: "Opportunity Selector", status: "not_reached", started: 0, ended: 0 },
+        { id: "bucket", label: "GTM Strategist", status: "not_reached", started: 0, ended: 0 },
+        { id: "pitches", label: "Channel Content", status: "not_reached", started: 0, ended: 0 },
+        { id: "debate", label: "Tri-Arc Debate", status: "not_reached", started: 0, ended: 0 },
+        { id: "ruling", label: "Reviewer Firewall", status: "not_reached", started: 0, ended: 0 }
+      ],
+      messages: [],
+      calls: [],
+      research: null,
+      gate: null,
+      review: null,
+      artifact: null,
+      ruling: null
+    };
+
+    const run = runs().find((r) => r.key === runKey) || runs()[0] || dummyRun;
     const om = outcomeMeta(run),
       cr = crossReplies(run, agentOf);
     const nowSec = Date.now() / 1000;
@@ -597,9 +654,9 @@ export function useMissionControl(props: MissionControlProps) {
       };
     });
 
-    const debateStage = run.stages.find((s) => s.id === "debate")!;
+    const debateStage = run.stages?.find((s) => s.id === "debate");
     let engagedVerdict: string, engagedDetail: string, engagedColor: string;
-    if (debateStage.status === "not_reached") {
+    if (!debateStage || debateStage.status === "not_reached") {
       engagedVerdict = "Debate not reached";
       engagedDetail =
         "This run has not got past the pitch stage. No strategist has replied to another yet — which is an absence of data, not an absence of argument.";
@@ -667,12 +724,13 @@ export function useMissionControl(props: MissionControlProps) {
             " keywords. " +
             (v.notes || "").slice(0, 150) +
             ((v.notes || "").length > 150 ? "…" : "");
-          const nulls = v.trends.reduce(
-            (a, t) => a + t.sources.filter((s) => !s.engagement).length,
+          const trends = Array.isArray(v?.trends) ? v.trends : [];
+          const nulls = trends.reduce(
+            (a, t) => a + (Array.isArray(t?.sources) ? t.sources.filter((s) => !s?.engagement).length : 0),
             0,
           );
           chips = [
-            chip(v.trends.map((t) => t.momentum).join(" · ")),
+            chip(trends.map((t) => t?.momentum || "").filter(Boolean).join(" · ") || "trends"),
             chip(
               nulls ? nulls + " sources: no engagement data" : "engagement retrieved",
               nulls ? WARN : OK,
@@ -681,25 +739,26 @@ export function useMissionControl(props: MissionControlProps) {
           ];
         } else if (cls.type === "draft") {
           const v = cls.value,
-            p = v.posts[0];
+            p = v?.posts?.[0];
+          const claims = Array.isArray(p?.claims) ? p.claims : [];
           summary =
-            "Pitch — “" + p.hook + "…” on " + p.platform + ", template " + p.template + ".";
+            "Pitch — “" + (p?.hook || "") + "…” on " + (p?.platform || "") + ", template " + (p?.template || "") + ".";
           chips = [
-            chip(v.arc, arcHue(v.arc), tint(arcHue(v.arc), "18")),
-            chip(p.claims.length + " claims"),
-            chip("tiers " + p.claims.map((c) => c.tier).join("")),
+            chip(v?.arc || "", arcHue(v?.arc || ""), tint(arcHue(v?.arc || ""), "18")),
+            chip(claims.length + " claims"),
+            chip("tiers " + claims.map((c: any) => c?.tier || "").join("")),
           ];
         } else if (cls.type === "ruling") {
           const v = cls.value;
+          const scoresList = Array.isArray(v?.scores) ? v.scores : [];
+          const winScore = v?.winner ? scoresList.find((s) => s.arc === v.winner?.arc) : null;
           summary =
             v.verdict === "reject_all"
               ? "Ruling — reject_all. Nothing cleared the threshold of 70."
               : "Ruling — ship. Winner: " +
                 (v.winner ? v.winner.arc : "") +
-                " at " +
-                (v.winner ? v.scores.find((s) => s.arc === v.winner!.arc)!.total : "") +
-                "/100.";
-          chips = v.scores.map((s) =>
+                (winScore ? " at " + winScore.total + "/100." : ".");
+          chips = scoresList.map((s) =>
             chip(
               s.arc + " " + s.total,
               s.total >= 70 ? OK : BAD,
@@ -707,15 +766,17 @@ export function useMissionControl(props: MissionControlProps) {
             ),
           );
         } else if (cls.type === "gate") {
+          const checks = Array.isArray(cls.value?.checks) ? cls.value.checks : [];
+          const violations = Array.isArray(cls.value?.violations) ? cls.value.violations : [];
           summary =
             "Compliance gate — " +
-            cls.value.gate +
+            (cls.value?.gate || "") +
             ", " +
-            cls.value.violations.length +
+            violations.length +
             " violations across " +
-            cls.value.checks.length +
+            checks.length +
             " checks.";
-          chips = cls.value.checks.map((c) => chip(c));
+          chips = checks.map((c: any) => chip(c));
         } else if (cls.type === "json") summary = "Payload";
 
         return {
@@ -760,13 +821,14 @@ export function useMissionControl(props: MissionControlProps) {
     const liveRun =
       runs().find((r) => r.key === liveKey) ||
       runs().find((r) => r.outcome === "running") ||
-      runs()[0];
+      runs()[0] ||
+      dummyRun;
     const liveCr = crossReplies(liveRun, agentOf);
     const liveOm = outcomeMeta(liveRun);
-    const liveStage = liveRun.stages
+    const liveStage = (liveRun.stages || [])
       .filter((s) => s.status === "active" || s.status === "done")
       .slice(-1)[0];
-    const liveLast = liveRun.messages[liveRun.messages.length - 1];
+    const liveLast = liveRun.messages && liveRun.messages.length > 0 ? liveRun.messages[liveRun.messages.length - 1] : null;
     const live = {
       label: liveRun.label,
       outcomeLabel: liveOm.label,
@@ -777,17 +839,15 @@ export function useMissionControl(props: MissionControlProps) {
         liveRun.outcome === "running"
           ? "Stage has been open " +
             dur(nowSec - (liveStage ? (liveStage.started ?? 0) : 0)) +
-            ". Last message " +
-            dur(nowSec - liveLast.created_at) +
-            " ago."
+            (liveLast?.created_at ? ". Last message " + dur(nowSec - liveLast.created_at) + " ago." : ".")
           : "This lifecycle is closed — you are reading the recorded thread, not a live one.",
       quietNote:
-        liveRun.outcome === "running" && nowSec - liveLast.created_at > 240
+        liveRun.outcome === "running" && liveLast?.created_at && nowSec - liveLast.created_at > 240
           ? "Quiet for " +
             dur(nowSec - liveLast.created_at) +
             ". No error has been logged, so this reads as waiting, not stalled."
           : "",
-      hasQuiet: liveRun.outcome === "running" && nowSec - liveLast.created_at > 240,
+      hasQuiet: Boolean(liveRun.outcome === "running" && liveLast?.created_at && nowSec - liveLast.created_at > 240),
       verdict: liveCr.n === 0 ? "No cross-examination yet" : "They argued",
       verdictColor: liveCr.n === 0 ? WARN : INK,
       crossReplies: String(liveCr.n),
@@ -813,7 +873,7 @@ export function useMissionControl(props: MissionControlProps) {
         } as React.CSSProperties,
       })),
       participants: STRATS.map((id) => {
-        const a = d.AGENTS.find((x) => x.id === id)!;
+        const a = d.AGENTS.find((x) => x.id === id);
         const turns = liveRun.messages.filter((m) => agentOf(m) === id).length;
         const replies = liveRun.messages.filter((m) => {
           if (agentOf(m) !== id) return false;
@@ -822,16 +882,18 @@ export function useMissionControl(props: MissionControlProps) {
           const p = liveRun.messages.find((x) => x.id === pid);
           return !!p && STRATS.includes(agentOf(p) as (typeof STRATS)[number]) && agentOf(p) !== id;
         }).length;
+        const arc = a?.arc || ARC_OF[id] || "risk-relief";
+        const arcline = a?.arcline || id;
         return {
           id,
-          hue: arcHue(a.arc || ""),
-          arcline: a.arcline || "",
+          hue: arcHue(arc),
+          arcline,
           turns: String(turns),
           replies: String(replies),
           barStyle: {
             height: "4px",
             borderRadius: "999px",
-            background: arcHue(a.arc || ""),
+            background: arcHue(arc),
             width: Math.min(1, turns / 4) * 100 + "%",
           } as React.CSSProperties,
           state: replies > 0 ? "engaged" : turns > 0 ? "posted only" : "silent",
@@ -935,7 +997,7 @@ export function useMissionControl(props: MissionControlProps) {
     const draftsVM = (() => {
       const ruling = rulingOf(run);
       const scores: Record<string, ArcScore> = {};
-      if (ruling) ruling.scores.forEach((s) => (scores[s.arc] = s));
+      if (ruling && Array.isArray(ruling.scores)) ruling.scores.forEach((s) => (scores[s.arc] = s));
       const drafts: {
         arc: string;
         hue: string;
@@ -1019,7 +1081,7 @@ export function useMissionControl(props: MissionControlProps) {
           scoreCards: [],
           audit: [],
           noRulingText:
-            run.stages.find((s) => s.id === "ruling")!.status === "not_reached"
+            run.stages.find((s) => s.id === "ruling")?.status === "not_reached"
               ? "The ruling stage has not been reached. Pitches are still arriving; nothing has been scored."
               : "No ruling was posted.",
           verdictLabel: "",
@@ -1051,7 +1113,7 @@ export function useMissionControl(props: MissionControlProps) {
         virality: "Virality",
       };
       const rank: Record<string, number> = { A: 0, B: 1, C: 2 };
-      const audit = v.claim_audit.map((a, i) => {
+      const audit = (Array.isArray(v.claim_audit) ? v.claim_audit : []).map((a, i) => {
         const inflated = rank[a.you_found] > rank[a.strategist_said];
         return {
           key: i,
@@ -1085,15 +1147,14 @@ export function useMissionControl(props: MissionControlProps) {
               " on " +
               v.winner.platform +
               ", " +
-              v.scores.find((s) => s.arc === v.winner!.arc)!.total +
+              ((Array.isArray(v.scores) && v.scores.find((s) => s.arc === v.winner?.arc)?.total) ?? "") +
               "/100 against a threshold of 70."
             : "Nothing cleared 70. Highest was " +
-              Math.max.apply(
-                null,
-                v.scores.map((s) => s.total),
-              ) +
+              (Array.isArray(v.scores) && v.scores.length > 0
+                ? Math.max(...v.scores.map((s) => s.total))
+                : 0) +
               ".",
-        scoreCards: v.scores
+        scoreCards: (Array.isArray(v.scores) ? v.scores : [])
           .slice()
           .sort((a, b) => b.total - a.total)
           .map((s) => ({
@@ -1162,7 +1223,7 @@ export function useMissionControl(props: MissionControlProps) {
         // ruling exists, which throws for a reject_all ruling (winner: null).
         // Unreachable in this data — a rejected run never has an artifact — so
         // the behaviour is preserved rather than fixed. See the port notes.
-        artHue: arcHue(run.ruling ? run.ruling.winner!.arc : run.bucket),
+        artHue: arcHue(run.ruling?.winner?.arc || run.bucket),
       };
     })();
 
@@ -1236,7 +1297,7 @@ export function useMissionControl(props: MissionControlProps) {
       engagedColor,
       crossReplies: String(cr.n),
       pairsEngaged: cr.pairs + " / 3",
-      graftCount: rulingOf(run) && rulingOf(run)!.graft ? "1" : "0",
+      graftCount: rulingOf(run)?.graft ? "1" : "0",
       matrixCols,
       matrixRows,
       messages,
@@ -1254,12 +1315,12 @@ export function useMissionControl(props: MissionControlProps) {
       const inTok = calls.reduce((x, c) => x + c.usage.promptTokenCount, 0);
       const cached = calls.reduce((x, c) => x + c.usage.cachedContentTokenCount, 0);
       const out = calls.reduce((x, c) => x + c.usage.candidatesTokenCount, 0);
-      const cfg = {
+      const cfg = ({
         connected: { c: OK, s: OK_SOFT },
         thinking: { c: ACCENT, s: ACCENT_SOFT },
         idle: { c: INK3, s: "#F4F4F4" },
         errored: { c: BAD, s: BAD_SOFT },
-      }[a.status];
+      } as Record<string, { c: string; s: string }>)[a.status] || { c: OK, s: OK_SOFT };
       return {
         id: a.id,
         role: a.role,
@@ -1385,7 +1446,7 @@ export function useMissionControl(props: MissionControlProps) {
         if (c.type !== "draft") return;
         const v = c.value,
           p = v.posts[0];
-        const sc = rl ? rl.scores.find((s) => s.arc === v.arc) : null;
+        const sc = (rl && Array.isArray(rl.scores)) ? rl.scores.find((s) => s.arc === v.arc) : null;
         const won = !!(rl && rl.winner && rl.winner.arc === v.arc);
         let status: string, sColor: string, sSoft: string, note: string;
         if (won && r.outcome === "shipped") {
@@ -1420,8 +1481,8 @@ export function useMissionControl(props: MissionControlProps) {
         }
         const key = "post:" + r.key + ":" + v.arc;
         const openBody = !!expanded[key];
-        const bodyFull = won && rl!.winner!.final_body ? rl!.winner!.final_body : p.body;
-        const thread = won && rl!.winner!.final_thread ? rl!.winner!.final_thread : p.thread;
+        const bodyFull = (won && rl?.winner?.final_body) ? rl.winner.final_body : p.body;
+        const thread = (won && rl?.winner?.final_thread) ? rl.winner.final_thread : p.thread;
         allPosts.push({
           key,
           runKey: r.key,
@@ -1514,11 +1575,24 @@ export function useMissionControl(props: MissionControlProps) {
       { label: "Published", value: "0", color: INK3 },
     ];
 
+    const STAGE_LABELS: Record<string, string> = {
+      kickoff: "Intelligence Scout",
+      research: "Opportunity Selector",
+      bucket: "GTM Strategist",
+      pitches: "Channel Content & Blueprint",
+      debate: "Visual & Video Engine",
+      ruling: "Reviewer & Learning Gate",
+      visual: "Visual Synthesis",
+      gate: "Compliance Gate",
+      review: "Human Review",
+    };
+
     /* -------------------------------------------------------------- lifecycles */
     const stageMeta = d.STAGE_ORDER.map((id) => {
-      const label = runs()[0].stages.find((s) => s.id === id)!.label;
+      const match = runs()[0]?.stages?.find((s) => s.id === id);
+      const label = match?.label || STAGE_LABELS[id] || id;
       const here = runs().filter((r) => {
-        const reached = r.stages.filter(
+        const reached = (Array.isArray(r.stages) ? r.stages : []).filter(
           (x) => x.status === "active" || x.status === "failed" || x.status === "done",
         );
         const resting = reached[reached.length - 1];

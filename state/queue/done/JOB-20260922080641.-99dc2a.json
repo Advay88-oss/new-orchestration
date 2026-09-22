@@ -1,0 +1,10 @@
+{
+  "id": "JOB-20260922080641.-99dc2a",
+  "directive": "explain composable margin across lending pools",
+  "created_at": "2026-09-22T08:06:41.622Z",
+  "attempts": 1,
+  "idempotency_key": null,
+  "requested_by": "mission-control",
+  "run_id": "RUN-20260922-080645",
+  "last_error": null
+}

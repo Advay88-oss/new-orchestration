@@ -1,0 +1,122 @@
+[
+  {
+    "text": "Leverage is easy.",
+    "kind": "creative",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Not getting liquidated is the hard part.",
+    "kind": "creative",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "When collateral declines, unmonitored positions risk falling into bad debt before a protocol can react.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "On Vanna, risk is bounded structurally.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "On Vanna, a priced account with debt must maintain a health factor strictly above 1.1 to be considered healthy.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "Once an account reaches or drops below 1.1, it becomes a liquidation candidate.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "An account reaching or dropping below 1.1 is marked as eligible for liquidation subject to oracle, configuration, funding, and execution checks.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "These checks isolate the position before undercollateralization spreads.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "When collateral values decline, unmonitored positions risk falling into bad debt before a protocol can intervene.",
+    "kind": "competitor_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "At or below 1.1, the account becomes a liquidation candidate.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "An account at or below 1.1 is eligible for liquidation subject to oracle, configuration, funding, and execution checks.",
+    "kind": "vanna_fact",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  },
+  {
+    "text": "These checks isolate the failure mode.",
+    "kind": "inference",
+    "status": "unverified",
+    "source_id": null,
+    "source_url": null,
+    "observed_at": null,
+    "method": null,
+    "confidence": 0.0
+  }
+]

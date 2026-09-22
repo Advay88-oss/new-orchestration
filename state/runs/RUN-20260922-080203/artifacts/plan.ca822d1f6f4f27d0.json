@@ -1,0 +1,18 @@
+{
+  "playbook": {
+    "id": "PB_AGENTIC",
+    "shape": "Start from what an autonomous agent cannot safely do today.",
+    "forbidden": [
+      "AI hype register",
+      "claims of autonomous trading"
+    ],
+    "arc": "agentic_credit"
+  },
+  "vehicle": {
+    "id": "VH_THREAD",
+    "channel": "x",
+    "shape": "thread",
+    "max_parts": 3,
+    "reason": "score 0.7 with 5 supporting signals"
+  }
+}

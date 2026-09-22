@@ -1,0 +1,33 @@
+{
+  "layout": "hero_stat",
+  "headline": "Lending Collateral Idles in Isolated Silos",
+  "subhead": "Collateral remains concentrated in single-protocol lockups rather than backing circulating secondary liquidity.",
+  "blocks": [
+    {
+      "role": "stat",
+      "text": "128:1",
+      "emphasis": "primary"
+    },
+    {
+      "role": "label",
+      "text": "Disparity ratio of lending TVL to active AMM liquidity",
+      "emphasis": "secondary"
+    },
+    {
+      "role": "caption",
+      "text": "Blend holds $159,033,033 in TVL while Soroswap holds $1,239,028 in TVL.",
+      "emphasis": "muted"
+    }
+  ],
+  "focal": {
+    "block_index": 0,
+    "reason": "Massive 128:1 ratio immediately demonstrates the extreme scale of dormant lending deposits versus active liquidity."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "flat",
+  "disclaimer": null
+}

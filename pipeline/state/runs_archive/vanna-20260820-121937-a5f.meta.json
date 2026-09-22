@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-121937-a5f",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787228643.0646536,
+  "ended": 1787228773.3812494,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 130.3,
+  "kind": "content-run",
+  "winner_hook": "Siloed credit accounts force you to split",
+  "winner_body": "Siloed credit accounts force you to split your book. wstETH in one pool, stables in another.\n\nVanna unifies your margin. The borrow guard holds (C+B)/(D+B) >= 1.1 across your entire portfolio, unlocking up to 10x credit capacity on testnet.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

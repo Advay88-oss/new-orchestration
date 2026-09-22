@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The Boundary Principle",
+    "idea": "An authoritative typographical execution built around a single stark provocation: \"Contagion is not an inevitable market force. It is an architectural failure.\" The type is set in an austere balance of technical serif and high-density monospace, framed by fine architectural hairline perimeter borders that mimic engineering schematics. Discrete technical annotations in the corners document account constraints: \"ISOLATION: STRICT // CROSS-ACCOUNT SPILLOVER: 0.00% // ENFORCEMENT: NATIVE\".",
+    "layout": "quote",
+    "why": "After a cycle dominated by structural diagrams and comparative flows, this quote layout creates immediate visual pause. It reframes risk containment from a dry technical feature into an unyielding institutional philosophy, cutting straight to the executive mindset of institutional risk officers who demand absolute firewalls."
+  },
+  "all": [
+    {
+      "title": "The Boundary Principle",
+      "idea": "An authoritative typographical execution built around a single stark provocation: \"Contagion is not an inevitable market force. It is an architectural failure.\" The type is set in an austere balance of technical serif and high-density monospace, framed by fine architectural hairline perimeter borders that mimic engineering schematics. Discrete technical annotations in the corners document account constraints: \"ISOLATION: STRICT // CROSS-ACCOUNT SPILLOVER: 0.00% // ENFORCEMENT: NATIVE\".",
+      "layout": "quote",
+      "why": "After a cycle dominated by structural diagrams and comparative flows, this quote layout creates immediate visual pause. It reframes risk containment from a dry technical feature into an unyielding institutional philosophy, cutting straight to the executive mindset of institutional risk officers who demand absolute firewalls."
+    },
+    {
+      "title": "Sustained Threshold",
+      "idea": "A massive, razor-sharp '80%' occupies the optical center in heavy industrial grotesque type, anchored visually between two rigid architectural bulkhead lines that lock it into place. Beneath the figure, concise technical callouts explain the engineering breakthrough: '80% Average Utilization' on the left, paired against 'Zero Shared-Pool Contagion' on the right. A fine-line technical ledger at the base shows isolated account balance settlement parameters, proving that maximal capital efficiency no longer requires shared insolvency risk.",
+      "layout": "hero_stat",
+      "why": "This immediately disproves the prevailing DeFi belief that higher utilization inevitably invites pooled liquidation contagion, using the decisive 80% metric to anchor the brand's capital efficiency advantage."
+    },
+    {
+      "title": "Shock Containment Protocol",
+      "idea": "A three-phase vertical architectural cross-section charting containment under stress: Phase 01 depicts an localized margin drop within an account; Phase 02 demonstrates the boundary perimeter natively locking transfer vectors and asserting token whitelists without external smart contract dependencies; Phase 03 shows liquidation resolving entirely within the partitioned perimeter while adjacent lending liquidity remains undisturbed. Rendered using muted charcoal slabs, slate backgrounds, and high-precision CAD technical annotations.",
+      "layout": "sequence",
+      "why": "It unpacks the precise mechanical sequence of native account boundary enforcement, demonstrating step-by-step how a failure event is trapped and eliminated before touching lending reserves."
+    }
+  ],
+  "novelty_note": ""
+}

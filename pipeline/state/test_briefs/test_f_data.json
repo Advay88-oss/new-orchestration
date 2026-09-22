@@ -1,0 +1,15 @@
+{
+  "type": "data",
+  "category": "PROTOCOL PARAMETERS // TESTNET VERIFIED",
+  "headline": "10x leverage.\n1.1x floor. Dynamic rates.",
+  "emphasis_phrase": "Dynamic rates.",
+  "subhead": "Engineered for institutional capital efficiency on Stellar Soroban.",
+  "metrics": [
+    {"val": "10x", "lbl": "MAX LEVERAGE", "sub": "SmartAccount isolated credit multiplier"},
+    {"val": "1.1x", "lbl": "HEALTH FACTOR FLOOR", "sub": "Continuous automated liquidation threshold"},
+    {"val": "14", "lbl": "SMART CONTRACTS", "sub": "4-layer modular Soroban architecture"},
+    {"val": "0%", "lbl": "CONTAGION RISK", "sub": "Dedicated sandbox per user account"}
+  ],
+  "tag": "ON-CHAIN METRICS // SOROBAN TESTNET",
+  "source": "Mercury Indexer Telemetry • contracts.vanna.finance"
+}

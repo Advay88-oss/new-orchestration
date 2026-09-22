@@ -1,0 +1,5 @@
+{"agent": "A02_opportunity_selector", "role": "reasoning", "model": "gemini-3.8-flash", "ok": true, "duration_s": 7.69, "input_tokens": 406, "output_tokens": 351, "note": "", "transport": "apikey", "at": "2026-09-22T08:42:40.875533+00:00"}
+{"agent": "A03_gtm_strategist", "role": "reasoning", "model": "gemini-3.8-flash", "ok": true, "duration_s": 7.02, "input_tokens": 2209, "output_tokens": 571, "note": "", "transport": "apikey", "at": "2026-09-22T08:42:47.911778+00:00"}
+{"agent": "A06_channel_adapter", "role": "reasoning", "model": "gemini-3.8-flash", "ok": true, "duration_s": 17.2, "input_tokens": 721, "output_tokens": 704, "note": "", "transport": "apikey", "at": "2026-09-22T08:43:05.128668+00:00"}
+{"agent": "A07_creative_director", "role": "reasoning", "model": "gemini-3.8-flash", "ok": true, "duration_s": 7.9, "input_tokens": 484, "output_tokens": 767, "note": "", "transport": "apikey", "at": "2026-09-22T08:43:13.034845+00:00"}
+{"agent": "A09_video_production", "role": "video", "model": "veo-3.1-generate-001", "ok": true, "duration_s": 75.55, "input_tokens": 0, "output_tokens": 0, "note": "", "transport": "vertex", "at": "2026-09-22T08:44:47.602735+00:00"}

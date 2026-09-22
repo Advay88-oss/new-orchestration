@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-121502-0r0",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787228137.0274546,
+  "ended": 1787228265.928729,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 128.9,
+  "kind": "content-run",
+  "winner_hook": "Three strategies. Three siloed accounts.",
+  "winner_body": "Three strategies. Three siloed accounts. That is fragmentation. Gearbox splits your collateral into isolated pools. Vanna unifies your book under one health factor, unlocking up to 10x credit on testnet. One account. Six jobs. Stop dividing capital.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

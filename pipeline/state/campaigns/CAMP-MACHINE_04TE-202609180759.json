@@ -1,0 +1,69 @@
+{
+  "campaign_id": "CAMP-MACHINE_04TE-202609180759",
+  "machine_id": "MACHINE_04: TECHNICAL_EDUCATION_DISPATCH",
+  "campaign_name": "Kill Test",
+  "strategic_objective": "Educate institutional allocators and DeFi traders on Vanna's sub-second risk architecture to drive testnet sandbox deployment.",
+  "target_audience": "A3: Institutional Liquidity Providers & Risk Architects",
+  "core_narrative": "Vanna is the composable credit layer for Stellar Soroban, providing isolated SmartAccount sandboxes and sub-second defense.",
+  "call_to_action": "Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+  "start_date": "2026-10-01",
+  "end_date": null,
+  "status": "KILLED",
+  "stages": [
+    {
+      "stage_number": 1,
+      "stage_type": "AWARENESS",
+      "stage_name": "Market Friction & Narrative Awareness",
+      "functional_objective": "Expose EVM shared pool contagion and gas volatility",
+      "target_channel": "X",
+      "content_format": "thread_lead",
+      "evidence_status": "OBSERVED",
+      "source_url_ref": "https://docs.vanna.finance",
+      "omission_reason": null,
+      "status": "PENDING"
+    },
+    {
+      "stage_number": 2,
+      "stage_type": "EDUCATION",
+      "stage_name": "SmartAccount Sandbox Technical Education",
+      "functional_objective": "Explain contract instance isolation and RateModel curves",
+      "target_channel": "X & LinkedIn",
+      "content_format": "architectural_schematic",
+      "evidence_status": "OBSERVED",
+      "source_url_ref": "https://docs.vanna.finance",
+      "omission_reason": null,
+      "status": "PENDING"
+    },
+    {
+      "stage_number": 3,
+      "stage_type": "PROOF",
+      "stage_name": "Sub-Second Telemetry Benchmark Proof",
+      "functional_objective": "Demonstrate ~320ms Mercury event streaming at $0.00014 gas",
+      "target_channel": "X & Reddit",
+      "content_format": "benchmark_data",
+      "evidence_status": "DERIVED",
+      "source_url_ref": null,
+      "omission_reason": null,
+      "status": "PENDING"
+    },
+    {
+      "stage_number": 4,
+      "stage_type": "CONVERSION",
+      "stage_name": "Testnet Sandbox Deployment Call to Action",
+      "functional_objective": "Drive developer and LP sandbox deployments",
+      "target_channel": "X",
+      "content_format": "cta_broadcast",
+      "evidence_status": "OBSERVED",
+      "source_url_ref": "https://test.stellar.vanna.finance",
+      "omission_reason": null,
+      "status": "PENDING"
+    }
+  ],
+  "omitted_stages": {
+    "ENGAGEMENT": "Omitted by design: engagement handled via organic community feedback during testnet.",
+    "FOLLOW_UP": "Omitted by design: follow_up handled via organic community feedback during testnet.",
+    "RETENTION": "Omitted by design: retention handled via organic community feedback during testnet."
+  },
+  "approval_state": "PENDING_HUMAN_APPROVAL",
+  "created_at": "2026-09-18T07:59:07.792477+00:00"
+}

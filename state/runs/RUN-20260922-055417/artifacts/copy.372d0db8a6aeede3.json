@@ -1,0 +1,9 @@
+{
+  "id": "CPY-3d1ff3c7969a8eb4",
+  "strategy_id": "STR-88ff13cfa2ea9bf2",
+  "channel": "x",
+  "hook": "Isolated pools fragment collateral, forcing capital to back only one position at a time.",
+  "body": "Unified margin accounts allow the same capital, posted once, to support several positions simultaneously. The contract derives the position status on demand by dividing total collateral USD by total debt USD. The liquidation threshold enforces a strict health-factor floor of 1.1x.",
+  "thread": [],
+  "claims": []
+}

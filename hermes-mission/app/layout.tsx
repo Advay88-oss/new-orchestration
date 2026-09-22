@@ -25,7 +25,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Mission Control",
-  description: "Read-only observability for a 7-agent content pipeline.",
+  description: "Production observability for the Vanna 13-agent autonomous GTM pipeline.",
 };
 
 export default function RootLayout({

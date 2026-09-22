@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-113931-e3j",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787226004.1315143,
+  "ended": 1787226120.2498887,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 116.1,
+  "kind": "content-run",
+  "winner_hook": "Siloed credit accounts fragment your book.",
+  "winner_body": "Siloed credit accounts fragment your book. Gearbox forces you to split collateral.\n\nVanna unifies your margin. One health factor backs every position—unlocking up to 10x credit on testnet.\n\nYour collateral is doing one job. It should be doing six.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

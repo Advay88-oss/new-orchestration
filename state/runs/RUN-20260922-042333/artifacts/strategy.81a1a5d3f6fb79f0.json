@@ -1,0 +1,11 @@
+{
+  "id": "STR-da788a5800e97f4e",
+  "opportunity_id": "OPP-57201ea630a95d35",
+  "audience": "Stellar Soroban DeFi borrowers and risk managers",
+  "narrative_arc": "risk_relief",
+  "problem_statement": "Borrowers using cross-collateralized lending pools risk having a single bad position cascade into the total liquidation of their entire portfolio during market volatility.",
+  "angle": "While current onchain telemetry reflects broader Stellar activity (such as Blend's $159M TVL, Soroswap's $1.2M TVL, and 0.1 ledger capacity usage) without yet capturing granular account-level default metrics, demonstrating compartmentalized liquidation visually proves that isolated credit accounts strictly ring-fence solvency shocks from infecting the user's broader capital base.",
+  "evidence_ids": [
+    "SIG-57201ea630a95d35"
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "company_id": "novastack",
+  "name": "NovaStack",
+  "tagline": "Autonomous Postgres Auto-Scaling for High-Velocity Apps",
+  "industry": "B2B Developer Infrastructure / Cloud Database",
+  "core_proposition": "Zero-downtime, sub-second predictive compute scaling for PostgreSQL workloads during traffic spikes without manual shard provisioning.",
+  "target_audience": {
+    "personas": ["Staff Backend Engineers", "CTOs of High-Growth SaaS", "DevOps Leads", "Data Platform Architects"],
+    "subreddits": ["PostgreSQL", "devops", "softwarearchitecture", "sysadmin"],
+    "search_keywords": ["postgres connection pooling", "read replica lag", "database auto scaling", "rds failover downtime"]
+  },
+  "competitors": [
+    {"name": "Neon", "handle": "neondatabase", "focus": "Serverless Postgres with branching"},
+    {"name": "Supabase", "handle": "supabase", "focus": "Firebase alternative with Postgres"},
+    {"name": "AWS Aurora", "handle": "awscloud", "focus": "Cloud-managed auto-scaling relational database"}
+  ],
+  "claims_registry": "pipeline/companies/novastack_claims.jsonl",
+  "brand_design": {
+    "canvas_void": "#090D16",
+    "ambient_blooms": {
+      "bottom_left": "rgba(20, 80, 180, 0.75)",
+      "top_right": "rgba(0, 200, 180, 0.55)"
+    },
+    "accents": {
+      "primary": "#38BDF8",
+      "secondary": "#F43F5E",
+      "success": "#10B981"
+    },
+    "typography": {
+      "display": "Plus Jakarta Sans",
+      "mono": "JetBrains Mono"
+    },
+    "visual_families": [
+      "system_performance_benchmark",
+      "infrastructure_architecture_flow",
+      "comparative_latency_schematic"
+    ]
+  },
+  "destinations": {
+    "cta_url": "novastack.dev",
+    "docs_url": "docs.novastack.dev"
+  }
+}

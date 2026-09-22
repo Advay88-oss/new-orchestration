@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-125728-m1j",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787230674.4511135,
+  "ended": 1787230803.0802016,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 128.6,
+  "kind": "content-run",
+  "winner_hook": "Siloed credit accounts fragment your capital.",
+  "winner_body": "Siloed credit accounts fragment your capital. One position thrives while another starves. Vanna unifies your collateral to unlock up to 10x borrowing capacity. One book. One health factor. Your collateral is doing one job. It should be doing six.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

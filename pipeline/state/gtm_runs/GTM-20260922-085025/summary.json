@@ -1,0 +1,165 @@
+{
+  "run_id": "GTM-20260922-085025",
+  "started_at": "2026-09-22T08:50:25.635885+00:00",
+  "directive": null,
+  "status": "completed",
+  "signal": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+  "action_status": "ACTION",
+  "machine": "MACH_02_B2B_PARTNER_ONBOARDING",
+  "pillar": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+  "posts": {
+    "x": {
+      "hook": "Looping Blend yield into Aquarius LP positions is finally live on Soroban testnet.",
+      "copy": "Soroban has lacked credit primitives between Blend and Aquarius. We built Vanna to fix this through isolated SmartAccount sandboxes deployed per user. You borrow against collateral, swap on Soroswap, and deposit into Aquarius LP shares at up to 10x leverage.\n\nRisk stays confined to your contract instance with a strict 1.10x Health Factor floor. State sync runs at ~320ms Mercury indexer latency with 0.00014 XLM fixed gas per interaction.\n\nSpin up your sandbox: test.stellar.vanna.finance"
+    },
+    "linkedin": {
+      "hook": "Why pooled debt models fail on non-EVM execution layers.",
+      "copy": "Most lending protocols port EVM pooled-risk models directly into novel runtimes. On Stellar Soroban, this approach ignores native state concurrency and forces lenders to take cross-collateral contagion risk. Vanna implements a sandboxed architecture instead, spinning up a dedicated, isolated SmartAccount instance for each borrower. Cross-margin exposure stays partitioned within the individual contract space rather than leaking into shared protocol reserves.\n\nComposability on Soroban requires deterministic settlement without unbounded slippage. Our SmartAccount proxy connects Blend b-tokens directly to Aquarius LP shares and Soroswap pools. By leaning on native sub-second finality, liquidations and margin rebalancing execute at ~320ms Mercury indexer latency with fixed 0.00014 XLM execution fees. Risk parameters hold a hard 1.10x Health Factor floor, enforcing programmatic insolvency protection before bad debt reaches core liquidity providers.\n\nThe outcome is clean undercollateralized routing without pooled solvency risk. As institutional liquidity tests Soroban, composable credit infrastructure needs to run on isolated state verification rather than socialized loss models. Builders can verify the contract logic and execute test strategies now at test.stellar.vanna.finance."
+    },
+    "reddit": {
+      "hook": "Technical breakdown: Isolated SmartAccounts for composable 10x leverage across Blend and Aquarius on Soroban testnet",
+      "copy": "Until now, Soroban liquidity has lived in silos. You deposit to Blend for supply APR or provide liquidity on Aquarius, but there has been no mechanism to route leveraged borrow power between them without manual juggling and full collateral lockups. \n\nWe designed Vanna to act as the composable credit layer across these primitives. Instead of a monolithic pool where bad debt affects everyone, the factory deploys an isolated SmartAccount contract for each user. That isolated contract acts as your on-chain custody and execution proxy.\n\nHere is how execution works under the hood:\n\n1. You initialize a SmartAccount from our factory contract and fund it with base margin.\n2. The SmartAccount borrows against your collateral via Blend, minting b-tokens.\n3. The borrowed capital routes directly through Soroswap routing logic to rebalance into target assets.\n4. Output tokens deposit straight into Aquarius liquidity pools, returning LP tokens into your SmartAccount.\n\nBecause the contract executes atomically, leverage up to 10x becomes possible without the protocol taking unbacked directional exposure. Liquidation parameters are hardcoded: the Health Factor floor is 1.10x. If a position dips below that ratio, liquidators close out the specific sub-account on Soroswap without touching other users. We rely on a custom Mercury indexer running at roughly 320ms latency to feed state updates to liquidators, keeping gas costs fixed at 0.00014 XLM per execution.\n\nIf you want to test the contract mechanics yourself:\n\nSet your Freighter wallet to Soroban Testnet, claim test XLM and USDC from the native faucet, then head over to test.stellar.vanna.finance to deploy your SmartAccount proxy. You can test open loops, health ratio adjustments, and deleveraging directly against the contracts.\n\nDisclosure: I am a core engineer building Vanna Protocol. Happy to answer questions about the contract architecture, auth patterns, or our liquidation engine in the comments."
+    }
+  },
+  "visual_concept": "A monolithic dual-chamber architectural prism acting as a closed hydraulic balance, transferring pressure across two isolated reservoirs without external exposure.",
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\GTM-20260922-085025_visual.png",
+  "visual_public_url": "/GTM-20260922-085025_visual.png",
+  "video_path": "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260922-085025\\GTM-20260922-085025_video.mp4",
+  "review_passed": true,
+  "review_notes": {
+    "blocked_claims": [],
+    "slop": []
+  },
+  "packet_built": true,
+  "duration_s": 144.61,
+  "ended_at": "2026-09-22T08:52:50.242210+00:00",
+  "model_calls": 7,
+  "model_calls_ok": 7,
+  "input_tokens": 3943,
+  "output_tokens": 2595,
+  "models_used": [
+    "gemini-3.1-flash-image",
+    "gemini-3.8-flash",
+    "veo-3.1-generate-001"
+  ],
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "collected market signals (0.01s)",
+      "outputs": [],
+      "at": "2026-09-22T08:50:25.665796+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "chose a signal to pursue (5.37s)",
+      "outputs": [],
+      "at": "2026-09-22T08:50:31.036046+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "formulated strategy (6.8s)",
+      "outputs": [],
+      "at": "2026-09-22T08:50:37.840051+00:00"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "role": "none",
+      "status": "ok",
+      "detail": "verified machine MACH_02_B2B_PARTNER_ONBOARDING (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:50:37.840051+00:00"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "role": "none",
+      "status": "ok",
+      "detail": "selected campaign vehicle (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:50:37.840051+00:00"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "generated channel posts (17.96s)",
+      "outputs": [],
+      "at": "2026-09-22T08:50:55.797873+00:00"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "art-directed the campaign (10.06s)",
+      "outputs": [],
+      "at": "2026-09-22T08:51:05.858584+00:00"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "role": "image",
+      "status": "ok",
+      "detail": "completed (18.54s)",
+      "outputs": [],
+      "at": "2026-09-22T08:51:24.403154+00:00"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "role": "video",
+      "status": "ok",
+      "detail": "completed (80.99s)",
+      "outputs": [],
+      "at": "2026-09-22T08:52:45.396656+00:00"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "role": "none",
+      "status": "ok",
+      "detail": "ran the pre-delivery firewalls (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:52:45.396656+00:00"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "role": "none",
+      "status": "skipped",
+      "detail": "awaiting human approval; dispatch never runs unprompted",
+      "outputs": [],
+      "at": "2026-09-22T08:52:45.396656+00:00"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "role": "none",
+      "status": "ok",
+      "detail": "built the human review packet (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:52:45.403390+00:00"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "processed the outcome feedback loop (4.84s)",
+      "outputs": [],
+      "at": "2026-09-22T08:52:50.242210+00:00"
+    }
+  ],
+  "agents_ran": 12
+}

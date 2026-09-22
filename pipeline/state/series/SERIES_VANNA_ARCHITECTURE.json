@@ -1,0 +1,29 @@
+{
+  "series_id": "SERIES_VANNA_ARCHITECTURE",
+  "series_name": "Vanna Architectural Deep-Dives",
+  "cadence": "BIWEEKLY",
+  "trigger": "STAGED_SOLVENCY_RELEASE",
+  "input_data_source": "docs.vanna.finance / Stellar Testnet Contracts",
+  "fixed_structure": [
+    "Macro Failure Mode",
+    "Soroban SmartAccount Containment",
+    "Testnet Ledger Proof"
+  ],
+  "variable_fields": [
+    "collateral_asset",
+    "isolated_instance_address"
+  ],
+  "visual_template_type": "monolithic_glass_compartment",
+  "recurrence_tier": "ONE_OCCURRENCE",
+  "occurrences": [
+    {
+      "occurrence_id": "OCC-SERIES_VANNA_ARCHITECTURE-001",
+      "occurrence_number": 1,
+      "published_date": "2026-09-17",
+      "content_id": "EPISODE_01_RUN_20260917_113745",
+      "verified_url": null,
+      "input_data_summary": "Opportunity: OPP_COMPOSABLE_SANDBOX | Pillar: Pillar 3: Sub-Second Defensive Rebalancing & Liquidation Immunity"
+    }
+  ],
+  "created_at": "2026-09-17T11:38:12.474437+00:00"
+}

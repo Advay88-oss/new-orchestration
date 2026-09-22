@@ -1,0 +1,16 @@
+{
+  "run_id": "vanna-20260820-110758",
+  "pipeline": "Vanna content pipeline",
+  "tenant": "Vanna",
+  "started": 1787224078.0161846,
+  "ended": 1787224198.999342,
+  "status": "completed",
+  "brain": "gemini (gemini-3.5-flash) · GCP",
+  "trend_source": "scrape+gemini",
+  "duration_s": 121.0,
+  "kind": "content-run",
+  "winner_hook": "Siloed pools create ghost liquidations.",
+  "winner_body": "Siloed pools create ghost liquidations. A flash crash in one asset wipes your credit account, while your idle USDC sits helpless next door.\n\nVanna unifies your margin—one buffer protecting everything.\n\nLeverage is easy. Not getting liquidated is the hard part.",
+  "trend": "Vanna Infrastructure",
+  "delivered_to_telegram": false
+}

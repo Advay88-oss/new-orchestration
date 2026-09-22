@@ -1,0 +1,160 @@
+{
+  "generated": "2026-09-22T04:20:15.075984+00:00",
+  "total_ideas": 8,
+  "runnable_today_count": 8,
+  "blocked_count": 0,
+  "ideas": [
+    {
+      "id": "idea_1790050690_1",
+      "type": "THREAD",
+      "hook": "Unlock 10x composable margin on Stellar Soroban with Vanna Protocol!",
+      "rationale": "DeFi users are always looking for higher leverage and capital efficiency to maximize their returns on capital.",
+      "pattern_ref": "PAT_02_COMPOSABILITY_WALKTHROUGH",
+      "claims_gate": "PASS",
+      "audience_segment": "A2 Margin Traders",
+      "objection_addressed": "Margin trading is too risky.",
+      "effort": "HIGH",
+      "runnable_today": true,
+      "blocked_by": null,
+      "format_spec": {
+        "template": "single_stat",
+        "hero": "1.10x",
+        "archetype": "blend_composability"
+      },
+      "visual_url": "/idea_idea_1790050690_1_visual.png"
+    },
+    {
+      "id": "idea_1790050757_5",
+      "type": "VIDEO",
+      "hook": "Manage risk like a pro: Vanna's isolated SmartAccount sandboxes explained!",
+      "rationale": "Isolated accounts allow users to manage different strategies with segregated risk, enhancing capital protection and strategic flexibility.",
+      "pattern_ref": "PAT_03_ISOLATED_SANDBOXES",
+      "claims_gate": "PASS",
+      "audience_segment": "A2 Margin Traders",
+      "objection_addressed": "One hack compromises all my funds.",
+      "effort": "HIGH",
+      "runnable_today": true,
+      "blocked_by": null,
+      "format_spec": {
+        "template": "single_stat",
+        "hero": "1.10x",
+        "archetype": "isolated_sandboxes"
+      },
+      "visual_url": "/idea_idea_1790050757_5_visual.png"
+    },
+    {
+      "id": "idea_1790050771_6",
+      "type": "THREAD",
+      "hook": "Building on Soroban? Vanna enables new DeFi primitives for builders!",
+      "rationale": "Highlighting composability on a growing ecosystem attracts builders looking for new opportunities and capital efficiency.",
+      "pattern_ref": "PAT_02_COMPOSABILITY_WALKTHROUGH",
+      "claims_gate": "PASS",
+      "audience_segment": "A3 Protocol Builders",
+      "objection_addressed": "Stellar lacks DeFi innovation.",
+      "effort": "HIGH",
+      "runnable_today": true,
+      "blocked_by": null,
+      "format_spec": {
+        "template": "single_stat",
+        "hero": "1.10x",
+        "archetype": "blend_composability"
+      },
+      "visual_url": "/idea_idea_1790050771_6_visual.png"
+    },
+    {
+      "id": "idea_1790050717_3",
+      "type": "POST",
+      "hook": "Real-time data for real-time DeFi: Vanna's ~320ms Mercury indexer advantage!",
+      "rationale": "Fast data indexing enables quicker decision-making and more efficient protocol interaction for advanced users and builders.",
+      "pattern_ref": "PAT_01_TECHNICAL_TELEMETRY",
+      "claims_gate": "PASS",
+      "audience_segment": "A3 Protocol Builders",
+      "objection_addressed": "Stellar data is slow.",
+      "effort": "LOW",
+      "runnable_today": true,
+      "blocked_by": null,
+      "format_spec": {
+        "template": "single_stat",
+        "hero": "1.10x",
+        "archetype": "margin_account"
+      },
+      "visual_url": "/idea_idea_1790050717_3_visual.png"
+    },
+    {
+      "id": "idea_1790050787_7",
+      "type": "POST",
+      "hook": "Leverage RWA tokens on Stellar: Vanna's composable margin meets Spiko & Ondo!",
+      "rationale": "Integrating with RWA tokens provides access to a new class of assets for leverage, diversifying opportunities for DeFi users.",
+      "pattern_ref": "PAT_02_COMPOSABILITY_WALKTHROUGH",
+      "claims_gate": "PASS",
+      "audience_segment": "A1 Stellar DeFi Farmers",
+      "objection_addressed": "Limited assets on Stellar.",
+      "effort": "LOW",
+      "runnable_today": true,
+      "blocked_by": null,
+      "format_spec": {
+        "template": "single_stat",
+        "hero": "1.10x",
+        "archetype": "blend_composability"
+      },
+      "visual_url": "/idea_idea_1790050787_7_visual.png"
+    },
+    {
+      "id": "idea_1790050705_2",
+      "type": "VISUAL",
+      "hook": "Stellar's lowest gas fees power Vanna: Trade more, pay less with 0.00014 XLM!",
+      "rationale": "Low fixed gas fees directly translate to higher net profits and more frequent, cost-effective trading opportunities.",
+      "pattern_ref": "PAT_01_TECHNICAL_TELEMETRY",
+      "claims_gate": "PASS",
+      "audience_segment": "A1 Stellar DeFi Farmers",
+      "objection_addressed": "Stellar gas fees are too high.",
+      "effort": "MEDIUM",
+      "runnable_today": true,
+      "blocked_by": null,
+      "format_spec": {
+        "template": "single_stat",
+        "hero": "1.10x",
+        "archetype": "margin_account"
+      },
+      "visual_url": "/idea_idea_1790050705_2_visual.png"
+    },
+    {
+      "id": "idea_1790050741_4",
+      "type": "DOC",
+      "hook": "Vanna's 1.10x health factor floor: Your safety net in volatile DeFi markets!",
+      "rationale": "A protective health factor floor provides a crucial layer of safety, significantly reducing liquidation risks for users.",
+      "pattern_ref": "PAT_01_TECHNICAL_TELEMETRY",
+      "claims_gate": "PASS",
+      "audience_segment": "A2 Margin Traders",
+      "objection_addressed": "DeFi is too risky for my funds.",
+      "effort": "MEDIUM",
+      "runnable_today": true,
+      "blocked_by": null,
+      "format_spec": {
+        "template": "single_stat",
+        "hero": "1.10x",
+        "archetype": "risk_floor"
+      },
+      "visual_url": "/idea_idea_1790050741_4_visual.png"
+    },
+    {
+      "id": "idea_1790050801_8",
+      "type": "VISUAL",
+      "hook": "Vanna Protocol: How we're boosting Stellar's DeFi TVL and your portfolio!",
+      "rationale": "Connecting Vanna's unique features to the broader ecosystem's growth encourages users to participate and benefit from the upward trend.",
+      "pattern_ref": "PAT_01_TECHNICAL_TELEMETRY",
+      "claims_gate": "PASS",
+      "audience_segment": "A1 Stellar DeFi Farmers",
+      "objection_addressed": "Stellar DeFi isn't mature enough.",
+      "effort": "MEDIUM",
+      "runnable_today": true,
+      "blocked_by": null,
+      "format_spec": {
+        "template": "single_stat",
+        "hero": "1.10x",
+        "archetype": "margin_account"
+      },
+      "visual_url": "/idea_idea_1790050801_8_visual.png"
+    }
+  ]
+}

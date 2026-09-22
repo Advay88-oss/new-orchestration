@@ -1,0 +1,11 @@
+{
+  "id": "STR-12d2bd63e4093d21",
+  "opportunity_id": "OPP-36a84d7b3872cc0c",
+  "audience": "DeFi risk managers and conservative lenders on Stellar Soroban looking to deploy capital without exposure to shared-pool",
+  "narrative_arc": "risk_relief",
+  "problem_statement": "In pooled lending models holding massive capital like Blend ($157.16M TVL), an insolvency or liquidation event in one asset puts the entire pool at risk, forcing conservative borrowers to bear contagion risk created by other users' bad debt.",
+  "angle": "Pooled lending contagion is an architectural choice rather than an inevitability; by moving to isolated credit accounts, Vanna prevents collateral cascades from threatening unrelated positions, though empirical risk performance comparisons remain limited given the sparse onchain evidence currently available.",
+  "evidence_ids": [
+    "SIG-36a84d7b3872cc0c"
+  ]
+}

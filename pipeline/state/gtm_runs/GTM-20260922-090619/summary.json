@@ -1,0 +1,187 @@
+{
+  "run_id": "GTM-20260922-090619",
+  "started_at": "2026-09-22T09:06:19.729459+00:00",
+  "directive": null,
+  "status": "completed",
+  "signal": "[Blend Protocol Docs] Blend v2 pool architecture formal verification and b-token specification",
+  "action_status": "ACTION",
+  "machine": "MACH_02_B2B_PARTNER_ONBOARDING",
+  "pillar": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+  "posts": {
+    "x": {
+      "hook": "Looping Blend b-tokens without liquidating your margin is live on Soroban testnet.",
+      "copy": "Blend v2 pools formally verified their b-token spec, so we plugged them into Vanna. Instead of co-mingling collateral in a shared pool, isolated SmartAccount sandboxes let you build structured leverage against b-tokens directly.\n\nYou get fixed gas at 0.00014 XLM, sub-second execution with ~320ms Mercury indexer latency, and a strictly enforced 1.10x Health Factor floor before any liquidation call touches your position.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+    },
+    "linkedin": {
+      "hook": "Why isolated execution sandboxes outperform pooled lending risk on Soroban.",
+      "copy": "Blend v2 formal verification of its pool architecture and b-token standard gives Soroban its first verified primitives for credit. However, traditional pooled risk models still bundle counterparty exposure across heterogeneous collateral. For structured yield strategies, risk isolation must happen at the account layer rather than the pool layer.\n\nVanna maps isolated SmartAccount sandboxes to Blend b-tokens to eliminate cascading pool liquidations. By isolating each position in a segregated contract boundary, farmers can leverage yield-bearing b-tokens without exposing their principal to systemic pool insolvency. Real-time telemetry via Mercury indexers clocks state propagation at roughly 320ms, while transaction execution settles at 0.00014 XLM per invocation.\n\nRisk management relies on deterministic boundaries: a non-negotiable 1.10x Health Factor floor paired with verified smart contract constraints ensures solvency without relying on manual liquidation buffers. Builders and capital allocators can test this composable pipeline directly. Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance to evaluate execution risk."
+    },
+    "reddit": {
+      "hook": "Technical breakdown: Integrating Blend v2 b-tokens into isolated Soroban credit sandboxes",
+      "copy": "Blend v2 released formal verification specs for their pool logic and b-tokens, giving Soroban developers a deterministic base layer to build on. We spent the last few weeks wiring b-token accounting directly into Vanna's isolated SmartAccount architecture on testnet, and the interaction model solves a major headache in cross-protocol leverage.\n\n### The Architectural Difference: Pooled vs Isolated Sandboxes\n\nTraditional lending protocols pool assets where user deposits share protocol-level insolvency risk. When you deposit assets to mint b-tokens in Blend, your exposure depends on the pool's global health.\n\nVanna acts as a composable credit layer on top. Instead of pooling, the protocol spins up an isolated SmartAccount instance for each position. When you route b-tokens into Vanna:\n\n1. The b-token stays segregated inside your personal sandbox instance.\n2. Borrowed liquidity is drawn against that specific sandbox rather than a collective vault.\n3. The protocol monitors a hard 1.10x Health Factor floor. If your margin breaches 1.10x, only that specific sandbox enters liquidation, leaving the broader pool untouched.\n\n### Execution Latency and Cost Constraints\n\nStellar's state machine lets us push execution costs down to a deterministic 0.00014 XLM fixed gas cost per invocation. To keep the liquidation engine synchronized with Blend's oracle feeds, we ingest state updates via Mercury indexers at ~320ms latency. That sub-second indexer loop allows the liquidation router to trigger precisely at the 1.10x floor without requiring excessive margin over-collateralization.\n\n### Deploying to Testnet\n\nYou can test the contract interactions directly:\n\n1. Fund a Soroban testnet wallet via the Stellar Laboratory friendbot.\n2. Head to test.stellar.vanna.finance and initialize your SmartAccount.\n3. Deposit testnet collateral, mint b-tokens, and configure your structured position.\n\nDisclosure: I am a core contributor at Vanna Protocol building credit infrastructure on Soroban."
+    }
+  },
+  "visual_concept": "Precision modular counterweights in isolated physical dampening bays, where compounding leverage increases internal structural stability without imparting lateral force to adjacent bays.",
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\GTM-20260922-090619_visual.png",
+  "visual_public_url": "/GTM-20260922-090619_visual.png",
+  "meme_path": "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260922-090619\\GTM-20260922-090619_meme.png",
+  "video_path": "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260922-090619\\GTM-20260922-090619_video.mp4",
+  "review_passed": true,
+  "review_notes": {
+    "blocked_claims": [],
+    "slop": []
+  },
+  "packet_built": true,
+  "duration_s": 208.02,
+  "ended_at": "2026-09-22T09:09:47.750596+00:00",
+  "model_calls": 8,
+  "model_calls_ok": 8,
+  "input_tokens": 4129,
+  "output_tokens": 2605,
+  "models_used": [
+    "gemini-3-pro-image",
+    "gemini-3.1-flash-image",
+    "gemini-3.8-flash",
+    "veo-3.1-generate-001"
+  ],
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "scanned live sources (21.75s)",
+      "outputs": [
+        "SIG-DOCS-BLEND-V2-SPEC",
+        "SIG-NEWS-a257dce0",
+        "SIG-NEWS-fc998c57",
+        "SIG-NEWS-a04f34cb",
+        "SIG-NEWS-a4cd395e",
+        "SIG-NEWS-ed882542",
+        "SIG-TG-STELLAR-VERIFIED",
+        "SIG-OPP-OPP_COMPOSABLE_SANDBOX",
+        "SIG-OPP-OPP_1_1X_BUFFER_DEFENSE",
+        "SIG-OPP-OPP-AUTO-1789719019"
+      ],
+      "at": "2026-09-22T09:06:41.515648+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "chose a signal to pursue (5.1s)",
+      "outputs": [],
+      "at": "2026-09-22T09:06:46.613246+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "formulated strategy (5.61s)",
+      "outputs": [
+        "STRAT-SIG-DOCS-BLEND-V2-SPEC-202609220906"
+      ],
+      "at": "2026-09-22T09:06:52.218823+00:00"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "role": "none",
+      "status": "ok",
+      "detail": "verified machine MACH_02_B2B_PARTNER_ONBOARDING (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T09:06:52.218823+00:00"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "role": "none",
+      "status": "ok",
+      "detail": "selected campaign vehicle (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T09:06:52.218823+00:00"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "generated channel posts (10.05s)",
+      "outputs": [
+        "CAP-STRAT-SIG-DOCS-B-202609220906"
+      ],
+      "at": "2026-09-22T09:07:02.264276+00:00"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "art-directed the campaign (18.06s)",
+      "outputs": [],
+      "at": "2026-09-22T09:07:20.321817+00:00"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "role": "image",
+      "status": "ok",
+      "detail": "rendered the meme (35.58s)",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\GTM-20260922-090619_visual.png",
+        "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260922-090619\\GTM-20260922-090619_meme.png"
+      ],
+      "at": "2026-09-22T09:08:12.135183+00:00"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "role": "video",
+      "status": "ok",
+      "detail": "completed (92.08s)",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260922-090619\\GTM-20260922-090619_video.mp4"
+      ],
+      "at": "2026-09-22T09:09:44.219224+00:00"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "role": "none",
+      "status": "ok",
+      "detail": "ran the pre-delivery firewalls (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T09:09:44.219224+00:00"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "role": "none",
+      "status": "skipped",
+      "detail": "awaiting human approval; dispatch never runs unprompted",
+      "outputs": [],
+      "at": "2026-09-22T09:09:44.219224+00:00"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "role": "none",
+      "status": "ok",
+      "detail": "built the human review packet (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T09:09:44.219224+00:00"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "processed the outcome feedback loop (3.53s)",
+      "outputs": [],
+      "at": "2026-09-22T09:09:47.750596+00:00"
+    }
+  ],
+  "agents_ran": 12
+}

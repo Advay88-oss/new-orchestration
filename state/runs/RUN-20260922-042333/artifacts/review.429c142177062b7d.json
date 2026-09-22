@@ -1,0 +1,96 @@
+{
+  "run_id": "RUN-20260922-042333",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "A sharp downturn in a single asset can trigger cascading liquidations across a borrower's entire portfolio.",
+  "body": "Aggregate network telemetry tracks macro metrics, including Blend's $159,033,033 TVL, Soroswap's $1,239,028 TVL, and 0.1 ledger capacity usage. These broad figures do not stop cross-position contagion. Isolated credit accounts alter this dynamic structurally. Each account maintains its own distinct collateral and liabilities. When liquidation occurs, the settlement is strictly bounded to the distressed account. The protocol architecture prevents losses from pulling capital from other balances.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-042333_r0.png",
+  "visual_accepted": true,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "A sharp downturn in a single asset can trigger cascading liquidations across a borrower's entire portfolio.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "These broad figures do not stop cross-position contagion.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Isolated credit accounts alter this dynamic structurally.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Each account maintains its own distinct collateral and liabilities.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "When liquidation occurs, the settlement is strictly bounded to the distressed account.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "The protocol architecture prevents losses from pulling capital from other balances.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 9,
+    "by_status": {
+      "verified": 3,
+      "unverified": 0,
+      "unsupported": 6,
+      "refuted": 0
+    },
+    "blocking": [
+      "A sharp downturn in a single asset can trigger cascading liquidations across a borrower's entire portfolio.",
+      "These broad figures do not stop cross-position contagion.",
+      "Isolated credit accounts alter this dynamic structurally.",
+      "Each account maintains its own distinct collateral and liabilities.",
+      "When liquidation occurs, the settlement is strictly bounded to the distressed account.",
+      "The protocol architecture prevents losses from pulling capital from other balances."
+    ]
+  },
+  "artifact": "review_packet.a7f60d12b30eabf2.json"
+}

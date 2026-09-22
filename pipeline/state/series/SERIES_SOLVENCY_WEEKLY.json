@@ -1,0 +1,53 @@
+{
+  "series_id": "SERIES_SOLVENCY_WEEKLY",
+  "series_name": "Weekly Solvency Telemetry Report",
+  "cadence": "WEEKLY",
+  "trigger": "SCHEDULED_FRIDAY",
+  "input_data_source": "Mercury Indexer",
+  "fixed_structure": [
+    "Health Factor Rail",
+    "Latency Benchmark",
+    "Sandbox Count"
+  ],
+  "variable_fields": [
+    "total_active_sandboxes",
+    "avg_rebalance_latency"
+  ],
+  "visual_template_type": "telemetry_rail",
+  "recurrence_tier": "RECURRING_SYSTEM",
+  "occurrences": [
+    {
+      "occurrence_id": "OCC-SERIES_SOLVENCY_WEEKLY-001",
+      "occurrence_number": 1,
+      "published_date": "2026-09-01",
+      "content_id": "C-01",
+      "verified_url": null,
+      "input_data_summary": "Snapshot 1"
+    },
+    {
+      "occurrence_id": "OCC-SERIES_SOLVENCY_WEEKLY-002",
+      "occurrence_number": 2,
+      "published_date": "2026-09-08",
+      "content_id": "C-02",
+      "verified_url": null,
+      "input_data_summary": "Snapshot 2"
+    },
+    {
+      "occurrence_id": "OCC-SERIES_SOLVENCY_WEEKLY-003",
+      "occurrence_number": 3,
+      "published_date": "2026-09-15",
+      "content_id": "C-03",
+      "verified_url": null,
+      "input_data_summary": "Snapshot 3"
+    },
+    {
+      "occurrence_id": "OCC-SERIES_SOLVENCY_WEEKLY-004",
+      "occurrence_number": 4,
+      "published_date": "2026-09-22",
+      "content_id": "C-04",
+      "verified_url": null,
+      "input_data_summary": "Snapshot 4"
+    }
+  ],
+  "created_at": "2026-09-19T09:01:52.775547+00:00"
+}

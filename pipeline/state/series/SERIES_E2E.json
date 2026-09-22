@@ -1,0 +1,18 @@
+{
+  "series_id": "SERIES_E2E",
+  "series_name": "Weekly Solvency Series",
+  "cadence": "WEEKLY",
+  "trigger": "CRON_FRIDAY",
+  "input_data_source": "Mercury",
+  "fixed_structure": [
+    "Rail",
+    "Latency"
+  ],
+  "variable_fields": [
+    "active_sandboxes"
+  ],
+  "visual_template_type": "telemetry_rail",
+  "recurrence_tier": "ONE_OCCURRENCE",
+  "occurrences": [],
+  "created_at": "2026-09-19T09:03:03.597347+00:00"
+}

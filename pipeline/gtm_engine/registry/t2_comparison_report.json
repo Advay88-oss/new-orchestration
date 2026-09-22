@@ -1,0 +1,32 @@
+{
+  "rules_top3": [
+    "METRICS_PROOF",
+    "GOVERNANCE",
+    "TOKEN_ECONOMICS"
+  ],
+  "rules_passed": true,
+  "rules_counts": {
+    "METRICS_PROOF": 39,
+    "GOVERNANCE": 25,
+    "TOKEN_ECONOMICS": 15,
+    "COMMUNITY": 4,
+    "PARTNERSHIP": 2
+  },
+  "model_id": "gemini-3.8-flash",
+  "model_top3": [
+    "GOVERNANCE",
+    "METRICS_PROOF",
+    "COMMUNITY"
+  ],
+  "model_passed": false,
+  "model_counts": {
+    "METRICS_PROOF": 33,
+    "GOVERNANCE": 39,
+    "COMMUNITY": 7,
+    "PARTNERSHIP": 3,
+    "PRODUCT": 2,
+    "TOKEN_ECONOMICS": 1
+  },
+  "disagreement_rate_pct": 30.59,
+  "disagreements_count": 26
+}

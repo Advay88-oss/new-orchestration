@@ -1,0 +1,244 @@
+{
+  "run_id": "RUN_RESEARCH_GEARBOX_1789964650",
+  "entity": "Gearbox",
+  "elapsed_seconds": 48.9,
+  "scraped_pages_count": 3,
+  "claims_extracted_count": 7,
+  "profile": {
+    "entity_id": "gearbox",
+    "retrieved_at": "2026-09-21T04:24:58.920247+00:00",
+    "product": {
+      "name": "Gearbox",
+      "description": "# Gearbox Protocol\n> \u539f\u6587\u94fe\u63a5: https://gearbox.fi\n\n---\n\n![](https://www.gearbox.finance/assets/hero/hero@1x.png)\n\n![](https://www.gearbox.finance/assets/hero/hero@1x.png)\n\n# Tokenisation Lending Stack\n\nReal-World Assets need Real-World Lending. Gearbox provides institutional credit infrastructure: margi",
+      "features": [
+        "Per-account allowlists and role policies",
+        "Jurisdiction filters",
+        "Per-user risk limits",
+        "Direct access to issuer functions (e.g., Provenance)",
+        "Custom deposit and redemption options",
+        "Support for legal enforcement cases (inheritance, freezes)"
+      ],
+      "chains_supported": [
+        "Ethereum",
+        "Arbitrum",
+        "Optimism",
+        "Base"
+      ],
+      "sdk_api_available": false
+    },
+    "audience": {
+      "target_segments": [
+        "Institutional allocators & funds"
+      ],
+      "evidence_status": "OBSERVED"
+    },
+    "positioning": {
+      "headline": "Gearbox Protocol",
+      "category": "LENDING_AND_CREDIT",
+      "value_proposition": "@1x.png)\n\n![](https://www.gearbox.finance/assets/hero/hero@1x.png)\n\n# Tokenisation Lending Stack\n\nReal-World Assets need Real-World Lending. Gearbox provides institutional credit infrastructure: margin, prime brokerage, portfolio loans.\n\n**$12B+**\n\nTransaction Volume\n\n**$3M+**\n\nSpent on Security\n\n**",
+      "source_hierarchy_level": 2
+    },
+    "conversion": {
+      "primary_cta_links": [
+        "https://app.gearbox.finance/pools",
+        "https://app.gearbox.finance/strategies/list"
+      ],
+      "documentation_url": "https://docs.gearbox.fi"
+    },
+    "proof": {
+      "metrics": [
+        "DeFiLlama Verified TVL: $23,673,826.00"
+      ],
+      "confidence": "HIGH"
+    },
+    "visual": {
+      "screenshots": [
+        "D:\\new orchestration\\pipeline\\state\\gearbox_homepage_visual.png"
+      ],
+      "design_patterns": [
+        "Dark obsidian/slate UI",
+        "Modern glassmorphism tables"
+      ]
+    },
+    "sources_crawled": [
+      "https://gearbox.fi",
+      "https://docs.gearbox.fi",
+      "https://blog.gearbox.fi"
+    ]
+  },
+  "claims": [
+    {
+      "claim_id": "CLM_GEARBOX_TITLE_fba42477",
+      "entity_id": "gearbox",
+      "claim": "Gearbox Protocol \u2014 official title on gearbox.fi",
+      "category": "POSITIONING",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-21T04:24:17.994442+00:00",
+      "data_as_of": "2026-09-21",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_GEARBOX_METRIC_38684612",
+      "entity_id": "gearbox",
+      "claim": "finance/assets/hero/hero@1x.",
+      "category": "PROOF",
+      "metric_extracted": "1x",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-21T04:24:17.994442+00:00",
+      "data_as_of": "2026-09-21",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_GEARBOX_METRIC_38684612",
+      "entity_id": "gearbox",
+      "claim": "finance/assets/hero/hero@1x.",
+      "category": "PROOF",
+      "metric_extracted": "1x",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-21T04:24:17.994442+00:00",
+      "data_as_of": "2026-09-21",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_GEARBOX_METRIC_95e53de2",
+      "entity_id": "gearbox",
+      "claim": "Metric observed: $12B",
+      "category": "PROOF",
+      "metric_extracted": "$12B",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-21T04:24:17.994442+00:00",
+      "data_as_of": "2026-09-21",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_GEARBOX_METRIC_385edbbe",
+      "entity_id": "gearbox",
+      "claim": "Metric observed: $3M",
+      "category": "PROOF",
+      "metric_extracted": "$3M",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-21T04:24:17.994442+00:00",
+      "data_as_of": "2026-09-21",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_GEARBOX_METRIC_9711a3c1",
+      "entity_id": "gearbox",
+      "claim": "Metric observed: 14%",
+      "category": "PROOF",
+      "metric_extracted": "14%",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-21T04:24:17.994442+00:00",
+      "data_as_of": "2026-09-21",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    },
+    {
+      "claim_id": "CLM_GEARBOX_INTEG_1993fa6e",
+      "entity_id": "gearbox",
+      "claim": "Gearbox explicitly references integration or compatibility with: Curve, Base.",
+      "category": "PRODUCT_INTEGRATIONS",
+      "source_type": "official_website",
+      "source_hierarchy_level": 2,
+      "source_url": "https://gearbox.fi",
+      "source_record_id": "https://gearbox.fi",
+      "observed_at": "2026-09-21T04:24:17.994442+00:00",
+      "data_as_of": "2026-09-21",
+      "evidence_status": "OBSERVED",
+      "confidence": "HIGH"
+    }
+  ],
+  "trace": [
+    {
+      "step": "LEVEL_1_MARKET_DISCOVERY",
+      "tool": "urllib.request -> api.llama.fi",
+      "target": "https://api.llama.fi/protocol/gearbox",
+      "status": "SUCCESS",
+      "data_summary": "TVL: $23673826"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://gearbox.fi",
+      "status": "OBSERVED",
+      "page_title": "Gearbox Protocol",
+      "chars_extracted": 6327,
+      "links_discovered": 31
+    },
+    {
+      "step": "VISUAL_ASSET_CAPTURE",
+      "tool": "opencli browser screenshot",
+      "target_url": "https://gearbox.fi",
+      "screenshot_path": "D:\\new orchestration\\pipeline\\state\\gearbox_homepage_visual.png",
+      "status": "OBSERVED"
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://docs.gearbox.fi",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "DEEP_WEB_RESEARCH",
+      "tool": "opencli web read",
+      "target_url": "https://blog.gearbox.fi",
+      "status": "SCRAPE_FAILED",
+      "page_title": "",
+      "chars_extracted": 0,
+      "links_discovered": 0
+    },
+    {
+      "step": "EVIDENCE_NORMALIZATION",
+      "claims_extracted": 7,
+      "profile_dimensions_populated": [
+        "entity_id",
+        "retrieved_at",
+        "product",
+        "audience",
+        "positioning",
+        "conversion",
+        "proof",
+        "visual",
+        "sources_crawled"
+      ],
+      "status": "NORMALIZED"
+    },
+    {
+      "step": "BRAIN_DB_INTEGRATION",
+      "evidence_records_appended": 0,
+      "opportunities_derived": 0,
+      "status": "COMMITTED"
+    }
+  ],
+  "brain_sync": {
+    "evidence_added": 0,
+    "opportunities_added": 0
+  },
+  "duration": 48.9
+}

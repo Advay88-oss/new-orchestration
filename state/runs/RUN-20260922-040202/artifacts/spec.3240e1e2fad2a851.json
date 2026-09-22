@@ -1,0 +1,28 @@
+{
+  "layout": "quote",
+  "headline": "Isolation Restricts the Boundary of Failure",
+  "subhead": null,
+  "blocks": [
+    {
+      "role": "label",
+      "text": "“Isolation does not remove market risk, but it restricts the boundary of failure.”",
+      "emphasis": "primary"
+    },
+    {
+      "role": "caption",
+      "text": "When debt mutualizes, insolvency migrates across shared balances. Structural segregation bounds shortfalls strictly to the originating position.",
+      "emphasis": "secondary"
+    }
+  ],
+  "focal": {
+    "block_index": 0,
+    "reason": "The primary quote delivers the core structural axiom with high typographic emphasis."
+  },
+  "palette": {
+    "ink": "#FFFFFF",
+    "ground": "#07020D",
+    "accent": "#A387FF"
+  },
+  "background": "texture",
+  "disclaimer": null
+}

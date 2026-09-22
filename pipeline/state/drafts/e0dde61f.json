@@ -1,0 +1,42 @@
+{
+  "draft_id": "e0dde61f",
+  "message_id": 290,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T12:18:06Z",
+  "sent_unix": 1787228281,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "e0dde61f",
+    "draft_id": "f766770b",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Three strategies. Three siloed accounts. That is fragmentation. Gearbox splits your collateral into isolated pools. Vanna unifies your book under one health factor, unlocking up to 10x credit on testnet. One account. Six jobs. Stop dividing capital.",
+    "final_body": "Three strategies. Three siloed accounts. That is fragmentation. Gearbox splits your collateral into isolated pools. Vanna unifies your book under one health factor, unlocking up to 10x credit on testnet. One account. Six jobs. Stop dividing capital.",
+    "final_hook": "Three strategies. Three siloed accounts.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Siloed capital. Unified credit.",
+      "emphasis_phrase": "10x capital efficiency.",
+      "subhead": "Why fragment your collateral when one account can run your entire book?",
+      "data": [
+        {
+          "label": "Gearbox Credit Accounts",
+          "value": "Siloed Pools",
+          "note": "Requires separate collateral and health factors per position"
+        },
+        {
+          "label": "Vanna Unified Margin",
+          "value": "Up to 10x Credit",
+          "note": "One health factor across your entire book on testnet"
+        }
+      ],
+      "disclaimer": "Vanna is currently on testnet. All credit limits are illustrative of protocol mathematics: (C+B)/(D+B) >= 1.1."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T12:17:41Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

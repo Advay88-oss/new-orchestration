@@ -1,0 +1,11 @@
+{
+  "category": "technical_architecture",
+  "narrative": "SmartAccount sandboxes decouple borrower leverage from lending pool solvency. 14 smart contracts isolate each execution sandbox, preventing cross-account risk contagion while routing to Blend, Soroswap, and Aquarius.",
+  "headline": "Isolated Sandboxes. Zero Contagion.",
+  "subhead": "Monolithic lending pools socialize bad debt. Vanna confines up to 10x leverage to dedicated on-chain SmartAccounts on Stellar Soroban.",
+  "hero_value": "10x",
+  "hero_label": "ISOLATED MARGIN",
+  "badge": "SOROBAN TESTNET ARCHITECTURE",
+  "metric_context": "DEDICATED EXECUTION SANDBOXES",
+  "source": "docs.vanna.finance"
+}

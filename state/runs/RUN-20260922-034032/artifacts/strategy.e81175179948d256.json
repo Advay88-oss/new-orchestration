@@ -1,0 +1,11 @@
+{
+  "id": "STR-f90e325d6bee5030",
+  "opportunity_id": "OPP-36a84d7b3872cc0c",
+  "audience": "DeFi borrowers and liquidation bot operators on Stellar Soroban",
+  "narrative_arc": "risk_relief",
+  "problem_statement": "Borrowers managing distressed positions during volatility often cannot reliably time defensive collateral deposits because sudden gas spikes price out or delay their transactions, triggering preventable liquidations.",
+  "angle": "With Stellar ledger capacity usage at just 0.08 and the base fee resting at 100, deterministic execution costs eliminate fee-driven delays in liquidation timing, though thin secondary liquidity ($1.24M Soroswap TVL versus $157.16M Blend TVL) indicates the risk profile shifts from gas unpredictability to available market depth.",
+  "evidence_ids": [
+    "SIG-36a84d7b3872cc0c"
+  ]
+}

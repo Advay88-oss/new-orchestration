@@ -1,0 +1,39 @@
+{
+  "run_id": "RUN_AUTO_20260920_114550",
+  "timestamp": "2026-09-20T11:46:38Z",
+  "decision": "FAIL",
+  "score": "100/100",
+  "scores": {
+    "factual": 98,
+    "content": 90,
+    "visual": 65,
+    "brand": 65,
+    "social": 85,
+    "novelty": 85,
+    "overall": 100
+  },
+  "critical_failures": [
+    "Brand color palette violation"
+  ],
+  "reasons": [
+    "Unapproved dominant color or missing dark obsidian foundation detected in rendered PNG"
+  ],
+  "required_changes": [
+    "Re-render with deep obsidian base #07020D and violet/magenta ambient blooms"
+  ],
+  "template_repetition": false,
+  "visual_archetype": "abstract_metaphor",
+  "rubric_breakdown": {
+    "claim_integrity": 30,
+    "hook_strength": 20,
+    "arc_coherence": 15,
+    "voice_fidelity": 15,
+    "trend_fit": 10,
+    "virality_mechanics": 10
+  },
+  "adversarial_audit": {
+    "model": "gemini-3.8-flash",
+    "em_dash_free": true,
+    "calibrated_thresholds": true
+  }
+}

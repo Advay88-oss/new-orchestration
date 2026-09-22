@@ -1,0 +1,28 @@
+{
+  "run_id": "vanna-humanized-run-001",
+  "decision": "REGENERATE",
+  "scores": {
+    "content": 82,
+    "factual": 98,
+    "visual": 90,
+    "brand": 92,
+    "social": 88,
+    "novelty": 88
+  },
+  "critical_failures": [],
+  "reasons": [
+    "Post copy exceeds optimal single-post length without clear thread delineation."
+  ],
+  "required_changes": [],
+  "visual_archetype": "asymmetric technical diagram",
+  "previous_archetypes_checked": [
+    "visual metaphor",
+    "generic 3-row infographic",
+    "generic 3-row infographic",
+    "visual metaphor",
+    "mechanism visualization"
+  ],
+  "template_repetition": false,
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\vanna_underrated_competitor_visual.png",
+  "timestamp": "2026-09-15T06:21:47.421422+00:00"
+}

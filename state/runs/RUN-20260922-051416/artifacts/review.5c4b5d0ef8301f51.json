@@ -1,0 +1,96 @@
+{
+  "run_id": "RUN-20260922-051416",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "Liquidation slippage is the primary failure mode when lending balances decouple from decentralized exchange depth.",
+  "body": "Blend TVL is 159,033,033 USD, while Soroswap TVL is 1,239,028 USD. Liquidating large debt positions against available AMM pools creates severe price impact and risk of bad debt. This failure cannot spread into network-level settlement bottlenecks. Stellar ledger capacity usage is currently 0.1 with a base fee of 100, keeping transaction submission stable and isolating distress strictly to local pool depth.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-051416_r0.png",
+  "visual_accepted": false,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "Liquidation slippage is the primary failure mode when lending balances decouple from decentralized exchange depth.",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "Liquidating large debt positions against available AMM pools creates severe price impact",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "Liquidating large debt positions against available AMM pools creates risk of bad debt",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      },
+      {
+        "text": "This failure cannot spread into network-level settlement bottlenecks",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      },
+      {
+        "text": "Stellar ledger capacity usage and base fee keep transaction submission stable",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.98
+      },
+      {
+        "text": "Distress is isolated strictly to local pool depth",
+        "kind": "inference",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "retrieval/no-candidates",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 10,
+    "by_status": {
+      "verified": 4,
+      "unverified": 0,
+      "unsupported": 6,
+      "refuted": 0
+    },
+    "blocking": [
+      "Liquidation slippage is the primary failure mode when lending balances decouple from decentralized exchange depth.",
+      "Liquidating large debt positions against available AMM pools creates severe price impact",
+      "Liquidating large debt positions against available AMM pools creates risk of bad debt",
+      "This failure cannot spread into network-level settlement bottlenecks",
+      "Stellar ledger capacity usage and base fee keep transaction submission stable",
+      "Distress is isolated strictly to local pool depth"
+    ]
+  },
+  "artifact": "review_packet.95c3dcd60541f6f9.json"
+}

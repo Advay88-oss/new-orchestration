@@ -322,12 +322,18 @@ class Bundle:
 # --------------------------------------------------------------------------
 
 def default_bundle_path() -> Path:
-    """`OKF_BUNDLE` if set, else `okf/` beside the repository root."""
+    """`OKF_BUNDLE` if set, else `okf/` beside the repository root with fallback to system1_extracted."""
     import os
     env = os.environ.get("OKF_BUNDLE")
     if env:
         return Path(env)
-    return Path(__file__).resolve().parents[2] / "okf"
+    p = Path(__file__).resolve().parents[2] / "okf"
+    if p.exists():
+        return p
+    fallback = Path(__file__).resolve().parents[1] / "system1_extracted" / "okf"
+    if fallback.exists():
+        return fallback
+    return p
 
 
 if __name__ == "__main__":

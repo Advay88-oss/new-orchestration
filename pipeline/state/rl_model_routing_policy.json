@@ -1,0 +1,56 @@
+{
+  "x_post::gemini-2.5-flash": {
+    "task_type": "x_post",
+    "model_id": "gemini-2.5-flash",
+    "trials_count": 5,
+    "total_reward": 3.161,
+    "average_reward": 0.632,
+    "ucb_score": 1.5,
+    "last_updated": "2026-09-17T08:01:40.337526+00:00"
+  },
+  "x_post::vanna-deterministic-engine": {
+    "task_type": "x_post",
+    "model_id": "vanna-deterministic-engine",
+    "trials_count": 5,
+    "total_reward": 4.112,
+    "average_reward": 0.822,
+    "ucb_score": 1.5,
+    "last_updated": "2026-09-17T08:01:40.338542+00:00"
+  },
+  "product_visual::gemini-3.1-flash-image": {
+    "task_type": "product_visual",
+    "model_id": "gemini-3.1-flash-image",
+    "trials_count": 1,
+    "total_reward": 1.0,
+    "average_reward": 1.0,
+    "ucb_score": 1.5,
+    "last_updated": "2026-09-17T08:03:59.388760+00:00"
+  },
+  "product_visual::headless-vector-renderer": {
+    "task_type": "product_visual",
+    "model_id": "headless-vector-renderer",
+    "trials_count": 1,
+    "total_reward": 0.71,
+    "average_reward": 0.71,
+    "ucb_score": 1.5,
+    "last_updated": "2026-09-17T08:03:59.390766+00:00"
+  },
+  "technical_schematic::gemini-3.1-flash-image": {
+    "task_type": "technical_schematic",
+    "model_id": "gemini-3.1-flash-image",
+    "trials_count": 1,
+    "total_reward": 1.0,
+    "average_reward": 1.0,
+    "ucb_score": 1.5,
+    "last_updated": "2026-09-17T08:03:59.391763+00:00"
+  },
+  "technical_schematic::headless-vector-renderer": {
+    "task_type": "technical_schematic",
+    "model_id": "headless-vector-renderer",
+    "trials_count": 1,
+    "total_reward": 0.7,
+    "average_reward": 0.7,
+    "ucb_score": 1.5,
+    "last_updated": "2026-09-17T08:03:59.392761+00:00"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "chosen": {
+    "title": "The Watertight Bulkhead",
+    "idea": "A precise architectural cross-section comparing two fluid containment structures. The left pane ('Pooled Architecture') shows a single interconnected reservoir where a ruptured delinquent cell leaks dark hydraulic fluid directly into a shared sediment bed, tinting the entire mutual reserve grey. The right pane ('Isolated Position Engine') shows a series of discrete, steel-jacketed containment chambers separated by reinforced mechanical bulkheads; a red breach light flashes inside chamber 04, but double blast-doors have locked shut, leaving surrounding capital reserves unclouded and fully operational.",
+    "layout": "comparison",
+    "why": "Systemic risk in DeFi is notoriously abstract. Grounding the argument in naval architecture and civil flood containment immediately clarifies why shared pooling causes haircut contagion, positioning structural isolation as an engineered safety guarantee rather than a marginal optimization."
+  },
+  "all": [
+    {
+      "title": "The Watertight Bulkhead",
+      "idea": "A precise architectural cross-section comparing two fluid containment structures. The left pane ('Pooled Architecture') shows a single interconnected reservoir where a ruptured delinquent cell leaks dark hydraulic fluid directly into a shared sediment bed, tinting the entire mutual reserve grey. The right pane ('Isolated Position Engine') shows a series of discrete, steel-jacketed containment chambers separated by reinforced mechanical bulkheads; a red breach light flashes inside chamber 04, but double blast-doors have locked shut, leaving surrounding capital reserves unclouded and fully operational.",
+      "layout": "comparison",
+      "why": "Systemic risk in DeFi is notoriously abstract. Grounding the argument in naval architecture and civil flood containment immediately clarifies why shared pooling causes haircut contagion, positioning structural isolation as an engineered safety guarantee rather than a marginal optimization."
+    },
+    {
+      "title": "Blast Radius Containment Blueprint",
+      "idea": "An isometric engineering blueprint of an active credit facility showing structural shock dampeners. At the center, Position #882 undergoes an extreme liquidation slippage event, depicted as an outward-radiating stress cone. Rather than propagating outward into the primary ledger spine, the stress vector hits an explicit high-density boundary sleeve ('Risk Perimeter Limit') and grounds out entirely inside sacrificial damping plates. Clean technical callouts quantify zero delta transfer to the mutual reserve bus.",
+      "layout": "diagram",
+      "why": "Demonstrates the precise mathematical boundary condition described in the body copy, moving away from abstract finance imagery into rigorous structural mechanics."
+    },
+    {
+      "title": "Cascading Fault Interception",
+      "idea": "A 4-step vertical telemetry audit tracking a liquidation from initiation to containment: Step 1 (Threshold Breach: Collateral slips below clearing price), Step 2 (Isolation Interlock: Position perimeter clamps, severing pool settlement ties), Step 3 (Localized Deficit Absorption: Position margin absorbs delinquent delta in an air-gapped silo), and Step 4 (Neutral State: Venues maintain 100% solvency with 0.00% mutual pool haircut). Each stage is displayed via dense, industrial console panels showing real-time ledger status flags.",
+      "layout": "sequence",
+      "why": "Breaks down the liquidation mechanics into an indisputable chronological proof, demonstrating step-by-step how systemic failure is intercepted before touching depositor capital."
+    }
+  ],
+  "novelty_note": ""
+}

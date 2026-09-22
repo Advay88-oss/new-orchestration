@@ -1,0 +1,47 @@
+{
+  "draft_id": "14ea0dcd",
+  "message_id": 286,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T09:18:18Z",
+  "sent_unix": 1787217496,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "14ea0dcd",
+    "draft_id": "ebc6b9e1",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Why split capital across isolated credit accounts? One strategy per box is a margin drag. Vanna unifies your entire book under a single health factor—unlocking up to 10x borrowing capacity. Your collateral is doing one job. It should be doing six.",
+    "final_body": "Why split capital across isolated credit accounts? One strategy per box is a margin drag. Vanna unifies your entire book under a single health factor—unlocking up to 10x borrowing capacity. Your collateral is doing one job. It should be doing six.",
+    "final_hook": "Why split capital across isolated credit accounts?",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "stat-card",
+      "headline": "Siloed margin. Capital drag.",
+      "emphasis_phrase": "Unify the book.",
+      "subhead": "How isolated credit accounts compare to Vanna's Unified Margin",
+      "data": [
+        {
+          "label": "Collateral Structure",
+          "value": "Isolated vs. Unified",
+          "note": "Gearbox silos assets per strategy; Vanna cross-collateralizes the entire book."
+        },
+        {
+          "label": "Credit Multiplier",
+          "value": "Up to 10x Capacity",
+          "note": "Vanna borrow guard counts assets on both sides of the smart contract."
+        },
+        {
+          "label": "Health Factors",
+          "value": "1 vs. Multiple",
+          "note": "A single health factor eliminates the capital drag of fragmented accounts."
+        }
+      ],
+      "disclaimer": "Vanna is currently live on testnet. Outlined mechanics represent smart contract architecture."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T09:15:46Z"
+  },
+  "image": "pipeline\\state\\temp_rendered.png"
+}

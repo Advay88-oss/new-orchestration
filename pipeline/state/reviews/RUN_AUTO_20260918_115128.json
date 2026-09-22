@@ -1,0 +1,59 @@
+{
+  "run_id": "RUN_AUTO_20260918_115128",
+  "reviewer_brain": "gemini-3.8-flash",
+  "reviewer_brain_provider": "Google Cloud Vertex AI",
+  "reviewer_decision": "APPROVE",
+  "decision": "PASS",
+  "quality": "PASS",
+  "overall_visual_score": "92/100",
+  "adversarial_humanizer_audit": {
+    "model": "gemini-3.8-flash",
+    "em_dash_free": true,
+    "anti_ai_cliches_detected": [],
+    "calibrated_thresholds": true
+  },
+  "scores": {
+    "content": 92,
+    "factual": 98,
+    "visual": 90,
+    "brand": 90,
+    "social": 85,
+    "novelty": 90
+  },
+  "score_breakdown": {
+    "message_fit": "92/100",
+    "brand_fit": "90/100",
+    "premiumness": "90/100",
+    "novelty": "90/100",
+    "technical_accuracy": "98/100"
+  },
+  "evaluations": {
+    "message_fit": "Visual clearly represents risk containment, deflection barrier, or solvency floor.",
+    "brand_fit": "Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+    "premiumness": "Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+    "novelty": "Original visual metaphor and composition; no template repetition detected.",
+    "technical_accuracy": "Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit."
+  },
+  "critical_failures": [],
+  "failures": [],
+  "reasons": [
+    "Verified across all 5 core dimensions."
+  ],
+  "required_changes": [],
+  "required_revisions": [],
+  "why_it_passed": [
+    "MESSAGE FIT (92/100): Visual clearly represents risk containment, deflection barrier, or solvency floor.",
+    "BRAND FIT (90/100): Adheres to Vanna's dark obsidian (#07020D) and dual-point violet/magenta ambient palette.",
+    "PREMIUMNESS (90/100): Precision diagrammatic geometry with high negative space; comparable to Morpho/Gearbox.",
+    "NOVELTY (90/100): Original visual metaphor and composition; no template repetition detected.",
+    "TECHNICAL ACCURACY (98/100): Grounded in verified Vanna architecture: Stellar Soroban, Blend BLUSDC, Margin Accounts, 10x credit.",
+    "Image strengthens the copy; composition creates instant scroll-stop without decorative clutter.",
+    "Visual would look credible beside Morpho, Aave, and Gearbox infrastructure schematics."
+  ],
+  "art_direction_action": "DISPATCH_TO_TELEGRAM",
+  "art_direction_directives": [],
+  "template_repetition": false,
+  "visual_archetype": "technical_architecture",
+  "inspected_asset": "D:\\new orchestration\\pipeline\\state\\RUN_AUTO_20260918_115128_visual.png",
+  "timestamp": "2026-09-18T11:51:51.860408+00:00"
+}

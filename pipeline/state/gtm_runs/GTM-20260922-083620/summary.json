@@ -1,0 +1,160 @@
+{
+  "run_id": "GTM-20260922-083620",
+  "started_at": "2026-09-22T08:36:20.174673+00:00",
+  "directive": null,
+  "status": "completed",
+  "signal": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+  "action_status": "ACTION",
+  "machine": "MACHINE_04: TECHNICAL_EDUCATION_DISPATCH",
+  "pillar": "Pillar 2: Isolated SmartAccount Sandboxes (Contagion Elimination)",
+  "posts": {
+    "x": {
+      "hook": "Shared margin pools always socialize bad debt. We fixed that on Soroban.",
+      "copy": "Shared margin pools always socialize bad debt. When a leveraged position unwinds on Blend while looping Aquarius LP shares, passive depositors should never absorb the slippage.\n\nVanna deploys an isolated SmartAccount contract per borrower on Soroban. Debt stays inside that sandbox. Liquidations trigger at a hard 1.10x Health Factor floor with 0.00014 XLM fixed gas and ~320ms Mercury indexer latency.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+    },
+    "linkedin": {
+      "hook": "Why pooled margin models fail institutional risk mandates on alt-L1 networks.",
+      "copy": "Most DeFi credit systems still run on shared margin pools where a single failed liquidation cascades across every passive depositor in the vault. If an exotic collateral asset depegs or DEX liquidity dries up mid-auction, the entire liquidity pool absorbs the deficit. For institutional allocators seeking predictable base yields, this systemic contagion makes underwriting unviable.\n\nVanna addresses this structural vulnerability on Stellar Soroban by isolating credit into dedicated SmartAccount contracts for every borrower. Leverage up to 10x composed across Blend b-tokens and Aquarius LP positions executes strictly within the borrower's isolated instance. The core LendingPool retains priority claims, meaning liquidated assets never contaminate passive capital reserves. With ~320ms Mercury indexer latency tracking price feeds and deterministic 0.00014 XLM fixed gas execution, positions are unwound directly at the 1.10x Health Factor floor before bad debt can form.\n\nThis architecture gives credit orchestrators full composability through Soroswap without exposing balance sheet providers to liquidation tail risk. We deployed this model on Soroban testnet to demonstrate that high capital efficiency and balance sheet ring-fencing can coexist. Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance."
+    },
+    "reddit": {
+      "hook": "Why we built isolated SmartAccount sandboxes instead of pooled margin for Soroban credit",
+      "copy": "Shared margin pools have a liquidation problem that most protocols ignore until volatility spikes. When users loop yield across multiple protocols like Blend and Aquarius, liquidating complex collateral on DEX orderbooks often causes slippage that spills back into the base lending pool. Passive lenders end up taking haircuts for risks they never agreed to underwrite.\n\n### The Architecture: Isolated SmartAccount Contracts\n\nInstead of managing all collateral and debt inside one massive multi-asset pool, Vanna provisions a separate SmartAccount contract for each user on Soroban.\n\n1. Capital Flow: The core LendingPool supplies asset loans directly into the user's SmartAccount sandbox.\n2. Composable Execution: The borrower routes funds through Soroswap to acquire Blend b-tokens or Aquarius liquidity pool shares, holding all collateral exclusively within their sandbox.\n3. Ring-Fenced Solvency: If an account falls below the 1.10x Health Factor floor, the liquidation engine unwinds only that specific account's assets.\n\nBecause state updates on Soroban cost roughly 0.00014 XLM fixed gas, we can run granular, automated balance evaluations without gas spikes bricking the liquidator. We pair this with our Mercury indexer setup, which runs at ~320ms latency to continuously verify cross-pool positions against oracle pricing. The base LendingPool maintains senior claim status, and collateral shortfalls cannot touch other participants.\n\n### Testing the Sandbox\n\nYou can inspect and deploy an isolated sandbox on testnet right now.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance\n\nRun leverage loops, test the liquidation triggers against mock liquidity pool swings, and verify that the base lending vault balances remain untouched during forced closures.\n\nDisclosure: I am a core contributor at Vanna Protocol building credit infrastructure on Stellar Soroban."
+    }
+  },
+  "visual_concept": "The Hermetic Isolation Cell",
+  "review_passed": true,
+  "review_notes": {
+    "blocked_claims": [],
+    "slop": []
+  },
+  "packet_built": true,
+  "duration_s": 54.07,
+  "ended_at": "2026-09-22T08:37:14.245628+00:00",
+  "model_calls": 4,
+  "model_calls_ok": 4,
+  "input_tokens": 3819,
+  "output_tokens": 2581,
+  "models_used": [
+    "gemini-3.8-flash"
+  ],
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "collected market signals (0.01s)",
+      "outputs": [],
+      "at": "2026-09-22T08:36:20.190953+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "chose a signal to pursue (9.63s)",
+      "outputs": [],
+      "at": "2026-09-22T08:36:29.820202+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "formulated strategy (10.14s)",
+      "outputs": [],
+      "at": "2026-09-22T08:36:39.963896+00:00"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "role": "none",
+      "status": "ok",
+      "detail": "verified machine MACHINE_04: TECHNICAL_EDUCATION_DISPATCH (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:36:39.963896+00:00"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "role": "none",
+      "status": "ok",
+      "detail": "selected campaign vehicle (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:36:39.963896+00:00"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "generated channel posts (11.48s)",
+      "outputs": [],
+      "at": "2026-09-22T08:36:51.442696+00:00"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "art-directed the campaign (6.55s)",
+      "outputs": [],
+      "at": "2026-09-22T08:36:57.993886+00:00"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "role": "image",
+      "status": "failed",
+      "detail": "RuntimeError: visual engine returned no PNG on disk: GTM-20260922-083620_visual.png",
+      "outputs": [],
+      "at": "2026-09-22T08:37:14.148714+00:00"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "role": "video",
+      "status": "skipped",
+      "detail": "video disabled for this run (--no-video)",
+      "outputs": [],
+      "at": "2026-09-22T08:37:14.148714+00:00"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "role": "none",
+      "status": "ok",
+      "detail": "ran the pre-delivery firewalls (0.01s)",
+      "outputs": [],
+      "at": "2026-09-22T08:37:14.155316+00:00"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "role": "none",
+      "status": "skipped",
+      "detail": "awaiting human approval; dispatch never runs unprompted",
+      "outputs": [],
+      "at": "2026-09-22T08:37:14.155316+00:00"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "role": "none",
+      "status": "ok",
+      "detail": "built the human review packet (0.0s)",
+      "outputs": [],
+      "at": "2026-09-22T08:37:14.155316+00:00"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "processed the outcome feedback loop (0.09s)",
+      "outputs": [],
+      "at": "2026-09-22T08:37:14.245628+00:00"
+    }
+  ],
+  "agents_ran": 10
+}

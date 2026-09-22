@@ -1,0 +1,42 @@
+{
+  "draft_id": "3e3f77b1",
+  "message_id": 298,
+  "chat_id": "5501720892",
+  "sent_at": "2026-08-20T13:00:16Z",
+  "sent_unix": 1787230813,
+  "status": "awaiting_review",
+  "draft": {
+    "id": "3e3f77b1",
+    "draft_id": "1d059932",
+    "verdict": "ship",
+    "winner_arc": null,
+    "body": "Siloed credit accounts fragment your capital. One position thrives while another starves. Vanna unifies your collateral to unlock up to 10x borrowing capacity. One book. One health factor. Your collateral is doing one job. It should be doing six.",
+    "final_body": "Siloed credit accounts fragment your capital. One position thrives while another starves. Vanna unifies your collateral to unlock up to 10x borrowing capacity. One book. One health factor. Your collateral is doing one job. It should be doing six.",
+    "final_hook": "Siloed credit accounts fragment your capital.",
+    "thread": [],
+    "final_thread": [],
+    "visual_brief": {
+      "type": "infographic",
+      "headline": "Siloed capital. Fragmented credit.",
+      "emphasis_phrase": "10x credit multiplier.",
+      "subhead": "Why manage six health factors when you only need one?",
+      "data": [
+        {
+          "label": "Gearbox Credit Accounts",
+          "value": "Isolated Margin",
+          "note": "Collateral is locked per pool. Excess margin cannot back other positions."
+        },
+        {
+          "label": "Vanna Unified Accounts",
+          "value": "Up to 10x Credit",
+          "note": "All assets cross-margin the entire book under one health factor."
+        }
+      ],
+      "disclaimer": "Vanna is currently on testnet. Up to 10x credit is an architectural capacity based on the borrow guard formula."
+    },
+    "platform": "x",
+    "trend_id": "Vanna Infrastructure",
+    "sent_at": "2026-08-20T13:00:00Z"
+  },
+  "image": "D:\\new orchestration\\pipeline\\state\\temp_rendered.png"
+}

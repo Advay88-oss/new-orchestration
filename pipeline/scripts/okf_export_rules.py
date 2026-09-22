@@ -165,7 +165,8 @@ def render(spec: dict) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--bundle", type=Path, default=REPO / "okf")
+    default_b = REPO / "okf" if (REPO / "okf").exists() else REPO / "pipeline" / "system1_extracted" / "okf"
+    ap.add_argument("--bundle", type=Path, default=default_b)
     ap.add_argument("--check", action="store_true",
                     help="exit 1 if the bundle is out of date instead of writing")
     args = ap.parse_args()

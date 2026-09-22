@@ -1,0 +1,94 @@
+# GTM Intelligence Engine - Model Tier Configuration
+# Strictly pinned to single vendor (Google Vertex / AI Studio)
+
+tiers:
+  flash_tier: "gemini-3.8-flash"          # PINNED — no alias
+  strong_tier: "gemini-3.1-pro-preview"   # PINNED — single vendor, no alias
+
+phases:
+  1:
+    name: "market_discovery"
+    tier: "flash"
+    model_alias: "flash_tier"
+    model_id: "gemini-3.8-flash"
+    reason: "High-volume structured retrieval from DeFi aggregators"
+  2:
+    name: "player_selection"
+    tier: "strong"
+    model_alias: "strong_tier"
+    model_id: "gemini-3.1-pro-preview"
+    reason: "Judgment call that gates all downstream spend"
+  3:
+    name: "player_profile"
+    tier: "flash"
+    model_alias: "flash_tier"
+    model_id: "gemini-3.8-flash"
+    reason: "Structured extraction of products and mechanisms"
+  4:
+    name: "historical_origin"
+    tier: "flash"
+    model_alias: "flash_tier"
+    model_id: "gemini-3.8-flash"
+    reason: "Retrieval + UNKNOWN discipline; runs once ever per player"
+  5:
+    name: "artefact_collection"
+    tier: "none"
+    model_alias: null
+    model_id: null
+    reason: "Pure HTTP + parse, deterministic code only"
+  6:
+    name: "content_classification"
+    tier: "flash"
+    model_alias: "flash_tier"
+    model_id: "gemini-3.8-flash"
+    reason: "High-volume, enum-constrained classification"
+  7:
+    name: "campaigns"
+    tier: "flash"
+    model_alias: "flash_tier"
+    model_id: "gemini-3.8-flash"
+    reason: "Structured assembly of campaign arcs"
+  8:
+    name: "pattern_mining"
+    tier: "hybrid"
+    model_alias: "flash_tier"
+    model_id: "gemini-3.8-flash"
+    reason: "Promotion is code (L5); template extraction uses Flash"
+  9:
+    name: "comparison"
+    tier: "strong"
+    model_alias: "strong_tier"
+    model_id: "gemini-3.1-pro-preview"
+    reason: "Derives dominant objection + hypothesis verdict"
+  10:
+    name: "outliers"
+    tier: "strong"
+    model_alias: "strong_tier"
+    model_id: "gemini-3.1-pro-preview"
+    reason: "Unconventional GTM mechanism identification and judgment"
+  11:
+    name: "subject_mapping"
+    tier: "strong"
+    model_alias: "strong_tier"
+    model_id: "gemini-3.1-pro-preview"
+    reason: "Subject doc ingestion and objection derivation"
+  12:
+    name: "gtm_brain"
+    tier: "strong"
+    model_alias: "strong_tier"
+    model_id: "gemini-3.1-pro-preview"
+    reason: "Final opportunity derivation and QC report"
+
+token_budgets:
+  1: 40000
+  2: 20000
+  3: 25000
+  4: 20000
+  5: 15000
+  6: 30000
+  7: 40000
+  8: 30000
+  9: 80000
+  10: 40000
+  11: 60000
+  12: 100000

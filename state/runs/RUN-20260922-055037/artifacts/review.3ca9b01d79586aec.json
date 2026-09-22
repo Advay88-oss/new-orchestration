@@ -1,0 +1,96 @@
+{
+  "run_id": "RUN-20260922-055037",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "Leverage is easy. Not getting liquidated while you sleep is the hard part.",
+  "body": "When volatility hits unattended positions, delayed intervention risks cascading insolvencies. In Vanna's composable credit infrastructure, risk is stopped at the boundary. The liquidation threshold enforces a 1.1x health factor floor before capital breaches parity. Every calculation uses floor division—mul_wad_down and div_wad_down—to prevent rounding in the protocol's favour. Governed by policy-bounded autonomous risk management within unified margin accounts, distress is isolated before it spreads.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-055037_r1.png",
+  "visual_accepted": true,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "When volatility hits unattended positions, delayed intervention risks cascading insolvencies.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.99
+      },
+      {
+        "text": "In Vanna's composable credit infrastructure, risk is stopped at the boundary.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.95
+      },
+      {
+        "text": "The liquidation threshold enforces a 1.1x health factor floor before capital breaches parity.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      },
+      {
+        "text": "Every calculation uses floor division—mul_wad_down and div_wad_down.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.95
+      },
+      {
+        "text": "Vanna is governed by policy-bounded autonomous risk management within unified margin accounts.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.9
+      },
+      {
+        "text": "Distress is isolated before it spreads.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 1.0
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 9,
+    "by_status": {
+      "verified": 1,
+      "unverified": 2,
+      "unsupported": 6,
+      "refuted": 0
+    },
+    "blocking": [
+      "When volatility hits unattended positions, delayed intervention risks cascading insolvencies.",
+      "In Vanna's composable credit infrastructure, risk is stopped at the boundary.",
+      "The liquidation threshold enforces a 1.1x health factor floor before capital breaches parity.",
+      "Every calculation uses floor division—mul_wad_down and div_wad_down.",
+      "Vanna is governed by policy-bounded autonomous risk management within unified margin accounts.",
+      "Distress is isolated before it spreads."
+    ]
+  },
+  "artifact": "review_packet.a330776d2ea3d11f.json"
+}

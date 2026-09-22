@@ -1,0 +1,8 @@
+{"id": "G01", "claim": "Vanna's credit utilization grew 340% last quarter", "kind": "vanna_fact", "expect": "unsupported", "why": "no evidence contains this figure; the old blacklist passed it with zero violations"}
+{"id": "G02", "claim": "Our partnership with the Stellar Development Foundation routes $1.2B of institutional flow", "kind": "vanna_fact", "expect": "unsupported", "why": "fabricated partnership and figure"}
+{"id": "G03", "claim": "Transactions confirm at 0.00014 XLM", "kind": "vanna_fact", "expect": "refuted", "why": "evidence states the base fee is 0.00001 XLM; wrong number is refuted, not merely unsupported"}
+{"id": "G04", "claim": "Each borrower gets an isolated SmartAccount contract on Stellar Soroban testnet", "kind": "vanna_fact", "expect": "verified", "why": "wholly entailed by the architecture evidence"}
+{"id": "G05", "claim": "Vanna is live on Stellar mainnet", "kind": "vanna_fact", "expect": "unsupported", "why": "evidence covers testnet only; the material qualifier is missing"}
+{"id": "G06", "claim": "Leverage is easy; not getting liquidated is the hard part", "kind": "creative", "expect": "unverified", "why": "rhetorical framing carries no checkable content and must not block publication"}
+{"id": "G07", "claim": "Stellar network transaction fees are fixed at 0.00001 XLM base fee per operation", "kind": "competitor_fact", "expect": "verified", "why": "verbatim match against the network evidence"}
+{"id": "G08", "claim": "Vanna processes 50,000 transactions per second", "kind": "vanna_fact", "expect": "unsupported", "why": "invented throughput claim with no source"}

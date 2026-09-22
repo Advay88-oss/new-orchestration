@@ -1,0 +1,32 @@
+{
+  "post_1_flash": {
+    "topic": "1-Click 10x Margin Account",
+    "model": "Gemini 3.1 Flash",
+    "copy": "Traditional leverage forces you to manage 5 tabs, wrap tokens, and risk liquidation while you sleep.\n\nVanna gives you up to 10\u00d7 undercollateralized credit in a single margin account on Stellar Soroban:\n\nDeposit collateral once, borrow instantly, and deploy across spot, perps, and yield without giving up wallet custody.\n\ntest.stellar.vanna.finance",
+    "image": "D:\\new orchestration\\pipeline\\state\\vanna_post1_flash_product.png",
+    "decision": "APPROVE",
+    "score": "92/100",
+    "breakdown": {
+      "message_fit": "92/100",
+      "brand_fit": "90/100",
+      "premiumness": "90/100",
+      "novelty": "90/100",
+      "technical_accuracy": "98/100"
+    }
+  },
+  "post_2_pro": {
+    "topic": "Dedicated SmartAccount Sandboxes",
+    "model": "Gemini 3.1 Pro",
+    "copy": "When bad debt strikes a shared lending pool, every depositor absorbs the loss.\n\nVanna eliminates pool contagion with dedicated SmartAccount sandboxes on Stellar Soroban:\n\nYour leverage stays completely compartmentalized in your own on-chain contract instance. What happens in other accounts cannot touch your capital.\n\ndocs.vanna.finance",
+    "image": "D:\\new orchestration\\pipeline\\state\\vanna_post2_pro_product.png",
+    "decision": "APPROVE",
+    "score": "92/100",
+    "breakdown": {
+      "message_fit": "92/100",
+      "brand_fit": "90/100",
+      "premiumness": "90/100",
+      "novelty": "90/100",
+      "technical_accuracy": "98/100"
+    }
+  }
+}

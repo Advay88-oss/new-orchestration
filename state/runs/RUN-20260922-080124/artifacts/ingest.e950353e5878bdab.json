@@ -1,0 +1,164 @@
+[
+  {
+    "id": "SIG-57201ea630a95d35",
+    "title": "stellar fee stats: last ledger = 4805397, base fee = 100, ledger capacity usage = 0.1",
+    "summary": "Measured onchain value for stellar_fee_stats as of 2026-09-22T04:16:18.648761+00:00.",
+    "source_name": "onchain:stellar_fee_stats",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:18.648761+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-56af2b8a77d7e775",
+    "title": "blend tvl: tvl usd = 159033033.0",
+    "summary": "Measured onchain value for blend_tvl as of 2026-09-22T04:16:20.094770+00:00.",
+    "source_name": "onchain:blend_tvl",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:20.094770+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-522e4532f6f15119",
+    "title": "soroswap tvl: tvl usd = 1239028.0",
+    "summary": "Measured onchain value for soroswap_tvl as of 2026-09-22T04:16:19.453237+00:00.",
+    "source_name": "onchain:soroswap_tvl",
+    "source_url": null,
+    "observed_at": "2026-09-22T04:16:19.453237+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-74c694417e47bb28",
+    "title": "Morpho: Morpho describes its platform as an open credit network.",
+    "summary": "POSITIONING claim about Morpho, official_docs, evidence_status=OBSERVED",
+    "source_name": "research:Morpho",
+    "source_url": "https://docs.morpho.org",
+    "observed_at": "2026-09-22T05:28:57.797573+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-5b5953728db97a09",
+    "title": "Morpho: Morpho allows developers to query markets, vaults, and positions over GraphQL and REST.",
+    "summary": "PRODUCT claim about Morpho, official_docs, evidence_status=OBSERVED",
+    "source_name": "research:Morpho",
+    "source_url": "https://docs.morpho.org",
+    "observed_at": "2026-09-22T05:28:57.797573+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-5d520a5be06aa6cc",
+    "title": "Morpho: Morpho provides typed, viem-based libraries for reading data and building transactions.",
+    "summary": "PRODUCT claim about Morpho, official_docs, evidence_status=OBSERVED",
+    "source_name": "research:Morpho",
+    "source_url": "https://docs.morpho.org",
+    "observed_at": "2026-09-22T05:28:57.797573+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-ae946143770989da",
+    "title": "Morpho: Morpho describes its offering as decentralized lending infrastructure.",
+    "summary": "POSITIONING claim about Morpho, official_docs, evidence_status=OBSERVED",
+    "source_name": "research:Morpho",
+    "source_url": "https://docs.morpho.org",
+    "observed_at": "2026-09-22T05:28:57.797573+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-776e15dff49eda99",
+    "title": "Gearbox: Gearbox provides institutional credit infrastructure including margin, prime brokerage, and portfolio loans.",
+    "summary": "POSITIONING claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-9340a6ecd6b5cb4d",
+    "title": "Gearbox: Gearbox segregated accounts act as standard wallets and natively enforce token whitelists and transfer rules without wrappers.",
+    "summary": "PRODUCT claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-1c84717791d09fb0",
+    "title": "Gearbox: Gearbox supports modular enforcement workflows including freezes, transfers, and compliance actions without modifying core contracts.",
+    "summary": "PRODUCT claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-adf4a82f839bebec",
+    "title": "Gearbox: Gearbox provides direct access to issuer functions such as Provenance.",
+    "summary": "INTEGRATION claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-ed0d515da6a5cb4a",
+    "title": "Gearbox: Gearbox has achieved $3.7B in cumulative supply. [metric: $3.7B]",
+    "summary": "PROOF claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-a300ef5575689f6a",
+    "title": "Gearbox: Gearbox reports an average utilization rate of 80%. [metric: 80%]",
+    "summary": "PROOF claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-360dc3b014f401bd",
+    "title": "Gearbox: Gearbox reports $1.5B in all-time borrowed volume. [metric: $1.5B]",
+    "summary": "PROOF claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-4f54b45912d3a36a",
+    "title": "Gearbox: Gearbox has spent more than $3M on security. [metric: $3M]",
+    "summary": "PROOF claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-f8c8f59094c9d0d3",
+    "title": "Gearbox: Gearbox has been live since 2021 with 0 breaches and incidents. [metric: 0 breaches and incidents]",
+    "summary": "PROOF claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-e77b122418ad6bc9",
+    "title": "Gearbox: Gearbox has completed 30+ audits by leading firms. [metric: 30+ Audits]",
+    "summary": "PROOF claim about Gearbox, official_website, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://gearbox.fi",
+    "observed_at": "2026-09-22T05:27:01.996729+00:00",
+    "engagement": null
+  },
+  {
+    "id": "SIG-bbffb636308a0d86",
+    "title": "Gearbox: Gearbox is building global lending rails for tokenised assets.",
+    "summary": "POSITIONING claim about Gearbox, official_blog, evidence_status=OBSERVED",
+    "source_name": "research:Gearbox",
+    "source_url": "https://blog.gearbox.fi",
+    "observed_at": "2026-09-22T05:27:22.660454+00:00",
+    "engagement": null
+  }
+]

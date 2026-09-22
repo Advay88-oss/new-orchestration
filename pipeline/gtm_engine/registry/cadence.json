@@ -1,0 +1,16 @@
+{
+  "defillama_snapshot": {
+    "ttl_days": 30,
+    "last_run": null
+  },
+  "phase_1": {
+    "depends_on": "defillama_snapshot",
+    "ttl_days": 30
+  },
+  "phase_2": {
+    "depends_on": "phase_1"
+  },
+  "phase_3": {
+    "trigger": "on_product_count_change"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "OPP-07ede6142a69ffdb",
+  "title": "how isolated credit accounts compare to pooled lending utilization",
+  "rationale": "Top of 7 matching signals; matched credit, margin.",
+  "audience": "A1: Stellar & Soroban DeFi builders",
+  "score": 0.75,
+  "signal_ids": [
+    "SIG-776e15dff49eda99",
+    "SIG-74c694417e47bb28",
+    "SIG-ae946143770989da",
+    "SIG-bbffb636308a0d86",
+    "SIG-57201ea630a95d35"
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "passed": false,
+  "blocking_claims": [
+    {
+      "text": "Liquidation slippage is the primary failure mode when lending balances decouple from decentralized exchange depth.",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 1.0
+    },
+    {
+      "text": "Liquidating large debt positions against available AMM pools creates severe price impact",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "Liquidating large debt positions against available AMM pools creates risk of bad debt",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    },
+    {
+      "text": "This failure cannot spread into network-level settlement bottlenecks",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 1.0
+    },
+    {
+      "text": "Stellar ledger capacity usage and base fee keep transaction submission stable",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "entailment/verify-claim/v1",
+      "confidence": 0.98
+    },
+    {
+      "text": "Distress is isolated strictly to local pool depth",
+      "kind": "inference",
+      "status": "unsupported",
+      "source_id": null,
+      "source_url": null,
+      "observed_at": null,
+      "method": "retrieval/no-candidates",
+      "confidence": 1.0
+    }
+  ],
+  "rule_violations": [],
+  "rules_source": "legacy:claim_safety_gate"
+}

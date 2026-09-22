@@ -1,0 +1,63 @@
+{
+  "run_id": "RUN-20260922-055417",
+  "status": "awaiting_human_review",
+  "publishable": false,
+  "channel": "x",
+  "hook": "Isolated pools fragment collateral, forcing capital to back only one position at a time.",
+  "body": "Unified margin accounts allow the same capital, posted once, to support several positions simultaneously. The contract derives the position status on demand by dividing total collateral USD by total debt USD. The liquidation threshold enforces a strict health-factor floor of 1.1x.",
+  "thread": [],
+  "visual_path": "D:\\new orchestration\\state\\renders\\RUN-20260922-055417_r1.png",
+  "visual_accepted": true,
+  "gate": {
+    "passed": false,
+    "blocking_claims": [
+      {
+        "text": "Isolated pools force capital to back only one position at a time.",
+        "kind": "competitor_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      },
+      {
+        "text": "The contract derives the position status on demand by dividing total collateral USD by total debt USD.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      },
+      {
+        "text": "The liquidation threshold enforces a strict health-factor floor of 1.1x.",
+        "kind": "vanna_fact",
+        "status": "unsupported",
+        "source_id": null,
+        "source_url": null,
+        "observed_at": null,
+        "method": "entailment/verify-claim/v1",
+        "confidence": 0.85
+      }
+    ],
+    "rule_violations": [],
+    "rules_source": "legacy:claim_safety_gate"
+  },
+  "claims": {
+    "total": 5,
+    "by_status": {
+      "verified": 2,
+      "unverified": 0,
+      "unsupported": 3,
+      "refuted": 0
+    },
+    "blocking": [
+      "Isolated pools force capital to back only one position at a time.",
+      "The contract derives the position status on demand by dividing total collateral USD by total debt USD.",
+      "The liquidation threshold enforces a strict health-factor floor of 1.1x."
+    ]
+  },
+  "artifact": "review_packet.93534a8e419c6be2.json"
+}
