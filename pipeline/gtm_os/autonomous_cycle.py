@@ -326,6 +326,15 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         signal = _stage("A02_opportunity_selector", pick,
                         detail="chose a signal to pursue")
         summary["signal"] = str(signal.headline)
+        summary["signal_source_type"] = str(signal.source_type)
+        summary["signal_observed_at"] = str(signal.observed_at)
+        summary["candidate_signals"] = [
+            {"headline": str(s.headline)[:160], "source_type": str(s.source_type),
+             "observed_at": str(s.observed_at)[:19]}
+            for s in signals[:14]
+        ]
+        if SELECTION:
+            summary["selection"] = dict(SELECTION)
 
         # A03 — GTM Strategist
         strategist = GTMStrategist(intelligence_provider=ip)
@@ -335,6 +344,11 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         summary["action_status"] = strategy.action_status
         summary["machine"] = strategy.gtm_machine_id
         summary["pillar"] = strategy.narrative_pillar
+        summary["strategy_reasoning"] = [str(r)[:300] for r in (strategy.reasoning or [])][:10]
+        summary["problem"] = str(strategy.problem)[:600]
+        summary["opportunity"] = str(strategy.strategic_opportunity)[:600]
+        summary["audience"] = str(strategy.audience_segment)[:200]
+        summary["proof_claims"] = [str(c)[:240] for c in (strategy.proof or [])][:10]
 
         if strategy.action_status != "ACTION":
             summary["status"] = strategy.action_status
@@ -455,6 +469,9 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         return _finish(summary, t0, rid)
 
 
+SELECTION: dict = {}
+
+
 def _select_signal(signals):
     """A02: judge which signal is worth a campaign, with reasons for the rest."""
     listing = "\n".join(
@@ -474,6 +491,23 @@ def _select_signal(signals):
     idx = int(data.get("index", 0))
     if not 0 <= idx < len(signals):
         idx = 0
+    # The rejections are the interesting half of a selection and were being
+    # thrown away: "why not the other eleven" is what makes the choice
+    # inspectable rather than an arbitrary index.
+    SELECTION.clear()
+    SELECTION.update({
+        "chosen": str(signals[idx].headline)[:200],
+        "chosen_source": str(signals[idx].source_type),
+        "why": str(data.get("why") or "")[:600],
+        "rejected": [
+            {"headline": str(signals[int(r.get("index", -1))].headline)[:160]
+                         if 0 <= int(r.get("index", -1)) < len(signals) else "?",
+             "why": str(r.get("why") or "")[:300]}
+            for r in (data.get("rejected") or [])[:8]
+            if isinstance(r, dict)
+        ],
+        "candidates": len(signals),
+    })
     return signals[idx]
 
 
@@ -570,6 +604,12 @@ def _finish(summary: dict, t0: float, rid: str) -> dict:
 
     (d / "summary.json").write_text(json.dumps(summary, indent=2, default=str),
                                     encoding="utf-8")
+
+    try:
+        publish_panels(summary, rid)
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        # A panel write must never take down a finished run.
+        print("  [warn] panel publish failed: " + str(exc)[:160])
     print("-" * 70)
     print("status          : " + str(summary["status"]))
     print("agents ran      : " + str(summary["agents_ran"]) + "/13")
@@ -578,6 +618,82 @@ def _finish(summary: dict, t0: float, rid: str) -> dict:
     print("models used     : " + ", ".join(summary["models_used"]))
     print("duration        : " + str(summary["duration_s"]) + "s")
     return summary
+
+
+# --------------------------------------------------------------------------
+# Panel feeds — each agent's output in the section that shows it
+# --------------------------------------------------------------------------
+
+PANELS_DIR = STATE_DIR / "panels"
+
+
+def _panel_write(name: str, key: str, entry: dict, keep: int = 24) -> None:
+    """Prepend one entry to a dashboard panel file.
+
+    The Crypto Memes and Ideas panels were fed only by their own scheduler
+    jobs, so a GTM cycle could render a meme with nano banana pro and select a
+    topic with A02 and neither appeared in the section named after it. The
+    agents' own output now lands in the panel a user would look for it in.
+    """
+    PANELS_DIR.mkdir(parents=True, exist_ok=True)
+    path = PANELS_DIR / name
+    try:
+        doc = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except Exception:                               # noqa: BLE001 — boundary
+        doc = {}
+    items = [i for i in (doc.get(key) or []) if isinstance(i, dict)]
+    items = [i for i in items if i.get("id") != entry.get("id")]
+    items.insert(0, entry)
+    doc[key] = items[:keep]
+    doc["generated"] = datetime.now(timezone.utc).isoformat()
+    doc["total_" + key] = len(doc[key])
+    path.write_text(json.dumps(doc, indent=2, default=str), encoding="utf-8")
+
+
+def publish_panels(summary: dict, rid: str) -> None:
+    """Fan the cycle's outputs out to the panels that display them."""
+    sel = summary.get("selection") or {}
+
+    # Ideas Panel <- A02's selection and what it turned down
+    if sel or summary.get("signal"):
+        _panel_write("ideas.json", "ideas", {
+            "id": rid + "-idea",
+            "type": "GTM_CYCLE",
+            "hook": (summary.get("posts", {}).get("x", {}) or {}).get("hook")
+                    or str(summary.get("signal") or "")[:200],
+            "rationale": sel.get("why") or str(summary.get("opportunity") or "")[:400],
+            "pattern_ref": summary.get("machine"),
+            "audience_segment": summary.get("audience"),
+            "objection_addressed": str(summary.get("problem") or "")[:300],
+            "claims_gate": "PASS" if summary.get("review_passed") else "BLOCKED",
+            "runnable_today": bool(summary.get("review_passed")),
+            "blocked_by": None if summary.get("review_passed")
+                          else str(summary.get("review_notes") or "")[:200],
+            "effort": "AUTONOMOUS",
+            "rejected": sel.get("rejected") or [],
+            "run_id": rid,
+            "visual_url": "/api/gtm/artifact/" + rid + "/visual"
+                          if summary.get("visual_path") else None,
+        })
+
+    # Crypto Memes <- A08's nano banana pro render
+    if summary.get("meme_path"):
+        _panel_write("memes.json", "memes", {
+            "id": rid + "-meme",
+            "format": "IMAGE",
+            "reference": summary.get("pillar") or summary.get("signal"),
+            "reference_url": None,
+            "vanna_angle": str(summary.get("opportunity") or "")[:300],
+            "copy": (summary.get("posts", {}).get("x", {}) or {}).get("hook", ""),
+            "visual_spec": str(summary.get("visual_concept") or "")[:400],
+            "claims_gate": "PASS" if summary.get("review_passed") else "BLOCKED",
+            "risk": "LOW",
+            "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
+            "freshness": "LIVE",
+            "model": R.MODELS["meme"],
+            "run_id": rid,
+            "visual_url": "/api/gtm/artifact/" + rid + "/meme",
+        })
 
 
 if __name__ == "__main__":

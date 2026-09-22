@@ -149,83 +149,45 @@ export async function GET() {
   }
 }
 
+/**
+ * A post idea for a discovered player.
+ *
+ * This was a chain of `if (p.player_id === "blend-pools-v2")` branches, each
+ * returning a hand-written post idea with hardcoded figures — "$148.5M TVL",
+ * "$37.2M TVL", "0.00014 XLM gas" — typed into this file. Five players had a
+ * bespoke pitch; everyone else fell through to one of two generic ones. None
+ * of it was derived from the player's actual record, and the figures did not
+ * come from the TVL the record carries.
+ *
+ * It now derives from the record in front of it and says plainly that the
+ * angle is a template, not a generated idea. Real ideas come from a GTM cycle
+ * (A02 selects, A03 formulates) and appear in the Ideas Panel.
+ */
 function derivePostIdeaForPlayer(p: any) {
   const name = p.name || p.player_id;
-  const tvl = p.tvl_usd ? `$${Number(p.tvl_usd).toLocaleString()}` : "Ecosystem";
-  const cat = p.category_raw || "DeFi";
+  const tvl = p.tvl_usd ? `$${Number(p.tvl_usd).toLocaleString()}` : null;
+  const cat = p.category_raw || 'DeFi';
   const rel = p.relevance;
 
-  if (p.player_id === "blend-pools-v2") {
-    return {
-      post_idea: `Explain how Vanna unlocks 10x leverage on top of Blend v2's $148.5M TVL without recursive borrow fees.`,
-      vanna_advantage: "Single atomic deposit routes 10x margin directly into Blend vaults while keeping isolated SmartAccount solvency.",
-      hook_angle: "Capital Efficiency & Zero Contagion",
-      target_segment: "Active Blend Depositors & Soroban Yield Farmers",
-      prompt_suggestion: "explain 10x composable margin on Blend v2 pools ($148.5M TVL)"
-    };
-  }
-  if (p.player_id === "aquarius-stellar") {
-    return {
-      post_idea: `Why liquidity providers on Aquarius ($37.2M TVL) can use Vanna SmartAccounts to farm LP yields with isolated debt cushions.`,
-      vanna_advantage: "Allows single-sided or leveraged LP provision without risking whole-portfolio liquidation.",
-      hook_angle: "LP Margin & Impermanent Loss Mitigation",
-      target_segment: "DEX Liquidity Providers & AMM Farmers",
-      prompt_suggestion: "breakdown single-asset LP credit routing on Aquarius Stellar AMM ($37.2M TVL)"
-    };
-  }
-  if (p.player_id === "soroswap") {
-    return {
-      post_idea: `Atomic leverage swaps on Soroswap: How Vanna executes 10x margin DEX swaps with fixed 0.00014 XLM gas.`,
-      vanna_advantage: "Deterministic zero-priority fee execution eliminates MEV front-running searchers during volatility.",
-      hook_angle: "MEV Immunity & Low-Cost Swaps",
-      target_segment: "Quantitative Arbitrageurs & High-Frequency Traders",
-      prompt_suggestion: "highlight zero MEV front-running and 0.00014 XLM gas on Soroswap leverage trades"
-    };
-  }
-  if (p.player_id === "excellar") {
-    return {
-      post_idea: `Delta-neutral basis trading on Stellar: How Vanna credit accounts amplify cash-and-carry yields on Excellar.`,
-      vanna_advantage: "Allows institutional allocators to borrow low-cost collateral to lock in basis trading spreads.",
-      hook_angle: "Institutional Basis Yields",
-      target_segment: "Basis Traders & Hedge Funds",
-      prompt_suggestion: "explain institutional basis trading leverage on Stellar Soroban"
-    };
-  }
-  if (p.player_id === "spiko" || p.player_id === "ondo-yield-assets") {
-    return {
-      post_idea: `Borrowing against tokenized US Treasuries on Stellar: How Vanna collateralizes ${name} (${tvl} TVL) with 1.10x floor.`,
-      vanna_advantage: "Bridges institutional real-world asset yields into decentralized composable credit lines.",
-      hook_angle: "RWA Credit Collateralization",
-      target_segment: "Institutional Allocators & Treasury Managers",
-      prompt_suggestion: `draft an institutional breakdown on borrowing against tokenized RWA assets (${name}) on Stellar`
-    };
-  }
-  if (rel === "MECHANISM") {
-    return {
-      post_idea: `Competitive comparison: Why Vanna's isolated SmartAccount sandboxes eliminate pooled default contagion compared to ${name}.`,
-      vanna_advantage: "Isolated debt state quarantines borrower defaults so pool lenders never suffer sudden haircuts.",
-      hook_angle: "Solvency Architecture & Risk Relief",
-      target_segment: "Risk-Averse Yield Seekers & Protocol Curators",
-      prompt_suggestion: `compare Vanna isolated SmartAccount execution vs pooled risk in ${name}`
-    };
-  }
-  if (rel === "AUDIENCE") {
-    return {
-      post_idea: `Liquidity routing integration: How Vanna SmartAccounts deploy credit into ${name} in a single atomic transaction.`,
-      vanna_advantage: "Direct integration expands borrowing power across Stellar native liquidity venues.",
-      hook_angle: "Ecosystem Composability",
-      target_segment: "Stellar DeFi Users & Integrators",
-      prompt_suggestion: `announce Vanna composable credit routing for ${name} liquidity pools`
-    };
-  }
+  const angle =
+    rel === 'MECHANISM'
+      ? 'Solvency architecture: isolated SmartAccount sandboxes vs pooled default risk'
+      : rel === 'AUDIENCE'
+        ? 'Liquidity routing: deploying credit into this venue in one transaction'
+        : 'Ecosystem composability on Soroban';
+
   return {
-    post_idea: `Ecosystem deep-dive: How ${name} (${cat}) fits into the growing Soroban DeFi landscape alongside Vanna credit.`,
-    vanna_advantage: "Showcases Vanna as the collaborative composable credit layer unifying fragmented Stellar protocols.",
-    hook_angle: "Ecosystem Growth & Architecture",
-    target_segment: "Stellar Builders & Community",
-    prompt_suggestion: `write an ecosystem breakdown highlighting Stellar Soroban DeFi expansion featuring ${name}`
+    post_idea: `${name}${tvl ? ` (${tvl} TVL)` : ''} — ${angle}.`,
+    vanna_advantage: null,
+    hook_angle: angle,
+    target_segment: rel === 'MECHANISM' ? 'Risk-focused allocators' : 'Stellar DeFi users',
+    // A prompt to hand to a real cycle, which is where an actual idea is formed.
+    prompt_suggestion: `${angle} — ${name} (${cat})`,
+    source: 'TEMPLATE_FROM_PLAYER_RECORD',
+    note: 'Derived from the player record. Not a generated idea; run a GTM cycle for one.',
   };
 }
+
 
 export async function POST(req: Request) {
   try {

@@ -8,7 +8,7 @@ import { Agents } from "./views/Agents";
 import { GtmAgents } from "./views/GtmAgents";
 import { BackendNote } from "./views/BackendNote";
 import { Cost } from "./views/Cost";
-import { LiveDebate } from "./views/LiveDebate";
+import { AgentReasoning } from "./views/AgentReasoning";
 import { Posts } from "./views/Posts";
 import { RunDetail } from "./views/RunDetail";
 import { Runs } from "./views/Runs";
@@ -104,7 +104,7 @@ export function MissionControl({
         <PageHeader vm={vm} />
         <CommandConsole vm={vm} />
 
-        {vm.isLive && <LiveDebate vm={vm} />}
+        {vm.isLive && <AgentReasoning />}
         {(vm as any).isScheduler && <SchedulerView vm={vm} />}
         {(vm as any).isIdeas && <IdeasView vm={vm} />}
         {(vm as any).isMemes && <MemesView vm={vm} />}

@@ -221,6 +221,15 @@ export function gtmRuns(limit = 15) {
         hasVideo: Boolean(s.video_path),
         hasMeme: Boolean(s.meme_path),
         reviewPassed: s.review_passed ?? null,
+    selection: s.selection ?? null,
+    candidateSignals: s.candidate_signals ?? [],
+    signalSourceType: s.signal_source_type ?? null,
+    signalObservedAt: s.signal_observed_at ?? null,
+    strategyReasoning: s.strategy_reasoning ?? [],
+    problem: s.problem ?? null,
+    opportunity: s.opportunity ?? null,
+    audience: s.audience ?? null,
+    proofClaims: s.proof_claims ?? [],
       };
     })
     .filter(Boolean);
@@ -329,8 +338,14 @@ export function gtmLegacyRun(runId: string): Record<string, unknown> | null {
     title: d.signal || d.runId,
     trend: d.signal,
     directive: d.signal,
-    started: d.startedAt,
-    ended: null,
+    // These views do `new Date(started * 1000)` — they want unix seconds, not
+    // an ISO string. Passing the ISO string through produced NaN and the whole
+    // dashboard died on `Invalid time value`.
+    started: d.startedAt ? Math.floor(Date.parse(d.startedAt) / 1000) : null,
+    ended:
+      d.startedAt && d.durationS
+        ? Math.floor(Date.parse(d.startedAt) / 1000) + Math.round(d.durationS)
+        : null,
     duration_s: d.durationS,
     status: d.status,
     brain: d.modelsUsed[0] ?? null,

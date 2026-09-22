@@ -9,7 +9,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
-  const [sessionScope, setSessionScope] = useState<"SESSION" | "GLOBAL">("SESSION");
+  const [sessionScope, setSessionScope] = useState<"SESSION" | "GLOBAL">("GLOBAL");
   const [sessionRunIds, setSessionRunIds] = useState<string[]>([]);
   const [isLaunching, setIsLaunching] = useState(false);
   const [triggerMsg, setTriggerMsg] = useState<string | null>(null);
@@ -148,7 +148,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
             Production Master Runs Observatory
           </h2>
           <p style={{ fontSize: "13px", color: "#DFDFDF", marginTop: "2px" }}>
-            Streaming directly from <code style={{ fontFamily: MONO, color: "#32EEE2" }}>pipeline/state/runs/*.meta.json</code> &middot; Zero mock data.
+            Streaming directly from <code style={{ fontFamily: MONO, color: "#32EEE2" }}>pipeline/state/gtm_runs/</code> &middot; the 13 GTM agents' own run journal.
           </p>
         </div>
 
@@ -323,10 +323,10 @@ export function Runs({ vm }: { vm: MissionVM }) {
                   <td colSpan={6} style={{ padding: "60px 24px", textAlign: "center", color: "#8E85A8" }}>
                     <div style={{ fontSize: "28px", marginBottom: "10px" }}>🚀</div>
                     <div style={{ fontSize: "16px", fontWeight: 700, color: "#FFFFFF" }}>
-                      No System 2 Runs Executed Yet
+                      No GTM cycles recorded yet
                     </div>
                     <div style={{ fontSize: "13px", color: "#A2A1A6", marginTop: "6px", maxWidth: "60ch", margin: "6px auto 0" }}>
-                      The dashboard is reset and pristine. Enter a founder directive in the Mission Command Console above to launch your first 13-agent autonomous cycle.
+                      Press Launch Run, or enter a founder directive above. Leaving it empty runs the fully autonomous path, where A02 picks the topic itself.
                     </div>
                   </td>
                 </tr>
@@ -423,11 +423,21 @@ export function Runs({ vm }: { vm: MissionVM }) {
                       </div>
                     </td>
 
-                    {/* Column 5: Dynamic Duration & Calculated Cost */}
+                    {/* Column 5: Duration & measured token usage.
+                        The dollar figure that was here came from
+                        `0.008 + duration_s * 0.0006 + …` — a cost invented from
+                        wall-clock time, which is not what anything costs. No
+                        rate table is wired for Model Garden or the API key, so
+                        this shows what is actually measured: tokens. */}
                     <td style={{ padding: "18px 22px" }}>
                       <div style={{ fontFamily: MONO, fontSize: "12px", color: "#FFFFFF" }}>{dur}</div>
                       <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", marginTop: "2px" }}>
-                        ${(0.008 + (r.duration_s ? r.duration_s * 0.0006 : 0.012) + ((r.video || r.agent_outputs?.agent_09_video) ? 0.008 : 0) + ((r.visual || r.agent_outputs?.agent_08_visual) ? 0.004 : 0)).toFixed(3)}
+                        {(r.spend?.input_tokens || r.spend?.output_tokens)
+                          ? `${(((r.spend?.input_tokens ?? 0) + (r.spend?.output_tokens ?? 0)) / 1000).toFixed(1)}k tok · ${r.spend?.calls ?? 0} calls`
+                          : "no model calls"}
+                      </div>
+                      <div style={{ fontFamily: MONO, fontSize: "10px", color: "#5A5568", marginTop: "2px" }}>
+                        cost unpriced
                       </div>
                     </td>
 

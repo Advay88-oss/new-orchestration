@@ -189,7 +189,7 @@ export function useMissionControl(props: MissionControlProps) {
     const d = data;
 
     const nav = [
-      { id: "live", label: "Live debate" },
+      { id: "live", label: "Agent Decisions" },
       { id: "scheduler", label: "⏰ 24/7 Scheduler" },
       { id: "ideas", label: "💡 Ideas Panel" },
       { id: "memes", label: "🎭 Crypto Memes" },
