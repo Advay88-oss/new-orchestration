@@ -31,7 +31,7 @@ jobs:
     min_allowed_interval_m: 5
 
   memes_panel:
-    interval: "12h"
+    interval: "2m"
     enabled: true
     description: "Scans crypto culture for liquidation/gas humor with strict claim & risk gating."
     model_heavy: false

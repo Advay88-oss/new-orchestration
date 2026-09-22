@@ -1,139 +1,139 @@
 {
-  "generated": "2026-09-22T09:33:21.700437+00:00",
+  "generated": "2026-09-22T09:44:09.132218+00:00",
   "total_memes": 7,
   "low_risk_count": 7,
   "medium_risk_count": 0,
   "high_risk_count": 0,
   "memes": [
     {
-      "id": "GTM-20260922-093129-meme",
+      "id": "GTM-20260922-094015-meme",
       "format": "IMAGE",
       "reference": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
       "reference_url": null,
-      "vanna_angle": "Position Vanna as the composable credit engine powering advanced yield strategies on top of Blend's formally verified b-token primitives, showcasing modular Soroban composability.",
-      "copy": "Borrowing 10x on Blend b-tokens without pooled risk is live on Soroban testnet.",
-      "visual_spec": "The Calibrated Lever",
+      "vanna_angle": "Highlight how Vanna's isolated SmartAccount sandboxes natively ingest formally verified Blend b-tokens as composable building blocks, unlocking magnified yield without protocol-level contagion.",
+      "copy": "Holding Blend v2 b-tokens leaves yield behind without active credit loops.",
+      "visual_spec": "A monolithic, micro-milled titanium isolation chamber receiving a perfectly fitted optical smoked-quartz modular block, locking into a low-profile conductive plinth that amplifies an internal refracted beam without spilling heat to adjacent bays.",
       "claims_gate": "PASS",
       "risk": "LOW",
       "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
       "freshness": "LIVE",
       "model": "gemini-3-pro-image",
-      "run_id": "GTM-20260922-093129",
-      "visual_url": "GTM-20260922-093129_meme.png"
+      "run_id": "GTM-20260922-094015",
+      "visual_url": "GTM-20260922-094015_meme.png"
     },
     {
-      "id": "meme_1790050822_1",
+      "id": "meme_1790069987_1",
       "format": "two-panel",
-      "reference": "SorobanSafetyNet",
+      "reference": "Soroban Stability",
       "reference_url": "https://knowyourmeme.com",
-      "vanna_angle": "Vanna Protocol: Because even on Soroban, you need a safety net.",
-      "copy": "Vanna Protocol: Because even on Soroban, you need a safety net.",
+      "vanna_angle": "My assets, chilling on Vanna Protocol's Stellar Soroban risk floors.",
+      "copy": "My assets, chilling on Vanna Protocol's Stellar Soroban risk floors.",
       "visual_spec": {
         "template": "two_panel_comparison",
-        "top_label": "Stellar Soroban DeFi",
-        "bottom_label": "Vanna's Risk Floor",
+        "top_label": "DeFi Volatility",
+        "bottom_label": "Vanna Risk Floor",
         "archetype": "risk_floor"
       },
       "claims_gate": "PASS",
       "risk": "LOW",
       "risk_reason": "General mechanism humor highlighting fee differences.",
       "freshness": "in circulation",
-      "visual_url": "/meme_meme_1790050822_1_visual.png"
+      "visual_url": "/meme_meme_1790069987_1_visual.png"
     },
     {
-      "id": "meme_1790050837_2",
+      "id": "meme_1790070014_2",
       "format": "two-panel",
-      "reference": "NoMoreRugPulls",
+      "reference": "Anchor of Safety",
       "reference_url": "https://knowyourmeme.com",
-      "vanna_angle": "When Vanna's risk floor prevents the ultimate dump.",
-      "copy": "When Vanna's risk floor prevents the ultimate dump.",
+      "vanna_angle": "When Vanna Protocol's risk floors protect your credit in stormy markets.",
+      "copy": "When Vanna Protocol's risk floors protect your credit in stormy markets.",
       "visual_spec": {
         "template": "two_panel_comparison",
-        "top_label": "My portfolio after a new DeFi project",
-        "bottom_label": "My portfolio with Vanna Protocol",
+        "top_label": "Market Crash",
+        "bottom_label": "Vanna Protocol",
         "archetype": "risk_floor"
       },
       "claims_gate": "PASS",
       "risk": "LOW",
       "risk_reason": "General mechanism humor highlighting fee differences.",
       "freshness": "in circulation",
-      "visual_url": "/meme_meme_1790050837_2_visual.png"
+      "visual_url": "/meme_meme_1790070014_2_visual.png"
     },
     {
-      "id": "meme_1790050852_3",
+      "id": "meme_1790070036_3",
       "format": "two-panel",
-      "reference": "LeverageLikeAPro",
+      "reference": "Leverage Like A Pro",
       "reference_url": "https://knowyourmeme.com",
-      "vanna_angle": "Vanna Protocol: Making your Soroban credit go further.",
-      "copy": "Vanna Protocol: Making your Soroban credit go further.",
+      "vanna_angle": "Using Vanna's margin accounts to maximize my Stellar credit efficiency.",
+      "copy": "Using Vanna's margin accounts to maximize my Stellar credit efficiency.",
       "visual_spec": {
         "template": "two_panel_comparison",
-        "top_label": "Me trying to leverage my assets",
-        "bottom_label": "Me with Vanna Protocol's margin accounts",
+        "top_label": "Idle Capital",
+        "bottom_label": "Vanna Margin Account",
         "archetype": "margin_account"
       },
       "claims_gate": "PASS",
       "risk": "LOW",
       "risk_reason": "General mechanism humor highlighting fee differences.",
       "freshness": "in circulation",
-      "visual_url": "/meme_meme_1790050852_3_visual.png"
+      "visual_url": "/meme_meme_1790070036_3_visual.png"
     },
     {
-      "id": "meme_1790050868_4",
+      "id": "meme_1790070062_4",
       "format": "two-panel",
-      "reference": "SmartBorrowing",
+      "reference": "Smart Borrowing",
       "reference_url": "https://knowyourmeme.com",
-      "vanna_angle": "When you borrow on Vanna and actually understand the risks.",
-      "copy": "When you borrow on Vanna and actually understand the risks.",
+      "vanna_angle": "Me, realizing the potential of Vanna Protocol's Soroban margin accounts.",
+      "copy": "Me, realizing the potential of Vanna Protocol's Soroban margin accounts.",
       "visual_spec": {
         "template": "two_panel_comparison",
-        "top_label": "Traditional DeFi lending",
-        "bottom_label": "Vanna Protocol's intelligent margin accounts",
+        "top_label": "High Interest Loans",
+        "bottom_label": "Vanna Optimized Credit",
         "archetype": "margin_account"
       },
       "claims_gate": "PASS",
       "risk": "LOW",
       "risk_reason": "General mechanism humor highlighting fee differences.",
       "freshness": "in circulation",
-      "visual_url": "/meme_meme_1790050868_4_visual.png"
+      "visual_url": "/meme_meme_1790070062_4_visual.png"
     },
     {
-      "id": "meme_1790050883_5",
+      "id": "meme_1790070085_5",
       "format": "two-panel",
-      "reference": "SandboxSavvy",
+      "reference": "My Own Rules",
       "reference_url": "https://knowyourmeme.com",
-      "vanna_angle": "Keeping your risky bets separate and safe with Vanna's isolated sandboxes.",
-      "copy": "Keeping your risky bets separate and safe with Vanna's isolated sandboxes.",
+      "vanna_angle": "Setting up custom risk parameters in Vanna's isolated sandboxes.",
+      "copy": "Setting up custom risk parameters in Vanna's isolated sandboxes.",
       "visual_spec": {
         "template": "two_panel_comparison",
-        "top_label": "My entire crypto portfolio in one pool",
-        "bottom_label": "My portfolio spread across Vanna's isolated sandboxes",
+        "top_label": "Standard DeFi Pools",
+        "bottom_label": "Vanna Isolated Sandbox",
         "archetype": "isolated_sandboxes"
       },
       "claims_gate": "PASS",
       "risk": "LOW",
       "risk_reason": "General mechanism humor highlighting fee differences.",
       "freshness": "in circulation",
-      "visual_url": "/meme_meme_1790050883_5_visual.png"
+      "visual_url": "/meme_meme_1790070085_5_visual.png"
     },
     {
-      "id": "meme_1790050897_6",
+      "id": "meme_1790070107_6",
       "format": "two-panel",
-      "reference": "ContainTheChaos",
+      "reference": "Risk Contained",
       "reference_url": "https://knowyourmeme.com",
-      "vanna_angle": "When one bad debt doesn't sink the whole ship.",
-      "copy": "When one bad debt doesn't sink the whole ship.",
+      "vanna_angle": "When my strategies are safe within Vanna Protocol's isolated sandboxes.",
+      "copy": "When my strategies are safe within Vanna Protocol's isolated sandboxes.",
       "visual_spec": {
         "template": "two_panel_comparison",
-        "top_label": "Cascading liquidations in typical DeFi",
-        "bottom_label": "Vanna Protocol's isolated sandboxes at work",
+        "top_label": "Systemic Risk",
+        "bottom_label": "Vanna Sandbox Walls",
         "archetype": "isolated_sandboxes"
       },
       "claims_gate": "PASS",
       "risk": "LOW",
       "risk_reason": "General mechanism humor highlighting fee differences.",
       "freshness": "in circulation",
-      "visual_url": "/meme_meme_1790050897_6_visual.png"
+      "visual_url": "/meme_meme_1790070107_6_visual.png"
     }
   ]
 }
