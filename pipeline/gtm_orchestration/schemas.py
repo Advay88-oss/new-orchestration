@@ -112,6 +112,10 @@ class GTMStrategy(BaseModel):
     action_status: Literal["ACTION", "NO_ACTION", "HUMAN_REVIEW_REQUIRED", "KILL"]
     decision_reason_class: Optional[str] = None
     no_action_rationale: Optional[str] = None
+    # Set when a founder directive could not be taken literally — it holds the
+    # literal reading that was refused, so the founder can see exactly what
+    # was changed and why rather than receiving a silently different post.
+    reframed_from: Optional[str] = None
     kill_rationale: Optional[str] = None
     human_review_rationale: Optional[str] = None
     objective: str

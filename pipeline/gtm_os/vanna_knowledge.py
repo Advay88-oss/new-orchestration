@@ -77,6 +77,39 @@ VISUAL_ANCHORS: dict[str, str] = {
     "fees": "Fixed micro-gas at 0.00014 XLM, no priority-fee auction",
 }
 
+# The confirmed integration list, from the founder's Notion context pack
+# (see pipeline/brain/knowledge/notion-ground-truth.md). It is a constant
+# rather than prose because it is enforceable: a post claiming a relationship
+# with anything not on this list is fabricating one. Older Vanna documents
+# name protocols and chains beyond these; the confirmed list wins.
+PARTNERS: dict[str, str] = {
+    "Stellar": "chain — current deployment",
+    "Soroswap": "spot / AMM (Stellar)",
+    "Aquarius": "spot / AMM (Stellar)",
+    "Blend": "lending (Stellar)",
+    "Hyperliquid": "perps",
+    "Aster": "perps",
+    "Avantis": "perps",
+    "Derive": "options (via Optimism)",
+    "Optimism": "chain — accessed via Derive",
+    "Uniswap": "spot / AMM",
+    "Aerodrome": "spot / AMM",
+    "Morpho": "lending",
+    "Katana": "yield",
+    "Privy": "wallet / auth infrastructure",
+    "ZeroDev": "account abstraction infrastructure",
+    "Draper University": "backer",
+    "Pivot Ventures": "backer",
+    "Gitcoin": "backer / ecosystem",
+}
+
+
+def is_partner(name: str) -> bool:
+    """Whether a named entity is a confirmed Vanna partner."""
+    n = " ".join(str(name or "").lower().split())
+    return any(n == k.lower() for k in PARTNERS)
+
+
 # Text that must never appear in or be implied by an image.
 PROHIBITED_VISUAL = (
     "ANY cryptocurrency glyph, symbol or coin — no Bitcoin B, no Ethereum "
@@ -243,6 +276,9 @@ def knowledge_pack(topic: str, *, excerpts: int = 8) -> dict[str, Any]:
         "approved_claims": local.get("approved-claims", "")[:2500],
         "audience": local.get("audience", "")[:2000],
         "objections": local.get("customer-objections", "")[:2000],
+        "ground_truth": local.get("notion-ground-truth", "")[:3500],
+        "category_patterns": local.get("category-patterns", "")[:2500],
+        "partners": PARTNERS,
         "docs": docs_excerpts(topic, limit=excerpts),
         "prohibited_claims": prohibited(),
         "prohibited_visual": PROHIBITED_VISUAL,
@@ -265,6 +301,18 @@ def prompt_block(topic: str, *, excerpts: int = 8) -> str:
 
     lines += ["", "Positioning:", k["positioning"][:1200]]
     lines += ["", "Approved claims registry:", k["approved_claims"][:1200]]
+
+    if k.get("partners"):
+        lines += ["",
+                  "CONFIRMED PARTNERS — this is the whole list. Never claim a "
+                  "relationship with anything not on it, however plausible it "
+                  "sounds:"]
+        lines += ["  - " + n + " (" + role + ")"
+                  for n, role in k["partners"].items()]
+
+    if k.get("ground_truth"):
+        lines += ["", "Ground truth (founder's context pack):",
+                  k["ground_truth"][:2200]]
     if k["prohibited_claims"]:
         lines += ["", "NEVER CLAIM:"] + ["  - " + p for p in k["prohibited_claims"]]
     return "\n".join(lines)

@@ -58,9 +58,27 @@ JUDGE_SYSTEM = (
     "for text of that second kind.\n"
     "  prohibited    " + PROHIBITED_VISUAL + "\n\n"
 
+    "  matches_request  do the post AND the asset answer what the founder "
+    "asked for? Compare against FOUNDER REQUEST when one is given. A post "
+    "about a neighbouring concept — liquidation when liquidity was asked "
+    "for — is a REJECT of the copy however well written, and so is a post "
+    "that ignores a structure the founder asked for.\n\n"
+
+    "POSTERS AND TYPESET LAYOUTS. When the archetype is a P-series poster "
+    "(P1 hero metric, P2 announcement, P3 product card) or a code-set layout "
+    "(A2 product panel, A6 ledger, A7 composition bar, A9 lockup), there is "
+    "deliberately NO drawn figure: the background is light only and the "
+    "argument is carried by the typeset words and figures. Do not ask for a "
+    "drawing and do not mark shows_mechanism false for its absence. Judge "
+    "instead: does the typeset claim state Vanna's mechanism correctly and "
+    "match the post; is it legible, aligned, and free of overlap; is the "
+    "figure true; is it on-brand (Vanna's violet-to-magenta bloom on a dark "
+    "ground, one idea set large).\n\n"
+
     "Verdicts: SHIP (good as is), REVISE (usable but name what is wrong), "
     "REJECT (do not publish). Use REJECT when the asset shows no mechanism, "
-    "carries text, contradicts the copy, or breaks the prohibited list.\n\n"
+    "carries text, contradicts the copy, misses the founder's request, or "
+    "breaks the prohibited list.\n\n"
     "Return strict JSON. Be specific: 'the three chambers read as decorative "
     "vases, not as isolated accounts' is useful, 'could be stronger' is not."
 )
@@ -69,6 +87,7 @@ SCHEMA_HINT = (
     '{"assets": [{"asset": "visual"|"meme"|"video_still", '
     '"verdict": "SHIP"|"REVISE"|"REJECT", "shows_mechanism": bool, '
     '"mechanism_named": str, "on_brand": bool, "matches_copy": bool, '
+    '"matches_request": bool, '
     '"has_text": bool, "prohibited_elements": [str], "critique": str, '
     '"fix": str}], '
     '"copy_verdict": "SHIP"|"REVISE"|"REJECT", "copy_critique": str, '
@@ -130,19 +149,43 @@ def judge_assets(summary: dict[str, Any], run_id: str) -> dict[str, Any]:
     copy_block = ("HOOK: " + str(x.get("hook", ""))[:300] + "\n\n"
                   + "BODY: " + str(x.get("copy", ""))[:1800])
 
+    # The founder's own words. Without them the judge could only check the
+    # asset against the post — and when A03 had already swapped the subject,
+    # post and asset agreed with each other and both shipped off-brief.
+    request = str(summary.get("directive") or "").strip()
+    archetype = str(summary.get("visual_archetype") or "")
+
     prompt = (
-        "CAMPAIGN\n"
+        ("FOUNDER REQUEST (what was actually asked for)\n  "
+         + request[:900] + "\n\n" if request else "")
+        + "CAMPAIGN\n"
         "  pillar:  " + str(summary.get("pillar") or "") + "\n"
-        "  problem: " + str(summary.get("problem") or "")[:400] + "\n\n"
+        "  problem: " + str(summary.get("problem") or "")[:400] + "\n"
+        + ("  visual archetype: " + archetype + "\n" if archetype else "")
+        + "\n"
         "THE POST THAT SHIPS WITH THESE ASSETS\n" + copy_block + "\n\n"
         "ATTACHED IMAGES, in order: " + ", ".join(labels) + "\n\n"
         "Review each attached image and the copy. Return JSON exactly:\n"
         + SCHEMA_HINT
     )
 
-    verdict = R.brain_vision(prompt, images, agent=AGENT, system=JUDGE_SYSTEM,
-                             role="reasoning", temperature=0.15,
-                             max_output_tokens=4096)
+    # One critique and one fix per asset, plus a copy verdict, overran 4096
+    # and the reply was cut mid-string — the whole judgement was lost to a
+    # JSON parse error and A07 was recorded as failed. Room, then one retry
+    # asking for brevity, before giving up.
+    try:
+        verdict = R.brain_vision(prompt, images, agent=AGENT,
+                                 system=JUDGE_SYSTEM, role="reasoning",
+                                 temperature=0.15, max_output_tokens=12288)
+    except R.BrainError as first:
+        R.record_stage(AGENT, "degraded",
+                       "vision verdict was not valid JSON, retrying tighter: "
+                       + str(first)[:180])
+        verdict = R.brain_vision(
+            prompt + "\n\nKeep every critique under 25 words and every fix "
+            "under 15. Return ONLY the JSON object.",
+            images, agent=AGENT, system=JUDGE_SYSTEM, role="reasoning",
+            temperature=0.1, max_output_tokens=12288)
 
     assets = verdict.get("assets") or []
     rejects = [a for a in assets if str(a.get("verdict")).upper() == "REJECT"]

@@ -1,0 +1,133 @@
+{
+  "_README": [
+    "What A01 scrapes. Edit this file to change the engine's field of view \u2014",
+    "no code change needed. Missing keys fall back to the defaults in",
+    "pipeline/intelligence_stream/source_config.py.",
+    "",
+    "Why this exists: the source list used to be hardcoded in a class body,",
+    "and two of its four doc sources were Blend and Stellar. A narrow input",
+    "pool cannot produce varied output, however good the agents downstream",
+    "are \u2014 32 of 41 runs landed on the same Blend v2 topic.",
+    "",
+    "news_queries is a LIST and a different subset is used each cycle. One",
+    "fixed query ('stellar soroban defi') returned near-identical headlines",
+    "every run, which was the single largest cause of the repetition."
+  ],
+  "news_queries": [
+    "stellar soroban defi",
+    "defi lending protocol liquidation",
+    "onchain credit infrastructure",
+    "defi margin leverage protocol",
+    "stablecoin yield lending risk",
+    "defi bad debt contagion",
+    "smart contract wallet account abstraction",
+    "rwa tokenization lending",
+    "perpetuals dex collateral",
+    "restaking liquidity risk",
+    "cross margin defi protocol",
+    "defi insurance liquidation cascade"
+  ],
+  "reddit_subreddits": [
+    "defi",
+    "Stellar",
+    "ethfinance",
+    "CryptoCurrency",
+    "solana",
+    "ethdev",
+    "CryptoTechnology"
+  ],
+  "twitter_protocols": [
+    {
+      "handle": "StellarOrg",
+      "name": "Stellar Foundation"
+    },
+    {
+      "handle": "MorphoLabs",
+      "name": "Morpho Protocol"
+    },
+    {
+      "handle": "GearboxProtocol",
+      "name": "Gearbox Protocol"
+    },
+    {
+      "handle": "aave",
+      "name": "Aave"
+    },
+    {
+      "handle": "eulerfinance",
+      "name": "Euler Finance"
+    },
+    {
+      "handle": "gauntlet_xyz",
+      "name": "Gauntlet"
+    }
+  ],
+  "telegram_channels": [
+    {
+      "handle": "stellar_org",
+      "entity": "Stellar Development Foundation"
+    },
+    {
+      "handle": "morpho_labs",
+      "entity": "Morpho Protocol"
+    },
+    {
+      "handle": "blend_capital",
+      "entity": "Blend Protocol"
+    }
+  ],
+  "docs_and_blogs": [
+    {
+      "name": "Stellar Foundation Blog",
+      "url": "https://stellar.org/blog/rss.xml",
+      "type": "RSS"
+    },
+    {
+      "name": "Blend Protocol Docs",
+      "url": "https://docs.blend.capital",
+      "type": "DOCS"
+    },
+    {
+      "name": "Morpho Technical Blog",
+      "url": "https://morpho.org/blog",
+      "type": "BLOG"
+    },
+    {
+      "name": "Gearbox Protocol Docs",
+      "url": "https://docs.gearbox.fi",
+      "type": "DOCS"
+    },
+    {
+      "name": "Aave Governance",
+      "url": "https://governance.aave.com/latest.rss",
+      "type": "RSS"
+    },
+    {
+      "name": "a16z crypto",
+      "url": "https://a16zcrypto.com/feed/",
+      "type": "RSS"
+    },
+    {
+      "name": "Ethereum Research",
+      "url": "https://ethresear.ch/latest.rss",
+      "type": "RSS"
+    },
+    {
+      "name": "The Defiant",
+      "url": "https://thedefiant.io/api/feed",
+      "type": "RSS"
+    }
+  ],
+  "defillama": {
+    "enabled": true,
+    "categories": [
+      "Lending",
+      "CDP",
+      "Liquid Staking",
+      "Yield",
+      "Derivatives"
+    ],
+    "min_tvl_usd": 20000000,
+    "movers": 6
+  }
+}

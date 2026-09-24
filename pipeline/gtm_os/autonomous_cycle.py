@@ -28,6 +28,7 @@ import argparse
 import pathlib
 import json
 import os
+import re
 import sys
 import time
 import traceback
@@ -139,7 +140,8 @@ def _stage(agent: str, fn, *, required: bool = True, detail: str = "",
 # A08 — Visual Synthesis Engine (gemini-3.1-flash-image, "nano banana")
 # --------------------------------------------------------------------------
 
-def render_visual(strategy, content_pkg, blueprint, run_id: str) -> Optional[dict]:
+def render_visual(strategy, content_pkg, blueprint, run_id: str,
+                  subject: str = "") -> Optional[dict]:
     """A08 renders the post visual through the archetype system.
 
     The old path called VisualPipelineEngine, which chose its composition from
@@ -157,7 +159,8 @@ def render_visual(strategy, content_pkg, blueprint, run_id: str) -> Optional[dic
     except Exception:                               # noqa: BLE001 — boundary
         hook = str(getattr(strategy, "problem", ""))[:200]
 
-    result = direct_and_render(strategy, hook, body, run_id)
+    result = direct_and_render(strategy, hook, body, run_id,
+                               subject=subject)
     png = Path(result["path"])
     if not png.exists() or png.stat().st_size < 4096:
         raise RuntimeError("archetype renderer produced no usable PNG")
@@ -357,7 +360,12 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
         # The motion must depict what the post argues. Rendering the isolation
         # grid for a Round Trip post is why the judge rejected the video for
         # showing no mechanism.
-        element_prompt=element_prompt_for(archetype),
+        # The subject, so the clip is about THIS post. Without it a
+        # health-factor post and a partnership post produced the same video,
+        # and the poster archetypes — absent from the element table — fell
+        # back to the isolation grid entirely.
+        element_prompt=element_prompt_for(
+            archetype, hook or str(s.get("signal") or "")),
         eyebrow="Stellar Soroban · testnet",
         headline=(hook or str(s.get("signal") or ""))[:120],
         deck=deck[:150],
@@ -485,6 +493,36 @@ def render_video_cinematic(blueprint, run_id: str, *, timeout_s: float = 420.0) 
 # The cycle
 # --------------------------------------------------------------------------
 
+def _assets_wanted(directive: Optional[str]) -> dict[str, bool]:
+    """Which assets a directive is actually asking for.
+
+    "Make a post about health factor" asked for a post, and the cycle also
+    spent a Veo render and a nano-banana-pro meme on it. Naming one asset now
+    means that asset: a directive that says post gets copy and a still, one
+    that says video gets a video, one that says meme gets a meme. A directive
+    naming none — and every autonomous run — still produces everything.
+    """
+    d = " " + " ".join(str(directive or "").lower().split()) + " "
+    if not d.strip():
+        return {"visual": True, "video": True, "meme": True}
+
+    asked = {
+        "visual": any(w in d for w in (" post", " thread", " tweet", " visual",
+                                       " image", " graphic", " linkedin",
+                                       " reddit", " carousel")),
+        "video": any(w in d for w in (" video", " clip", " reel", " motion",
+                                      " animation")),
+        "meme": " meme" in d,
+    }
+    # Nothing named: the founder described a subject, not a format.
+    if not any(asked.values()):
+        return {"visual": True, "video": True, "meme": True}
+    # A video or a meme still needs the copy it is built from; it just does
+    # not need the other formats.
+    asked["visual"] = asked["visual"] or not (asked["video"] or asked["meme"])
+    return asked
+
+
 def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
               run_id: Optional[str] = None) -> dict[str, Any]:
     from pipeline.gtm_orchestration.intelligence_provider import IntelligenceProvider
@@ -526,15 +564,41 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         if not signals:
             raise CycleAbort("no market signals available")
 
+        # A02b — the market reading. Runs against harvest.json rather than the
+        # fourteen `scout` returns, because the harvest holds everything the
+        # scrape found and that is what the Scraped Intelligence view shows.
+        # Reading a ranked subset would grade five signals and leave twenty
+        # unread beside them.
+        def read_market():
+            import json as _json
+            from pipeline.gtm_os.market_analyst import analyse
+            try:
+                raw = (R.RUNS_DIR / rid / "harvest.json").read_text(encoding="utf-8")
+                rows = _json.loads(raw).get("signals") or []
+            except Exception:                       # noqa: BLE001 — boundary
+                rows = signals
+            return analyse(rows, run_id=rid)
+
+        reading = _stage("A02_market_analyst", read_market,
+                         detail="read the harvest", self_recorded=True)
+        if isinstance(reading, dict) and reading.get("landscape"):
+            summary["landscape"] = reading["landscape"]
+
+        # What this directive actually asked for. Naming "post" should not
+        # also spend a Veo render and a meme.
+        wanted = _assets_wanted(directive)
+        summary["assets_requested"] = wanted
+
         # A02 — Opportunity Selector
         def pick():
             if directive:
-                R.record_stage("A02_opportunity_selector", "skipped",
-                               "founder directive supplied; selection deferred")
-                for s in signals:
-                    if directive.lower()[:40] in str(s.headline).lower():
-                        return s
-                return signals[0]
+                # A directive IS the subject. This used to substring-search the
+                # directive's first 40 characters inside scraped headlines —
+                # "make a post on vanna of liquidation and " never appears in a
+                # news headline, so it always fell through to signals[0] and
+                # the run proceeded on an unrelated scraped topic while
+                # reporting that it had honoured the directive.
+                return _directive_signal(directive, signals)
             return _select_signal(signals)
         signal = _stage("A02_opportunity_selector", pick,
                         detail="chose a signal to pursue")
@@ -542,6 +606,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         summary["signal_source_type"] = str(signal.source_type)
         summary["signal_source"] = str(getattr(signal, "source", "") or "")
         summary["signal_observed_at"] = str(signal.observed_at)
+        SIGNALS.clear()
+        SIGNALS.extend(signals)
         summary["candidate_signals"] = [
             {"headline": str(s.headline)[:160], "source_type": str(s.source_type),
              "observed_at": str(s.observed_at)[:19]}
@@ -563,6 +629,80 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         summary["opportunity"] = str(strategy.strategic_opportunity)[:600]
         summary["audience"] = str(strategy.audience_segment)[:200]
         summary["proof_claims"] = [str(c)[:240] for c in (strategy.proof or [])][:10]
+        _emit_strategy(strategy, signal)
+
+        # A03 declining is correct behaviour — its default posture is
+        # rejection. When A02 chose the subject itself, trying the runners-up
+        # is right: the other fifteen signals A01 gathered are all equally
+        # valid candidates and one of them may be usable.
+        #
+        # When the FOUNDER named the subject it is not. Asking for a post
+        # about a Stellar partnership and receiving one about tokenised
+        # lending is the substitution this whole engine is built to refuse —
+        # the run reported success over a topic nobody asked for. If a
+        # directive is declined, that decline is the answer, and it is
+        # reported with A03's reason so the directive can be rephrased.
+        if directive and strategy.action_status != "ACTION":
+            summary["status"] = strategy.action_status
+            summary["reason"] = (
+                "A03 declined the founder directive and no substitute was "
+                "made: " + str(strategy.no_action_rationale
+                                or strategy.kill_rationale or "")[:400])
+            R.record_decision("A03_gtm_strategist", "declined", {
+                "signal": str(signal.headline)[:200],
+                "verdict": strategy.action_status,
+                "rationale": summary["reason"][:400],
+                "note": "directive honoured; no scraped topic substituted",
+            })
+            for skipped in ("A04_machine_library", "A05_campaign_engine",
+                            "A06_channel_adapter", "A07_creative_director",
+                            "A08_visual_synthesis", "A09_video_production",
+                            "A10_reviewer_firewall", "A11_dispatch_worker",
+                            "A12_telegram_gateway"):
+                R.record_stage(skipped, "skipped",
+                               "directive declined by A03")
+            return _finish(summary, t0, rid)
+
+        attempts = 1
+        tried = {str(signal.headline)}
+        # The runner-ups must respect topic memory too. Walking raw SIGNALS
+        # here re-selected a subject A02 had just suppressed — the retry
+        # quietly undid the no-repeat rule it was meant to work alongside.
+        from pipeline.gtm_os import topic_memory as _TM
+        fresh_pool, recent_pool = _TM.split_fresh(SIGNALS)
+        # Novelty first, but relevance wins over novelty when the alternative
+        # is producing nothing: a subject covered four cycles ago beats an
+        # off-domain listicle A03 will decline anyway.
+        retry_pool = fresh_pool + recent_pool
+        while strategy.action_status != "ACTION" and attempts < 3:
+            nxt = next((s for s in retry_pool if str(s.headline) not in tried), None)
+            if nxt is None:
+                break
+            tried.add(str(nxt.headline))
+            attempts += 1
+            print("  [retry] A03 said " + str(strategy.action_status)
+                  + "; trying next signal (" + str(attempts) + "/3)")
+            signal = nxt
+            strategy = _stage(
+                "A03_gtm_strategist",
+                lambda s=nxt: strategist.evaluate_and_formulate_strategy(s),
+                detail="formulated strategy on runner-up signal")
+            summary["signal"] = str(nxt.headline)[:300]
+            summary["signal_source_type"] = str(nxt.source_type)
+            summary["action_status"] = strategy.action_status
+            summary["machine"] = strategy.gtm_machine_id
+            summary["pillar"] = strategy.narrative_pillar
+            summary["strategy_reasoning"] = [
+                str(r)[:300] for r in (strategy.reasoning or [])][:10]
+            summary["problem"] = str(strategy.problem)[:600]
+            summary["opportunity"] = str(strategy.strategic_opportunity)[:600]
+            summary["audience"] = str(strategy.audience_segment)[:200]
+            summary["proof_claims"] = [str(c)[:240] for c in (strategy.proof or [])][:10]
+            _emit_strategy(strategy, nxt)
+            # Record the subject actually pursued, not just A02's first pick,
+            # or a retried topic never enters the memory and can repeat.
+            _TM.remember(str(nxt.headline), rid)
+        summary["strategy_attempts"] = attempts
 
         if strategy.action_status != "ACTION":
             summary["status"] = strategy.action_status
@@ -611,6 +751,10 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             lambda: CreativeDirectorSystem().compile_master_blueprint(strategy, content_pkg),
             detail="art-directed the campaign")
         summary["visual_concept"] = str(blueprint.visual_metaphor.concept)[:600]
+        R.record_decision("A07_creative_director", "directed", {
+            "concept": str(blueprint.visual_metaphor.concept)[:400],
+            "metaphor": str(getattr(blueprint.visual_metaphor, "family", ""))[:120],
+        })
         # Store the generated prompts. When an asset comes back wrong the first
         # question is what was actually asked for, and that was unrecoverable.
         _fs = getattr(blueprint, "format_specs", {}) or {}
@@ -620,8 +764,9 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         }
 
         # A08 — Visual Synthesis Engine (nano banana)
-        visual = _stage("A08_visual_synthesis",
-                        lambda: render_visual(strategy, content_pkg, blueprint, rid),
+        visual = None if not wanted["visual"] else _stage("A08_visual_synthesis",
+                        lambda: render_visual(strategy, content_pkg, blueprint, rid,
+                              str(signal.headline)),
                         required=False, self_recorded=True)
         if visual:
             summary["visual_path"] = visual.get("path") or visual.get("filename")
@@ -630,7 +775,10 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             summary["visual_public_url"] = visual.get("public_url")
 
         # Meme — same agent, nano banana pro
-        meme = _stage("A08_visual_synthesis",
+        if not wanted["meme"]:
+            R.record_stage("A08_visual_synthesis", "skipped",
+                           "meme not requested by this directive")
+        meme = None if not wanted["meme"] else _stage("A08_visual_synthesis",
                       lambda: render_meme(blueprint, rid, strategy, content_pkg),
                       required=False,
                       detail="rendered the meme", self_recorded=True)
@@ -638,7 +786,10 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             summary["meme_path"] = meme
 
         # A09 — Video Production Engine (Veo 3.1)
-        if with_video:
+        if with_video and not wanted["video"]:
+            R.record_stage("A09_video_production", "skipped",
+                           "video not requested by this directive")
+        if with_video and wanted["video"]:
             video = _stage("A09_video_production",
                            lambda: render_video(summary, rid),
                            required=False, self_recorded=True)
@@ -661,6 +812,16 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         if creative_verdict:
             summary["creative_review"] = creative_verdict
             summary["creative_verdict"] = creative_verdict.get("overall")
+            R.record_decision("A07_creative_director", "judged", {
+                "overall": creative_verdict.get("overall"),
+                "copy_verdict": creative_verdict.get("copy_verdict"),
+                "assets": [
+                    {"asset": k, "verdict": v.get("verdict"),
+                     "critique": str(v.get("critique") or "")[:300]}
+                    for k, v in creative_verdict.items()
+                    if isinstance(v, dict) and v.get("verdict")
+                ],
+            })
 
         # A10 — Pre-Delivery Reviewer Firewall
         def review():
@@ -677,11 +838,28 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         passed = bool(channel_verdict.approved and creative_verdict.approved
                       and not creative_rejected)
         summary["review_passed"] = passed
+        # Every reason the gate can block for, not two of them. A run was
+        # recorded review_blocked with blocked_claims and slop both empty and
+        # the creative verdict SHIP — the cause was a channel issue, which
+        # these notes did not carry, so the dashboard showed a block with no
+        # reason at all.
         summary["review_notes"] = {
             "blocked_claims": list(getattr(channel_verdict, "blocked_unsupported_claims", []) or []),
+            "channel_issues": dict(getattr(channel_verdict, "channel_issues", {}) or {}),
+            "claim_provenance": bool(getattr(channel_verdict, "claim_provenance_verified", True)),
+            "distinctness": getattr(channel_verdict, "distinctness_score", None),
             "slop": list(getattr(creative_verdict, "slop_violations", []) or []),
+            "validator": (None if getattr(creative_verdict, "approved", True)
+                          else str(getattr(creative_verdict, "reasoning", ""))[:300]),
             "creative": summary.get("creative_verdict"),
         }
+        R.record_decision("A10_reviewer_firewall",
+                          "reviewed" if passed else "declined", {
+            "passed": passed,
+            "blocked_claims": summary["review_notes"]["blocked_claims"][:6],
+            "slop": summary["review_notes"]["slop"][:6],
+            "creative": summary.get("creative_verdict"),
+        })
 
         # A11 — Approved Dispatch Worker. It dispatches only what a human has
         # approved, and no human has seen this yet, so it is correctly idle.
@@ -739,24 +917,181 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
 
 
 SELECTION: dict = {}
+# Every signal A01 gathered this cycle. The Ideas Panel proposes from
+# the ones A02 did not choose, which were previously thrown away.
+SIGNALS: list = []
+
+
+def _directive_signal(directive: str, signals):
+    """Turn a founder directive into the subject the cycle pursues.
+
+    The directive is authoritative: if the founder asks for liquidation and
+    health factor, that is the post, regardless of what today's scrape found.
+    Scraped signals are still useful as supporting evidence, so the closest
+    one by word overlap is attached — but it never replaces the subject.
+    """
+    from pipeline.gtm_orchestration.schemas import MarketSignal
+
+    # A directive is phrased as an instruction — "make a post on vanna of
+    # liquidation and health factor". That string becomes the signal headline
+    # and is interpolated into copy and visuals, so the instruction wrapper is
+    # stripped first: otherwise a hook reads "The hidden math behind make a
+    # post on vanna of...".
+    text = " ".join(str(directive).split())
+    text = re.sub(
+        r"^(?:please\s+)?(?:can you\s+)?"
+        r"(?:make|write|draft|create|generate|do|build|give me|prepare|"
+        r"explain|show|cover|tell me about)\s+"
+        r"(?:me\s+)?(?:a|an|the)?\s*"
+        r"(?:post|thread|article|piece|content|video|meme|visual)?\s*"
+        r"(?:on|about|for|of|re)?\s+",
+        "", text, flags=re.I).strip()
+    # "vanna of liquidation and health factor" -> "liquidation and health
+    # factor". Only when a possessive-style connector follows: stripping it
+    # unconditionally turned "vanna with partnership with stellar" into the
+    # fragment "with partnership with stellar", which A03 then read as a
+    # generic partnership shout-out and correctly declined.
+    text = re.sub(r"^(?:vanna(?:'s)?|for vanna)\s+(?:of|on|about)\s+", "",
+                  text, flags=re.I).strip()
+    # Any preposition left stranded at the front is an artefact of stripping,
+    # never part of the subject.
+    text = re.sub(r"^(?:with|of|on|about|for|re)\s+", "", text, flags=re.I).strip()
+    text = text or " ".join(str(directive).split())
+    # Cut at a word, not mid-word. At 280 characters a directive ending "make
+    # the post highly saveable and shareable" reached every agent as "...and
+    # sh" — the founder's format requirement was the part that got lost.
+    if len(text) > 600:
+        text = text[:600].rsplit(" ", 1)[0]
+
+    # Support is matched on SUBJECT words only. Every word of four letters or
+    # more used to count, as a substring, so "explain", "crypto", "simple"
+    # and "understand" matched "What is liquidation in crypto?" to a request
+    # about LIQUIDITY. That headline was then handed to A03 as the related
+    # signal, and A03 wrote about liquidation. Instruction and format words
+    # are not the subject; whole words only.
+    _NOT_SUBJECT = {
+        "create", "make", "write", "draft", "post", "posts", "thread", "twitter",
+        "educational", "explain", "explaining", "explains", "simple", "language",
+        "audience", "understand", "understands", "understanding", "concept",
+        "technical", "problem", "works", "work", "matters", "matter", "fits",
+        "picture", "highly", "saveable", "shareable", "vanna", "vannas",
+        "crypto", "defi", "users", "user", "people", "that", "this", "with",
+        "into", "about", "their", "them", "they", "what", "your", "have",
+        "should", "could", "would", "also", "more", "most", "very", "just",
+        "like", "want", "need", "show", "shows", "does", "make", "made",
+    }
+    words = {w for w in re.findall(r"[a-z]{4,}", text.lower())} - _NOT_SUBJECT
+
+    def overlap(s) -> int:
+        head = set(re.findall(r"[a-z]{4,}", str(getattr(s, "headline", "")).lower()))
+        return len(words & head)
+
+    support = max(signals, key=overlap, default=None) if signals else None
+    if support is not None and overlap(support) == 0:
+        support = None
+
+    R.record_decision("A02_opportunity_selector", "chose", {
+        "chosen": text,
+        "why": "founder directive — the subject was given, not selected",
+        "chosen_source": "FOUNDER_DIRECTIVE",
+        "candidates": len(signals),
+        "supporting_signal": str(getattr(support, "headline", "")) if support else None,
+    })
+
+    now = datetime.now(timezone.utc).isoformat()
+    return MarketSignal(
+        signal_id="SIG-DIRECTIVE-" + datetime.now(timezone.utc).strftime("%H%M%S"),
+        headline=text,
+        description=(
+            "FOUNDER DIRECTIVE. The founder has asked for a post on this "
+            "subject; it is an instruction, not a news signal to be judged "
+            "for newsworthiness. Find Vanna's architectural angle on it. "
+            "Subject: " + text
+            + (" — possibly related market signal (context only; it does "
+               "not change the subject): " + str(support.headline)[:200]
+               if support is not None else "")
+        )[:1400],
+        market_category="LENDING",
+        entities_involved=["Vanna"],
+        observed_metric_change="FOUNDER_DIRECTIVE",
+        source="founder-directive",
+        source_root="founder",
+        dataset="directive",
+        source_type="LIVE_OBSERVED",
+        record_id="SIG-DIRECTIVE",
+        observed_at=now,
+        data_as_of=now[:10],
+        confidence="HIGH",
+        evidence_status="OBSERVED",
+    )
+
+
+def _emit_strategy(strategy, signal) -> None:
+    """Publish A03's verdict to the live journal as soon as it has one."""
+    R.record_decision(
+        "A03_gtm_strategist",
+        "formulated" if strategy.action_status == "ACTION" else "declined",
+        {
+            "signal": str(getattr(signal, "headline", ""))[:200],
+            "verdict": strategy.action_status,
+            "pillar": strategy.narrative_pillar,
+            "machine": strategy.gtm_machine_id,
+            "audience": str(strategy.audience_segment)[:200],
+            "problem": str(strategy.problem)[:400],
+            "opportunity": str(strategy.strategic_opportunity)[:400],
+            "reasoning": [str(r)[:300] for r in (strategy.reasoning or [])][:6],
+            "rationale": str(strategy.no_action_rationale
+                             or strategy.kill_rationale or "")[:400],
+        })
 
 
 def _select_signal(signals):
     """A02: judge which signal is worth a campaign, with reasons for the rest."""
+    from pipeline.gtm_os import topic_memory as TM
+
+    # Subjects covered in the last few cycles are removed from the candidate
+    # set rather than discouraged in the prompt. A02 was not misbehaving — it
+    # reasoned over the same candidates each run and correctly picked the same
+    # winner, which is how 32 of 41 runs became the same Blend v2 topic. A
+    # candidate that is absent cannot be chosen; an instruction can be ignored.
+    fresh, stale = TM.split_fresh(signals)
+    suppressed = len(stale)
+    if fresh:
+        signals = fresh
+    else:
+        # Everything is stale — a narrow scrape day. Proceed on the full set
+        # rather than skipping the run, and say so in the record.
+        suppressed = 0
+
+    # Widening the sources took the candidate list from ~13 to ~26, and a
+    # rejection note for every one of them overran the output budget — the
+    # model was cut off mid-string and the run aborted on unparseable JSON.
+    # Cap what is shown, cap how many rejections are asked for, and give the
+    # reply room.
+    signals = signals[:16]
+
     listing = "\n".join(
-        "- [" + str(i) + "] " + str(s.headline)[:180]
-        + "  (source: " + str(s.source_type) + ", confidence: " + str(s.confidence) + ")"
+        "- [" + str(i) + "] " + str(s.headline)[:140]
+        + "  (source: " + str(s.source_type) + ")"
         for i, s in enumerate(signals))
     system = (
         "You select which market signal Vanna should build a campaign on. "
         "Vanna is composable credit infrastructure on Stellar Soroban testnet. "
         "Prefer a signal where Vanna has a specific architectural answer over "
-        "one that is merely popular. Return strict JSON.")
+        "one that is merely popular.\n"
+        "Never choose a signal that is primarily token-price movement, price "
+        "targets, market-cap or trading speculation. Vanna is on testnet and "
+        "cannot assert live TVL or price, so A03 rejects those outright and "
+        "the cycle produces nothing — pick a mechanism, risk, architecture or "
+        "incident story instead.\n"
+        "Return strict JSON and keep every rationale under 30 words.")
     data = R.brain_json(
         "CANDIDATE SIGNALS\n" + listing + "\n\n"
-        'Return {"index": int, "why": str, "rejected": [{"index": int, "why": str}]}',
+        'Return {"index": int, "why": str, "rejected": [{"index": int, "why": str}]}\n\n'
+        "Include at most 6 entries in rejected — the closest runners-up, not "
+        "every candidate. Keep each why under 30 words.",
         agent="A02_opportunity_selector", role="reasoning", system=system,
-        temperature=0.2, max_output_tokens=1536)
+        temperature=0.2, max_output_tokens=3072)
     idx = int(data.get("index", 0))
     if not 0 <= idx < len(signals):
         idx = 0
@@ -776,7 +1111,18 @@ def _select_signal(signals):
             if isinstance(r, dict)
         ],
         "candidates": len(signals),
+        # Inspectable: how many subjects were held back as recently covered,
+        # so a narrow cycle reads as "the scrape was thin" rather than "the
+        # selector keeps choosing the same thing".
+        "suppressed_as_recent": suppressed,
+        "recently_covered": [
+            str(getattr(s, "headline", s))[:120] for s in stale[:6]],
     })
+    TM.remember(str(signals[idx].headline), R.current_run())
+    # Emit now, so a live view can show what A02 chose and turned down while
+    # A03 is still working. Previously this only reached summary.json at the
+    # end of the run.
+    R.record_decision("A02_opportunity_selector", "chose", dict(SELECTION))
     return signals[idx]
 
 
@@ -790,6 +1136,31 @@ def _run_learning():
     real: the model reads the adjustments and says what it would change.
     """
     from pipeline.gtm_learning.learning_engine import LearningEngine
+    from pipeline.gtm_learning import preferences as P
+
+    # The founder's decisions are the reward that exists today; post metrics
+    # come later. The snapshot is what A03, A06 and A07 read on the next run.
+    snap = P.snapshot()
+    learned = None
+    if snap["reviewed_runs"]:
+        v = snap["verdicts"]
+        best = {d: max(ps.items(), key=lambda kv: kv[1]["mean"])[0]
+                for d, ps in snap["dimensions"].items() if ps}
+        learned = {"reviewed_runs": snap["reviewed_runs"], "verdicts": v,
+                   "leading": best, "retired": snap["retired"]}
+        R.record_stage(
+            "A13_learning_engine", "ok",
+            "learned from " + str(snap["reviewed_runs"]) + " founder decisions ("
+            + ", ".join(k + " " + str(n) for k, n in v.items()) + ")"
+            + (" | leading archetype " + str(best.get("visual_archetype"))
+               if best.get("visual_archetype") else "")
+            + (" | retired " + ", ".join(sum(snap["retired"].values(), []))
+               if any(snap["retired"].values()) else ""))
+        R.record_decision("A13_learning_engine", "preferences", learned)
+    else:
+        R.record_stage("A13_learning_engine", "ok",
+                       "no founder decisions yet — approve, revise or kill a run "
+                       "to start the learning loop")
 
     adjustments = LearningEngine().process_feedback_loop()
     rows = []
@@ -802,9 +1173,9 @@ def _run_learning():
         })
 
     if not rows:
-        R.record_stage("A13_learning_engine", "ok",
-                       "no outcome records to learn from yet")
-        return {"adjustments": 0, "verdict": None}
+        # No post metrics yet — the stage line above already says what was
+        # learned from founder decisions, so this adds nothing more.
+        return {"adjustments": 0, "verdict": None, "preferences": learned}
 
     verdict = R.brain_json(
         "PATTERN WEIGHT ADJUSTMENTS MADE THIS CYCLE\n"
@@ -816,7 +1187,7 @@ def _run_learning():
                 "a handful of posts are noise, not learning. Say so plainly "
                 "when the sample is too small to support the adjustment."),
         temperature=0.2, max_output_tokens=1024)
-    return {"adjustments": len(rows), "verdict": verdict}
+    return {"adjustments": len(rows), "verdict": verdict, "preferences": learned}
 
 
 def _finish(summary: dict, t0: float, rid: str) -> dict:
@@ -832,11 +1203,36 @@ def _finish(summary: dict, t0: float, rid: str) -> dict:
         for line in cf.read_text(encoding="utf-8").splitlines():
             if line.strip():
                 calls.append(json.loads(line))
-    summary["model_calls"] = len(calls)
-    summary["model_calls_ok"] = sum(1 for c in calls if c.get("ok"))
-    summary["input_tokens"] = sum(c.get("input_tokens", 0) for c in calls)
-    summary["output_tokens"] = sum(c.get("output_tokens", 0) for c in calls)
-    summary["models_used"] = sorted({c.get("model") for c in calls if c.get("model")})
+    # calls.jsonl also carries deterministic work — A08 records the drawn
+    # lockup there so the journal shows every step, with model=None and
+    # transport="deterministic". Those are not model calls: counting them
+    # inflated model_calls, and the dashboard's spend view read them back as
+    # a model literally named "unknown".
+    def _is_model_call(c: dict) -> bool:
+        return bool(c.get("model")) and c.get("transport") != "deterministic"
+
+    model_calls = [c for c in calls if _is_model_call(c)]
+    summary["model_calls"] = len(model_calls)
+    summary["model_calls_ok"] = sum(1 for c in model_calls if c.get("ok"))
+    summary["input_tokens"] = sum(c.get("input_tokens", 0) for c in model_calls)
+    summary["output_tokens"] = sum(c.get("output_tokens", 0) for c in model_calls)
+    summary["models_used"] = sorted({c["model"] for c in model_calls})
+    # Per model, not just the union of names. A run's cost cannot be computed
+    # from a total token count and a list of models: an image or video call
+    # reports no tokens and is billed per call, so the two media models that
+    # account for ~97% of a full run's spend were invisible to any arithmetic
+    # done downstream. This is the tally the rate table is applied to.
+    by_model: dict[str, dict[str, int]] = {}
+    for c in model_calls:
+        m = by_model.setdefault(str(c["model"]),
+                                {"calls": 0, "input_tokens": 0, "output_tokens": 0})
+        m["calls"] += 1
+        m["input_tokens"] += int(c.get("input_tokens") or 0)
+        m["output_tokens"] += int(c.get("output_tokens") or 0)
+    summary["spend_by_model"] = by_model
+    # Kept separate rather than dropped: the deterministic steps are real work
+    # and the journal should still say they happened.
+    summary["deterministic_steps"] = len(calls) - len(model_calls)
 
     stages = []
     sf = d / "stages.jsonl"
@@ -891,6 +1287,23 @@ def _finish(summary: dict, t0: float, rid: str) -> dict:
     except Exception as exc:                        # noqa: BLE001 — boundary
         # A panel write must never take down a finished run.
         print("  [warn] panel publish failed: " + str(exc)[:160])
+
+    # Push to GCS. The deployed dashboard has no access to this filesystem, so
+    # without this it renders a working system as an empty one. A push failure
+    # is reported and ignored: the run is already complete and its assets are
+    # already on disk.
+    try:
+        from pipeline.gtm_os.state_sync import push_all
+        sync = push_all(rid, summary)
+        summary["state_sync"] = sync
+        n = (sync.get("run") or {}).get("objects", 0)
+        print("  [sync] " + str(n) + " object(s) to GCS"
+              if n else "  [sync] nothing pushed: "
+              + str((sync.get("run") or {}).get("reason", "")))
+        (d / "summary.json").write_text(
+            json.dumps(summary, indent=2, default=str), encoding="utf-8")
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        print("  [warn] state sync failed: " + str(exc)[:160])
     print("-" * 70)
     print("status          : " + str(summary["status"]))
     print("agents ran      : " + str(summary["agents_ran"]) + "/13")
@@ -977,6 +1390,21 @@ def publish_panels(summary: dict, rid: str) -> None:
             "visual_url": (pathlib.Path(str(summary["visual_path"])).name
                            if summary.get("visual_path") else None),
         })
+
+    # Ideas Panel <- proposals from the signals this cycle did NOT use.
+    #
+    # Without this the panel is a log: one entry per finished run, so "24
+    # ideas" meant "24 posts already made" and there was nothing to decide.
+    # A01 gathers ~26 signals and A02 uses one; these are the other 25.
+    try:
+        from pipeline.gtm_os.idea_proposer import propose
+
+        unused = [s for s in SIGNALS
+                  if str(getattr(s, "headline", "")) != str(summary.get("signal") or "")]
+        for prop in propose(unused, rid):
+            _panel_write("ideas.json", "ideas", prop, keep=40)
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        print("  [warn] idea proposals skipped: " + str(exc)[:160])
 
     # Crypto Memes <- A08's nano banana pro render
     if summary.get("meme_path"):

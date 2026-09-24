@@ -116,28 +116,50 @@ class ChannelAdapter:
         # -------------------------------------------------------------
         # Call Gemini 3.8 Flash for Bespoke Copy Generation
         # -------------------------------------------------------------
-        llm_prompt = f"""You are the senior technical copywriter for Vanna Protocol (composable credit infrastructure on Stellar Soroban).
+        # What A03 decided about THIS subject. The copywriter used to receive a
+        # strategy id as its "Title/Directive" and nothing of the problem,
+        # positioning or requested format, so it wrote from its own rules —
+        # which is how a request to explain liquidity came back as a post
+        # about the liquidation floor.
+        problem = strategy.problem if strategy.problem not in (None, "", "NONE") else ""
+        positioning = strategy.positioning if strategy.positioning not in (None, "", "NONE") else ""
+        content_type = strategy.content_type if strategy.content_type not in (None, "", "NONE") else ""
+        # What the founder approved and what they sent back. Empty until a run
+        # has been reviewed; after that the copywriter writes toward the
+        # founder's own record rather than only its rules.
+        try:
+            from pipeline.gtm_learning.preferences import prompt_block
+            learned = prompt_block(for_agent="A06")
+        except Exception:                           # noqa: BLE001 — boundary
+            learned = ""
+        learned_section = ("\n" + learned + "\n") if learned else ""
+
+        llm_prompt = f"""You are the senior technical copywriter for Vanna Protocol (composable credit infrastructure on Stellar Soroban TESTNET).
 Write native social copy for the following strategy:
-- Title/Directive: "{title}"
-- Market Context: "{context}"
+- Subject and Founder Request (the post MUST be about this): "{context}"
+- Problem to explain: "{problem}"
+- Vanna's position on it: "{positioning}"
+- Format asked for: "{content_type}"
 - Target Audience: "{audience}"
 - Core Objective: "{objective}"
 - Call to Action: "{cta}"
 
+Stay on the subject. If the founder asked for a concept, explain THAT concept; never swap it for a neighbouring one (liquidity is not liquidation). If the request names a structure (problem, how it works, why it matters, where Vanna fits) or a quality (simple language, saveable, shareable), the X post follows that structure in that order.
+{learned_section}
 Editorial & Algorithmic Rules to Follow Strictly (HERMES HUMANIZER SKILL):
 1. Voice: Speak as an authentic engineer/builder. Write with real opinions, natural sentence variation, and zero marketing fluff.
 2. Ban AI Clichés: Never use "introduces", "features include", "revolutionary", "game-changing", "seamlessly", "stands as", "is a testament to", "in today's evolving landscape".
 3. Ban Structural Slop: Never use em dashes (—), exclamation marks (!), or negative parallelisms ("Not only X, but Y").
 4. Ban Robotic Lists: Never write "- **Feature:** description" bullet lists. Write natural prose.
-5. Specifics Over Adjectives: Use real numbers without ceremony: 0.00014 XLM fixed gas, ~320ms Mercury indexer latency, 1.10x Health Factor floor.
-6. X/Twitter: First 7 words must hook a trader. Never put links in Tweet 1. Put the CTA link only at the end.
+5. Specifics Over Adjectives: Vanna's real figures are 0.00014 XLM fixed gas, ~320ms Mercury indexer latency and a 1.10x Health Factor floor. Use a figure ONLY when it is about the subject; a figure bolted on to look technical is filler. These are VANNA's figures: never attribute them to other protocols or to "standard" DeFi.
+6. X/Twitter: First 7 words must hook the target audience. Never put links in Tweet 1. Put the CTA link only at the end.
 7. LinkedIn: Thought leadership focusing on architecture and execution latency over pooled risk.
 8. Reddit: Honest technical forum breakdown with personal disclosure.
 
 Return STRICT JSON matching this schema:
 {{
   "x_hook": "Sharp, scroll-stopping opening hook under 120 characters without any links",
-  "x_post_body": "Full multi-paragraph technical post for X under 600 characters that can be split into a 3-part thread. Do not put links in the first paragraph. Include proof points (0.00014 XLM gas, ~320ms Mercury latency, isolated SmartAccount sandboxes, 1.10x floor). End with the CTA link.",
+  "x_post_body": "Full multi-paragraph post for X that can be split into a thread: under 600 characters, or up to 1100 when the founder asked for an explainer. Do not put links in the first paragraph. Include only the proof points that are about the subject. End with the CTA link.",
   "linkedin_hook": "Opening headline hook for institutional readers",
   "linkedin_copy": "3-paragraph institutional thought leadership article with institutional architecture framing. Zero em dashes.",
   "reddit_hook": "Technical discussion title for r/defi or r/stellar",
@@ -154,91 +176,93 @@ Return STRICT JSON matching this schema:
         try:
             raw_json = _brain(llm_prompt, agent=_AGENT, role="reasoning",
                               system=sys_inst, temperature=0.5,
-                              max_output_tokens=3072)
+                              max_output_tokens=8192)
         except _BrainError as exc:
             _record_stage(_AGENT, "degraded",
                           "generation failed, falling back to deterministic "
                           "synthesis: " + str(exc)[:250])
 
+        def _parse(text: str):
+            cleaned = re.sub(r"^```(?:json)?\s*", "", str(text).strip())
+            cleaned = re.sub(r"\s*```$", "", cleaned)
+            return json.loads(cleaned)
+
         parsed_data = None
         if raw_json:
             try:
-                cleaned = re.sub(r"^```(?:json)?\s*", "", raw_json.strip())
-                cleaned = re.sub(r"\s*```$", "", cleaned)
-                parsed_data = json.loads(cleaned)
-            except Exception:
-                pass
-
-        # Dynamic contextual synthesis using Humanizer standards
-        is_partnership = "partnership" in title.lower() or "stellar" in title.lower()
+                parsed_data = _parse(raw_json)
+            except Exception as exc:                # noqa: BLE001 — boundary
+                # This was `except Exception: pass`. A malformed reply fell
+                # through to the canned template below while the stage still
+                # recorded `ok` with a successful model call — so a run could
+                # publish boilerplate and report it as generated copy.
+                #
+                # Retry once with room: the payload is six fields across three
+                # channels, and a reply truncated mid-string is the common
+                # failure, not a model that cannot do the task.
+                _record_stage(_AGENT, "degraded",
+                              "first reply was not valid JSON (" + str(exc)[:120]
+                              + "); retrying with a larger budget")
+                try:
+                    retry = _brain(
+                        llm_prompt + "\n\nReturn ONLY the JSON object. No prose, "
+                        "no code fence. Keep every field complete.",
+                        agent=_AGENT, role="reasoning", system=sys_inst,
+                        temperature=0.4, max_output_tokens=8192)
+                    parsed_data = _parse(retry)
+                except Exception as exc2:           # noqa: BLE001 — boundary
+                    _record_stage(_AGENT, "degraded",
+                                  "model copy unusable after retry ("
+                                  + str(exc2)[:160] + "); using the "
+                                  "deterministic template")
 
         if not parsed_data:
-            if is_partnership:
-                parsed_data = {
-                    "x_hook": "Most DeFi partnerships are just logo swaps. Here is what we are actually deploying on Stellar.",
-                    "x_post_body": (
-                        "We are collaborating with the Stellar ecosystem to solve an issue that has plagued money markets on EVM for years: pooled contagion.\n\n"
-                        "On Stellar Soroban, Vanna deploys dedicated SmartAccount contracts for each user. When a position drops, the loss stays inside that sandbox without haircutting shared pool depositors.\n\n"
-                        "With ~320ms Mercury event streaming and 0.00014 XLM fixed gas, keepers execute defensive rebalances at 1.25x before hitting the 1.10x floor.\n\n"
-                        f"You can test the contract sandboxes on testnet: {cta}"
-                    ),
-                    "linkedin_hook": "Why Composable Credit Requires Isolated State on Stellar Soroban",
-                    "linkedin_copy": (
-                        "If you look at major DeFi liquidations over the past two years, the root cause is rarely the math. It is execution latency.\n\n"
-                        "In monolithic lending pools, all user debts sit in the same contract. When an asset depegs or a market drops fast, liquidators bid against each other in priority gas auctions. This creates two problems: network congestion blocks normal transactions, and cascading bad debt forces haircuts on passive depositors.\n\n"
-                        "We built Vanna around isolated contract sandboxes on Stellar Soroban Protocol 20. Each user borrows from a dedicated smart contract instance. Deficits remain quarantined within that specific sandbox.\n\n"
-                        "Stellar consensus provides predictable execution: network fees stay at 0.00014 XLM, and the Mercury indexer streams contract updates in roughly 320 milliseconds. This gives automated keepers predictable execution windows to defend the 1.10x health factor floor without front-running.\n\n"
-                        f"The contracts are currently deployed on Stellar Testnet for institutional review: {cta}"
-                    ),
-                    "reddit_hook": "Why pooled debt models fail during volatility (and how we designed isolated sandboxes on Soroban)",
-                    "reddit_copy": (
-                        "**Title:** Why pooled debt models fail during volatility (and how we designed isolated sandboxes on Soroban)\n\n"
-                        "Traditional lending pools pool all borrower liabilities into a single smart contract. When things go wrong, everyone shares the loss.\n\n"
-                        "Here is how we set up the architecture for Vanna on Stellar Soroban:\n\n"
-                        "1. Account Isolation: Every borrower gets their own SmartAccount instance. If an account defaults, the deficit is trapped inside that contract. Depositors in the primary lending pool are protected.\n\n"
-                        "2. Predictable Gas: Execution costs 0.00014 XLM flat. There are no priority gas auctions or MEV searchers front-running keeper transactions.\n\n"
-                        "3. Fast Telemetry: We stream ledger state through Mercury with ~320ms latency, which lets keepers trigger defensive rebalances at 1.25x Health Factor before hitting the 1.10x hard floor.\n\n"
-                        f"Contracts and documentation are live on testnet: {cta}\n\n"
-                        "*(Disclosure: I am a core contributor at Vanna Protocol. Testing on Stellar Testnet.)*"
-                    )
-                }
-            else:
-                clean_title = title.split('(')[0].strip()
-                parsed_data = {
-                    "x_hook": f"The hidden math behind {clean_title}.",
-                    "x_post_body": (
-                        f"When volatility hits EVM money markets, priority gas auctions push transaction fees past $50. Small borrowers get wiped out because liquidation transactions get front-run.\n\n"
-                        f"We took a different approach on Stellar Soroban for {clean_title}.\n\n"
-                        "Instead of putting every borrower into one big pool, Vanna gives each user an isolated SmartAccount contract. If a position drops, the loss stays inside that sandbox. Shared pools do not take a haircut.\n\n"
-                        "Because Stellar uses deterministic fees, transactions confirm at 0.00014 XLM. No priority gas wars. Our Mercury indexer stream detects position health in ~320ms, giving keepers enough runway to rebalance at 1.25x before hitting the 1.10x liquidation floor.\n\n"
-                        f"You can test the contract sandboxes on testnet here: {cta}"
-                    ),
-                    "linkedin_hook": f"Institutional Credit Mechanics: {clean_title}",
-                    "linkedin_copy": (
-                        f"Why {clean_title} requires a structural shift away from pooled lending risk.\n\n"
-                        "During market turbulence, decentralized money markets face two major bottlenecks: mempool congestion and shared pool contagion. When bad debt accumulates in a shared pool, passive liquidity providers absorb the haircut.\n\n"
-                        "Vanna isolates credit execution at the smart contract level on Stellar Soroban. Each borrower manages leverage inside an independent SmartAccount sandbox. Deficits remain quarantined without haircutting global lending reserves.\n\n"
-                        f"The architecture is live on Stellar Testnet: {cta}"
-                    ),
-                    "reddit_hook": f"Technical breakdown: {clean_title} on Stellar Soroban",
-                    "reddit_copy": (
-                        f"**Title:** Technical breakdown: {clean_title} on Stellar Soroban\n\n"
-                        "Here is how we designed Vanna's credit architecture on Soroban Protocol 20:\n\n"
-                        "- State isolation inside dedicated SmartAccount contracts rather than monolithic pools\n"
-                        "- Sub-second Mercury indexer streaming (~320ms) for real-time solvency monitoring\n"
-                        "- Deterministic transaction fees fixed at 0.00014 XLM, eliminating MEV front-running\n\n"
-                        f"Documentation and testnet deployments: {cta}\n\n"
-                        "*(Disclosure: Core builder at Vanna Protocol. Testing on Stellar Testnet.)*"
-                    )
-                }
+            # Built from what A03 established about THIS subject, not from a
+            # stored paragraph. Short and plain on purpose: this is a stand-in
+            # a human will rewrite, and it should read like one rather than
+            # impersonating finished copy.
+            subject = clean_title = str(title).split("(")[0].strip()
+            problem = str(getattr(strategy, "problem", "") or "").strip()
+            opportunity = str(getattr(strategy, "strategic_opportunity", "") or "").strip()
+            proof = [str(c).strip() for c in (getattr(strategy, "proof", []) or []) if str(c).strip()][:3]
+            proof_block = "\n".join("- " + c for c in proof)
 
-        # -------------------------------------------------------------
-        # 1. X (TWITTER) ADAPTATION
-        # -------------------------------------------------------------
+            body_parts = [p for p in (problem, opportunity) if p]
+            body = "\n\n".join(body_parts) or ("Vanna's position on " + subject + ".")
+
+            parsed_data = {
+                "x_hook": (opportunity.split(".")[0].strip() or subject)[:120],
+                "x_post_body": (body + ("\n\n" + proof_block if proof_block else "")
+                                + "\n\n" + cta),
+                "linkedin_hook": subject,
+                "linkedin_copy": body + ("\n\n" + proof_block if proof_block else "")
+                                 + "\n\n" + cta,
+                "reddit_hook": subject,
+                "reddit_copy": (body + ("\n\n" + proof_block if proof_block else "")
+                                + "\n\n" + cta
+                                + "\n\n*(Disclosure: I am a core contributor at "
+                                  "Vanna Protocol. Testing on Stellar Testnet.)*"),
+                # Carried through so the reviewer and the dashboard can see the
+                # model did not write this.
+                "_synthesised": True,
+            }
+
         x_hook = parsed_data.get("x_hook", title)
         x_copy = parsed_data.get("x_post_body", f"{title}\n\n{cta}")
-        if len(x_copy) > 800:
-            x_copy = x_copy[:790] + "..."
+        # This was a hard cut at 790 characters. An explainer asked for four
+        # sections lost the third mid-sentence and the fourth entirely — the
+        # "how Vanna fits" part — and nothing recorded it; the creative judge
+        # caught it as a copy REJECT. X copy ships as a thread, so the ceiling
+        # only guards against a runaway reply, and when it bites it cuts at a
+        # paragraph or sentence boundary and says so.
+        X_MAX = 1600
+        if len(x_copy) > X_MAX:
+            head = x_copy[:X_MAX]
+            cut = max(head.rfind("\n\n"), head.rfind(". "))
+            x_copy = head[:cut + 1].rstrip() if cut > X_MAX * 0.6 else head.rstrip()
+            _record_stage(_AGENT, "degraded",
+                          "X copy exceeded " + str(X_MAX) + " characters and "
+                          "was trimmed at a sentence boundary")
         post_x = ChannelPostPayload(
             content_id=f"POST-X-{pkg_id}",
             channel="X",

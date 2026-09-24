@@ -13,10 +13,13 @@
     guarantee: that something external restarts the schedule. This script hands
     that guarantee to the OS.
 
-    Two tasks are registered:
+    One task is registered:
 
-      Vanna-Worker      every 5 minutes, drains the run queue (`--once`)
-      Vanna-Scheduler   every 30 minutes, fires due recurring jobs
+      Vanna-Scheduler   every 30 minutes, fires whichever jobs are due
+                        (config/scheduler.yaml). `gtm_cycle` is the one that
+                        runs all 13 agents with no directive, so A02 picks
+                        the topic itself — that is what makes it autonomous
+                        rather than merely scheduled.
 
     Both use `--once` deliberately: the OS owns the cadence, the process owns
     one unit of work. A crash costs one cycle, not the schedule.
@@ -68,25 +71,20 @@ if ($LASTEXITCODE -ne 0) {
 Remove-TaskIfPresent $workerTask
 Remove-TaskIfPresent $schedTask
 
-# --- worker: drain the queue every 5 minutes -----------------------------
-$workerAction = New-ScheduledTaskAction -Execute $python `
-    -Argument '-m core.worker --once' -WorkingDirectory $RepoRoot
-
-$workerTrigger = New-ScheduledTaskTrigger -Once -At (Get-Date) `
-    -RepetitionInterval (New-TimeSpan -Minutes 5)
+# The old Vanna-Worker task ran `-m core.worker --once` every 5 minutes. That
+# is the `core/` pipeline, which is a different system from the founder's 13
+# agents and no longer drives anything in this repo — so it woke every five
+# minutes to drain a queue nothing fills. It is removed above and not
+# re-registered; Vanna-Scheduler below is the whole schedule.
 
 # StopExisting, not IgnoreNew: a hung cycle must not block every later one.
+# A GTM cycle takes 2-5 minutes, so the 1-hour limit is generous headroom.
 $settings = New-ScheduledTaskSettingsSet `
     -MultipleInstances StopExisting `
     -StartWhenAvailable `
     -ExecutionTimeLimit (New-TimeSpan -Hours 1) `
     -RestartCount 2 -RestartInterval (New-TimeSpan -Minutes 5) `
     -DontStopOnIdleEnd -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
-
-Register-ScheduledTask -TaskName $workerTask -Action $workerAction `
-    -Trigger $workerTrigger -Settings $settings `
-    -Description 'Vanna: drain the pipeline run queue (core.worker --once)' | Out-Null
-Write-Output "registered $workerTask (every 5 min)"
 
 # --- scheduler: fire due recurring jobs every 30 minutes -----------------
 $schedScript = Join-Path $RepoRoot 'pipeline\scheduler\configurable_scheduler_daemon.py'
@@ -109,7 +107,10 @@ if (Test-Path $schedScript) {
 Write-Output ''
 Write-Output 'Verify with:'
 Write-Output "  Get-ScheduledTask -TaskName 'Vanna-*' | Select TaskName,State"
-Write-Output "  Get-ScheduledTaskInfo -TaskName '$workerTask' | Select LastRunTime,LastTaskResult,NextRunTime"
+Write-Output "  Get-ScheduledTaskInfo -TaskName '$schedTask' | Select LastRunTime,LastTaskResult,NextRunTime"
+Write-Output ''
+Write-Output 'Job state (what is due, what last ran):'
+Write-Output "  .venv\Scripts\python.exe pipeline\scheduler\configurable_scheduler_daemon.py --status"
 Write-Output ''
 Write-Output 'StartWhenAvailable is set, so a run missed while the machine was asleep'
 Write-Output 'fires on wake instead of being skipped silently.'

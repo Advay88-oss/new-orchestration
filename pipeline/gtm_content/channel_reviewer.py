@@ -74,8 +74,17 @@ class ChannelReviewer:
 
             # 3. Channel Specific Constraints
             if ch_name == "x":
-                if len(p.copy) > 800:
-                    ch_issues.append(f"X thread lead copy exceeds brevity limits ({len(p.copy)} chars)")
+                # X copy ships as a thread, so the whole body is not one tweet.
+                # The limit was 800, which the adapter met by cutting copy
+                # mid-sentence; once it stopped cutting, every explainer was
+                # blocked here with nothing in the run notes to say why. The
+                # ceiling now matches the adapter's own (channel_adapter.X_MAX),
+                # and the lead — the hook, which is what appears alone — is
+                # held to one tweet.
+                if len(p.copy) > 1600:
+                    ch_issues.append(f"X thread copy exceeds 1600 characters ({len(p.copy)} chars)")
+                if len(p.hook or "") > 280:
+                    ch_issues.append(f"X hook exceeds one tweet ({len(p.hook)} chars)")
             elif ch_name == "reddit":
                 if "disclosure" not in text_lower and "testnet" not in text_lower:
                     ch_issues.append("Reddit post lacks required builder testnet disclosure")

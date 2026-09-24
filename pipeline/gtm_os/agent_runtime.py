@@ -389,6 +389,39 @@ def record_stage(agent: str, status: str, detail: str = "",
         }) + "\n")
 
 
+def record_decision(agent: str, kind: str, payload: dict[str, Any],
+                    run_id: Optional[str] = None) -> None:
+    """Record a judgement the moment it is made, not when the run ends.
+
+    `stages.jsonl` says an agent finished and `calls.jsonl` says it spent
+    tokens, but the reasoning — what A02 chose and what it turned down, why
+    A03 committed to a pillar — only reached `summary.json`, which is written
+    at `_finish`. So the interesting half of a run was invisible until the
+    run was over, and a live view could show progress but never thinking.
+
+    Appended, never rewritten, so a reader can tail it with an offset.
+    `kind` is a short verb the UI renders as a heading: chose | formulated |
+    directed | reviewed | declined.
+    """
+    rid = run_id or current_run()
+    if not rid:
+        return
+    try:
+        d = RUNS_DIR / rid
+        d.mkdir(parents=True, exist_ok=True)
+        with (d / "decisions.jsonl").open("a", encoding="utf-8") as f:
+            f.write(json.dumps({
+                "agent": agent,
+                "name": AGENT_NAMES.get(agent, agent),
+                "kind": kind,
+                "payload": payload,
+                "at": datetime.now(timezone.utc).isoformat(),
+            }, default=str) + "\n")
+    except Exception:                               # noqa: BLE001 — boundary
+        # A journal write must never be the thing that fails a cycle.
+        pass
+
+
 def manifest() -> list[dict[str, Any]]:
     out = []
     for i, (aid, role) in enumerate(AGENT_ROLES.items(), start=1):

@@ -32,6 +32,17 @@ from pipeline.gtm_orchestration.decision_quality_gates import (
 _AGENT = "A03_gtm_strategist"
 
 
+def _learned_preferences() -> str:
+    """The founder's approval record by pillar, approved hooks and the notes
+    on revisions and kills. Empty until the founder has reviewed a run."""
+    try:
+        from pipeline.gtm_learning.preferences import prompt_block
+        block = prompt_block(for_agent="A03")
+    except Exception:                               # noqa: BLE001 — boundary
+        return ""
+    return (block + "\n\n") if block else ""
+
+
 class GTMStrategist:
     """The central strategic reasoning agent: evaluates signals, validates claims, and chooses GTM machines."""
 
@@ -133,6 +144,46 @@ class GTMStrategist:
             "- `relevant` is false when the signal gives Vanna no differentiated "
             "architectural wedge. Saying no is a valid and common answer; a "
             "weak post costs more than no post.\n"
+            "- But the wedge does NOT have to be Soroban-native. Vanna has "
+            "two arguments, and a subject usually belongs to one of them:\n"
+            "    (a) capital efficiency — composable credit: borrowed credit "
+            "stays usable across venues instead of being trapped in one "
+            "protocol, so the same collateral does more work. This is the "
+            "argument for LIQUIDITY, fragmented capital, idle collateral, "
+            "margin across venues and composability.\n"
+            "    (b) risk isolation — per-borrower SmartAccount sandboxes "
+            "versus pooled debt, a 1.10x liquidation floor, deterministic "
+            "liquidation. This is the argument for LIQUIDATION, bad debt, "
+            "contagion and insolvency.\n"
+            "  Both apply to stories on any chain. A pooled-lending failure on Ethereum is a "
+            "strong signal precisely because it demonstrates the problem Vanna "
+            "solves. Rejecting such a signal for being 'EVM-centric' or "
+            "'not directly about Soroban' is a misreading of this rule.\n"
+            "  Reject instead when the signal is token-price movement, a "
+            "listicle or buyer's guide, a partnership with no mechanism, or a "
+            "topic where Vanna would have to invent an opinion.\n"
+            "- A signal marked FOUNDER DIRECTIVE is an instruction, not a "
+            "candidate. The founder has already decided it is worth posting, "
+            "so do NOT reject it for being unnewsworthy, generic, or lacking "
+            "a news hook. Your job is to find the architectural angle — for a "
+            "relationship, what the two systems actually do together at the "
+            "contract level. Reject a directive ONLY if honouring it would "
+            "require asserting mainnet, inventing a figure, or claiming "
+            "something untrue of Vanna.\n"
+            "- A directive's SUBJECT is fixed. `problem`, `positioning` and "
+            "`strategic_opportunity` must be about the subject the founder "
+            "named, in its own words. Never substitute a neighbouring "
+            "concept: liquidity is not liquidation, a partnership is not a "
+            "fee story, health factor is not gas. A 'possibly related market "
+            "signal' in the description is context and never the subject.\n"
+            "- If the directive asks for a structure (e.g. problem, how it "
+            "works, why it matters, where Vanna fits) or a quality (simple "
+            "language, saveable, shareable), carry it into `content_type` and "
+            "`objective` so the copywriter receives it.\n"
+            "- `reframed_from` is for the rare case where the literal request "
+            "cannot be honoured truthfully — e.g. it presumes mainnet. Then "
+            "state what was changed and why. Leave it EMPTY when you kept the "
+            "subject; choosing an angle is not a reframe.\n"
             "- Choose ONE narrative pillar. Do not blend pillars."
         )
         strategy_schema_hint = (
@@ -140,7 +191,8 @@ class GTMStrategist:
             '"problem": str, "strategic_opportunity": str, "narrative_pillar": str, '
             '"gtm_machine_id": str, "channel": str, "content_type": str, '
             '"objective": str, "positioning": str, "cta": str, '
-            '"proof_claims": [str], "reasoning": [str]}'
+            '"proof_claims": [str], "reasoning": [str], '
+            '"reframed_from": str}'
         )
         prompt = (
             "SIGNAL\n"
@@ -152,7 +204,8 @@ class GTMStrategist:
             "VANNA CAPABILITIES\n" + json.dumps(vanna_kb, default=str)[:4000] + "\n\n"
             "AUDIENCE SEGMENTS\n" + json.dumps(audiences, default=str)[:2000] + "\n\n"
             "AVAILABLE GTM MACHINES\n" + json.dumps(machines_for_prompt, default=str)[:2000] + "\n\n"
-            "Return JSON matching exactly this shape:\n" + strategy_schema_hint
+            + _learned_preferences()
+            + "Return JSON matching exactly this shape:\n" + strategy_schema_hint
         )
 
         if force_no_action:
@@ -204,6 +257,11 @@ class GTMStrategist:
                 evidence=[{"record_id": signal.record_id, "source": signal.source}]
             )
 
+        reframed = str(decision.get("reframed_from") or "").strip()[:300] or None
+        if reframed:
+            _record_stage(_AGENT, "degraded",
+                          "directive reframed to stay truthful; literal "
+                          "reading refused: " + reframed[:180])
         chosen_audience = str(decision.get("audience_segment") or "A1: Stellar & Soroban DeFi Farmers")
         problem_statement = str(decision.get("problem") or "")
         opportunity_statement = str(decision.get("strategic_opportunity") or "")
