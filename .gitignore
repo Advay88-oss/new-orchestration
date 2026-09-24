@@ -53,3 +53,8 @@ Thumbs.db
 *.zip
 *.7z
 open-design/
+
+# Too large for GitHub (100MB limit) and regenerable; kept on disk only.
+vanna_deploy_source.tar.gz
+*.tar.gz
+pipeline/gtm_engine/registry/cache/
