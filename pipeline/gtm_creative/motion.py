@@ -159,10 +159,41 @@ ELEMENT_PROMPTS = {
 
 DEFAULT_ELEMENT = ELEMENT_PROMPTS["A4_isolation"]
 
+# The poster archetypes carry their argument in type, not in a diagram, so
+# their motion is the figure the number describes rather than a schematic.
+ELEMENT_PROMPTS["P1_hero_metric"] = LOCKED + (
+    "A single thin horizontal line across the lower third of an otherwise "
+    "empty frame, with one small solid accent block resting on it. THE ONLY "
+    "MOTION: the block slides a short distance along the line, slows and "
+    "settles. Nothing else changes. ") + DARK
+ELEMENT_PROMPTS["P2_announcement"] = LOCKED + (
+    "Two plain circle outlines side by side, slightly overlapping, on an "
+    "empty frame. THE ONLY MOTION: the overlap between them fills once with "
+    "a muted accent colour, slowly, then holds. Nothing else moves. ") + DARK
+ELEMENT_PROMPTS["P3_product_card"] = LOCKED + (
+    "One rounded-rectangle outline centred on an empty frame, like a card "
+    "seen head-on. THE ONLY MOTION: a thin accent line draws itself along "
+    "the card's lower edge from left to right, once, slowly, then holds. "
+    "Nothing else changes. ") + DARK
 
-def element_prompt_for(archetype: Optional[str]) -> str:
-    """The element that depicts what this post actually argues."""
-    return ELEMENT_PROMPTS.get(str(archetype or ""), DEFAULT_ELEMENT)
+
+def element_prompt_for(archetype: Optional[str], subject: str = "") -> str:
+    """The element that depicts what this post actually argues.
+
+    `subject` is appended because the element prompts are per-archetype
+    constants: a post about health factor and a post about a partnership
+    produced the same clip, and a poster archetype — which has no entry here
+    at all — silently fell back to the isolation grid. The archetype still
+    fixes the motion; the subject decides what the moving part represents.
+    """
+    base = ELEMENT_PROMPTS.get(str(archetype or ""), DEFAULT_ELEMENT)
+    s = " ".join(str(subject or "").split())[:200]
+    if not s:
+        return base
+    return base + (
+        "\n\nSUBJECT: this element illustrates " + s + ". Keep the motion "
+        "exactly as described, but let the subject decide what the moving "
+        "part stands for. Add no new shapes and render no text.")
 
 
 def _ffmpeg() -> str:

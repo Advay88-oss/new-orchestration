@@ -14,6 +14,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 import urllib.request
 import urllib.error
 from pathlib import Path
@@ -47,15 +48,35 @@ def get_vertex_token() -> str:
     raise RuntimeError("No Google Cloud access token found. Run: gcloud auth application-default login")
 
 
+def _encode_image(path, max_side: int = 1024) -> str:
+    """A reference as base64 PNG, downscaled so a handful fit in one request."""
+    from io import BytesIO
+    from PIL import Image
+    im = Image.open(path)
+    im = im.convert("RGBA") if im.mode in ("RGBA", "LA", "P") else im.convert("RGB")
+    im.thumbnail((max_side, max_side))
+    buf = BytesIO()
+    im.save(buf, format="PNG", optimize=True)
+    return base64.b64encode(buf.getvalue()).decode("ascii")
+
+
 def generate_gemini_image(
     prompt: str,
     output_path: Path | str,
     project: str = "vanna-mcp",
     location: str = "global",
     model: str = "gemini-3.1-flash-image",
-    temperature: float = 0.4
+    temperature: float = 0.4,
+    images: Optional[list] = None,
+    aspect_ratio: Optional[str] = None,
 ) -> Path:
-    """Calls Gemini 3.1 Flash Image endpoint on Model Garden and writes PNG to disk."""
+    """Calls a Gemini image endpoint on Model Garden and writes PNG to disk.
+
+    `images` are sent with the prompt as inline parts, so the model can SEE
+    them — style references, the real logo. Until this existed the image
+    model received text only and never saw a single reference, which is why
+    the house style had to be re-described in code.
+    """
     out = Path(output_path).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
     
@@ -69,15 +90,18 @@ def generate_gemini_image(
         "x-goog-user-project": project
     }
     
+    parts: list = []
+    for img in images or []:
+        parts.append({"inlineData": {"mimeType": "image/png",
+                                     "data": _encode_image(img)}})
+    parts.append({"text": prompt})
     payload = {
-        "contents": [{
-            "role": "user",
-            "parts": [{"text": prompt}]
-        }],
-        "generationConfig": {
-            "temperature": temperature
-        }
+        "contents": [{"role": "user", "parts": parts}],
+        "generationConfig": {"temperature": temperature},
     }
+    if aspect_ratio:
+        payload["generationConfig"]["responseModalities"] = ["IMAGE"]
+        payload["generationConfig"]["imageConfig"] = {"aspectRatio": aspect_ratio}
     
     print(f"▶ Calling Google Model Garden: {model} (Project: {project}, Location: {location})...")
     req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
@@ -86,7 +110,7 @@ def generate_gemini_image(
     data = None
     for attempt in range(1, max_retries + 1):
         try:
-            with urllib.request.urlopen(req, timeout=90) as resp:
+            with urllib.request.urlopen(req, timeout=240 if images else 90) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
             break
         except urllib.error.HTTPError as e:

@@ -1,0 +1,105 @@
+{
+ "01_hot_take": {
+  "module": "versus",
+  "headline": "Pooled lending socialises risk across every depositor",
+  "accent": "socialises risk",
+  "subtitle": "One bad position can create bad debt that all depositors share.",
+  "module_args": {
+   "myth_label": "The assumption",
+   "myth": "Lending pools safely diversify margin risk.",
+   "fact_label": "The reality",
+   "fact": "Shared pools socialise unpaid margin shortfalls.",
+   "points": [
+    "Shared pool contagion",
+    "Socialised depositor losses",
+    "Per-borrower isolated storage"
+   ]
+  },
+  "footer_lead": "Isolated margin stops contagion.",
+  "footer_note": "Available now on Stellar Soroban testnet.",
+  "why": "The brief is a hot take challenging the myth that pooled lending diversifies risk. The versus module contrasts the assumption of pooled safety against the reality of socialised bad debt, connecting it directly to Vanna's isolated SmartAccount sandboxes.",
+  "path": "pipeline\\state\\reference_posters\\01_hot_take.png"
+ },
+ "02_ai_agents": {
+  "module": "flow",
+  "headline": "AI agents need policy-bounded credit",
+  "accent": "policy-bounded",
+  "subtitle": "SmartAccounts sandbox autonomous execution with deterministic risk bounds on Soroban.",
+  "module_args": {
+   "steps": [
+    [
+     "Autonomous Agent",
+     "Dispatches programmatic strategy calls"
+    ],
+    [
+     "SmartAccount Sandbox",
+     "Isolates borrowed margin in contract"
+    ],
+    [
+     "Approved Venues",
+     "Deploys credit into Blend and Aquarius"
+    ],
+    [
+     "RiskEngine Guard",
+     "Enforces 1.10x health factor floor"
+    ]
+   ],
+   "highlight": 1,
+   "caption": "Bounded margin execution for autonomous agents."
+  },
+  "footer_lead": "Guarded credit for machine execution.",
+  "footer_note": "Operating on Stellar Soroban testnet.",
+  "why": "The flow module naturally depicts the chained execution pipeline between autonomous agents, isolated SmartAccount sandboxes, composable external venues, and the protocol's continuous risk engine.",
+  "path": "pipeline\\state\\reference_posters\\02_ai_agents.png"
+ },
+ "03_discussion": {
+  "module": "question",
+  "headline": "What breaks DeFi capital efficiency first?",
+  "accent": "capital efficiency",
+  "subtitle": "Traders balance idle collateral across fragmented positions every day.",
+  "module_args": {
+   "question": "Where is capital wasted most in DeFi?",
+   "options": [
+    "Siloed collateral per venue",
+    "Contagion risk in shared pools",
+    "Rigid overcollateralized borrow limits"
+   ],
+   "take": "SmartAccounts unify margin while isolating execution risk on-chain."
+  },
+  "footer_lead": "Composable credit infrastructure.",
+  "footer_note": "Building on Stellar Soroban testnet.",
+  "why": "The question module directly answers the prompt's call to start a discussion among traders about capital efficiency while delivering Vanna's core value proposition on SmartAccounts.",
+  "path": "pipeline\\state\\reference_posters\\03_discussion.png"
+ },
+ "04_liquidity": {
+  "module": "compare",
+  "headline": "Liquidity is useless if it cannot move",
+  "accent": "cannot move",
+  "subtitle": "Isolated pools trap capital until unified credit connects every venue.",
+  "module_args": {
+   "left_label": "FRAGMENTED CAPITAL",
+   "left_items": [
+    "Trapped collateral",
+    "Idle DEX pools",
+    "Locked b-tokens",
+    "Split borrow caps",
+    "Siloed LP shares",
+    "Isolated margins"
+   ],
+   "left_caption": "Capital locked inside single protocols",
+   "right_label": "VANNA CREDIT",
+   "card_title": "SmartAccount Sandbox",
+   "right_rows": [
+    "Single collateral deposit",
+    "Blend yield deployment",
+    "Aquarius liquidity routing",
+    "1.10x risk floor"
+   ],
+   "right_caption": "One account routes liquidity across venues"
+  },
+  "footer_lead": "Unified liquidity on Soroban.",
+  "footer_note": "Live on Stellar testnet.",
+  "why": "Compare cleanly illustrates the fundamental problem of liquidity fragmentation across disconnected DeFi silos versus how Vanna's isolated SmartAccounts unify and route capital across protocols.",
+  "path": "pipeline\\state\\reference_posters\\04_liquidity.png"
+ }
+}

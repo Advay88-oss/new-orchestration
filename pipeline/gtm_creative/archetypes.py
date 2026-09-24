@@ -97,35 +97,76 @@ def _fit(draw, text: str, weight: str, max_w: int, max_lines: int,
     return f, _wrap(draw, text, f, max_w)[:max_lines], int(minimum * 1.18)
 
 
+def eyebrow_text(topic: str, default: str) -> str:
+    """The context line above a headline, naming THIS post's topic.
+
+    Each layout had its eyebrow typed in — "RECOGNISED COLLATERAL", "MARGIN
+    ACCOUNT" — so a post about liquidity went out labelled as a collateral
+    post. The director now names the topic; the network suffix is kept
+    because every asset has to say it is testnet.
+    """
+    t = " ".join(str(topic or "").split()).strip(" ·-").upper()
+    if not t:
+        return default
+    return t if "TESTNET" in t else t[:40] + " · STELLAR SOROBAN TESTNET"
+
+
+def subject_clause(subject: str) -> str:
+    """Tell the image model what the figure is about.
+
+    Every archetype prompt was a fixed constant, so the same six diagrams came
+    back whatever the post was about: a piece on health factor and a piece on
+    a partnership were drawn identically. The composition is still the
+    archetype's — that is what makes the house style consistent — but the
+    subject decides what the elements represent and which one is emphasised.
+
+    Deliberately placed before the prohibitions so the NEVER clause still wins:
+    a subject can change the meaning of the figure, never the flatness or the
+    textlessness.
+    """
+    s = " ".join(str(subject or "").split())[:220]
+    if not s:
+        return ""
+    return (
+        "\n\nSUBJECT: this diagram illustrates " + s + ". "
+        "Keep the composition exactly as described above, but let the subject "
+        "decide what the elements stand for and which single element carries "
+        "the accent colour — the one the subject is really about. Adjust "
+        "proportion, position and emphasis to suit it. Add no new kinds of "
+        "shape, and still render no text of any kind."
+    )
+
+
 # --------------------------------------------------------------------------
 # A5 — Round Trip. Generated geometry + composited type.
 # --------------------------------------------------------------------------
 
 A5_PROMPT = (
-    "A single dark matte-graphite chamber, rectangular and sealed, resting "
-    "slightly left of centre on an expansive near-black floor (#08080A). "
-    "One continuous thin conduit leaves the chamber's right face, travels "
-    "rightward, passes through a smaller neutral grey module, curves and "
-    "RETURNS to re-enter the same chamber's lower right face, forming one "
-    "closed loop. Inside the chamber's open front, a solid fill level sits "
-    "visibly higher than a faint horizontal reference line beneath it. "
-    "Two further identical chambers sit far behind in shadow, unlit, sealed "
-    "and entirely unconnected. "
-    "Lighting: clinical, restrained, a single soft key from upper left. Matte "
-    "surfaces only. One muted violet (#7C5CFF) appears solely as the fill of "
-    "the returning conduit; everything else is neutral graphite and near-black. "
-    "Flat orthographic framing, wide horizontal composition, 70% empty space, "
-    "the top 22% of the canvas completely clear and dark. "
-    "Fine 35mm film grain. Photorealistic architectural product rendering, "
-    "quiet institutional restraint. "
-    "RENDER NO TEXT: no words, letters, numerals, labels, axis ticks, formulas, "
-    "percentages or captions anywhere. Express every quantity through geometry, "
-    "proportion and position only. "
-    "NEVER: glowing edges, neon outlines, cyan or teal of any kind, holographic "
-    "surfaces, floating cubes, network-node constellations, circuit textures, "
-    "coins or currency glyphs, vaults, shields, padlocks, lens flare, light "
-    "streaks, volumetric haze, particle drift, starfields, cyberpunk or gaming "
-    "aesthetics, any logo or brand mark, three evenly spaced equal objects in a row."
+    "A flat schematic figure occupying the centre of a plain very dark "
+    "canvas, with generous empty space on all sides.\n\n"
+    "One rounded-rectangle outline sits left of centre, drawn as a thin "
+    "mid-grey line, with a solid accent-coloured bar inside its lower "
+    "portion sitting clearly above a thin horizontal reference line. A "
+    "single thin line leaves the rectangle's right edge, runs right, "
+    "passes through a small plain square outline, turns once and returns "
+    "into the same rectangle's lower right edge, forming one closed "
+    "circuit drawn entirely in the accent colour. Two further identical "
+    "rounded-rectangle outlines sit further right in a dimmer grey, "
+    "closed and connected to nothing.\n\n"
+    "Palette: near-black background, two or three greys for the outlines, "
+    "exactly one accent colour for the single element that carries the "
+    "argument. No other colour. Generous empty space around the figure, "
+    "and the top 25 percent of the canvas completely empty.\n\n"
+    "RENDER NO TEXT: no words, letters, numerals, labels, tick marks, "
+    "formulas, percentages or captions anywhere. Express every quantity "
+    "through geometry, proportion and position only.\n\n"
+    "NEVER: three-dimensional rendering, isometric or perspective views, "
+    "photorealism, machined or matte-graphite objects, cubes, boxes with "
+    "visible faces, drop shadows, lighting, reflections, bevels, glowing "
+    "edges, neon, cyan, teal, holographic surfaces, network-node "
+    "constellations, circuit textures, coins, currency glyphs, vaults, "
+    "shields, padlocks, lens flare, light streaks, haze, particles, "
+    "cyberpunk or gaming aesthetics, any logo or brand mark."
 )
 
 
@@ -134,6 +175,7 @@ def render_a5_round_trip(
     deck: str,
     labels: list[str],
     *,
+    subject: str = "",
     out: Optional[Path] = None,
     model: str = "gemini-3.1-flash-image",
     size: tuple[int, int] = (1600, 900),
@@ -143,7 +185,7 @@ def render_a5_round_trip(
 
     out = Path(out or (OUT_DIR / "demo_a5_round_trip.png"))
     raw = out.with_name(out.stem + "_raw.png")
-    generate_gemini_image(prompt=A5_PROMPT, output_path=raw,
+    generate_gemini_image(prompt=A5_PROMPT + subject_clause(subject), output_path=raw,
                           project="vanna-mcp", location="global",
                           model=model, temperature=0.55)
 
@@ -198,6 +240,7 @@ def render_a6_ledger(
     verdict: tuple[str, str],
     footnote: str,
     *,
+    eyebrow: str = "",
     out: Optional[Path] = None,
     size: tuple[int, int] = (1600, 900),
 ) -> Path:
@@ -226,8 +269,13 @@ def render_a6_ledger(
     # Start lower and let the table run: the first draft put everything in the
     # top 55% and left the bottom half empty, which on a feed reads as a
     # cropped image rather than a composition.
+    from pipeline.gtm_creative.brand import paste_logo
+    paste_logo(img, (m, int(H * 0.05)), int(H * 0.042))
+    d = ImageDraw.Draw(img)
+
     y = int(H * 0.155)
-    _track(d, (m, y), "HEALTH FACTOR · WORKED", f_eyebrow, VIOLET_LIGHT, 2.2)
+    _track(d, (m, y), eyebrow_text(eyebrow, "HEALTH FACTOR · WORKED"),
+           f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 44
     f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.74), 2,
@@ -467,32 +515,34 @@ MATERIAL_CLAUSE = (
 # --------------------------------------------------------------------------
 
 A3_PROMPT = (
-    "A single tall vertical measuring column standing on the right third of an "
-    "empty dark floor. The column is dark matte graphite, precision-machined, "
-    "with a narrow open channel running its full height. Inside the channel a "
-    "solid pale bar sits in the UPPER portion, clearly and comfortably above a "
-    "single thin horizontal reference groove cut across the lower third of the "
-    "column. The space between the bar and the groove is open and visible. "
-    "Everything else on the canvas is empty dark floor. "
-    "Lighting: one soft key from the upper left, clinical and restrained, a "
-    "long soft shadow falling left. Matte machined surfaces, no reflections. "
-    "Colour: neutral graphite and near-black only. The bar is pale warm grey. "
-    "NOTHING glows. "
-    "Composition: flat near-orthographic, the column occupying only the right "
-    "third, the left two-thirds completely empty dark floor, the top 25 percent "
-    "entirely clear. "
-    "Fine 35mm grain. " + MATERIAL_CLAUSE + " "
-    "RENDER NO TEXT: no words, letters, numerals, tick labels, scale markings, "
-    "gradations, formulas or captions anywhere. "
-    "NEVER: glowing edges, neon, cyan, teal, holographic surfaces, floating "
-    "cubes, network nodes, circuit textures, coins, currency glyphs, vaults, "
-    "shields, dial gauges, lens flare, light streaks, haze, particles, "
+    "A flat schematic figure occupying the right third of a plain very "
+    "dark canvas, the left two-thirds completely empty.\n\n"
+    "The figure is one tall narrow vertical rectangle outline drawn as a "
+    "thin mid-grey line, like a gauge seen head-on. Inside it, a solid "
+    "accent-coloured bar fills the UPPER portion only. A single thin "
+    "horizontal grey line crosses the rectangle in its lower third as a "
+    "reference mark, and the gap between the bottom of the accent bar and "
+    "that line is open, obvious and empty.\n\n"
+    "Palette: near-black background, two or three greys for the outlines, "
+    "exactly one accent colour for the single element that carries the "
+    "argument. No other colour. Generous empty space around the figure, "
+    "and the top 25 percent of the canvas completely empty.\n\n"
+    "RENDER NO TEXT: no words, letters, numerals, labels, tick marks, "
+    "formulas, percentages or captions anywhere. Express every quantity "
+    "through geometry, proportion and position only.\n\n"
+    "NEVER: three-dimensional rendering, isometric or perspective views, "
+    "photorealism, machined or matte-graphite objects, cubes, boxes with "
+    "visible faces, drop shadows, lighting, reflections, bevels, glowing "
+    "edges, neon, cyan, teal, holographic surfaces, network-node "
+    "constellations, circuit textures, coins, currency glyphs, vaults, "
+    "shields, padlocks, lens flare, light streaks, haze, particles, "
     "cyberpunk or gaming aesthetics, any logo or brand mark."
 )
 
 
 def render_a3_threshold(headline: str, deck: str, floor_label: str,
                         value_label: str, footnote: str, *,
+                        subject: str = "",
                         out: Optional[Path] = None,
                         model: str = "gemini-3.1-flash-image",
                         reuse_raw: bool = False,
@@ -503,7 +553,7 @@ def render_a3_threshold(headline: str, deck: str, floor_label: str,
     out = Path(out or (OUT_DIR / "demo_a3_threshold.png"))
     raw = out.with_name(out.stem + "_raw.png")
     if not (reuse_raw and raw.exists()):
-        generate_gemini_image(prompt=A3_PROMPT, output_path=raw,
+        generate_gemini_image(prompt=A3_PROMPT + subject_clause(subject), output_path=raw,
                               project="vanna-mcp", location="global",
                               model=model, temperature=0.5)
 
@@ -561,34 +611,34 @@ def render_a3_threshold(headline: str, deck: str, floor_label: str,
 # --------------------------------------------------------------------------
 
 A4_PROMPT = (
-    "A precise grid of sixteen identical small sealed cubes, four by four, "
-    "evenly spaced with clear gaps between every unit, resting on an empty "
-    "dark floor. Each cube is dark matte graphite with clean machined edges. "
-    "ONE single cube, off-centre and not in the middle, is filled with a solid "
-    "dull warm-red interior visible through its open face. That one cube is "
-    "otherwise identical in size and shape to the rest and is NOT connected to "
-    "any of them. Every other cube is closed, uniform and untouched. The gaps "
-    "between units are wide and obvious. "
-    "Lighting: one soft overhead key, clinical, even across the whole grid, "
-    "short soft shadows. Matte surfaces, no reflections, nothing glows. "
-    "Colour: neutral graphite, near-black floor, one dull warm red. No other "
-    "colour anywhere. "
-    "Composition: the grid occupying the lower right two-thirds at a low "
-    "three-quarter angle, the upper left and the top 25 percent of the canvas "
-    "completely empty dark floor. "
-    "Fine 35mm grain. " + MATERIAL_CLAUSE + " "
-    "RENDER NO TEXT: no words, letters, numerals, labels, formulas or captions "
-    "anywhere. "
-    "NEVER: glowing edges, neon, cyan, teal, holographic surfaces, connecting "
-    "lines or cables between units, network-node constellations, circuit "
-    "textures, coins, currency glyphs, vaults, shields, padlocks, cracks "
-    "spreading between units, lens flare, light streaks, haze, particles, "
+    "A flat schematic figure occupying the lower right two-thirds of a "
+    "plain very dark canvas, the upper left completely empty.\n\n"
+    "The figure is a precise four-by-four grid of sixteen identical small "
+    "square outlines, drawn head-on as thin mid-grey lines, evenly spaced "
+    "with wide obvious gaps between every square and no lines connecting "
+    "them. ONE single square, off-centre and not in the middle, is filled "
+    "solid in the accent colour. Every other square is an empty outline, "
+    "uniform and untouched.\n\n"
+    "Palette: near-black background, two or three greys for the outlines, "
+    "exactly one accent colour for the single element that carries the "
+    "argument. No other colour. Generous empty space around the figure, "
+    "and the top 25 percent of the canvas completely empty.\n\n"
+    "RENDER NO TEXT: no words, letters, numerals, labels, tick marks, "
+    "formulas, percentages or captions anywhere. Express every quantity "
+    "through geometry, proportion and position only.\n\n"
+    "NEVER: three-dimensional rendering, isometric or perspective views, "
+    "photorealism, machined or matte-graphite objects, cubes, boxes with "
+    "visible faces, drop shadows, lighting, reflections, bevels, glowing "
+    "edges, neon, cyan, teal, holographic surfaces, network-node "
+    "constellations, circuit textures, coins, currency glyphs, vaults, "
+    "shields, padlocks, lens flare, light streaks, haze, particles, "
     "cyberpunk or gaming aesthetics, any logo or brand mark."
 )
 
 
 def render_a4_isolation(headline: str, deck: str, stat_value: str,
                         stat_label: str, footnote: str, *,
+                        subject: str = "",
                         out: Optional[Path] = None,
                         model: str = "gemini-3.1-flash-image",
                         reuse_raw: bool = False,
@@ -599,11 +649,11 @@ def render_a4_isolation(headline: str, deck: str, stat_value: str,
     out = Path(out or (OUT_DIR / "demo_a4_isolation.png"))
     raw = out.with_name(out.stem + "_raw.png")
     if not (reuse_raw and raw.exists()):
-        generate_gemini_image(prompt=A4_PROMPT, output_path=raw,
+        generate_gemini_image(prompt=A4_PROMPT + subject_clause(subject), output_path=raw,
                               project="vanna-mcp", location="global",
                               model=model, temperature=0.5)
 
-    base = premium(left_scrim(on_ground(Image.open(raw), size), 0.54, 0.84))
+    base = premium(left_scrim(on_ground(Image.open(raw), size), 0.50, 0.95))
     d = ImageDraw.Draw(base)
     W, H = size
     m = int(W * 0.082)
@@ -633,9 +683,13 @@ def render_a4_isolation(headline: str, deck: str, stat_value: str,
 
     # One figure, once, at scale — the Robinhood lesson. It sits in the empty
     # lower-left quadrant the prompt deliberately reserved.
-    sy = int(H * 0.68)
+    sy = int(H * 0.66)
     d.text((m, sy), stat_value, font=f_stat, fill=INK_SOFT)
-    _track(d, (m + 4, sy + 96), stat_label.upper(), f_statlab, INK_MUTED, 1.8)
+    # Measured from the glyphs, not a fixed 96px: a taller figure drew its own
+    # label straight through itself.
+    _sb = d.textbbox((m, sy), stat_value, font=f_stat)
+    _track(d, (m + 4, _sb[3] + 14), stat_label.upper(), f_statlab,
+           INK_MUTED, 1.8)
 
     d.text((m, int(H * 0.905)), footnote, font=f_foot, fill=INK_FAINT)
     base.save(out, quality=96)
@@ -728,6 +782,7 @@ A13_PROMPT = (
 
 def render_a13_containment(headline: str, deck: str, notes: list[tuple[str, str]],
                            footnote: str, *,
+                           subject: str = "",
                            out: Optional[Path] = None,
                            model: str = "gemini-3-pro-image",
                            reuse_raw: bool = False,
@@ -738,7 +793,7 @@ def render_a13_containment(headline: str, deck: str, notes: list[tuple[str, str]
     out = Path(out or (OUT_DIR / "demo_a13_containment.png"))
     raw = out.with_name(out.stem + "_raw.png")
     if not (reuse_raw and raw.exists()):
-        generate_gemini_image(prompt=A13_PROMPT, output_path=raw,
+        generate_gemini_image(prompt=A13_PROMPT + subject_clause(subject), output_path=raw,
                               project="vanna-mcp", location="global",
                               model=model, temperature=0.45)
 
@@ -815,6 +870,7 @@ A14_PROMPT = (
 def render_a14_comparison(headline: str, deck: str,
                           left_label: str, right_label: str,
                           footnote: str, *,
+                          subject: str = "",
                           out: Optional[Path] = None,
                           model: str = "gemini-3-pro-image",
                           reuse_raw: bool = False,
@@ -825,7 +881,7 @@ def render_a14_comparison(headline: str, deck: str,
     out = Path(out or (OUT_DIR / "demo_a14_comparison.png"))
     raw = out.with_name(out.stem + "_raw.png")
     if not (reuse_raw and raw.exists()):
-        generate_gemini_image(prompt=A14_PROMPT, output_path=raw,
+        generate_gemini_image(prompt=A14_PROMPT + subject_clause(subject), output_path=raw,
                               project="vanna-mcp", location="global",
                               model=model, temperature=0.45)
 
@@ -847,27 +903,43 @@ def render_a14_comparison(headline: str, deck: str,
            VIOLET_LIGHT, 2.2)
 
     y += 42
-    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.70), 2,
-                            f_head.size)
+
+    # The headline flowed downward while the footnote and the column headings
+    # were pinned to fixed fractions of the canvas (0.262 and 0.355). Any
+    # two-line headline ran straight through both, and the result was three
+    # layers of type on top of each other.
+    #
+    # Everything below now flows from the same cursor, and the headline is
+    # shrunk until the whole top block clears the figure rather than being
+    # allowed to grow into it.
+    FIGURE_TOP = int(H * 0.36)
+    size = f_head.size
+    while size > 30:
+        f_try, lines_try, lh_try = _fit(d, headline, "regular", int(W * 0.70), 2, size)
+        block = len(lines_try) * lh_try + 6 + f_deck.size + 10 + f_foot.size + 18 + f_col.size
+        if y + block <= FIGURE_TOP:
+            break
+        size -= 3
+    f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.70), 2, size)
+
     for line in _hl:
         d.text((m, y), line, font=f_head, fill=INK_SOFT)
         y += _lh
 
     y += 6
     d.text((m, y), deck, font=f_deck, fill=INK_MUTED)
+    y += f_deck.size + 10
 
-    # Column headings sit inside the scrimmed band, above the figure, each on
-    # its own short rule. Placed lower they landed on top of the halves they
-    # were meant to name.
-    cy = int(H * 0.355)
+    d.text((m, y), footnote, font=f_foot, fill=INK_FAINT)
+    y += f_foot.size + 18
+
+    # Column headings name the two halves, each on its own short rule, and sit
+    # at the bottom of the type block — never lower than the figure's top edge.
+    cy = max(y, FIGURE_TOP - f_col.size)
     for lx, label, col in ((m, left_label, DANGER),
                            (int(W * 0.525), right_label, HEALTHY)):
         d.line([(lx, cy - 14), (lx + 30, cy - 14)], fill=col, width=2)
         _track(d, (lx, cy), label.upper(), f_col, col, 1.8)
-
-    # The footnote joins the top block: the figure bleeds to the bottom edge,
-    # so anything set down there is buried under it.
-    d.text((m, int(H * 0.262)), footnote, font=f_foot, fill=INK_FAINT)
     base.save(out, quality=96)
     return out
 
@@ -879,6 +951,7 @@ def render_a14_comparison(headline: str, deck: str,
 def render_a7_composition(headline: str, deck: str,
                           segments: list[tuple[str, float, tuple[int, int, int]]],
                           total_label: str, footnote: str, *,
+                          eyebrow: str = "",
                           out: Optional[Path] = None,
                           size: tuple[int, int] = (1600, 900)) -> Path:
     """A proportional bar. No model: a bar is arithmetic, and arithmetic
@@ -902,8 +975,12 @@ def render_a7_composition(headline: str, deck: str,
     f_total = font("semibold", 15)
     f_foot = font("regular", 15)
 
-    y = int(H * 0.115)
-    _track(d, (m, y), "RECOGNISED COLLATERAL · STELLAR SOROBAN TESTNET",
+    from pipeline.gtm_creative.brand import paste_logo
+    paste_logo(base, (m, int(H * 0.05)), int(H * 0.042))
+    d = ImageDraw.Draw(base)
+
+    y = int(H * 0.145)
+    _track(d, (m, y), eyebrow_text(eyebrow, "RECOGNISED COLLATERAL · STELLAR SOROBAN TESTNET"),
            f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 44
@@ -975,6 +1052,7 @@ A8_PROMPT = (
 
 def render_a8_sequence(headline: str, deck: str, steps: list[tuple[str, str]],
                        footnote: str, *,
+                       subject: str = "",
                        out: Optional[Path] = None,
                        model: str = "gemini-3-pro-image",
                        reuse_raw: bool = False,
@@ -985,7 +1063,7 @@ def render_a8_sequence(headline: str, deck: str, steps: list[tuple[str, str]],
     out = Path(out or (OUT_DIR / "demo_a8_sequence.png"))
     raw = out.with_name(out.stem + "_raw.png")
     if not (reuse_raw and raw.exists()):
-        generate_gemini_image(prompt=A8_PROMPT, output_path=raw,
+        generate_gemini_image(prompt=A8_PROMPT + subject_clause(subject), output_path=raw,
                               project="vanna-mcp", location="global",
                               model=model, temperature=0.45)
 
@@ -1056,9 +1134,10 @@ def _round_rect(d: ImageDraw.ImageDraw, box, r: int, fill=None, outline=None,
 def render_a2_product(headline: str, deck: str, panel_title: str,
                       rows: list[tuple[str, str]], primary: tuple[str, str],
                       footnote: str, *,
+                      eyebrow: str = "",
                       out: Optional[Path] = None,
                       size: tuple[int, int] = (1600, 900)) -> Path:
-    """A designed account panel, bleeding off the right edge.
+    """A designed account panel beside the headline, inside the margins.
 
     `primary` is the one row that carries the argument — it gets the accent and
     sits apart. Everything else is context, and context is quiet.
@@ -1078,30 +1157,51 @@ def render_a2_product(headline: str, deck: str, panel_title: str,
     f_prim_v = font("semibold", 40)
     f_foot = font("regular", 15)
 
-    y = int(H * 0.125)
-    _track(d, (m, y), "MARGIN ACCOUNT · STELLAR SOROBAN TESTNET", f_eyebrow,
-           VIOLET_LIGHT, 2.2)
+    from pipeline.gtm_creative.brand import paste_logo
+
+    # The lockup, top-left on the text margin, as on every poster. Without it
+    # this was the one archetype that did not say whose asset it was.
+    lh_logo = int(H * 0.05)
+    paste_logo(base, (m, int(H * 0.07)), lh_logo)
+    d = ImageDraw.Draw(base)
+
+    # Measure both columns before placing either. The text was pinned to the
+    # top and the panel to its own fixed y, so the pair never shared a line
+    # and the lower half of the frame was empty. Both are now centred on the
+    # same axis in the space between the logo and the footnote.
+    f_head, lines, lh = _fit(d, headline, "regular", int(W * 0.40), 3, 76)
+    deck_lines = _wrap(d, deck, f_deck, int(W * 0.36))[:3]
+    text_h = f_eyebrow.size + 46 + len(lines) * lh + 14 + 32 * len(deck_lines)
+    # Content sets the height. A fixed 70% left the panel two-thirds empty
+    # below its last row, which reads as a crop rather than a card.
+    ph = 74 + 52 * len(rows[:4]) + 118
+
+    band_top = int(H * 0.07) + lh_logo + int(H * 0.06)
+    band_bot = int(H * 0.87)
+    mid = (band_top + band_bot) / 2
+
+    y = int(max(band_top, mid - text_h / 2))
+    _track(d, (m, y), eyebrow_text(eyebrow, "MARGIN ACCOUNT · STELLAR SOROBAN TESTNET"),
+           f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 46
-    f_head, lines, lh = _fit(d, headline, "regular", int(W * 0.40), 3, 76)
     for line in lines:
         d.text((m, y), line, font=f_head, fill=INK_SOFT)
         y += lh
 
     y += 14
-    for line in _wrap(d, deck, f_deck, int(W * 0.36))[:3]:
+    for line in deck_lines:
         d.text((m, y), line, font=f_deck, fill=INK_MUTED)
         y += 32
 
     d.text((m, int(H * 0.905)), footnote, font=f_foot, fill=INK_FAINT)
 
-    # The panel. It runs off the right edge on purpose: a card floating fully
-    # inside the frame with even margins reads as a stock asset.
-    px, py = int(W * 0.50), int(H * 0.155)
-    pw = W - px + 40
-    # Content sets the height. A fixed 70% left the panel two-thirds empty
-    # below its last row, which reads as a crop rather than a card.
-    ph = 74 + 52 * len(rows[:4]) + 118
+    # The panel sits inside the right margin. It used to bleed off the edge,
+    # which on its own reads as a deliberate crop but beside left-set type
+    # with a margin read as a layout error: the one edge that did not match.
+    px = int(W * 0.50)
+    pw = W - m - px
+    py = int(max(band_top, mid - ph / 2))
     panel = Image.new("RGBA", (pw, ph), (0, 0, 0, 0))
     pd = ImageDraw.Draw(panel)
     _round_rect(pd, [(0, 0), (pw - 1, ph - 1)], 18, fill=(21, 20, 27, 214))
@@ -1118,14 +1218,15 @@ def render_a2_product(headline: str, deck: str, panel_title: str,
     for i, (k, v) in enumerate(rows[:4]):
         d.text((ix, iy), k, font=f_key, fill=INK_MUTED)
         vw = d.textlength(v, font=f_val)
-        d.text((min(W - 46 - vw, px + pw - 80 - vw), iy - 2), v,
-               font=f_val, fill=INK_SOFT)
+        # Values right-align to the same inset the labels left-align to, so
+        # the panel's padding is equal on both sides.
+        d.text((px + pw - 34 - vw, iy - 2), v, font=f_val, fill=INK_SOFT)
         iy += 52
-        d.line([(ix, iy - 14), (px + pw - 56, iy - 14)], fill=(38, 36, 48), width=1)
+        d.line([(ix, iy - 14), (px + pw - 34, iy - 14)], fill=(38, 36, 48), width=1)
 
     # The row under discussion, lifted: its own fill, its own rule, the accent.
     iy += 12
-    _round_rect(d, [(ix - 16, iy - 14), (px + pw - 56, iy + 74)], 12,
+    _round_rect(d, [(ix - 16, iy - 14), (px + pw - 18, iy + 74)], 12,
                 fill=(30, 25, 56))
     d.line([(ix - 16, iy - 14), (ix - 16, iy + 74)], fill=VIOLET, width=3)
     _track(d, (ix, iy), primary[0].upper(), f_prim_k, VIOLET_LIGHT, 1.6)
