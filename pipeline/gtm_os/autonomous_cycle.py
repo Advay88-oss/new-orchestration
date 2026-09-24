@@ -897,8 +897,11 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 summary["review_delivery"] = delivery
 
         # A13 — Closed-Loop Learning Engine
+        # Self-recorded: A13 writes what it learned ("learned from N founder
+        # decisions…" / "no founder decisions yet…"), and the wrapper's
+        # generic line after it was what the dashboard showed instead.
         _stage("A13_learning_engine", _run_learning, required=False,
-               detail="processed the outcome feedback loop")
+               self_recorded=True)
 
         summary["status"] = "completed" if passed else "review_blocked"
         return _finish(summary, t0, rid)
