@@ -187,6 +187,15 @@ def prompt_block(*, for_agent: str) -> str:
     return "\n".join(lines) if len(lines) > 1 else ""
 
 
+def _renderers() -> dict[str, Any]:
+    """Direct-model vs code-set, from founder-rated exemplars and run feedback."""
+    try:
+        from pipeline.gtm_learning.visual_exemplars import renderer_posteriors
+        return renderer_posteriors()
+    except Exception:                               # noqa: BLE001 — boundary
+        return {}
+
+
 def snapshot(write: bool = True) -> dict[str, Any]:
     """Everything learned so far, for A13's report and the dashboard."""
     rows = latest_per_run()
@@ -197,6 +206,7 @@ def snapshot(write: bool = True) -> dict[str, Any]:
                      for v in ("approve", "revise", "kill")},
         "dimensions": {d: posteriors(d, rows) for d in DIMENSIONS},
         "retired": {d: sorted(retired(d, rows)) for d in DIMENSIONS},
+        "visual_renderers": _renderers(),
         "approved_examples": approved_examples(rows=rows),
         "corrections": corrections(),
     }

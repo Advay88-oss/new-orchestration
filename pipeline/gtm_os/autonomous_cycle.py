@@ -159,6 +159,24 @@ def render_visual(strategy, content_pkg, blueprint, run_id: str,
     except Exception:                               # noqa: BLE001 — boundary
         hook = str(getattr(strategy, "problem", ""))[:200]
 
+    # Which way to make it is learned. The founder rated the posters the image
+    # model made directly from the references far above the code-set ones, so
+    # the direct renderer usually wins the Thompson draw — while code-set is
+    # still tried now and then, so the preference can move if feedback does.
+    try:
+        from pipeline.gtm_learning.visual_exemplars import preferred_renderer
+        renderer = preferred_renderer()
+    except Exception:                               # noqa: BLE001 — boundary
+        renderer = "code_set"
+
+    if renderer == "direct_model":
+        direct = _render_direct(hook, body, subject, run_id)
+        if direct:
+            return direct
+        R.record_stage("A08_visual_synthesis", "degraded",
+                       "direct-model poster did not pass its own review; "
+                       "falling back to the archetype renderer")
+
     result = direct_and_render(strategy, hook, body, run_id,
                                subject=subject)
     png = Path(result["path"])
@@ -173,7 +191,39 @@ def render_visual(strategy, content_pkg, blueprint, run_id: str,
         transport="model-garden" if result["generated"] else "deterministic"))
     return {"path": str(png), "filename": png.name,
             "archetype": result["archetype"], "why": result["why"],
-            "public_url": "/" + png.name}
+            "public_url": "/" + png.name, "renderer": "code_set"}
+
+
+def _render_direct(hook: str, body: str, subject: str,
+                   run_id: str) -> Optional[dict]:
+    """The poster from the image model itself, shown the founder's approved
+    posters and the design references. None when it did not pass its own
+    judge, so the caller can fall back."""
+    from pipeline.gtm_creative.direct_image_posters import MODEL, make
+
+    brief = ("Subject: " + (subject or hook) + "\nHook: " + hook
+             + "\nThe post: " + " ".join(body.split())[:1400])
+    try:
+        out = make(brief, run_id + "_visual",
+                   out_dir=Path(__file__).resolve().parents[1] / "state")
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        R.record_stage("A08_visual_synthesis", "degraded",
+                       "direct-model poster failed: " + str(exc)[:200])
+        return None
+    for a in out["attempts"]:
+        R.record(R.AgentCall("A08_visual_synthesis", "image", MODEL, True, 0.0,
+                             note="direct poster attempt, judged "
+                                  + str(a.get("verdict")),
+                             transport="model-garden"))
+    if not any(str(a.get("verdict")).upper() == "SHIP" for a in out["attempts"]):
+        return None
+    png = Path(out["final"])
+    return {"path": str(png), "filename": png.name,
+            "archetype": "DIRECT_MODEL",
+            "why": "image model shown the founder-approved posters and the "
+                   "design references; own judge: SHIP after "
+                   + str(len(out["attempts"])) + " attempt(s)",
+            "public_url": "/" + png.name, "renderer": "direct_model"}
 
 
 def render_visual_legacy(strategy, content_pkg, blueprint, run_id: str) -> Optional[dict]:
@@ -771,6 +821,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         if visual:
             summary["visual_path"] = visual.get("path") or visual.get("filename")
             summary["visual_archetype"] = visual.get("archetype")
+            summary["visual_renderer"] = visual.get("renderer", "code_set")
             summary["visual_why"] = visual.get("why")
             summary["visual_public_url"] = visual.get("public_url")
 
@@ -1145,6 +1196,14 @@ def _run_learning():
     # come later. The snapshot is what A03, A06 and A07 read on the next run.
     snap = P.snapshot()
     learned = None
+    rend = snap.get("visual_renderers") or {}
+    rated = sum(int(p.get("n", 0)) for p in rend.values())
+    rend_line = ""
+    if rated:
+        lead = max(rend, key=lambda k: rend[k]["mean"])
+        rend_line = (" | visuals: " + lead + " preferred ("
+                     + ", ".join(k + " " + str(v["mean"]) for k, v in rend.items())
+                     + "; " + str(rated) + " rated)")
     if snap["reviewed_runs"]:
         v = snap["verdicts"]
         best = {d: max(ps.items(), key=lambda kv: kv[1]["mean"])[0]
@@ -1158,12 +1217,13 @@ def _run_learning():
             + (" | leading archetype " + str(best.get("visual_archetype"))
                if best.get("visual_archetype") else "")
             + (" | retired " + ", ".join(sum(snap["retired"].values(), []))
-               if any(snap["retired"].values()) else ""))
+               if any(snap["retired"].values()) else "")
+            + rend_line)
         R.record_decision("A13_learning_engine", "preferences", learned)
     else:
         R.record_stage("A13_learning_engine", "ok",
-                       "no founder decisions yet — approve, revise or kill a run "
-                       "to start the learning loop")
+                       "no run decisions yet — approve, revise or kill a run"
+                       + rend_line)
 
     adjustments = LearningEngine().process_feedback_loop()
     rows = []

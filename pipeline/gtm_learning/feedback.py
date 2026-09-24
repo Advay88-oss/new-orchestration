@@ -54,6 +54,7 @@ def features(run_id: str) -> dict[str, Any]:
         "pillar": s.get("pillar"),
         "machine": s.get("machine"),
         "visual_archetype": s.get("visual_archetype"),
+        "visual_renderer": s.get("visual_renderer"),
         "x_hook": str(x.get("hook") or "")[:200] or None,
         "x_chars": len(str(x.get("copy") or "")),
         "creative_verdict": s.get("creative_verdict"),
