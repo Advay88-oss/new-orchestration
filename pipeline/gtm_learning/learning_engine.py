@@ -22,9 +22,14 @@ from pipeline.gtm_learning.outcome_schema import PatternAdjustmentRecord
 class LearningEngine:
     """The central closed-loop learning engine."""
 
-    def __init__(self):
-        self.performance_store = PerformanceStore()
-        self.weighting_engine = PatternWeightingEngine()
+    def __init__(self, performance_store: Optional[PerformanceStore] = None,
+                 weighting_engine: Optional[PatternWeightingEngine] = None):
+        self.performance_store = performance_store or PerformanceStore()
+        # The adjustment log sits beside whichever performance store is in
+        # use, so a test's temporary store cannot write to production state.
+        self.weighting_engine = weighting_engine or PatternWeightingEngine(
+            storage_file=self.performance_store.storage_file.with_name(
+                "learned_pattern_adjustments.jsonl"))
 
     def process_feedback_loop(self) -> List[PatternAdjustmentRecord]:
         """Process stored performance records and update pattern weights."""

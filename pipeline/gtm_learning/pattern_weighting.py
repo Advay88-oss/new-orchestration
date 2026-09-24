@@ -26,12 +26,23 @@ class PatternWeightingEngine:
     def __init__(self, storage_file: Optional[Path] = None):
         self.storage_file = storage_file or (STATE_DIR / "learned_pattern_adjustments.jsonl")
         self.storage_file.parent.mkdir(parents=True, exist_ok=True)
-        # Default baseline weights
         self.weights: Dict[str, float] = {
             "PAT_01_TECHNICAL_TELEMETRY": 1.0,
             "PAT_02_COMPETITOR_DISPLACEMENT": 1.0,
             "PAT_03_PARTNER_INTEGRATION": 1.0
         }
+        # The weights are rebuilt from the adjustment log: the last new_weight
+        # per pattern. They were an in-memory dict reset to 1.0 on every
+        # construction, so each run re-applied the same first step — 151 of
+        # 157 logged adjustments were "1.0 -> 1.15". The log is the record, so
+        # it is also the state; there is no second file to drift from it.
+        try:
+            for line in self.storage_file.read_text(encoding="utf-8").splitlines():
+                if line.strip():
+                    row = json.loads(line)
+                    self.weights[str(row["pattern_id"])] = float(row["new_weight"])
+        except FileNotFoundError:
+            pass
 
     def get_exploration_priority(self, pattern_id: str, observed_outcomes: List[PostPerformanceRecord]) -> float:
         """Computes Bayesian UCB exploration priority for patterns with low sample size."""

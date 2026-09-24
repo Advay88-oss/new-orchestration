@@ -40,8 +40,12 @@ class MetricsSyncWorker:
         learning_engine: Optional[LearningEngine] = None
     ):
         self.performance_store = performance_store or PerformanceStore()
-        self.learning_engine = learning_engine or LearningEngine()
-        self.weighting_engine = PatternWeightingEngine()
+        # One weighting engine, beside the store in use. This built its own at
+        # the production path regardless, so every test run wrote its fixture
+        # adjustments into pipeline/state.
+        self.learning_engine = learning_engine or LearningEngine(
+            performance_store=self.performance_store)
+        self.weighting_engine = self.learning_engine.weighting_engine
 
     def ingest_metrics_for_post(
         self,
@@ -111,8 +115,11 @@ class MetricsSyncWorker:
                 adjustments.append(adj)
                 print(f"   🎯 WEIGHT UPDATED: {pat_id} weight changed {adj.previous_weight:.2f} -> {adj.new_weight:.2f}")
                 print(f"      Reason: {adj.reason}")
-                # Synchronize to canonical DB patterns.jsonl
-                self._sync_weight_to_canonical_db(adj)
+                # Synchronize to canonical DB patterns.jsonl — but only from the
+                # production store. A test run on a temporary store was writing
+                # its fixture weights into the real Brain DB.
+                if self.performance_store.storage_file.parent.resolve() == STATE_DIR.resolve():
+                    self._sync_weight_to_canonical_db(adj)
             else:
                 print(f"   ℹ️ No weight adjustment for {pat_id} (threshold or sample size condition not met).")
 
