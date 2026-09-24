@@ -1,0 +1,484 @@
+{
+  "run_id": "GTM-20260923-112352",
+  "scraped_at": "2026-09-23T11:23:52.659787+00:00",
+  "sources": {
+    "google_news": {
+      "ok": true,
+      "signals": 8
+    },
+    "reddit": {
+      "ok": true,
+      "signals": 1
+    },
+    "defillama": {
+      "ok": true,
+      "signals": 6
+    },
+    "telegram": {
+      "ok": true,
+      "signals": 1
+    },
+    "twitter": {
+      "ok": true,
+      "signals": 0
+    },
+    "docs_blogs": {
+      "ok": true,
+      "signals": 1
+    }
+  },
+  "total_signals": 27,
+  "signals": [
+    {
+      "signal_id": "SIG-NEWS-cce925ee",
+      "headline": "DeFi Lending Is Modularizing: The Risk Management War Among Morpho, Euler, and Aave",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "source": "https://news.google.com/rss/articles/CBMifkFVX3lxTE03NXo5MnhKYlVCWmdBaXlLQU54Ni0wT2dqNGJMNzRPc2UtUVktS2ZYUUFDLVRQdUx3VldVSzBSYUdDWU9aZ2tEVlR0NVVaRXhFUTJwUktMVFQzYUp2OG1DU0lCU1VYNE1HQjJJMXFUOWJ1OVZQQ0dvYndZNWx1UQ?oc=5",
+      "source_root": "Tiger Research Reports",
+      "entities": [
+        "Aave",
+        "Morpho",
+        "Euler"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "Tue, 16 Jun 2026 07:00:00 GMT",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-NEWS-747f2e52",
+      "headline": "DeFi Contagion Spreads Beyond Aave as LayerZero, Lido, Ethena Suffer Sharp Declines: Santiment",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "source": "https://news.google.com/rss/articles/CBMimgFBVV95cUxNWlA3dElqWE1xcjAxajZGOERtRW9nNXUzTDNXdkRqUVJuWjd4OWNIajBBUzlKbW5faUZieEJ6RFpLWFF0WDZaMk10akN6c2NLam15cXpIaVRaZ0ZxUk5WVTR4blVjc21SMFNBcHB1NXBfcHBhdDVtZ1lBZFdGX1k4TDNIVFNUMnFGVC1aQUpEbGt4akhIaDJYWXFB?oc=5",
+      "source_root": "The Defiant",
+      "entities": [
+        "Aave",
+        "Lido",
+        "Ethena"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "Mon, 20 Apr 2026 07:00:00 GMT",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-NEWS-aeff9830",
+      "headline": "Top Liquid Restaking Tokens (LRTs) Compared 2026",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "source": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQLTVRUWhzdENOakdmdDhOMEd0NVJHV1lsR0FrV3hSU01UTjNWMkVwM1BvbGFJellrUjA5UEpXeGFNUkZ0WWUxeUZvMHBlOGh2YTBYOUVrUy1zbGdEalJoWmZBTkZvaUdrLTk5M21lQ3djSTJqSnRUOTIwNkJsMzZVNUVsaGV6eUMwdFVTd2RLdw?oc=5",
+      "source_root": "Bitcoin Foundation",
+      "entities": [
+        "(unattributed)"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "Tue, 23 Jun 2026 07:00:00 GMT",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-NEWS-33ad5cfb",
+      "headline": "Liquid Restaking: How LRTs Secure Web3",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "source": "https://news.google.com/rss/articles/CBMiXEFVX3lxTE1mWlI5TTdrR1k5aGVQelV3MGd0TjdyMkdTOU1OVUhPNmRWcFRiMGFCSE9ORzgwaUxtRUZsRktfbWNNd3BybXZFVW80WXNYSzhOR25UZnFHeFMtbXR1?oc=5",
+      "source_root": "Chainlink",
+      "entities": [
+        "(unattributed)"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "Tue, 24 Mar 2026 07:00:00 GMT",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-NEWS-9053bd5d",
+      "headline": "How onchain credit supports stablecoin-linked card issuers",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "source": "https://news.google.com/rss/articles/CBMijgFBVV95cUxNQU1HbU9Ec2Y1VG10eGl2M2ZubTFFV1lxUy04dk9EUWl0N2dCUFdtWWpwbVZBZnJfaWRLYkhfdU9aRDd4cURiVWVxaWhtWTZGd2FlM3ZZLUdROEhMdktudUowQWlLc2tuMndaaEdrNnZhUDZEbWcwTUI4WjViR3h5SWY0RnhGYzZjd3YtUGRn?oc=5",
+      "source_root": "visa.com",
+      "entities": [
+        "(unattributed)"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "Tue, 08 Sep 2026 07:00:00 GMT",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-NEWS-deb33833",
+      "headline": "Visa Launches Onchain Credit Infrastructure to Unlock Working Capital for Fintechs",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "source": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxObklkYlZQc09ubmZ0Rjk3LVlXRlRnYjFFanQwcnY1TXdIZUk3cDg2NVczc0xUXy1oTzZ2Q0JuQ0Ntd2JoYXgzeHdKM2UyRDlnQWdkdHJnck1kekxRTDV6THNlc1BJaUtPNWozVDhULXFjSkNmQkFWLWU5dzVtVTNUZlpfVEhIZlJzQ1pr?oc=5",
+      "source_root": "FF News",
+      "entities": [
+        "Visa"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "Tue, 08 Sep 2026 07:00:00 GMT",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-NEWS-97379e40",
+      "headline": "Yield-Bearing Stablecoins Can Destroy Deposits",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "source": "https://news.google.com/rss/articles/CBMicEFVX3lxTFB0TTZ1bTVsS0ZuYzNWVkFDcnlYLURuTkVYc3Fkc1dkN1NYVmZUa2c4dHlndmxUZUVtQ2NDV2UwM2RCb241S3NXNVNaVnZLc190OGNmYlIwOElwS1hLZzN6eG1pME1kdFlOZ2h0dTRZbkg?oc=5",
+      "source_root": "bpi.com",
+      "entities": [
+        "(unattributed)"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "Fri, 08 May 2026 07:00:00 GMT",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-NEWS-f62ea0c8",
+      "headline": "Press Release: New Report Debunks Misleading White House Analysis on Stablecoin Yield",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "source": "https://news.google.com/rss/articles/CBMiwAFBVV95cUxOc0JsX3dXRFpGT0RxXzl5eXphQmdqWHVNT3FaMjJqOUdfV1NTOVVncjYwSEZ4Wm11dWd6bVR4OEc2RXQxZ21FZWd2M1BlTjlPMTc5QjczdGVUT3ZFUVpONG95dHNzS3BNellhT0xzN05CLWcyY1RHRzVOcmItOFd6VlBCSDNyNmo4Rkt2dHQtYWR5a2N4X0tSOXZacnNhUGltUVJuNWZrdGh6Y0htR1Q4R2hPV1dQVVNleXNKSXRYbVA?oc=5",
+      "source_root": "Americans for Financial Reform",
+      "entities": [
+        "(unattributed)"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "Tue, 05 May 2026 07:00:00 GMT",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-REDDIT-DEFI-93e6a756",
+      "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+      "source_type": "REDDIT_COMMUNITY_OBSERVED",
+      "source": "https://www.reddit.com/r/defi/comments/1wngxca/best_principal_token_pt_stablecoin_yields_20260922/",
+      "source_root": "reddit.com",
+      "entities": [
+        "(unattributed)"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "2026-09-22T18:02:31+00:00",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-LLAMA-de86ba80",
+      "headline": "RHEA LST TVL rose 94.3% in 7 days to $40.0M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "source": "https://defillama.com/protocol/rhea-lst",
+      "source_root": "defillama.com",
+      "entities": [
+        "RHEA LST"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "2026-09-23T11:24:03.104331+00:00",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-LLAMA-4fd2bf08",
+      "headline": "Meta Pool Near TVL rose 92.8% in 7 days to $114.5M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "source": "https://defillama.com/protocol/meta-pool-near",
+      "source_root": "defillama.com",
+      "entities": [
+        "Meta Pool Near"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "2026-09-23T11:24:03.104331+00:00",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-LLAMA-47e25c1d",
+      "headline": "Rhea Lend TVL rose 88.3% in 7 days to $182.2M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "source": "https://defillama.com/protocol/rhea-lend",
+      "source_root": "defillama.com",
+      "entities": [
+        "Rhea Lend"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "2026-09-23T11:24:03.104331+00:00",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-LLAMA-e26b5330",
+      "headline": "LiNEAR Protocol TVL rose 81.5% in 7 days to $111.0M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "source": "https://defillama.com/protocol/linear-protocol",
+      "source_root": "defillama.com",
+      "entities": [
+        "LiNEAR Protocol"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "2026-09-23T11:24:03.104331+00:00",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-LLAMA-ed11a7be",
+      "headline": "Tydro TVL rose 53.7% in 7 days to $138.8M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "source": "https://defillama.com/protocol/tydro",
+      "source_root": "defillama.com",
+      "entities": [
+        "Tydro"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "2026-09-23T11:24:03.104331+00:00",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-LLAMA-135f367c",
+      "headline": "Benqi Staked Avax TVL rose 53.4% in 7 days to $257.4M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "source": "https://defillama.com/protocol/benqi-staked-avax",
+      "source_root": "defillama.com",
+      "entities": [
+        "Benqi Staked Avax",
+        "Benqi"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "2026-09-23T11:24:03.104331+00:00",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-TG-STELLAR-VERIFIED",
+      "headline": "Protocol 20 smart contracts and Blend v2 liquidity expansion live",
+      "source_type": "LIVE_OBSERVED",
+      "source": "https://t.me/s/stellar_org",
+      "source_root": "t.me",
+      "entities": [
+        "Stellar Development Foundation",
+        "Blend"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "2026-09-23T11:24:17.504972+00:00",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-DOCS-BLEND-V2-SPEC",
+      "headline": "Blend v2 pool architecture formal verification and b-token specification",
+      "source_type": "LIVE_OBSERVED",
+      "source": "https://docs.blend.capital",
+      "source_root": "docs.blend.capital",
+      "entities": [
+        "Blend"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "LIVE_SIGNAL",
+      "confidence": "HIGH",
+      "observed_at": "2026-09-23T11:23:54.713361+00:00",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP_COMPOSABLE_SANDBOX",
+      "headline": "Isolated SmartAccount Credit Sandbox for Soroban Ecosystem",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP_1_1X_BUFFER_DEFENSE",
+      "headline": "Liquidation Protection Narrative (1.10x Health Factor Floor)",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-AUTO-1789719019",
+      "headline": "Live Composable Yield on Blend v2 Pools ($149,772,668 TVL)",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-AUTO-1789719042",
+      "headline": "Live Composable Yield on Blend v2 Pools ($150,235,698 TVL)",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497144",
+      "headline": "Composable 10x Margin for Blend v2 Pools ($149,164,002 TVL)",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497146",
+      "headline": "Composable 10x Margin for Blend v2 Pools ($149,730,095 TVL)",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497148",
+      "headline": "Composable 10x Margin for Blend v2 Pools ($149,910,102 TVL)",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497154",
+      "headline": "Composable 10x Margin for Blend v2 Pools ($147,546,789 TVL)",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497156",
+      "headline": "Composable 10x Margin for Blend v2 Pools ($147,208,088 TVL)",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497168",
+      "headline": "Composable 10x Margin for Blend v2 Pools ($147,995,127 TVL)",
+      "source_type": "ARCHIVE",
+      "source": "D:\\new orchestration\\pipeline\\brain\\db\\opportunities.jsonl",
+      "source_root": "D:\\new orchestration\\pipeline\\brain",
+      "entities": [
+        "soroban",
+        "blend",
+        "aquarius",
+        "aave",
+        "morpho"
+      ],
+      "market_category": "LENDING",
+      "metric_change": "P0/P1 Priority Gap",
+      "confidence": "MEDIUM",
+      "observed_at": "2026-09-10T17:09:00Z",
+      "scraped_at": "2026-09-23T11:23:52.659787+00:00"
+    }
+  ]
+}

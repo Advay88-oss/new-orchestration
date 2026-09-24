@@ -1,0 +1,126 @@
+{
+  "run_id": "GTM-20260923-065057",
+  "started_at": "2026-09-23T06:50:57.770649+00:00",
+  "directive": null,
+  "status": "aborted",
+  "reason": "A02_opportunity_selector failed: BrainError: unparseable JSON from model: Unterminated string starting at: line 3 column 10 (char 25); head='{\\n  \"index\": 7,\\n  \"why\": \"Soroban\\'s record TVL surge signals massive liquidity entering S",
+  "duration_s": 27.09,
+  "ended_at": "2026-09-23T06:51:24.862893+00:00",
+  "model_calls": 1,
+  "model_calls_ok": 1,
+  "input_tokens": 669,
+  "output_tokens": 61,
+  "models_used": [
+    "gemini-3.8-flash"
+  ],
+  "deterministic_steps": 0,
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "live: 34 signals from defillama, docs_blogs, google_news, reddit, telegram, twitter",
+      "outputs": [
+        "SIG-NEWS-ff3ab973",
+        "SIG-NEWS-3afa84f8",
+        "SIG-NEWS-cec594f3",
+        "SIG-NEWS-cd75925f",
+        "SIG-NEWS-715de533",
+        "SIG-NEWS-916fd280",
+        "SIG-NEWS-a257dce0",
+        "SIG-NEWS-fc998c57",
+        "SIG-LLAMA-43aa668e",
+        "SIG-LLAMA-d3cffe89"
+      ],
+      "at": "2026-09-23T06:51:16.010181+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "failed",
+      "detail": "BrainError: unparseable JSON from model: Unterminated string starting at: line 3 column 10 (char 25); head='{\\n  \"index\": 7,\\n  \"why\": \"Soroban\\'s record TVL surge signals massive liquidity entering Stellar\\'s smart contract ecosystem, but raw TVL remains fragmented without native credit primitives. Vanna direc'",
+      "outputs": [],
+      "at": "2026-09-23T06:51:24.862893+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "status": "never_ran"
+    }
+  ],
+  "agents_ran": 1,
+  "state_sync": {
+    "run": {
+      "pushed": true,
+      "objects": 3,
+      "failed": 0,
+      "bucket": "vanna-gtm-state-504607"
+    },
+    "panels": {
+      "pushed": true,
+      "objects": 2
+    },
+    "config": {
+      "pushed": true
+    }
+  },
+  "spend_by_model": {
+    "gemini-3.8-flash": {
+      "calls": 1,
+      "input_tokens": 669,
+      "output_tokens": 61
+    }
+  }
+}

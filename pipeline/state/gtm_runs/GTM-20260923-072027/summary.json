@@ -1,0 +1,292 @@
+{
+  "run_id": "GTM-20260923-072027",
+  "started_at": "2026-09-23T07:20:27.900173+00:00",
+  "directive": null,
+  "status": "NO_ACTION",
+  "signal": "Yield-Bearing Stablecoins Can Destroy Deposits - Bank Policy Institute",
+  "signal_source_type": "PRIMARY_NEWS_OBSERVED",
+  "signal_source": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxObklkYlZQc09ubmZ0Rjk3LVlXRlRnYjFFanQwcnY1TXdIZUk3cDg2NVczc0xUXy1oTzZ2Q0JuQ0Ntd2JoYXgzeHdKM2UyRDlnQWdkdHJnck1kekxRTDV6THNlc1BJaUtPNWozVDhULXFjSkNmQkFWLWU5dzVtVTNUZlpfVEhIZlJzQ1pr?oc=5",
+  "signal_observed_at": "Tue, 08 Sep 2026 07:00:00 GMT",
+  "candidate_signals": [
+    {
+      "headline": "What is liquidation in crypto? Margin calls, health factors, and how positions die - Crypto News",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Wed, 08 Jul 2026 07"
+    },
+    {
+      "headline": "Yield-Bearing Stablecoins Can Destroy Deposits - Bank Policy Institute",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Fri, 08 May 2026 07"
+    },
+    {
+      "headline": "Press Release: New Report Debunks Misleading White House Analysis on Stablecoin Yield - Americans for Financial Reform",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 05 May 2026 07"
+    },
+    {
+      "headline": "How onchain credit supports stablecoin-linked card issuers - visa.com",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 08 Sep 2026 07"
+    },
+    {
+      "headline": "RT @CoinDesk: LATEST: @Mastercard-owned @BVNKFinance integrates @StellarOrg into its stablecoin payments platform, givin...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Tue Sep 22 17:46:46"
+    },
+    {
+      "headline": "RT @Morpho: Onchain yield on @arc, powered by Morpho\n\n$220M+ is already put to work via Morpho Vaults curated by @Steakh...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Wed Sep 16 16:06:59"
+    },
+    {
+      "headline": "Stablecoin yield is now live on @RaenestApp, powered by Gauntlet.\n\nRaenest's 1M+ users across Africa and beyond can now ...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Tue Sep 22 15:02:51"
+    },
+    {
+      "headline": "What Is Account Abstraction? ERC-4337 Explained - Bitcoin Foundation",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Wed, 10 Jun 2026 07"
+    },
+    {
+      "headline": "Visa Launches Onchain Credit Infrastructure to Unlock Working Capital for Fintechs - FF News",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 08 Sep 2026 07"
+    },
+    {
+      "headline": "Rhea Lend TVL rose 80.6% in 7 days to $175.1M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T07:20:42"
+    },
+    {
+      "headline": "Tydro TVL rose 56.5% in 7 days to $140.0M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T07:20:42"
+    },
+    {
+      "headline": "Aave V4 TVL rose 54.8% in 7 days to $607.1M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T07:20:42"
+    },
+    {
+      "headline": "RT @rajachak75: Stellartember hits keep hitting.\n\nEnjoyed this chat with our friends over at @redstone_defi . Come check...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Tue Sep 22 15:16:49"
+    },
+    {
+      "headline": "RT @Morpho: New all-time high.\n\nOnchain credit is just getting started. https://t.co/ZUChR9sPJB...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Thu Sep 17 14:51:14"
+    }
+  ],
+  "selection": {
+    "chosen": "Visa Launches Onchain Credit Infrastructure to Unlock Working Capital for Fintechs - FF News",
+    "chosen_source": "PRIMARY_NEWS_OBSERVED",
+    "why": "Visa validating onchain credit infrastructure highlights institutional demand; Vanna provides the composable credit architecture on Soroban needed to automate and program working capital.",
+    "rejected": [
+      {
+        "headline": "What is liquidation in crypto? Margin calls, health factors, and how positions die - Crypto News",
+        "why": "Generic educational explainer on liquidations lacks an actionable industry catalyst compared to enterprise credit infrastructure adoption."
+      },
+      {
+        "headline": "Yield-Bearing Stablecoins Can Destroy Deposits - Bank Policy Institute",
+        "why": "Policy debate over bank deposit disintermediation rather than an architectural mechanism for composable credit protocols."
+      },
+      {
+        "headline": "RT @Morpho: Onchain yield on @arc, powered by Morpho\n\n$220M+ is already put to work via Morpho Vaults curated by @Steakh...",
+        "why": "EVM-centric vault curation announcement focused on partner deployment rather than fundamental credit infrastructure architecture."
+      },
+      {
+        "headline": "What Is Account Abstraction? ERC-4337 Explained - Bitcoin Foundation",
+        "why": "Focuses on Ethereum ERC-4337 account abstraction, whereas Soroban natively supports account abstraction at the protocol layer."
+      },
+      {
+        "headline": "Rhea Lend TVL rose 80.6% in 7 days to $175.1M (Lending)",
+        "why": "Pure TVL percentage change signal, which Vanna explicitly rejects as speculative metrics without architectural relevance."
+      },
+      {
+        "headline": "RT @rajachak75: Stellartember hits keep hitting.\n\nEnjoyed this chat with our friends over at @redstone_defi . Come check...",
+        "why": "Ecosystem promotional post lacking a concrete technical controversy, risk event, or credit mechanism discussion."
+      }
+    ],
+    "candidates": 12,
+    "suppressed_as_recent": 2,
+    "recently_covered": [
+      "How onchain credit supports stablecoin-linked card issuers - visa.com",
+      "RT @CoinDesk: LATEST: @Mastercard-owned @BVNKFinance integrates @StellarOrg into its stablecoin payments platform, givin"
+    ]
+  },
+  "action_status": "NO_ACTION",
+  "machine": "NONE",
+  "pillar": "NONE",
+  "strategy_reasoning": [
+    "Bank Policy Institute's paper focuses on macroeconomic commercial bank deposit outflows driven by stablecoin yields, which is a regulatory and TradFi policy issue rather than a DeFi credit risk or infrastructure question.",
+    "Vanna's core technical differentiators (isolated SmartAccounts, sub-second liquidation defense, composable leverage on Stellar Soroban) do not provide an actionable, technical solution to TradFi bank disintermediation.",
+    "Attempting to comment on macro bank deposit drains would produce generic commentary lacking an architectural wedge, directly conflicting with Vanna's directive to prioritize high-signal technical content over weak commentary."
+  ],
+  "problem": "NONE",
+  "opportunity": "NONE",
+  "audience": "NONE",
+  "proof_claims": [],
+  "strategy_attempts": 3,
+  "reason": "The signal discusses a macro banking policy critique by the Bank Policy Institute regarding yield-bearing stablecoins disintermediating commercial bank deposits. This is a TradFi regulatory policy debate that offers no differentiated architectural wedge for Vanna's core credit primitives, isolated SmartAccount sandboxes, or testnet risk engine. Engaging with broad TradFi deposit flight policy dilutes technical positioning without advancing protocol adoption.",
+  "duration_s": 54.53,
+  "ended_at": "2026-09-23T07:21:22.433021+00:00",
+  "model_calls": 4,
+  "model_calls_ok": 4,
+  "input_tokens": 7519,
+  "output_tokens": 1203,
+  "models_used": [
+    "gemini-3.8-flash"
+  ],
+  "deterministic_steps": 0,
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "live: 29 signals from defillama, docs_blogs, google_news, reddit, telegram, twitter",
+      "outputs": [
+        "SIG-NEWS-ff3ab973",
+        "SIG-NEWS-3afa84f8",
+        "SIG-NEWS-3992bf4d",
+        "SIG-NEWS-f62ea0c8",
+        "SIG-NEWS-cec594f3",
+        "SIG-NEWS-cd75925f",
+        "SIG-NEWS-9053bd5d",
+        "SIG-NEWS-deb33833",
+        "SIG-TG-STELLAR-VERIFIED",
+        "SIG-REDDIT-DEFI-93e6a756"
+      ],
+      "at": "2026-09-23T07:20:54.301218+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "chose a signal to pursue (5.61s)",
+      "outputs": [],
+      "at": "2026-09-23T07:20:59.917610+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "formulated strategy on runner-up signal (6.34s)",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.411637+00:00"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.429017+00:00"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.430012+00:00"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "role": "reasoning",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.430012+00:00"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "role": "reasoning",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.431014+00:00"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "role": "image",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.431014+00:00"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "role": "video",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.431014+00:00"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.432009+00:00"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.432009+00:00"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T07:21:22.433021+00:00"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "status": "never_ran"
+    }
+  ],
+  "agents_ran": 3,
+  "state_sync": {
+    "run": {
+      "pushed": true,
+      "objects": 4,
+      "failed": 0,
+      "bucket": "vanna-gtm-state-504607"
+    },
+    "panels": {
+      "pushed": true,
+      "objects": 2
+    },
+    "config": {
+      "pushed": true
+    }
+  },
+  "spend_by_model": {
+    "gemini-3.8-flash": {
+      "calls": 5,
+      "input_tokens": 8271,
+      "output_tokens": 1318
+    }
+  }
+}

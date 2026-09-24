@@ -1,0 +1,21 @@
+{
+  "at": "2026-09-24T18:47:25.534058+00:00",
+  "reviewed_runs": 0,
+  "verdicts": {
+    "approve": 0,
+    "revise": 0,
+    "kill": 0
+  },
+  "dimensions": {
+    "visual_archetype": {},
+    "pillar": {},
+    "machine": {}
+  },
+  "retired": {
+    "visual_archetype": [],
+    "pillar": [],
+    "machine": []
+  },
+  "approved_examples": [],
+  "corrections": []
+}

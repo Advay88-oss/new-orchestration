@@ -1,0 +1,419 @@
+{
+  "run_id": "GTM-20260923-065411",
+  "started_at": "2026-09-23T06:54:11.563538+00:00",
+  "directive": null,
+  "status": "review_blocked",
+  "signal": "Curve\u2019s Egorov turns to notable counterparties to bail out his DeFi positions - Blockworks",
+  "signal_source_type": "PRIMARY_NEWS_OBSERVED",
+  "signal_source": "https://news.google.com/rss/articles/CBMibEFVX3lxTE9OWHFFR3E1VWE2TVZCZ0dqQ0NoQVBjSVJKOFBDZjR3NFIzLTFBUklORDhOSjlhQzdhdGtJSUl0LXlDYUVNMVJMM3JISmxTT3B6VFd1NEZ2Y0ZhbFBqNTNxSTBHSHI4TzdFd01VSw?oc=5",
+  "signal_observed_at": "Fri, 20 Mar 2026 11:37:11 GMT",
+  "candidate_signals": [
+    {
+      "headline": "Ripple Prime Adds Hyperliquid to Institutional DeFi Access - FinTech Weekly",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Thu, 05 Feb 2026 08"
+    },
+    {
+      "headline": "Best Decentralized Crypto Exchanges in September 2026: Discover the Top DEX for Your Crypto Needs! - Coin Bureau",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Wed, 02 Sep 2026 07"
+    },
+    {
+      "headline": "Top Liquid Restaking Tokens (LRTs) Compared 2026 - Bitcoin Foundation",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 23 Jun 2026 07"
+    },
+    {
+      "headline": "Liquid Restaking: How LRTs Secure Web3 - Chainlink",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 24 Mar 2026 07"
+    },
+    {
+      "headline": "What is liquidation in crypto? Margin calls, health factors, and how positions die - Crypto News",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Wed, 08 Jul 2026 07"
+    },
+    {
+      "headline": "Curve\u2019s Egorov turns to notable counterparties to bail out his DeFi positions - Blockworks",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Fri, 20 Mar 2026 11"
+    },
+    {
+      "headline": "How Crypto Investors Are Trading Gold and Silver On-Chain in 2026 - CoinMarketCap",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Mon, 14 Sep 2026 14"
+    },
+    {
+      "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+      "source_type": "REDDIT_COMMUNITY_OBSERVED",
+      "observed_at": "2026-09-22T18:02:31"
+    },
+    {
+      "headline": "RHEA LST TVL rose 82.5% in 7 days to $38.1M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:54:21"
+    },
+    {
+      "headline": "Meta Pool Near TVL rose 81.1% in 7 days to $108.9M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:54:21"
+    },
+    {
+      "headline": "Rhea Lend TVL rose 80.6% in 7 days to $175.1M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:54:21"
+    },
+    {
+      "headline": "LiNEAR Protocol TVL rose 70.5% in 7 days to $105.6M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:54:21"
+    },
+    {
+      "headline": "Tydro TVL rose 56.6% in 7 days to $140.2M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:54:21"
+    },
+    {
+      "headline": "Aave V4 TVL rose 54.8% in 7 days to $607.1M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:54:21"
+    }
+  ],
+  "selection": {
+    "chosen": "Curve\u2019s Egorov turns to notable counterparties to bail out his DeFi positions - Blockworks",
+    "chosen_source": "PRIMARY_NEWS_OBSERVED",
+    "why": "Curve's bailout highlights systemic contagion from concentrated debt. Vanna can contrast manual OTC bailouts with deterministic liquidation thresholds and isolated risk pools implemented on Soroban.",
+    "rejected": [
+      {
+        "headline": "What is liquidation in crypto? Margin calls, health factors, and how positions die - Crypto News",
+        "why": "A general educational explainer on liquidations lacks the urgent systemic risk and bad-debt context provided by the Curve counterparty incident."
+      },
+      {
+        "headline": "Ripple Prime Adds Hyperliquid to Institutional DeFi Access - FinTech Weekly",
+        "why": "Focuses on CeFi institutional prime brokerage access rather than on-chain composable credit mechanics and autonomous risk management."
+      },
+      {
+        "headline": "Liquid Restaking: How LRTs Secure Web3 - Chainlink",
+        "why": "Deals with shared consensus security and PoS validation rather than money-market lending architecture or liquidation mechanics."
+      },
+      {
+        "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+        "why": "Focuses on yield-chasing and token speculation rather than protocol risk parameters or credit architecture."
+      },
+      {
+        "headline": "Rhea Lend TVL rose 80.6% in 7 days to $175.1M (Lending)",
+        "why": "Merely reports lending TVL growth, which is explicitly disallowed as a basis for Vanna's testnet positioning."
+      },
+      {
+        "headline": "Aave V4 TVL rose 54.8% in 7 days to $607.1M (Lending)",
+        "why": "Reports raw TVL percentage movement; Vanna cannot assert live TVL parity or rely on speculative growth metrics."
+      }
+    ],
+    "candidates": 14,
+    "suppressed_as_recent": 0,
+    "recently_covered": []
+  },
+  "action_status": "ACTION",
+  "machine": "MACHINE_04: TECHNICAL_EDUCATION_DISPATCH",
+  "pillar": "Pillar 2: Isolated SmartAccount Sandboxes (Contagion Elimination)",
+  "strategy_reasoning": [
+    "The Curve bailout event is one of DeFi's most prominent case studies in pooled risk failure, providing an immediate real-world hook.",
+    "Targeting Audience A3 aligns directly with their core fear of pool contamination and socialized bad debt.",
+    "Adhering strictly to Pillar 2 without blending other pillars maintains clear architectural differentiation.",
+    "Testnet scope is explicitly enforced with zero claims of live mainnet liquidity or tokens.",
+    "Market Signal 'Curve\u2019s Egorov turns to notable counterparties to bail out his DeFi positions - Blockworks' verified from PRIMARY_NEWS_OBSERVED (Confidence: HIGH).",
+    "Audience 'A3' targeted to resolve verified objection from Brain DB.",
+    "Machine 'MACHINE_04: TECHNICAL_EDUCATION_DISPATCH' verified eligible (Empirically observed in Morpho Blue risk documentation and Gearbox mechanism breakdowns.).",
+    "Claims verified: 3 claims evaluated by ClaimEvidenceGate (0 blocked)."
+  ],
+  "problem": "Monolithic lending pools commingle borrower collateral and shared liquidity, forcing LPs to absorb socialized bad debt and systemic insolvency risks when massive concentrated positions threaten to cascade.",
+  "opportunity": "Contrast monolithic pooled debt models with Vanna's sandboxed architecture on Soroban, positioning Vanna's architecture as the structural solution to socialized borrowing contagion.",
+  "audience": "A3",
+  "proof_claims": [
+    "Dedicated on-chain SmartAccount sandboxes isolate borrowing risk",
+    "Dual-sided protocol: LPs deposit XLM/USDC into LendingPools for vToken yield"
+  ],
+  "strategy_attempts": 1,
+  "machine_name": "Sub-Second Risk Telemetry Education Machine",
+  "machine_evidence": [
+    "GEARBOX_TELEMETRY_SERIES"
+  ],
+  "machine_sources": [
+    "https://x.com/GearboxProtocol"
+  ],
+  "posts": {
+    "x": {
+      "hook": "When Curve founder Michael Egorov needed OTC bailouts, pooled debt architectures showed their structural limits.",
+      "copy": "Pooled collateral lets a single whale risk everyone's capital. When liquidators stall on gas spikes, bad debt spills directly onto passive LPs.\n\nWe built differently on Soroban. Vanna isolates every position into a dedicated SmartAccount sandbox. LPs fund protected pools while borrowers run strategies in silos. Liquidations trigger deterministically at a strict 1.10x Health Factor floor.\n\nWith ~320ms Mercury indexer latency and 0.00014 XLM execution fees, keepers clear debt before slippage compounds.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+    },
+    "linkedin": {
+      "hook": "The Curve collateral crisis exposed why pooled lending models fail institutional risk frameworks.",
+      "copy": "Michael Egorov's reliance on OTC counterparties to prevent a cascading liquidation on Curve revealed an uncomfortable truth about DeFi credit. In pooled collateral markets, every passive LP inadvertently underwrites the risk profile of the largest borrower. When a massive position approaches liquidation, execution latency and market depth evaporate, leaving protocols with bad debt that gets socialized across depositors.\n\nInstitutional capital requires deterministic risk boundaries. On Stellar Soroban, Vanna replaces shared risk pools with isolated SmartAccount sandboxes. Borrowers manage leverage and collateral inside discrete execution environments, completely separated from core liquidity vaults. If a borrower position deteriorates, liquidation triggers automatically at a 1.10x Health Factor floor. The borrower's collateral takes the hit inside their sandbox, while passive lenders remain shielded from systemic contagion.\n\nUnderwriting safety also depends on settlement speed. Relying on ~320ms Mercury indexer state updates and 0.00014 XLM fixed gas costs, liquidators on Soroban can close distressed balances before slippage eats into capital. Manual bailouts and backroom deals are structural bugs, not features. Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance to review the contract architecture."
+    },
+    "reddit": {
+      "hook": "Why shared-pool lending models like Curve need OTC bailouts and how Soroban sandboxes solve it",
+      "copy": "Watching Michael Egorov scramble to arrange off-market OTC deals to avoid liquidating his CRV position on Aave and other venues highlighted the systemic risk of pooled debt.\n\nIn standard pooled money markets, risk is fungible. If a borrower deposits an illiquid token or builds a position so large that on-chain liquidity cannot absorb the liquidation, every passive LP in the pool bears that tail risk. If keepers cannot liquidate quickly enough due to gas price spikes or frontrunning, the pool accrues bad debt. You saw this play out in real time where the protocol was essentially held hostage by an outsized debt balance.\n\nWe approached credit design on Stellar Soroban with a hard boundary model using isolated SmartAccount sandboxes.\n\nInstead of dumping collateral into a unified pool, each borrower spins up an isolated SmartAccount instance. Passive LPs supply capital to a core pool governed by strict risk parameters, but leverage execution happens strictly inside the user's dedicated contract sandbox. Cross-collateralization between disparate positions does not exist.\n\nLiquidations trigger at a fixed 1.10x Health Factor floor. Because state synchronization runs on ~320ms Mercury indexer latency and transactions clear at 0.00014 XLM fixed network fees, keeper bots do not get priced out by gas wars during volatile downswings. The debt clears inside the sandbox without socialized haircut mechanics hitting passive depositors.\n\nIf you want to test the contract mechanics yourself, you can deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance.\n\nDisclosure: I am an engineer building core credit infrastructure at Vanna Protocol on Stellar."
+    }
+  },
+  "visual_concept": "An architectural array of discrete, modular SmartAccount containment cells arranged across an expansive obsidian void. One individual cell engages an automated defensive seal at its base threshold, containing an internal structural shift within thick optical bulkheads, while adjacent identical SmartAccounts and the underlying lending conduits remain utterly untouched and operational.",
+  "prompts": {
+    "STATIC_VECTOR": "viewBox='0 0 1200 675' background='#07020D'. Left side (x: 100 to 500, y: 150 to 525): labelled 'COMMINGLED POOL ARCHITECTURE (SYSTEMIC RISK)', showing a single giant translucent bounding rectangle (#1A1028, stroke #5E0D46, stroke-dasharray='4,4') containing overlapping borrower debt circles; one oversized red-tinted circle breaches the boundary, propagating multiple red stress vectors outward into shared liquidity nodes. Right side (x: 700 to 1100, y: 150 to 525): labelled 'VANNA SMARTACCOUNT ISOLATION (STELLAR SOROBAN TESTNET)', showing three separate sealed rectangular boxes (#0D0A14, stroke #471485, width: 110, height: 260) labelled 'SmartAccount #01', 'SmartAccount #02 (1.10x Floor Triggered)', and 'SmartAccount #03'. SmartAccount #02 shows internal red liquidation boundary contained completely within its own perimeter; thick insulated air-gaps separate it from adjacent accounts. Beneath all accounts runs a horizontal bus 'LendingPool / vToken Cash Layer' in #3D1C68 connected via vertical gated check-valves. Monochrome institutional typography in muted white and cool gray.",
+    "STATIC_IMAGE": "Developer-grade clean DeFi visual metaphor for Vanna Protocol. An architectural array of discrete, modular SmartAccount containment cells arranged across an expansive obsidian void. One individual cell engages an automated defensive seal at its base threshold, containing an internal structural shift within thick optical bulkheads, while adjacent identical SmartAccounts and the underlying lending conduits remain utterly untouched and operational. Background: Deep obsidian base (#07020D) with soft ambient electric violet glow (#471485) and fuchsia (#5E0D46). 35mm film grain, high negative space, zero text, zero generic floating spheres, zero neon grids.",
+    "MEME_IMAGE": "A dry, deadpan side-by-side architectural photo inside an expansive black studio. On the left, a single massive glass fish tank filled with dozens of dense lead weights stacked haphazardly together; one weight has tilted, causing long jagged spiderweb fractures across the entire front pane threatening immediate structural failure. On the right, an orderly row of five separate, heavy-duty black steel lockboxes spaced six inches apart on an obsidian table; inside the middle box, a faint pink warning bulb is illuminated behind bulletproof glass, while the other four lockboxes sit dark, silent, and completely intact. Photorealistic, disciplined studio lighting, no text, no captions, no logos.",
+    "VEO_VIDEO_31": "An 8-second cinematic tracking macro shot across an array of three discrete obsidian SmartAccount modules mounted above an obsidian deck. The camera tracks steadily from left to right on a precision dolly. In the central module, an internal vertical basalt column gradually sinks toward a lower mechanical baseline stop; as it touches the floor stop, perimeter titanium louvers instantly snap shut with deadened mechanical precision, locking the event inside tinted borosilicate glass. The camera glides past to the third module: its interior column remains elevated, bathed in tranquil royal violet rim light, exhibiting zero vibration, zero light spill, and zero state disturbance. Studio lighting, photorealistic industrial finish, fine 35mm film grain, 24fps. No text, no symbols, no UI chrome."
+  },
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\GTM-20260923-065411_visual.png",
+  "visual_archetype": "A4_isolation",
+  "visual_why": "The argument is structural containment; the isolation grid visually demonstrates zero debt contagion between independent SmartAccount sandboxes.",
+  "visual_public_url": "/GTM-20260923-065411_visual.png",
+  "meme_path": "D:\\new orchestration\\pipeline\\state\\GTM-20260923-065411_meme.png",
+  "video_path": "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260923-065411\\GTM-20260923-065411_video.mp4",
+  "creative_review": {
+    "assets": [
+      {
+        "asset": "visual",
+        "verdict": "SHIP",
+        "shows_mechanism": true,
+        "mechanism_named": "SmartAccount isolated contract instances containing liquidation debt within independent storage silos",
+        "on_brand": true,
+        "matches_copy": true,
+        "has_text": false,
+        "prohibited_elements": [],
+        "critique": "Crisp execution of the core thesis. The isometric grid of discrete, sealed cubical units contrasts isolated borrower sandboxes against a contained default (the recessed orange-lit chamber) with zero spillover or contamination across neighboring cells. Typography and layout respect the house style with correct testnet disclaimers.",
+        "fix": "None. Ready to ship."
+      },
+      {
+        "asset": "meme",
+        "verdict": "REJECT",
+        "shows_mechanism": false,
+        "mechanism_named": "Metaphorical naval bulkhead compartmentalization",
+        "on_brand": false,
+        "matches_copy": false,
+        "has_text": true,
+        "prohibited_elements": [],
+        "critique": "Fails house aesthetic completely (bright cartoon slop rather than obsidian void and restraint). Furthermore, it carries embedded AI-generated labels on objects ('SOCIALIZED DEBT' and 'ISOLATED SANDBOX'). Mechanically, it misrepresents Vanna's architecture: passive LP funds sit in protected lending pools, while borrowers execute strategies in isolated SmartAccount sandboxes\u2014an LP's capital does not 'chill in an isolated sandbox'.",
+        "fix": "Rebuild using Vanna's house style or replace with an obsidian-toned schematic meme demonstrating the difference between commingled pooled debt cascades and segregated Soroban storage silos."
+      },
+      {
+        "asset": "video_still",
+        "verdict": "REJECT",
+        "shows_mechanism": false,
+        "mechanism_named": "Uniform wireframe grid",
+        "on_brand": true,
+        "matches_copy": false,
+        "has_text": true,
+        "prohibited_elements": [],
+        "critique": "The graphic shows an empty, undifferentiated 4x4 wireframe grid with zero indication of state, isolated execution, or risk containment. Crucially, the headline text is truncated mid-thought: 'When Curve founder Michael Egorov needed OTC bailouts, pooled debt architectures' completely cuts off the predicate.",
+        "fix": "Fix typography to display the full sentence. Re-render the visual state to illustrate active SmartAccount isolation (differentiating healthy vs liquidation-contained nodes) rather than inert wireframe boxes."
+      }
+    ],
+    "copy_verdict": "SHIP",
+    "copy_critique": "Accurate and rigorous. Correctly highlights the Curve debt crisis failure mode, specifies the Soroban testnet environment, details isolated SmartAccount storage, and includes exact Vanna parameters (1.10x liquidation floor, ~320ms Mercury indexer latency, and 0.00014 XLM fixed micro-gas fee).",
+    "overall": "REJECT",
+    "summary": "Overall raised to REJECT: meme, video_still rejected. Asset 1 (visual) is an exemplary model of Vanna's mechanism and brand rules. Asset 2 (meme) and Asset 3 (video still) fail on mechanism fidelity, embedded object text, and severe typographic truncation, respectively. Hold back the meme and video still until corrected; ship the visual or revise the s"
+  },
+  "creative_verdict": "REJECT",
+  "review_passed": false,
+  "review_notes": {
+    "blocked_claims": [],
+    "slop": [],
+    "creative": "REJECT"
+  },
+  "packet_built": true,
+  "review_delivery": {
+    "sent": false,
+    "reason": "not_configured",
+    "detail": "TELEGRAM_REVIEWER_CHAT_ID is not set."
+  },
+  "duration_s": 280.37,
+  "ended_at": "2026-09-23T06:58:51.930246+00:00",
+  "model_calls": 10,
+  "model_calls_ok": 10,
+  "input_tokens": 14098,
+  "output_tokens": 3807,
+  "models_used": [
+    "gemini-3-pro-image",
+    "gemini-3.1-flash-image",
+    "gemini-3.8-flash",
+    "veo-3.1-generate-001"
+  ],
+  "deterministic_steps": 0,
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "live: 20 signals from defillama, docs_blogs, google_news, reddit, telegram, twitter",
+      "outputs": [
+        "SIG-NEWS-fea409d1",
+        "SIG-NEWS-85533211",
+        "SIG-NEWS-aeff9830",
+        "SIG-NEWS-33ad5cfb",
+        "SIG-NEWS-cec594f3",
+        "SIG-NEWS-4d9968b0",
+        "SIG-NEWS-cd75925f",
+        "SIG-REDDIT-DEFI-93e6a756",
+        "SIG-LLAMA-43aa668e",
+        "SIG-LLAMA-d3cffe89"
+      ],
+      "at": "2026-09-23T06:54:29.030494+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "chose a signal to pursue (7.65s)",
+      "outputs": [],
+      "at": "2026-09-23T06:54:36.682790+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "formulated strategy (5.43s)",
+      "outputs": [
+        "STRAT-SIG-NEWS-4d9968b0-202609230654"
+      ],
+      "at": "2026-09-23T06:54:42.112758+00:00"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "role": "none",
+      "status": "ok",
+      "detail": "verified machine MACHINE_04: TECHNICAL_EDUCATION_DISPATCH (0.0s)",
+      "outputs": [],
+      "at": "2026-09-23T06:54:42.113269+00:00"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "role": "none",
+      "status": "ok",
+      "detail": "selected campaign vehicle (0.0s)",
+      "outputs": [],
+      "at": "2026-09-23T06:54:42.115286+00:00"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "generated channel posts (12.41s)",
+      "outputs": [
+        "CAP-STRAT-SIG-NEWS-4-202609230654"
+      ],
+      "at": "2026-09-23T06:54:54.527126+00:00"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "role": "reasoning",
+      "status": "degraded",
+      "detail": "judged 3 asset(s): REJECT | 2 rejected | 2 show no mechanism",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\GTM-20260923-065411_visual.png"
+      ],
+      "at": "2026-09-23T06:58:51.835172+00:00"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "role": "image",
+      "status": "ok",
+      "detail": "meme: My funds chilling in an isolated sandbox while the shared pools drown.",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\GTM-20260923-065411_meme.png"
+      ],
+      "at": "2026-09-23T06:56:04.453537+00:00"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "role": "video",
+      "status": "ok",
+      "detail": "motion graphic GTM-20260923-065411_video.mp4",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260923-065411\\GTM-20260923-065411_video.mp4"
+      ],
+      "at": "2026-09-23T06:58:33.212305+00:00"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "role": "none",
+      "status": "ok",
+      "detail": "ran the pre-delivery firewalls (0.01s)",
+      "outputs": [],
+      "at": "2026-09-23T06:58:51.846738+00:00"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "role": "none",
+      "status": "skipped",
+      "detail": "awaiting human approval; dispatch never runs unprompted",
+      "outputs": [],
+      "at": "2026-09-23T06:58:51.846738+00:00"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "role": "none",
+      "status": "skipped",
+      "detail": "not delivered: TELEGRAM_REVIEWER_CHAT_ID is not set.",
+      "outputs": [],
+      "at": "2026-09-23T06:58:51.882475+00:00"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "processed the outcome feedback loop (0.05s)",
+      "outputs": [],
+      "at": "2026-09-23T06:58:51.930246+00:00"
+    }
+  ],
+  "agents_ran": 11,
+  "state_sync": {
+    "run": {
+      "pushed": true,
+      "objects": 6,
+      "failed": 0,
+      "bucket": "vanna-gtm-state-504607"
+    },
+    "panels": {
+      "pushed": true,
+      "objects": 2
+    },
+    "config": {
+      "pushed": true
+    }
+  },
+  "spend_by_model": {
+    "gemini-3.8-flash": {
+      "calls": 8,
+      "input_tokens": 14619,
+      "output_tokens": 4516
+    },
+    "gemini-3.1-flash-image": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    "gemini-3-pro-image": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    "veo-3.1-generate-001": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    }
+  }
+}

@@ -1,0 +1,420 @@
+{
+  "run_id": "GTM-20260923-073843",
+  "started_at": "2026-09-23T07:38:43.481167+00:00",
+  "directive": null,
+  "status": "review_blocked",
+  "signal": "Visa Launches Onchain Credit Infrastructure to Unlock Working Capital for Fintechs",
+  "signal_source_type": "PRIMARY_NEWS_OBSERVED",
+  "signal_source": "https://news.google.com/rss/articles/CBMiiwFBVV95cUxObklkYlZQc09ubmZ0Rjk3LVlXRlRnYjFFanQwcnY1TXdIZUk3cDg2NVczc0xUXy1oTzZ2Q0JuQ0Ntd2JoYXgzeHdKM2UyRDlnQWdkdHJnck1kekxRTDV6THNlc1BJaUtPNWozVDhULXFjSkNmQkFWLWU5dzVtVTNUZlpfVEhIZlJzQ1pr?oc=5",
+  "signal_observed_at": "Tue, 08 Sep 2026 07:00:00 GMT",
+  "candidate_signals": [
+    {
+      "headline": "How onchain credit supports stablecoin-linked card issuers",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 08 Sep 2026 07"
+    },
+    {
+      "headline": "RT @CoinDesk: LATEST: @Mastercard-owned @BVNKFinance integrates @StellarOrg into its stablecoin payments platform, givin...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Tue Sep 22 17:46:46"
+    },
+    {
+      "headline": "RT @Morpho: Onchain yield on @arc, powered by Morpho\n\n$220M+ is already put to work via Morpho Vaults curated by @Steakh...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Wed Sep 16 16:06:59"
+    },
+    {
+      "headline": "Stablecoin yield is now live on @RaenestApp, powered by Gauntlet.\n\nRaenest's 1M+ users across Africa and beyond can now ...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Tue Sep 22 15:02:51"
+    },
+    {
+      "headline": "Visa Launches Onchain Credit Infrastructure to Unlock Working Capital for Fintechs",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 08 Sep 2026 07"
+    },
+    {
+      "headline": "The Web3 builder\u2019s guide to Stellar",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Sun, 15 Mar 2026 05"
+    },
+    {
+      "headline": "Top Liquid Restaking Tokens (LRTs) Compared 2026",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 23 Jun 2026 07"
+    },
+    {
+      "headline": "Liquid Restaking: How LRTs Secure Web3",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 24 Mar 2026 07"
+    },
+    {
+      "headline": "Rhea Lend TVL rose 82.4% in 7 days to $177.3M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T07:38:59"
+    },
+    {
+      "headline": "Tydro TVL rose 56.5% in 7 days to $140.0M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T07:38:59"
+    },
+    {
+      "headline": "Aave V4 TVL rose 54.5% in 7 days to $605.0M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T07:38:59"
+    },
+    {
+      "headline": "RT @rajachak75: Stellartember hits keep hitting.\n\nEnjoyed this chat with our friends over at @redstone_defi . Come check...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Tue Sep 22 15:16:49"
+    },
+    {
+      "headline": "RT @Morpho: New all-time high.\n\nOnchain credit is just getting started. https://t.co/ZUChR9sPJB...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Thu Sep 17 14:51:14"
+    },
+    {
+      "headline": "RT @MixBytes: 1/5 We\u2019ve completed the security audit of @GearboxProtocol automated leverage product for Midas' mF-ONE an...",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "Tue Sep 15 13:39:52"
+    }
+  ],
+  "selection": {
+    "chosen": "Visa Launches Onchain Credit Infrastructure to Unlock Working Capital for Fintechs",
+    "chosen_source": "PRIMARY_NEWS_OBSERVED",
+    "why": "Visa validating onchain credit infrastructure directly aligns with Vanna's core thesis: building programmable, composable credit facilities on Stellar Soroban to service real-world working capital needs.",
+    "rejected": [
+      {
+        "headline": "How onchain credit supports stablecoin-linked card issuers",
+        "why": "Relevant credit settlement topic, but Visa's broad fintech working capital scope provides a more direct architectural parallel to Vanna's institutional credit facilities."
+      },
+      {
+        "headline": "RT @CoinDesk: LATEST: @Mastercard-owned @BVNKFinance integrates @StellarOrg into its stablecoin payments platform, givin...",
+        "why": "Highlights Stellar's payment rails, but centers on payment gateway integration rather than composable credit and debt mechanism architecture."
+      },
+      {
+        "headline": "Rhea Lend TVL rose 82.4% in 7 days to $177.3M (Lending)",
+        "why": "Pure TVL milestone signal; violated the explicit rule against selecting TVL or market speculation stories."
+      },
+      {
+        "headline": "Tydro TVL rose 56.5% in 7 days to $140.0M (Lending)",
+        "why": "Rejected because TVL growth metrics cannot be verified or translated effectively into testnet credit architecture messaging."
+      },
+      {
+        "headline": "Aave V4 TVL rose 54.5% in 7 days to $605.0M (Lending)",
+        "why": "TVL percentage increase signal; rejected due to the strict constraint prohibiting trading or TVL movements."
+      },
+      {
+        "headline": "RT @MixBytes: 1/5 We\u2019ve completed the security audit of @GearboxProtocol automated leverage product for Midas' mF-ONE an...",
+        "why": "Focuses on EVM automated leverage audits rather than underlying composable credit infrastructure and real-world capital settlement."
+      }
+    ],
+    "candidates": 13,
+    "suppressed_as_recent": 1,
+    "recently_covered": [
+      "Top Liquid Restaking Tokens (LRTs) Compared 2026"
+    ]
+  },
+  "action_status": "ACTION",
+  "machine": "MACH_06_INSTITUTIONAL_CREDIBILITY",
+  "pillar": "Pillar 2: Isolated SmartAccount Sandboxes (Contagion Elimination)",
+  "strategy_reasoning": [
+    "Visa launching onchain credit infrastructure validates institutional appetite for programmatic working capital rails.",
+    "Institutional credit rails require zero risk of pooled contagion, making Vanna's isolated SmartAccount sandbox model directly relevant as an architectural thesis.",
+    "Targeting Institutional Liquidity Providers (A3) via LinkedIn establishes Vanna's technical credibility without violating testnet boundaries.",
+    "Market Signal 'Visa Launches Onchain Credit Infrastructure to Unlock Working Capital for Fintechs' verified from PRIMARY_NEWS_OBSERVED (Confidence: HIGH).",
+    "Audience 'A3' targeted to resolve verified objection from Brain DB.",
+    "Machine 'MACH_06_INSTITUTIONAL_CREDIBILITY' verified eligible (Backed by 1 observed protocols (observed x2) in Brain DB.).",
+    "Claims verified: 3 claims evaluated by ClaimEvidenceGate (0 blocked)."
+  ],
+  "problem": "Institutional lenders and fintechs cannot deploy capital into monolithic pooled lending protocols where borrower default risk is socialized across all liquidity providers.",
+  "opportunity": "Use Visa's onchain credit initiative as a springboard to articulate the prerequisite architecture for institutional credit: isolated per-borrower execution sandboxes that eliminate systemic contagion while maintaining composability.",
+  "audience": "A3",
+  "proof_claims": [
+    "Dedicated on-chain SmartAccount sandboxes isolate borrowing risk",
+    "Dual-sided protocol: LPs deposit XLM/USDC into LendingPools for vToken yield"
+  ],
+  "strategy_attempts": 1,
+  "machine_name": "Formal Security & Sandbox Verification Machine",
+  "machine_evidence": [
+    "AAVE_ARC_INSTITUTIONAL_FRAMEWORK"
+  ],
+  "machine_sources": [
+    "https://aave.com/arc"
+  ],
+  "posts": {
+    "x": {
+      "hook": "Pooled credit cannot support enterprise balance sheets. Visa entering onchain debt proves the point.",
+      "copy": "Visa moving into onchain credit confirms where fintech debt must go. Shared lending pools socialize default risk across every participant. One bad corporate loan drains the entire vault.\n\nEnterprise debt requires isolated SmartAccounts. On Soroban, Vanna isolates balance sheets per borrower with a hard 1.10x Health Factor floor. Risk stays contained to the individual contract.\n\nWith 0.00014 XLM fixed gas and ~320ms Mercury indexer latency, credit lines settle in sub-second time. Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance"
+    },
+    "linkedin": {
+      "hook": "Why pooled liquidity pools fail institutional credit mandates.",
+      "copy": "Visa entering onchain working capital for fintechs signals a structural shift in private credit. However, the standard DeFi lending model cannot handle commercial facilities. Pooled liquidity forces enterprise capital into shared collateral pools where an unrelated counterparty default cascades across all participants. Risk managers cannot accept pooled tail risk they did not originate.\n\nThe industry requires isolated balance sheet architecture. On Stellar Soroban, Vanna addresses this using isolated SmartAccounts. Each credit facility operates within a dedicated contract sandbox where collateral assets, borrowing capacity, and risk profiles remain strictly segmented. Risk is contained by code, backed by an immutable 1.10x Health Factor floor.\n\nInstitutional execution demands fixed predictability and sub-second settlement over volatile mempools. Operating on Soroban delivers 0.00014 XLM fixed gas execution alongside ~320ms Mercury indexer latency for balance sheet reconciliation. Fintechs do not need opaque pooled protocols; they need segregated, auditable credit primitives. Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance."
+    },
+    "reddit": {
+      "hook": "Why pooled lending models fail fintech credit (and how isolated SmartAccounts fix this on Soroban)",
+      "copy": "Visa pushing into onchain working capital for fintechs highlights an architectural bottleneck we have dealt with for years: pooled debt pools are the wrong primitive for commercial balance sheets.\n\nWhen institutional lenders issue corporate debt, they cannot share a collateral pool with anonymous retail margin or unrelated corporate treasuries. If one borrower defaults in a pooled market, depositors take a haircut across the board. Real commercial credit requires isolated balance sheets.\n\nOur implementation on Soroban replaces monolithic liquidity vaults with isolated SmartAccounts. Each borrower deploys a deterministic contract instance that holds its own collateral and debt obligations. Bad debt cannot bleed into another user's balance sheet.\n\nRisk parameters are hardcoded per account. The liquidation engine enforces a strict 1.10x Health Factor floor. Because Soroban execution costs sit at 0.00014 XLM fixed gas, liquidators do not need to calculate dynamic priority fees to clear insolvent positions. We use Mercury indexer nodes to maintain ~320ms state reconciliation, giving credit providers institutional-grade observability.\n\nYou can run liquidation tests, instantiate an isolated account, and inspect the Soroban contract state directly on testnet.\n\nDeploy your testnet SmartAccount sandbox at test.stellar.vanna.finance.\n\nDisclosure: I am an engineer on the Vanna Protocol core team."
+    }
+  },
+  "visual_concept": "A structured array of discrete, hermetically sealed SmartAccount monolithic modules arranged across an obsidian expanse. One module triggers an isolated internal liquidation threshold, sealing its internal chamber instantly while adjacent borrower modules remain completely undisturbed and operational.",
+  "prompts": {
+    "STATIC_VECTOR": "Viewbox 0 0 1200 675. Background #07020D. Layout: Split comparative architectural schematic. Left side (x: 50 to 520, y: 100 to 575): Large single rounded rectangle labeled 'MONOLITHIC POOLED ARCHITECTURE (SOCIALIZED LOSS)', filled with a chaotic internal shared network of 12 interconnected borrower nodes where one red flashing node propagates dashed red error vectors across the entire collective boundary. Right side (x: 680 to 1150, y: 100 to 575): Header 'VANNA ISOLATED SMARTACCOUNTS (ZERO CONTAGION)'. Three vertically stacked distinct rectangular sandboxes labeled 'SmartAccount Contract [C...A1]', 'SmartAccount Contract [C...B2]', and 'SmartAccount Contract [C...C3]'. Each box has its own isolated 'Storage Partition' and discrete 'Health Factor Engine'. SmartAccount [C...B2] shows 'HF: 1.10x Floor Tripped' with an autonomous closed firewall barrier around its perimeter, while directed arrow paths route exclusively into external controller blocks 'Blend Controller (b-tokens)' and 'Aquarius Controller (LP shares)'. Neutral connecting lines from 'AccountManager' at top center (x: 600, y: 50). Color palette: lines in #321054 and #7A288A, highlighted borders in #5E0D46 and muted white (#E2E8F0), canvas #07020D.",
+    "STATIC_IMAGE": "Developer-grade clean DeFi visual metaphor for Vanna Protocol. A structured array of discrete, hermetically sealed SmartAccount monolithic modules arranged across an obsidian expanse. One module triggers an isolated internal liquidation threshold, sealing its internal chamber instantly while adjacent borrower modules remain completely undisturbed and operational. Background: Deep obsidian base (#07020D) with soft ambient electric violet glow (#471485) and fuchsia (#5E0D46). 35mm film grain, high negative space, zero text, zero generic floating spheres, zero neon grids.",
+    "MEME_IMAGE": "A pristine, hyper-sterile laboratory cleanroom where a single robotic glovebox isolation chamber contains a tiny, harmlessly contained beaker fire behind three inches of reinforced glass, sitting directly beside a wide open commercial kitchen where an entire industrial stockpot of boiling grease has spilled across the floor and brought down thirty chefs at once. Photorealistic, 35mm film grain, dry institutional irony, zero text.",
+    "VEO_VIDEO_31": "An 8-second slow, steady tracking macro shot sweeping across a linear row of three discrete cubic SmartAccount chambers machined from matte obsidian and optical glass, floating over a dark void. At second 2, the fluid volume within the central chamber descends to a lower optical etched line representing the 1.10x floor. Instantly at second 4, internal titanium louvers clamp tight within the central chamber, sealing it hermetically and routing its internal density outward through two micro-capillary conduits toward off-frame secondary reservoirs, while the adjacent left and right SmartAccount chambers remain entirely untouched, their steady violet internal glow calm and unaltered throughout. Low-key precision studio lighting, photorealistic architectural finish, 35mm optical film grain, absolute stillness in the surrounding negative space."
+  },
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\GTM-20260923-073843_visual.png",
+  "visual_archetype": "A4_isolation",
+  "visual_why": "The argument is contagion elimination; the isolation grid directly reflects sandboxed contract boundaries containing balance-sheet failure.",
+  "visual_public_url": "/GTM-20260923-073843_visual.png",
+  "meme_path": "D:\\new orchestration\\pipeline\\state\\GTM-20260923-073843_meme.png",
+  "video_path": "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260923-073843\\GTM-20260923-073843_video.mp4",
+  "creative_review": {
+    "assets": [
+      {
+        "asset": "visual",
+        "verdict": "SHIP",
+        "shows_mechanism": true,
+        "mechanism_named": "SmartAccount balance sheet isolation / contagion elimination",
+        "on_brand": true,
+        "matches_copy": true,
+        "has_text": false,
+        "prohibited_elements": [],
+        "critique": "Crisp execution of Pillar 2. The discrete matte cubes on obsidian void clearly communicate compartmentalized borrower storage, with the illuminated terracotta unit demonstrating failure containment without systemic spillover. Testnet framing, 1.10x health factor floor, and zero-contagion metrics are correctly integrated.",
+        "fix": "None. Ready to ship."
+      },
+      {
+        "asset": "meme",
+        "verdict": "SHIP",
+        "shows_mechanism": true,
+        "mechanism_named": "SmartAccount discrete isolated capsule vs shared pooled vault contagion",
+        "on_brand": true,
+        "matches_copy": true,
+        "has_text": false,
+        "prohibited_elements": [],
+        "critique": "Effective editorial comic that directly translates enterprise risk aversion. Contrasting the leaking shared vault rowboat against an impermeable, isolated SmartAccount capsule precisely articulates why pooled DeFi fails institutional balance sheets.",
+        "fix": "None. Ready to ship."
+      },
+      {
+        "asset": "video_still",
+        "verdict": "REJECT",
+        "shows_mechanism": false,
+        "mechanism_named": "Abstract 2D grid array",
+        "on_brand": false,
+        "matches_copy": false,
+        "has_text": false,
+        "prohibited_elements": [],
+        "critique": "The headline is clipped mid-sentence ('Visa entering onchain debt proves' missing 'the point.'). Furthermore, the flat 2D wireframe grid reads as an unrendered UI placeholder rather than discrete, isolated SmartAccount infrastructure in Vanna's dimensional matte/optical house style.",
+        "fix": "Restore the missing words 'the point.' in the headline typeset overlay. Render the partition grid with volumetric depth, lighting, and clear isolation boundaries consistent with the brand standard rather than flat 2D outlines."
+      }
+    ],
+    "copy_verdict": "SHIP",
+    "copy_critique": "The copy is disciplined, timely, and technically accurate. It leverages the enterprise debt narrative, directly states the problem with pooled socialized risk, highlights isolated SmartAccounts on Soroban testnet, and quotes correct architectural specs (1.10x floor, 0.00014 XLM fixed gas, ~320ms Mercury indexing).",
+    "overall": "REJECT",
+    "summary": "Overall raised to REJECT: video_still rejected. The copy, visual, and meme are fully approved and on-brand. The video still must be rejected and re-rendered due to a truncated headline string ('proves' instead of 'proves the point.') and weak flat geometry that fails to convey Vanna's discrete SmartAccount mechanism."
+  },
+  "creative_verdict": "REJECT",
+  "review_passed": false,
+  "review_notes": {
+    "blocked_claims": [],
+    "slop": [],
+    "creative": "REJECT"
+  },
+  "packet_built": true,
+  "review_delivery": {
+    "sent": false,
+    "reason": "not_configured",
+    "detail": "TELEGRAM_REVIEWER_CHAT_ID is not set."
+  },
+  "duration_s": 251.67,
+  "ended_at": "2026-09-23T07:42:55.155152+00:00",
+  "model_calls": 10,
+  "model_calls_ok": 10,
+  "input_tokens": 13977,
+  "output_tokens": 3532,
+  "models_used": [
+    "gemini-3-pro-image",
+    "gemini-3.1-flash-image",
+    "gemini-3.8-flash",
+    "veo-3.1-generate-001"
+  ],
+  "deterministic_steps": 0,
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "live: 29 signals from defillama, docs_blogs, google_news, reddit, telegram, twitter",
+      "outputs": [
+        "SIG-NEWS-9053bd5d",
+        "SIG-NEWS-deb33833",
+        "SIG-NEWS-a257dce0",
+        "SIG-NEWS-fc998c57",
+        "SIG-NEWS-fea409d1",
+        "SIG-NEWS-85533211",
+        "SIG-NEWS-aeff9830",
+        "SIG-NEWS-33ad5cfb",
+        "SIG-REDDIT-DEFI-93e6a756",
+        "SIG-LLAMA-f60691cc"
+      ],
+      "at": "2026-09-23T07:39:07.341498+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "chose a signal to pursue (5.42s)",
+      "outputs": [],
+      "at": "2026-09-23T07:39:12.769036+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "formulated strategy (8.84s)",
+      "outputs": [
+        "STRAT-SIG-NEWS-deb33833-202609230739"
+      ],
+      "at": "2026-09-23T07:39:21.616209+00:00"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "role": "none",
+      "status": "ok",
+      "detail": "verified machine MACH_06_INSTITUTIONAL_CREDIBILITY (0.0s)",
+      "outputs": [],
+      "at": "2026-09-23T07:39:21.648274+00:00"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "role": "none",
+      "status": "ok",
+      "detail": "selected campaign vehicle (0.0s)",
+      "outputs": [],
+      "at": "2026-09-23T07:39:21.648782+00:00"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "generated channel posts (11.4s)",
+      "outputs": [
+        "CAP-STRAT-SIG-NEWS-d-202609230739"
+      ],
+      "at": "2026-09-23T07:39:33.050230+00:00"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "role": "reasoning",
+      "status": "degraded",
+      "detail": "judged 3 asset(s): REJECT | 1 rejected | 1 show no mechanism",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\GTM-20260923-073843_visual.png"
+      ],
+      "at": "2026-09-23T07:42:55.110376+00:00"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "role": "image",
+      "status": "ok",
+      "detail": "meme: My balance sheet sleeping peacefully in an isolated SmartAccount while shared pools panic.",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\GTM-20260923-073843_meme.png"
+      ],
+      "at": "2026-09-23T07:40:45.071090+00:00"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "role": "video",
+      "status": "ok",
+      "detail": "motion graphic GTM-20260923-073843_video.mp4",
+      "outputs": [
+        "D:\\new orchestration\\pipeline\\state\\gtm_runs\\GTM-20260923-073843\\GTM-20260923-073843_video.mp4"
+      ],
+      "at": "2026-09-23T07:42:41.117074+00:00"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "role": "none",
+      "status": "ok",
+      "detail": "ran the pre-delivery firewalls (0.0s)",
+      "outputs": [],
+      "at": "2026-09-23T07:42:55.115012+00:00"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "role": "none",
+      "status": "skipped",
+      "detail": "awaiting human approval; dispatch never runs unprompted",
+      "outputs": [],
+      "at": "2026-09-23T07:42:55.115012+00:00"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "role": "none",
+      "status": "skipped",
+      "detail": "not delivered: TELEGRAM_REVIEWER_CHAT_ID is not set.",
+      "outputs": [],
+      "at": "2026-09-23T07:42:55.120391+00:00"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "processed the outcome feedback loop (0.03s)",
+      "outputs": [],
+      "at": "2026-09-23T07:42:55.155152+00:00"
+    }
+  ],
+  "agents_ran": 11,
+  "state_sync": {
+    "run": {
+      "pushed": true,
+      "objects": 7,
+      "failed": 0,
+      "bucket": "vanna-gtm-state-504607"
+    },
+    "panels": {
+      "pushed": true,
+      "objects": 2
+    },
+    "config": {
+      "pushed": true
+    }
+  },
+  "spend_by_model": {
+    "gemini-3.8-flash": {
+      "calls": 8,
+      "input_tokens": 14671,
+      "output_tokens": 4226
+    },
+    "gemini-3.1-flash-image": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    "gemini-3-pro-image": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    "veo-3.1-generate-001": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    }
+  }
+}

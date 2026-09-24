@@ -1,0 +1,288 @@
+{
+  "run_id": "GTM-20260923-065221",
+  "started_at": "2026-09-23T06:52:21.417656+00:00",
+  "directive": null,
+  "status": "NO_ACTION",
+  "signal": "XLM Bulls Eye $0.20 As Stellar\u2019s Soroban Powers Record TVL - DailyCoin",
+  "signal_source_type": "PRIMARY_NEWS_OBSERVED",
+  "signal_source": "https://news.google.com/rss/articles/CBMihgFBVV95cUxQN3FBd3MxZG9PSW9ZZ3hORkpaZldCSHVtUWwtXzZfbzF3ZXZLZzViMDBUWWg5UjBvQUsxUmI2bU8tWlZsQWhUV2hsYjNLSUZtMW0tV3V2TE5MVkpGTUpjaXlCZXc5NDJyX3dyaldwVDc2OUxlczVjUWZqN0pRdkJ1R2tkTzNUQQ?oc=5",
+  "signal_observed_at": "Thu, 30 Apr 2026 07:00:00 GMT",
+  "candidate_signals": [
+    {
+      "headline": "Yield-Bearing Stablecoins Can Destroy Deposits - Bank Policy Institute",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Fri, 08 May 2026 07"
+    },
+    {
+      "headline": "Press Release: New Report Debunks Misleading White House Analysis on Stablecoin Yield - Americans for Financial Reform",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Tue, 05 May 2026 07"
+    },
+    {
+      "headline": "Ripple Prime Adds Hyperliquid to Institutional DeFi Access - FinTech Weekly",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Thu, 05 Feb 2026 08"
+    },
+    {
+      "headline": "Best Decentralized Crypto Exchanges in September 2026: Discover the Top DEX for Your Crypto Needs! - Coin Bureau",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Wed, 02 Sep 2026 07"
+    },
+    {
+      "headline": "The Web3 builder\u2019s guide to Stellar - Blockworks",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Sun, 15 Mar 2026 05"
+    },
+    {
+      "headline": "XLM Bulls Eye $0.20 As Stellar\u2019s Soroban Powers Record TVL - DailyCoin",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Thu, 30 Apr 2026 07"
+    },
+    {
+      "headline": "What Is Account Abstraction? ERC-4337 Explained - Bitcoin Foundation",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Wed, 10 Jun 2026 07"
+    },
+    {
+      "headline": "Gas Abstraction Explained: Removing Transaction Fee Friction - Chainlink",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "observed_at": "Fri, 15 May 2026 07"
+    },
+    {
+      "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+      "source_type": "REDDIT_COMMUNITY_OBSERVED",
+      "observed_at": "2026-09-22T18:02:31"
+    },
+    {
+      "headline": "RHEA LST TVL rose 82.5% in 7 days to $38.1M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:52:33"
+    },
+    {
+      "headline": "Meta Pool Near TVL rose 81.1% in 7 days to $108.9M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:52:33"
+    },
+    {
+      "headline": "Rhea Lend TVL rose 80.6% in 7 days to $175.1M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:52:33"
+    },
+    {
+      "headline": "LiNEAR Protocol TVL rose 70.5% in 7 days to $105.6M (Liquid Staking)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:52:33"
+    },
+    {
+      "headline": "Tydro TVL rose 56.6% in 7 days to $140.2M (Lending)",
+      "source_type": "LIVE_OBSERVED",
+      "observed_at": "2026-09-23T06:52:33"
+    }
+  ],
+  "selection": {
+    "chosen": "XLM Bulls Eye $0.20 As Stellar\u2019s Soroban Powers Record TVL - DailyCoin",
+    "chosen_source": "PRIMARY_NEWS_OBSERVED",
+    "why": "Record Soroban TVL demands composable credit infrastructure to unlock capital efficiency and multi-protocol liquidity routing across Stellar's expanding smart contract ecosystem.",
+    "rejected": [
+      {
+        "headline": "The Web3 builder\u2019s guide to Stellar - Blockworks",
+        "why": "While relevant to Stellar builders, it is a broad ecosystem overview lacking an urgent catalyst for composable credit adoption."
+      },
+      {
+        "headline": "Rhea Lend TVL rose 80.6% in 7 days to $175.1M (Lending)",
+        "why": "Lending surges highlight market demand for debt markets, but Rhea is not native to Stellar Soroban's specific smart contract environment."
+      },
+      {
+        "headline": "Best Principal Token (PT) Stablecoin Yields (2026-09-22)",
+        "why": "Principal token yield mechanics are compelling, but Soroban currently requires foundational credit primitives before supporting complex fixed-yield tranching."
+      },
+      {
+        "headline": "Yield-Bearing Stablecoins Can Destroy Deposits - Bank Policy Institute",
+        "why": "The stablecoin deposit debate centers on macro policy rather than actionable architectural credit deployment on Soroban testnet."
+      },
+      {
+        "headline": "Gas Abstraction Explained: Removing Transaction Fee Friction - Chainlink",
+        "why": "Gas abstraction solves fee UX friction but does not address Vanna's core domain of composable credit and liquidity pooling."
+      },
+      {
+        "headline": "Tydro TVL rose 56.6% in 7 days to $140.2M (Lending)",
+        "why": "Lending TVL expansion validates borrowing demand, but on an alternative chain rather than Stellar's emerging Soroban ecosystem."
+      }
+    ],
+    "candidates": 14,
+    "suppressed_as_recent": 0,
+    "recently_covered": []
+  },
+  "action_status": "NO_ACTION",
+  "machine": "NONE",
+  "pillar": "NONE",
+  "strategy_reasoning": [
+    "The headline is driven by short-term price momentum and speculative targets ($0.20 XLM), which offers no architectural wedge for credit infrastructure.",
+    "Vanna is on testnet and governed by strict guidelines against asserting live TVL or price speculation.",
+    "A weak or off-brand post piggybacking on token price hype costs more in protocol credibility than passing on the signal."
+  ],
+  "problem": "NONE",
+  "opportunity": "NONE",
+  "audience": "NONE",
+  "proof_claims": [],
+  "reason": "The signal focuses primarily on retail token price speculation ('XLM Bulls Eye $0.20') and generic ecosystem TVL growth. Vanna operates strictly on testnet, does not engage in secondary market price commentary, and gains no differentiated architectural wedge from retail price momentum.",
+  "duration_s": 32.21,
+  "ended_at": "2026-09-23T06:52:53.629373+00:00",
+  "model_calls": 2,
+  "model_calls_ok": 2,
+  "input_tokens": 2953,
+  "output_tokens": 642,
+  "models_used": [
+    "gemini-3.8-flash"
+  ],
+  "deterministic_steps": 0,
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "ok",
+      "detail": "live: 29 signals from defillama, docs_blogs, google_news, reddit, telegram, twitter",
+      "outputs": [
+        "SIG-NEWS-3992bf4d",
+        "SIG-NEWS-f62ea0c8",
+        "SIG-NEWS-fea409d1",
+        "SIG-NEWS-85533211",
+        "SIG-NEWS-a257dce0",
+        "SIG-NEWS-fc998c57",
+        "SIG-NEWS-ff3ab973",
+        "SIG-NEWS-3afa84f8",
+        "SIG-REDDIT-DEFI-93e6a756",
+        "SIG-LLAMA-43aa668e"
+      ],
+      "at": "2026-09-23T06:52:37.825526+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "chose a signal to pursue (7.37s)",
+      "outputs": [],
+      "at": "2026-09-23T06:52:45.192949+00:00"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "role": "reasoning",
+      "status": "ok",
+      "detail": "formulated strategy (8.43s)",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.620803+00:00"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.620803+00:00"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.620803+00:00"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "role": "reasoning",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.620803+00:00"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "role": "reasoning",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.620803+00:00"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "role": "image",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.620803+00:00"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "role": "video",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.620803+00:00"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.629373+00:00"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.629373+00:00"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "role": "none",
+      "status": "skipped",
+      "detail": "strategy returned NO_ACTION",
+      "outputs": [],
+      "at": "2026-09-23T06:52:53.629373+00:00"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "status": "never_ran"
+    }
+  ],
+  "agents_ran": 3,
+  "state_sync": {
+    "run": {
+      "pushed": true,
+      "objects": 3,
+      "failed": 0,
+      "bucket": "vanna-gtm-state-504607"
+    },
+    "panels": {
+      "pushed": true,
+      "objects": 2
+    },
+    "config": {
+      "pushed": true
+    }
+  },
+  "spend_by_model": {
+    "gemini-3.8-flash": {
+      "calls": 3,
+      "input_tokens": 3463,
+      "output_tokens": 1348
+    }
+  }
+}

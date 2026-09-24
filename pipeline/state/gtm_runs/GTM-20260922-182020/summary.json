@@ -216,8 +216,8 @@
   "packet_built": true,
   "duration_s": 145.15,
   "ended_at": "2026-09-22T18:22:45.190190+00:00",
-  "model_calls": 10,
-  "model_calls_ok": 10,
+  "model_calls": 9,
+  "model_calls_ok": 9,
   "input_tokens": 14841,
   "output_tokens": 4082,
   "models_used": [
@@ -362,5 +362,18 @@
       "at": "2026-09-22T18:22:45.190190+00:00"
     }
   ],
-  "agents_ran": 11
+  "agents_ran": 11,
+  "deterministic_steps": 1,
+  "spend_by_model": {
+    "gemini-3.8-flash": {
+      "calls": 8,
+      "input_tokens": 14841,
+      "output_tokens": 4082
+    },
+    "gemini-3-pro-image": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    }
+  }
 }

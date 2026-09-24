@@ -1,0 +1,1 @@
+{"agent": "A01_intelligence_scout", "name": "Intelligence Scout", "role": "none", "status": "failed", "detail": "TimeoutError: 1 (of 6) futures unfinished", "outputs": [], "at": "2026-09-24T09:12:18.493051+00:00"}

@@ -1,0 +1,103 @@
+{
+  "run_id": "GTM-20260924-090909",
+  "started_at": "2026-09-24T09:09:09.265339+00:00",
+  "directive": "Create an X post targeting high-volume crypto traders, perpetual traders, arbitrage traders, funding-rate traders, basis traders, and delta-neutral traders. Explain one major problem they face with fragmented capital/margin and show how Vanna's unified portfolio margin and composable credit can solve it. Use a realistic trading example. End with a CTA.",
+  "status": "aborted",
+  "reason": "A01_intelligence_scout failed: TimeoutError: 1 (of 6) futures unfinished",
+  "duration_s": 189.25,
+  "ended_at": "2026-09-24T09:12:18.512615+00:00",
+  "model_calls": 0,
+  "model_calls_ok": 0,
+  "input_tokens": 0,
+  "output_tokens": 0,
+  "models_used": [],
+  "spend_by_model": {},
+  "deterministic_steps": 0,
+  "agents": [
+    {
+      "agent": "A01_intelligence_scout",
+      "name": "Intelligence Scout",
+      "role": "none",
+      "status": "failed",
+      "detail": "TimeoutError: 1 (of 6) futures unfinished",
+      "outputs": [],
+      "at": "2026-09-24T09:12:18.493051+00:00"
+    },
+    {
+      "agent": "A02_opportunity_selector",
+      "name": "Opportunity Selector",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A03_gtm_strategist",
+      "name": "GTM Strategist",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A04_machine_library",
+      "name": "GTM Machine Library",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A05_campaign_engine",
+      "name": "Campaign & Series Engine",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A06_channel_adapter",
+      "name": "Content Creator & Channel Adapter",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A07_creative_director",
+      "name": "Creative Director System",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A08_visual_synthesis",
+      "name": "Visual Synthesis Engine",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A09_video_production",
+      "name": "Video Production Engine",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A10_reviewer_firewall",
+      "name": "Pre-Delivery Reviewer Firewall",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A11_dispatch_worker",
+      "name": "Approved Dispatch Worker",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A12_telegram_gateway",
+      "name": "Telegram Gateway & Listener",
+      "status": "never_ran"
+    },
+    {
+      "agent": "A13_learning_engine",
+      "name": "Closed-Loop Learning Engine",
+      "status": "never_ran"
+    }
+  ],
+  "agents_ran": 0,
+  "state_sync": {
+    "run": {
+      "pushed": false,
+      "objects": 0,
+      "failed": 2,
+      "bucket": "vanna-gtm-state-504607"
+    },
+    "panels": {
+      "pushed": false,
+      "objects": 0
+    },
+    "config": {
+      "pushed": false
+    }
+  }
+}

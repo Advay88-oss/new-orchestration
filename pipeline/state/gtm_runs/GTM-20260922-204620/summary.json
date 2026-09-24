@@ -383,5 +383,28 @@
       "at": "2026-09-22T20:50:05.765637+00:00"
     }
   ],
-  "agents_ran": 11
+  "agents_ran": 11,
+  "deterministic_steps": 0,
+  "spend_by_model": {
+    "gemini-3.8-flash": {
+      "calls": 6,
+      "input_tokens": 13075,
+      "output_tokens": 4964
+    },
+    "gemini-3.1-flash-image": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    "gemini-3-pro-image": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    },
+    "veo-3.1-generate-001": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    }
+  }
 }

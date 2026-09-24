@@ -126,5 +126,13 @@
       "status": "never_ran"
     }
   ],
-  "agents_ran": 6
+  "agents_ran": 6,
+  "deterministic_steps": 0,
+  "spend_by_model": {
+    "gemini-3.8-flash": {
+      "calls": 4,
+      "input_tokens": 3818,
+      "output_tokens": 2660
+    }
+  }
 }

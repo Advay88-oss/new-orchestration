@@ -1,0 +1,216 @@
+{
+  "run_id": "GTM-20260924-092450",
+  "signals": [
+    {
+      "signal_id": "SIG-NEWS-cce925ee",
+      "what_it_is": "An analysis of how lending protocols are shifting from monolithic shared pools toward isolated, modular risk management architectures like Morpho and Euler.",
+      "relevance": "DIRECT",
+      "why": "It directly examines isolated credit sandboxes and risk segregation, which are core architectural components of Vanna's mechanism design."
+    },
+    {
+      "signal_id": "SIG-NEWS-747f2e52",
+      "what_it_is": "A reporting piece on cascading liquidation and market drawdowns spreading across lending platforms and collateralized assets.",
+      "relevance": "ADJACENT",
+      "why": "It highlights systemic liquidation contagion across DeFi lending, but discusses broad market declines rather than specific liquidation floor mechanisms."
+    },
+    {
+      "signal_id": "SIG-NEWS-9053bd5d",
+      "what_it_is": "A corporate analysis by Visa outlining the use of onchain credit facilities to support liquidity for stablecoin-linked debit card issuers.",
+      "relevance": "ADJACENT",
+      "why": "It addresses real-world onchain credit rails, but focuses on corporate settlement and payment cards rather than smart contract margin engines."
+    },
+    {
+      "signal_id": "SIG-NEWS-25e4ac62",
+      "what_it_is": "An announcement from Ripple introducing an onchain lending protocol to establish native credit infrastructure on the XRP Ledger.",
+      "relevance": "ADJACENT",
+      "why": "It covers native credit infrastructure on an alternative non-EVM layer 1, but does not involve Soroban or unified margin mechanisms."
+    },
+    {
+      "signal_id": "SIG-NEWS-fea409d1",
+      "what_it_is": "A reporting piece on Ripple Prime integrating Hyperliquid to provide institutional clients access to decentralized perpetual liquidity.",
+      "relevance": "ADJACENT",
+      "why": "It concerns institutional access to decentralized derivatives, but operates at the brokerage connectivity layer without touching smart contract margin primitives."
+    },
+    {
+      "signal_id": "SIG-NEWS-85533211",
+      "what_it_is": "An SEO listicle and buyer's guide ranking decentralized exchanges for retail users in September 2026.",
+      "relevance": "NONE",
+      "why": "It would need to examine programmatic margin mechanics or non-EVM settlement architectures to be relevant."
+    },
+    {
+      "signal_id": "SIG-NEWS-cf733f04",
+      "what_it_is": "An affiliate comparison guide listing perpetual swap DEXes based on fees, security, and retail trading features.",
+      "relevance": "NONE",
+      "why": "It would need to analyze underlying margin architecture or credit composability instead of consumer exchange rankings to be relevant."
+    },
+    {
+      "signal_id": "SIG-NEWS-5ea95958",
+      "what_it_is": "A product launch announcement for Ondo Perps, a perpetual platform accepting tokenized equities as trading collateral.",
+      "relevance": "ADJACENT",
+      "why": "It introduces novel collateral assets into derivative platforms, but does not touch cross-venue margin management or Soroban infrastructure."
+    },
+    {
+      "signal_id": "SIG-LLAMA-754a6074",
+      "what_it_is": "A quantitative metric report showing Rhea Lend total value locked increased by 58.4% over seven days to $173.0M.",
+      "relevance": "ADJACENT",
+      "why": "It demonstrates lending pool capital inflow on an external protocol without detailing mechanism or architectural design."
+    },
+    {
+      "signal_id": "SIG-LLAMA-951a0189",
+      "what_it_is": "A metric alert reporting a 57.8% weekly TVL increase for Meta Pool Near liquid staking to $106.7M.",
+      "relevance": "NONE",
+      "why": "It would need to connect NEAR liquid staking tokens to Soroban lending or unified margin collateral to matter."
+    },
+    {
+      "signal_id": "SIG-LLAMA-71d8d0f0",
+      "what_it_is": "A quantitative metric showing Tydro lending TVL rose 53.8% over seven days to $137.9M.",
+      "relevance": "ADJACENT",
+      "why": "It tracks growth in a decentralized money market, providing market context on lending demand without mechanism data."
+    },
+    {
+      "signal_id": "SIG-LLAMA-02dbaafb",
+      "what_it_is": "A metric report recording a 53.1% weekly TVL increase for RHEA LST to $37.3M.",
+      "relevance": "NONE",
+      "why": "It would need to discuss the asset's utility within a margin engine or credit protocol to be relevant."
+    },
+    {
+      "signal_id": "SIG-LLAMA-c4f2d167",
+      "what_it_is": "A metric report showing Bitget SOL liquid staking TVL rose 51.3% over seven days to $53.4M.",
+      "relevance": "NONE",
+      "why": "It tracks a Solana-specific centralized exchange liquid staking token with no connection to Stellar or margin systems."
+    },
+    {
+      "signal_id": "SIG-LLAMA-7cec3e97",
+      "what_it_is": "A quantitative metric showing LiNEAR Protocol TVL grew 44.0% over seven days to $103.5M.",
+      "relevance": "NONE",
+      "why": "It covers liquid staking growth on NEAR without touching collateral composability or margin mechanisms."
+    },
+    {
+      "signal_id": "SIG-DOCS-BLEND-V2-SPEC",
+      "what_it_is": "A technical specification and formal verification document detailing Blend v2 pool architecture and b-token mechanics on Soroban.",
+      "relevance": "DIRECT",
+      "why": "It specifies the core lending pool and yield-bearing token mechanics on Soroban that Vanna interacts with for credit composability."
+    },
+    {
+      "signal_id": "SIG-TG-STELLAR-VERIFIED",
+      "what_it_is": "A community announcement confirming Protocol 20 smart contracts and Blend v2 liquidity expansion are live on Stellar.",
+      "relevance": "DIRECT",
+      "why": "It verifies the operational status of the underlying Soroban runtime and primary liquidity venue where Vanna's testnet deployment operates."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP_COMPOSABLE_SANDBOX",
+      "what_it_is": "An internal pipeline entry proposing isolated SmartAccount credit sandboxes for the Soroban ecosystem.",
+      "relevance": "DIRECT",
+      "why": "It directly defines Vanna's implementation of isolated borrower sandboxes and credit composability on Soroban."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP_1_1X_BUFFER_DEFENSE",
+      "what_it_is": "An internal analysis positioning a 1.10x health factor liquidation floor against standard DeFi liquidation models.",
+      "relevance": "DIRECT",
+      "why": "It explicitly evaluates Vanna's liquidation floor mechanism and risk buffer parameters."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-AUTO-1789719019",
+      "what_it_is": "An automated pipeline tracking alert monitoring live composable yield across Blend v2 pools with $149.77M TVL.",
+      "relevance": "ADJACENT",
+      "why": "It tracks the capital scale of the target liquidity venue on Soroban without introducing new mechanism features."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-AUTO-1789719042",
+      "what_it_is": "An automated pipeline alert tracking live composable yield across Blend v2 pools at $150.24M TVL.",
+      "relevance": "ADJACENT",
+      "why": "It monitors available yield-bearing liquidity within the Blend v2 ecosystem without altering technical specifications."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497144",
+      "what_it_is": "An automated monitoring alert tracking 10x margin capacity across Blend v2 pools sized at $149.16M TVL.",
+      "relevance": "ADJACENT",
+      "why": "It monitors the liquidity threshold available for margin borrowing in Blend pools on Soroban."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497146",
+      "what_it_is": "An automated monitoring alert tracking margin availability across Blend v2 pools sized at $149.73M TVL.",
+      "relevance": "ADJACENT",
+      "why": "It measures TVL fluctuations in the underlying lending pool available for leveraged borrowing."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497148",
+      "what_it_is": "An automated monitoring alert tracking margin capacity on Blend v2 pools at $149.91M TVL.",
+      "relevance": "ADJACENT",
+      "why": "It records pool capitalization metrics for potential margin routing on Soroban."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497154",
+      "what_it_is": "An automated monitoring alert tracking 10x margin pool capacity for Blend v2 at $147.55M TVL.",
+      "relevance": "ADJACENT",
+      "why": "It tracks liquidity pool depth on the underlying Soroban lending market."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497156",
+      "what_it_is": "An automated monitoring alert recording Blend v2 margin pool capacity at $147.21M TVL.",
+      "relevance": "ADJACENT",
+      "why": "It reflects pool liquidity data for Blend v2 on Soroban."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497168",
+      "what_it_is": "An automated monitoring alert tracking Blend v2 pool TVL at $147.99M for composable margin operations.",
+      "relevance": "ADJACENT",
+      "why": "It provides a point-in-time liquidity check on Blend v2 pool size."
+    }
+  ],
+  "landscape": {
+    "summary": "DeFi lending is shifting toward modular risk isolation as recent cascading liquidations expose systemic vulnerabilities in monolithic pools. Concurrently, native smart contract ecosystems outside EVM\u2014specifically Stellar Soroban via Protocol 20 and Blend v2\u2014are consolidating around roughly $147M to $150M in lending pool TVL. Meanwhile, institutional infrastructure players like Ripple and Visa are actively building onchain credit and prime access rails.",
+    "themes": [
+      {
+        "theme": "Stellar Soroban and Blend v2 Ecosystem Capitalization",
+        "what_is_happening": "Protocol 20 smart contracts are live on Stellar and Blend v2 pools have stabilized between $147M and $150M TVL, accompanied by published specifications for formally verified pool architectures and b-tokens.",
+        "signal_ids": [
+          "SIG-DOCS-BLEND-V2-SPEC",
+          "SIG-TG-STELLAR-VERIFIED",
+          "SIG-OPP-AUTO-1789719019",
+          "SIG-OPP-AUTO-1789719042",
+          "SIG-OPP-BLEND-497144",
+          "SIG-OPP-BLEND-497146",
+          "SIG-OPP-BLEND-497148",
+          "SIG-OPP-BLEND-497154",
+          "SIG-OPP-BLEND-497156",
+          "SIG-OPP-BLEND-497168"
+        ],
+        "matters_to_vanna": true
+      },
+      {
+        "theme": "Modular Risk Management Versus Liquidation Contagion",
+        "what_is_happening": "Protocols are separating risk into modular and isolated architectures following widespread liquidation and collateral stress in pooled models like Aave.",
+        "signal_ids": [
+          "SIG-NEWS-cce925ee",
+          "SIG-NEWS-747f2e52",
+          "SIG-OPP-OPP_1_1X_BUFFER_DEFENSE"
+        ],
+        "matters_to_vanna": true
+      },
+      {
+        "theme": "Institutional and Non-EVM Credit Rails",
+        "what_is_happening": "Institutional payment processors and non-EVM foundations are deploying dedicated credit infrastructure and prime brokerage routing.",
+        "signal_ids": [
+          "SIG-NEWS-9053bd5d",
+          "SIG-NEWS-25e4ac62",
+          "SIG-NEWS-fea409d1"
+        ],
+        "matters_to_vanna": false
+      }
+    ],
+    "quiet_on": [
+      "Deterministic liquidation mechanisms and liquidation buffer floors during severe market volatility.",
+      "Smart account sandboxes or account abstraction for credit isolation on non-EVM chains.",
+      "Unified margin systems that maintain credit composability across multiple separate venues."
+    ],
+    "for_vanna": "The market's focus on modular risk isolation validates Vanna's architectural thesis of isolated borrower sandboxes over shared-pool contagion. With Blend v2 established on Stellar Soroban with approximately $147M-$150M in liquidity, the environment Vanna is designed to integrate with on testnet is technically formalized and capitalized. The primary strategic focus remains validating testnet execution against Blend's b-token specs and stress-testing the 1.10x health factor floor."
+  },
+  "read": 26,
+  "of": 26,
+  "grades": {
+    "DIRECT": 5,
+    "ADJACENT": 15,
+    "NONE": 6
+  }
+}

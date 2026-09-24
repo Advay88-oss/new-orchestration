@@ -1,0 +1,376 @@
+{
+  "run_id": "GTM-20260924-110016",
+  "signals": [
+    {
+      "signal_id": "SIG-REDDIT-STELLAR-0958e6bf",
+      "what_it_is": "A retail price-prediction post discussing expected price appreciation for Stellar's XLM token.",
+      "relevance": "NONE",
+      "why": "It is speculative price commentary on the XLM token rather than an analysis of Soroban smart contracts, lending, or margin mechanics.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-REDDIT-STELLAR-4eda870c",
+      "what_it_is": "A news announcement reporting that payment infrastructure firm BVNK integrated Stellar for multi-chain stablecoin settlements.",
+      "relevance": "ADJACENT",
+      "why": "It documents institutional stablecoin liquidity entering the Stellar network where Vanna deploys, but does not involve lending or credit mechanisms.",
+      "vanna_move": "Track stablecoin issuance on Stellar to evaluate future deposit collateral options for Vanna testnet vaults."
+    },
+    {
+      "signal_id": "SIG-REDDIT-STELLAR-4c514f54",
+      "what_it_is": "A podcast episode discussing why institutional actors remain in pilot mode on Stellar.",
+      "relevance": "ADJACENT",
+      "why": "It provides context on institutional adoption barriers and oracle integration on Stellar without touching protocol-level margin architecture.",
+      "vanna_move": "Monitor institutional feedback on Stellar execution risks to address pilot hurdles in testnet documentation."
+    },
+    {
+      "signal_id": "SIG-REDDIT-CRYPTOCURRENCY-07468522",
+      "what_it_is": "A product announcement from Kucoin launching a centralized dynamic yield offering up to 6%.",
+      "relevance": "NONE",
+      "why": "It concerns a centralized exchange savings product with no relation to onchain credit, decentralized liquidation, or Soroban infrastructure.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-NEWS-cec594f3",
+      "what_it_is": "An educational guide breaking down liquidation mechanics, health factor thresholds, and margin calls across decentralized protocols.",
+      "relevance": "DIRECT",
+      "why": "It directly discusses health factor mechanics and liquidation triggers, which are foundational to Vanna's 1.10x liquidation floor.",
+      "vanna_move": "Benchmark Vanna's 1.10x health factor floor and deterministic liquidation against standard variable threshold models."
+    },
+    {
+      "signal_id": "SIG-NEWS-cd75925f",
+      "what_it_is": "An industry report outlining how investors are trading tokenized gold and silver RWAs across onchain venues.",
+      "relevance": "NONE",
+      "why": "It covers commodity tokenization trends without addressing margin trading systems, liquidation models, or Stellar Soroban primitives.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-NEWS-ff3ab973",
+      "what_it_is": "An explainer article detailing EVM account abstraction via ERC-4337.",
+      "relevance": "ADJACENT",
+      "why": "It explains account abstraction primitives relevant to smart wallets, though focused on EVM rather than Soroban's native account architecture.",
+      "vanna_move": "Explain the architectural distinctions between EVM ERC-4337 wrappers and native Soroban SmartAccount isolation."
+    },
+    {
+      "signal_id": "SIG-NEWS-3afa84f8",
+      "what_it_is": "An educational overview explaining how gas abstraction removes transaction fee friction for onchain users.",
+      "relevance": "NONE",
+      "why": "It would only matter to Vanna if it addressed Soroban resource fee models or SmartAccount execution sponsorship specifically.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-NEWS-97379e40",
+      "what_it_is": "A banking policy article arguing that yield-bearing stablecoins draw liquidity away from traditional bank deposits.",
+      "relevance": "NONE",
+      "why": "It is a macroeconomic banking policy argument that does not involve DeFi margin, collateral isolation, or smart contract mechanisms.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-NEWS-f62ea0c8",
+      "what_it_is": "A policy press release disputing an executive branch report regarding stablecoin yield regulations.",
+      "relevance": "NONE",
+      "why": "It concerns US regulatory debates on stablecoins rather than technical onchain margin, lending, or liquidation systems.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-NEWS-9053bd5d",
+      "what_it_is": "An industry brief from Visa on how onchain credit protocols back credit lines for stablecoin-linked cards.",
+      "relevance": "ADJACENT",
+      "why": "It validates real-world demand for onchain credit primitives, though focusing on card issuing rails rather than trading margin.",
+      "vanna_move": "Watch enterprise credit facilities on L1 networks as potential reference architectures for composable debt settlement."
+    },
+    {
+      "signal_id": "SIG-NEWS-25e4ac62",
+      "what_it_is": "An announcement from Ripple detailing a proposed native lending protocol on the XRP Ledger.",
+      "relevance": "ADJACENT",
+      "why": "It describes credit infrastructure being built on an alternative non-EVM ledger competing for institutional settlement flows.",
+      "vanna_move": "Analyze XRPL's fixed-term credit model against Vanna's composable SmartAccount sandbox approach."
+    },
+    {
+      "signal_id": "SIG-LLAMA-8cd2fa39",
+      "what_it_is": "A DeFiLlama metric update noting Rhea Lend TVL reached $168.7M after a 52.6% weekly increase.",
+      "relevance": "NONE",
+      "why": "It would matter only if Rhea Lend operated on Stellar or shared technical architecture with Vanna's supported partner protocols.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-LLAMA-14606279",
+      "what_it_is": "A DeFiLlama metric alert reporting lending market Tydro's TVL rose 52.5% to $136.8M.",
+      "relevance": "NONE",
+      "why": "It is an automated TVL spike alert for an external network lending protocol with no direct link to Vanna's ecosystem.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-LLAMA-04b3623b",
+      "what_it_is": "A DeFiLlama metric update showing RHEA LST TVL grew 50.5% to $36.5M.",
+      "relevance": "NONE",
+      "why": "It reports liquid staking metrics on an external chain without collateral relevance to Soroban testnet.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-LLAMA-a7973c23",
+      "what_it_is": "A DeFiLlama metric update noting Bitget SOL TVL rose 48.6% to $52.6M.",
+      "relevance": "NONE",
+      "why": "It tracks centralized exchange liquid staking on Solana, which bears no relation to Stellar margin infrastructure.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-LLAMA-99623640",
+      "what_it_is": "A DeFiLlama metric alert showing Meta Pool Near TVL grew 47.6% to $104.3M.",
+      "relevance": "NONE",
+      "why": "It reflects staking activity on the NEAR blockchain and has no connection to Vanna's collateral base.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-LLAMA-d2eff8f9",
+      "what_it_is": "A DeFiLlama metric update reporting LiNEAR Protocol TVL rose 41.5% to $101.3M.",
+      "relevance": "NONE",
+      "why": "It is an external LST metric report with no implications for Soroban credit or liquidation rules.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-DOCS-BLEND-V2-SPEC",
+      "what_it_is": "Technical documentation covering the formal verification of Blend v2 pool architecture and the b-token technical specification.",
+      "relevance": "DIRECT",
+      "why": "Blend is Vanna's confirmed lending partner on Stellar, and its b-token implementation forms the exact composable yield asset used in Vanna's margin sandboxes.",
+      "vanna_move": "Map Vanna's SmartAccount isolation rules directly to Blend v2's formally verified b-token pool interfaces."
+    },
+    {
+      "signal_id": "SIG-DOCS-fa13e72a",
+      "what_it_is": "A research paper on ethresear.ch proposing CHAMP, a framework for mempool peer protection against transaction manipulation.",
+      "relevance": "NONE",
+      "why": "It is an EVM peer-to-peer mempool defense proposal that does not apply to Soroban transaction processing or Vanna's testnet contracts.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-TG-STELLAR-VERIFIED",
+      "what_it_is": "A community announcement confirming that Stellar Protocol 20 smart contracts and Blend v2 liquidity expansion are live.",
+      "relevance": "DIRECT",
+      "why": "It confirms that Vanna's foundational deployment runtime (Protocol 20) and primary Stellar lending partner (Blend v2) are actively operational.",
+      "vanna_move": "Test Vanna's testnet SmartAccount contracts against live Protocol 20 Soroban RPC endpoints and Blend v2 pools."
+    },
+    {
+      "signal_id": "SIG-TWITTER-MORPHOLABS-901546",
+      "what_it_is": "A social media post by Morpho highlighting an all-time high in protocol volume and onchain credit adoption.",
+      "relevance": "ADJACENT",
+      "why": "Morpho is a confirmed partner whose market traction validates isolated, modular lending architecture across DeFi.",
+      "vanna_move": "Position Vanna's cross-venue credit capabilities alongside Morpho's isolated market narrative."
+    },
+    {
+      "signal_id": "SIG-TWITTER-MORPHOLABS-765084",
+      "what_it_is": "A post reporting that over $220M is deployed in Morpho Vaults curated by Steakhouse on the Arc platform.",
+      "relevance": "ADJACENT",
+      "why": "Morpho is a confirmed partner and this showcases how curated vault risk management operates in production.",
+      "vanna_move": "Study Morpho's vault curator risk parameters to refine collateral weighting policies in Vanna SmartAccounts."
+    },
+    {
+      "signal_id": "SIG-TWITTER-GEARBOXPROTOCOL-970157",
+      "what_it_is": "A social post commending Gearbox for iterating its decentralized credit account and leverage mechanics.",
+      "relevance": "ADJACENT",
+      "why": "Gearbox pioneered isolated credit accounts for composable leverage, which represents the direct EVM equivalent of Vanna's Soroban SmartAccount model.",
+      "vanna_move": "Compare Gearbox's EVM credit account constraints with Vanna's multi-venue margin sandbox architecture."
+    },
+    {
+      "signal_id": "SIG-TWITTER-GEARBOXPROTOCOL-317710",
+      "what_it_is": "A product announcement from Frax and Gearbox launching automated one-click RWA leverage using frxUSD and Midas.",
+      "relevance": "DIRECT",
+      "why": "It demonstrates isolated credit accounts executing cross-venue leverage on structured yield assets, mirroring Vanna's composable margin design.",
+      "vanna_move": "Position Vanna's testnet sandbox as the equivalent automated leverage layer for Stellar assets like Blend b-tokens."
+    },
+    {
+      "signal_id": "SIG-TWITTER-AAVE-099148",
+      "what_it_is": "A post from Aave stating that securities finance and institutional credit workflows are transitioning onchain.",
+      "relevance": "ADJACENT",
+      "why": "It highlights expanding market scope for institutional prime brokerage and cross-venue margin onchain.",
+      "vanna_move": "Watch Aave's institutional securities finance framework to anticipate capital efficiency demands on Soroban."
+    },
+    {
+      "signal_id": "SIG-TWITTER-AAVE-352890",
+      "what_it_is": "A social post linking to an Aave blog article on securities finance.",
+      "relevance": "NONE",
+      "why": "It is an uninformative link-only tweet whose parent signal already contains the context.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-TWITTER-EULERFINANCE-201440",
+      "what_it_is": "A milestone announcement that Euler markets on Monad crossed $400M in TVL.",
+      "relevance": "ADJACENT",
+      "why": "It shows rapid liquidity deployment into modular lending protocols on high-throughput non-EVM/parallel execution layers.",
+      "vanna_move": "Track capital retention rates on high-speed execution layers to forecast Soroban ecosystem liquidity growth."
+    },
+    {
+      "signal_id": "SIG-TWITTER-EULERFINANCE-053419",
+      "what_it_is": "A social post sharing an ecosystem overview graphic of tokenization platforms and infrastructure.",
+      "relevance": "NONE",
+      "why": "It would only matter if it highlighted specific Stellar-based tokenized collateral usable within Vanna credit sandboxes.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-TWITTER-GAUNTLET_XYZ-870522",
+      "what_it_is": "An announcement that Gauntlet is managing risk curation for lending vaults on Astar Network Earn.",
+      "relevance": "ADJACENT",
+      "why": "It reflects the market shift toward independent risk curation for decentralized debt positions.",
+      "vanna_move": "Evaluate independent risk assessment methodologies for setting liquidation buffers on Soroban collateral."
+    },
+    {
+      "signal_id": "SIG-TWITTER-GAUNTLET_XYZ-149786",
+      "what_it_is": "A shared post describing how vault curators like Gauntlet manage risk parameters within Astar Earn.",
+      "relevance": "NONE",
+      "why": "It duplicates the core facts of the preceding Gauntlet signal without providing new mechanical insights.",
+      "vanna_move": ""
+    },
+    {
+      "signal_id": "SIG-OPP-OPP_COMPOSABLE_SANDBOX",
+      "what_it_is": "An internal strategic opportunity document advocating for isolated SmartAccount credit sandboxes on Soroban.",
+      "relevance": "DIRECT",
+      "why": "It defines Vanna's core mechanism: per-borrower SmartAccount isolation that maintains credit composability across Stellar protocols.",
+      "vanna_move": "Publish testnet developer guides demonstrating how isolated SmartAccounts prevent bad debt contagion across Soroban protocols."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP_1_1X_BUFFER_DEFENSE",
+      "what_it_is": "An internal strategic document detailing narrative positioning for Vanna's 1.10x health factor liquidation floor.",
+      "relevance": "DIRECT",
+      "why": "It centers on Vanna's unique deterministic liquidation parameter and buffer mechanism designed to protect borrowers from predatory liquidations.",
+      "vanna_move": "Simulate liquidation execution under market volatility to demonstrate the buffer efficacy of the 1.10x health factor floor."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-AUTO-1789719019",
+      "what_it_is": "An internal monitoring signal tracking composable yield opportunities across Blend v2 pools representing $149.7M in TVL.",
+      "relevance": "DIRECT",
+      "why": "It provides live liquidity telemetry for Blend v2, Vanna's primary lending integration on Stellar.",
+      "vanna_move": "Integrate Blend v2 yield metrics directly into Vanna testnet interface mockups to prove cross-venue yield utility."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-AUTO-1789719042",
+      "what_it_is": "An internal monitoring signal tracking composable yield on Blend v2 pools at $150.2M TVL.",
+      "relevance": "DIRECT",
+      "why": "It confirms growing TVL scale in Blend v2 pools that Vanna accounts borrow from or use for collateralization.",
+      "vanna_move": "Calibrate testnet SmartAccount borrow caps against Blend v2's $150M active pool liquidity."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497144",
+      "what_it_is": "An internal pipeline signal evaluating composable 10x margin routing over Blend v2 pools at $149.1M TVL.",
+      "relevance": "DIRECT",
+      "why": "It analyzes the core mechanism of levered composability between Vanna margin accounts and Blend v2 lending pools.",
+      "vanna_move": "Validate the SmartAccount transaction batching logic for routing 10x levered credit into Blend v2 testnet pools."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497146",
+      "what_it_is": "An internal pipeline signal assessing 10x margin execution capacity on Blend v2 pools ($149.7M TVL).",
+      "relevance": "DIRECT",
+      "why": "It monitors execution depth for Vanna's composable margin borrowing on Blend v2.",
+      "vanna_move": "Stress-test liquidation slippage assumptions on Blend v2 pools with $149M+ depth."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497148",
+      "what_it_is": "An internal pipeline signal assessing 10x margin routing depth on Blend v2 pools ($149.9M TVL).",
+      "relevance": "DIRECT",
+      "why": "It records the liquid supply available in Blend v2 to support levered trading through Vanna.",
+      "vanna_move": "Document how Vanna's margin architecture taps Blend v2 pool liquidity without fragmenting positions."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497154",
+      "what_it_is": "An internal pipeline signal observing Blend v2 pool liquidity shifts around $147.5M TVL for margin routing.",
+      "relevance": "DIRECT",
+      "why": "It reflects pool liquidity fluctuations that dictate maximum allowable margin borrow sizes.",
+      "vanna_move": "Establish dynamic borrow caps in Vanna SmartAccounts pegged to real-time Blend v2 pool depth."
+    },
+    {
+      "signal_id": "SIG-OPP-OPP-BLEND-497156",
+      "what_it_is": "An internal pipeline signal tracking Blend v2 pool capacity at $147.2M TVL for composable margin operations.",
+      "relevance": "DIRECT",
+      "why": "It provides baseline pool health data necessary for configuring Vanna testnet credit lines against Blend assets.",
+      "vanna_move": "Model health factor decay curves against Blend v2 interest rate spikes during liquidity drawdowns."
+    }
+  ],
+  "landscape": {
+    "summary": "Onchain credit is polarizing into modular, isolated architectures across both EVM and non-EVM ecosystems. While major lending protocols highlight vault curation and institutional debt expansion, Stellar's live Protocol 20 rollout and Blend v2's $150M pool scale establish an active lending substrate on Soroban. The broader market remains focused on leverage efficiency and credit sandboxing, creating an opening for unified margin solutions built around borrower isolation.",
+    "themes": [
+      {
+        "theme": "Blend v2 and Soroban Execution Readiness",
+        "what_is_happening": "Stellar's Protocol 20 smart contracts and Blend v2's formal verification are complete, establishing deep pool liquidity ($147M-$150M TVL) ready for composable credit layers.",
+        "signal_ids": [
+          "SIG-DOCS-BLEND-V2-SPEC",
+          "SIG-TG-STELLAR-VERIFIED",
+          "SIG-OPP-OPP-AUTO-1789719019",
+          "SIG-OPP-OPP-AUTO-1789719042",
+          "SIG-OPP-OPP-BLEND-497144",
+          "SIG-OPP-OPP-BLEND-497146",
+          "SIG-OPP-OPP-BLEND-497148",
+          "SIG-OPP-OPP-BLEND-497154",
+          "SIG-OPP-OPP-BLEND-497156"
+        ],
+        "matters_to_vanna": true
+      },
+      {
+        "theme": "Isolated Credit Accounts Driving Structured Leverage",
+        "what_is_happening": "Protocols like Gearbox and Morpho are expanding isolated credit accounts and curated vaults to execute automated leverage on external yield and RWA primitives.",
+        "signal_ids": [
+          "SIG-TWITTER-MORPHOLABS-901546",
+          "SIG-TWITTER-MORPHOLABS-765084",
+          "SIG-TWITTER-GEARBOXPROTOCOL-970157",
+          "SIG-TWITTER-GEARBOXPROTOCOL-317710"
+        ],
+        "matters_to_vanna": true
+      },
+      {
+        "theme": "Shift Toward Curation and Modular Risk Isolation",
+        "what_is_happening": "Lending protocols are moving away from monolithic shared-pool risk toward curated, modular vaults managed by external risk specialists.",
+        "signal_ids": [
+          "SIG-TWITTER-MORPHOLABS-765084",
+          "SIG-TWITTER-GAUNTLET_XYZ-870522",
+          "SIG-TWITTER-GAUNTLET_XYZ-149786",
+          "SIG-TWITTER-EULERFINANCE-201440"
+        ],
+        "matters_to_vanna": false
+      }
+    ],
+    "quiet_on": [
+      "Stellar Soroban DEX liquidation backstops and automated liquidator bot infrastructure.",
+      "Cross-margin collateralization mechanics between Stellar native assets and external derivative protocols.",
+      "Clear empirical comparisons of liquidation health factor buffers across non-EVM networks."
+    ],
+    "for_vanna": "The operational maturity of Blend v2 and Soroban Protocol 20 provides Vanna with an immediate, liquid lending layer on Stellar to benchmark its testnet SmartAccounts. As EVM protocols validate credit accounts for structured yield, Vanna can establish itself as the premier isolated credit and 1.10x liquidation buffer layer on Soroban before mainnet deployment. Focusing testnet simulations on Blend pool routing will turn market interest in isolated credit into practical proof of execution.",
+    "strategies": [
+      {
+        "title": "Benchmark SmartAccounts Against Blend v2 Pools",
+        "move": "Stress-test Vanna testnet SmartAccount borrow and liquidation routes against Blend v2's formally verified b-token pool parameters.",
+        "rationale": "Blend v2 pool liquidity is active at roughly $150M TVL following the Protocol 20 rollout, making technical compatibility the critical path for Vanna credit routing.",
+        "signal_ids": [
+          "SIG-DOCS-BLEND-V2-SPEC",
+          "SIG-TG-STELLAR-VERIFIED",
+          "SIG-OPP-OPP-AUTO-1789719042",
+          "SIG-OPP-OPP-BLEND-497146"
+        ],
+        "horizon": "this week"
+      },
+      {
+        "title": "Publish 1.10x Buffer Risk Analysis",
+        "move": "Release a technical comparative analysis demonstrating how Vanna's 1.10x health factor floor prevents liquidation cascades compared to traditional threshold models.",
+        "rationale": "General market attention is revisiting liquidation mechanics and debt safety while modular credit protocols scale rapidly.",
+        "signal_ids": [
+          "SIG-NEWS-cec594f3",
+          "SIG-OPP-OPP_1_1X_BUFFER_DEFENSE"
+        ],
+        "horizon": "this month"
+      },
+      {
+        "title": "Position Soroban Sandboxes Against EVM Credit Accounts",
+        "move": "Document the architectural advantages of Soroban native SmartAccounts over EVM wrapper accounts for composable multi-venue margin.",
+        "rationale": "Competitors on EVM are expanding automated leverage via credit accounts, providing an established mental model to showcase Soroban's native capabilities.",
+        "signal_ids": [
+          "SIG-TWITTER-GEARBOXPROTOCOL-317710",
+          "SIG-OPP-OPP_COMPOSABLE_SANDBOX",
+          "SIG-NEWS-ff3ab973"
+        ],
+        "horizon": "this month"
+      }
+    ]
+  },
+  "read": 40,
+  "of": 40,
+  "grades": {
+    "NONE": 16,
+    "ADJACENT": 11,
+    "DIRECT": 13
+  }
+}

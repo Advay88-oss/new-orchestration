@@ -346,5 +346,18 @@
       "at": "2026-09-22T10:51:08.565943+00:00"
     }
   ],
-  "agents_ran": 11
+  "agents_ran": 11,
+  "deterministic_steps": 0,
+  "spend_by_model": {
+    "gemini-3.8-flash": {
+      "calls": 6,
+      "input_tokens": 8304,
+      "output_tokens": 3599
+    },
+    "gemini-3-pro-image": {
+      "calls": 1,
+      "input_tokens": 0,
+      "output_tokens": 0
+    }
+  }
 }
