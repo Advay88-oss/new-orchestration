@@ -37,8 +37,9 @@ export function Posts({ vm }: { vm: MissionVM }) {
               platform: p.channel || "X",
               title: p.title || null,
               leadCopy: p.copy || "Vanna Protocol Post",
-              publishedUrl: p.canonical_url || "https://x.com/vanna_finance",
-              publishedAt: p.published_at ? new Date(p.published_at).toLocaleString() : "Recently",
+              publishedUrl: p.canonical_url ?? null,
+              dispatched: Boolean(p.canonical_url),
+              publishedAt: p.published_at ? new Date(p.published_at).toLocaleString() : null,
               impressions: perf?.impressions?.status === "MEASURED" ? perf.impressions.raw_value : null,
               clicks: perf?.clicks?.status === "MEASURED" ? perf.clicks.raw_value : null,
               conversions: perf?.deployments?.status === "MEASURED" ? perf.deployments.raw_value : (perf?.conversions?.status === "MEASURED" ? perf.conversions.raw_value : null),
@@ -46,65 +47,56 @@ export function Posts({ vm }: { vm: MissionVM }) {
           }
         }
 
-        // Also extract posts from runs
+        // Posts from runs.
+        //
+        // This read `r.agent_outputs.agent_06_content.{x_threads,
+        // linkedin_copy,reddit_copy}` — a shape the API has never emitted.
+        // `agent_outputs` is keyed by agent id and holds metadata; the copy
+        // A06 wrote lives under `r.posts.<channel>.{hook,copy}`. So `content`
+        // was always undefined, the loop collected nothing, and the view
+        // rendered "No Multi-Channel Posts Published Yet" over finished work.
         if (Array.isArray(data.runs)) {
           for (const r of data.runs) {
-            const content = r.agent_outputs?.agent_06_content;
-            if (content) {
-              const xReceipt = r.agent_outputs?.agent_11_dispatch?.receipts?.[0] || "https://x.com/vanna_finance";
-              const liReceipt = r.agent_outputs?.agent_11_dispatch?.receipts?.[1] || "https://linkedin.com";
-              const rdReceipt = r.agent_outputs?.agent_11_dispatch?.receipts?.[2] || "https://reddit.com/r/defi";
+            const rp = r.posts;
+            if (!rp) continue;
 
-              const xId = xReceipt.split("/").pop() || `X-${r.run_id}`;
-              const liId = liReceipt.split("/").pop() || `LI-${r.run_id}`;
-              const rdId = rdReceipt.split("/").pop() || `RD-${r.run_id}`;
+            // A11 does not dispatch unprompted, so a receipt exists only if it
+            // really published. No placeholder profile URLs: an undispatched
+            // post has no link, and inventing one implied it was live.
+            const receipts: string[] = Array.isArray(r.agent_outputs?.A11_dispatch_worker?.outputs)
+              ? r.agent_outputs.A11_dispatch_worker.outputs.filter((u: string) => /^https?:\/\//.test(u))
+              : [];
+            const at = r.started ? new Date(r.started * 1000).toLocaleString() : null;
 
-              const perfX = perfMap.get(xId) || perfMap.get(`PERF-${xId}`);
-              const perfLi = perfMap.get(liId) || perfMap.get(`PERF-${liId}`);
-              const perfRd = perfMap.get(rdId) || perfMap.get(`PERF-${rdId}`);
+            const CHANNELS: Array<[string, string, string]> = [
+              ["x", "X", "X"],
+              ["linkedin", "LinkedIn", "LI"],
+              ["reddit", "Reddit", "RD"],
+            ];
 
-              if (content.x_threads) {
-                collected.push({
-                  id: `X-${r.run_id}`,
-                  platform: "X",
-                  leadCopy: content.x_lead || content.x_threads[0],
-                  fullThread: content.x_threads,
-                  publishedUrl: xReceipt,
-                  publishedAt: r.started ? new Date(r.started * 1000).toLocaleString() : "Live Run",
-                  impressions: perfX?.impressions?.status === "MEASURED" ? perfX.impressions.raw_value : null,
-                  clicks: perfX?.clicks?.status === "MEASURED" ? perfX.clicks.raw_value : null,
-                  conversions: perfX?.deployments?.status === "MEASURED" ? perfX.deployments.raw_value : (perfX?.conversions?.status === "MEASURED" ? perfX.conversions.raw_value : null),
-                });
-              }
-
-              if (content.linkedin_copy) {
-                collected.push({
-                  id: `LI-${r.run_id}`,
-                  platform: "LinkedIn",
-                  title: r.title,
-                  leadCopy: content.linkedin_copy,
-                  publishedUrl: liReceipt,
-                  publishedAt: r.started ? new Date(r.started * 1000).toLocaleString() : "Live Run",
-                  impressions: perfLi?.impressions?.status === "MEASURED" ? perfLi.impressions.raw_value : null,
-                  clicks: perfLi?.clicks?.status === "MEASURED" ? perfLi.clicks.raw_value : null,
-                  conversions: perfLi?.deployments?.status === "MEASURED" ? perfLi.deployments.raw_value : (perfLi?.conversions?.status === "MEASURED" ? perfLi.conversions.raw_value : null),
-                });
-              }
-
-              if (content.reddit_copy) {
-                collected.push({
-                  id: `RD-${r.run_id}`,
-                  platform: "Reddit",
-                  title: content.reddit_hook || r.title,
-                  leadCopy: content.reddit_copy,
-                  publishedUrl: rdReceipt,
-                  publishedAt: r.started ? new Date(r.started * 1000).toLocaleString() : "Live Run",
-                  impressions: perfRd?.impressions?.status === "MEASURED" ? perfRd.impressions.raw_value : null,
-                  clicks: perfRd?.clicks?.status === "MEASURED" ? perfRd.clicks.raw_value : null,
-                  conversions: perfRd?.deployments?.status === "MEASURED" ? perfRd.deployments.raw_value : (perfRd?.conversions?.status === "MEASURED" ? perfRd.conversions.raw_value : null),
-                });
-              }
-            }
+            CHANNELS.forEach(([key, platform, prefix], idx) => {
+              const post = rp[key];
+              if (!post?.copy) return;
+              const id = `${prefix}-${r.run_id}`;
+              const perf = perfMap.get(id) || perfMap.get(`PERF-${id}`);
+              collected.push({
+                id,
+                platform,
+                title: post.hook || r.title,
+                leadCopy: post.copy,
+                fullThread: key === "x"
+                  ? String(post.copy).split(/\n\s*\n/).map((s: string) => s.trim()).filter(Boolean)
+                  : undefined,
+                publishedUrl: receipts[idx] ?? null,
+                dispatched: r.dispatched === true,
+                publishedAt: at,
+                impressions: perf?.impressions?.status === "MEASURED" ? perf.impressions.raw_value : null,
+                clicks: perf?.clicks?.status === "MEASURED" ? perf.clicks.raw_value : null,
+                conversions: perf?.deployments?.status === "MEASURED"
+                  ? perf.deployments.raw_value
+                  : (perf?.conversions?.status === "MEASURED" ? perf.conversions.raw_value : null),
+              });
+            });
           }
         }
 
@@ -134,16 +126,18 @@ export function Posts({ vm }: { vm: MissionVM }) {
       <div className="vanna-banner">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: posts.length > 0 ? "#38EF7D" : "#8E85A8" }} />
-            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: posts.length > 0 ? "#38EF7D" : "#8E85A8", letterSpacing: "0.08em" }}>
-              MULTI-CHANNEL SOCIAL FEED // {posts.length > 0 ? `${posts.length} PUBLISHED ARTIFACTS` : "STANDBY (0 ARTIFACTS)"}
+            <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: posts.length > 0 ? "#4ADE9B" : "#7B7590" }} />
+            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: posts.length > 0 ? "#4ADE9B" : "#7B7590", letterSpacing: "0.08em" }}>
+              MULTI-CHANNEL SOCIAL FEED // {posts.length > 0
+                ? `${posts.length} DRAFTED · ${posts.filter((p) => p.dispatched).length} PUBLISHED`
+                : "STANDBY (0 ARTIFACTS)"}
             </span>
           </div>
           <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#FFFFFF", marginTop: "6px" }}>
-            Autonomous Multi-Channel Social Content & Live Telemetry
+            Draft Library — every post the agents wrote
           </h2>
-          <p style={{ fontSize: "14px", color: "#A2A1A6", marginTop: "4px" }}>
-            Real-time feed across X, LinkedIn, and Reddit derived from autonomous runs and canonical performance records. Zero mock data.
+          <p style={{ fontSize: "14px", color: "#7B7590", marginTop: "4px" }}>
+            Every X, LinkedIn and Reddit draft the agents wrote, across all runs.
           </p>
         </div>
 
@@ -156,7 +150,7 @@ export function Posts({ vm }: { vm: MissionVM }) {
               style={{
                 background: platformFilter === plat ? "rgba(112, 58, 230, 0.25)" : "rgba(255,255,255,0.05)",
                 border: `1px solid ${platformFilter === plat ? "#703AE6" : "rgba(255,255,255,0.1)"}`,
-                color: platformFilter === plat ? "#FFFFFF" : "#A2A1A6",
+                color: platformFilter === plat ? "#FFFFFF" : "#7B7590",
                 padding: "8px 16px",
                 borderRadius: "8px",
                 cursor: "pointer",
@@ -191,7 +185,7 @@ export function Posts({ vm }: { vm: MissionVM }) {
             <h3 style={{ fontSize: "16px", fontWeight: 700, color: "#FFFFFF", margin: 0 }}>
               No Multi-Channel Posts Published Yet
             </h3>
-            <p style={{ color: "#8E85A8", fontSize: "13px", maxWidth: "480px", margin: 0, lineHeight: 1.5 }}>
+            <p style={{ color: "#7B7590", fontSize: "13px", maxWidth: "480px", margin: 0, lineHeight: 1.5 }}>
               The multi-channel feed is reset to baseline. Launch an autonomous directive from the Command Console above to generate platform-native copy for X, LinkedIn, and Reddit.
             </p>
           </div>
@@ -219,7 +213,7 @@ export function Posts({ vm }: { vm: MissionVM }) {
                     fontFamily: MONO,
                     fontSize: "11px",
                     fontWeight: 700,
-                    color: post.platform === "X" ? "#32EEE2" : (post.platform === "LinkedIn" ? "#A387FF" : "#FF5722"),
+                    color: post.platform === "X" ? "#A98CFF" : (post.platform === "LinkedIn" ? "#A98CFF" : "#FF5722"),
                     background: "rgba(255,255,255,0.05)",
                     border: "1px solid rgba(255,255,255,0.1)",
                     padding: "4px 10px",
@@ -228,7 +222,11 @@ export function Posts({ vm }: { vm: MissionVM }) {
                 >
                   {post.platform}
                 </span>
-                <span style={{ fontSize: "12px", color: "#8E85A8" }}>Published: {post.publishedAt}</span>
+                {/* "Published" is a claim only a dispatch receipt supports. */}
+                <span style={{ fontSize: "12px", color: post.dispatched ? "#4ADE9B" : "#7B7590" }}>
+                  {post.dispatched ? "Published" : "Drafted"}
+                  {post.publishedAt ? `: ${post.publishedAt}` : ""}
+                </span>
               </div>
 
               <div style={{ display: "flex", gap: "10px" }}>
@@ -237,7 +235,7 @@ export function Posts({ vm }: { vm: MissionVM }) {
                   style={{
                     background: "rgba(255,255,255,0.05)",
                     border: "1px solid rgba(255,255,255,0.12)",
-                    color: copiedId === post.id ? "#38EF7D" : "#DFDFDF",
+                    color: copiedId === post.id ? "#4ADE9B" : "#B8B3C6",
                     padding: "6px 12px",
                     borderRadius: "6px",
                     fontSize: "11px",
@@ -247,24 +245,26 @@ export function Posts({ vm }: { vm: MissionVM }) {
                 >
                   {copiedId === post.id ? "✓ Copied!" : "Copy Post"}
                 </button>
-                <a
-                  href={post.publishedUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    background: "rgba(112, 58, 230, 0.2)",
-                    border: "1px solid rgba(163, 135, 255, 0.35)",
-                    color: "#FFFFFF",
-                    padding: "6px 12px",
-                    borderRadius: "6px",
-                    fontSize: "11px",
-                    fontFamily: MONO,
-                    textDecoration: "none",
-                    fontWeight: 600
-                  }}
-                >
-                  View Live Post ↗
-                </a>
+                {post.publishedUrl && (
+                  <a
+                    href={post.publishedUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      background: "rgba(112, 58, 230, 0.2)",
+                      border: "1px solid rgba(163, 135, 255, 0.35)",
+                      color: "#FFFFFF",
+                      padding: "6px 12px",
+                      borderRadius: "6px",
+                      fontSize: "11px",
+                      fontFamily: MONO,
+                      textDecoration: "none",
+                      fontWeight: 600
+                    }}
+                  >
+                    View Live Post ↗
+                  </a>
+                )}
               </div>
             </div>
 
@@ -310,18 +310,18 @@ export function Posts({ vm }: { vm: MissionVM }) {
 
             {/* Performance Metrics Strip */}
             <div style={{ display: "flex", gap: "20px", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px", fontSize: "12px" }}>
-              <span style={{ color: "#8E85A8" }}>
-                Impressions: <strong style={{ color: post.impressions != null ? "#FFFFFF" : "#8E85A8" }}>
+              <span style={{ color: "#7B7590" }}>
+                Impressions: <strong style={{ color: post.impressions != null ? "#FFFFFF" : "#7B7590" }}>
                   {post.impressions != null ? post.impressions.toLocaleString() : "Pending Telemetry Sync (NULL ≠ 0)"}
                 </strong>
               </span>
-              <span style={{ color: "#8E85A8" }}>
-                Clicks: <strong style={{ color: post.clicks != null ? "#32EEE2" : "#8E85A8" }}>
+              <span style={{ color: "#7B7590" }}>
+                Clicks: <strong style={{ color: post.clicks != null ? "#A98CFF" : "#7B7590" }}>
                   {post.clicks != null ? post.clicks.toLocaleString() : "Pending Sync"}
                 </strong>
               </span>
-              <span style={{ color: "#8E85A8" }}>
-                Sandbox Deployments: <strong style={{ color: post.conversions != null ? "#38EF7D" : "#8E85A8" }}>
+              <span style={{ color: "#7B7590" }}>
+                Sandbox Deployments: <strong style={{ color: post.conversions != null ? "#4ADE9B" : "#7B7590" }}>
                   {post.conversions != null ? post.conversions.toLocaleString() : "Pending Sync"}
                 </strong>
               </span>

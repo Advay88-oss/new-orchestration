@@ -313,7 +313,8 @@ export interface MissionData {
   CHANNEL: string;
   RELAY: string;
   CAP_USD: number;
-  SPENT_USD?: number; // Cost Cap Fix: Bind actual spend ledger total USD
+  SPENT_USD?: number | null; // null = no published rate for a model that ran
+  POSTS_TOTAL?: number;      // real count of channel posts across runs
   LEDGER_STARTED: string;
   AGENTS: Agent[];
   AGENT_BY_KEY: Record<string, string>;

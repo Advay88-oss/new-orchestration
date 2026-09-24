@@ -49,7 +49,7 @@ export function SteppsBars({
           <div
             style={{
               height: barHeight,
-              background: "#DFDFDF",
+              background: "#B8B3C6",
               borderRadius: "999px",
               overflow: "hidden",
             }}

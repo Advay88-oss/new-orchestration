@@ -16,7 +16,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
 
-const ACCENT = '#A387FF';
+const ACCENT = '#A98CFF';
 const DIM = '#6C6C6C';
 
 interface Detail {
@@ -64,7 +64,7 @@ export function AgentReasoning() {
     return () => clearInterval(t);
   }, [load]);
 
-  if (err) return <Msg tone="#FC5457">Could not read the run journal: {err}</Msg>;
+  if (err) return <Msg tone="#F0666B">Could not read the run journal: {err}</Msg>;
   if (d && (d as any).inFlight) {
     // A cycle takes 2-4 minutes. Saying so beats an empty panel or an error.
     return (
@@ -77,15 +77,13 @@ export function AgentReasoning() {
   if (!d) return <Msg tone={DIM}>Loading…</Msg>;
 
   return (
-    <div>
+    <div className="vanna-section">
       <header style={{ marginBottom: 18 }}>
         <h2 style={{ margin: 0, fontSize: 19, color: '#EDEDED', fontWeight: 600 }}>
           Agent Decisions
         </h2>
         <p style={{ margin: '6px 0 0', fontSize: 13, color: DIM, maxWidth: 760 }}>
-          What A02, A03 and A07 actually decided in {d.runId}, and what they turned
-          down. There is no debate stage in this system — these are sequential
-          judgements, shown as they were recorded.
+          What A02, A03 and A07 chose in {d.runId}, and what they turned down.
         </p>
       </header>
 
@@ -212,7 +210,7 @@ function Section({
         borderRadius: 8,
         padding: '14px 16px',
         marginBottom: 14,
-        background: '#0D0D0F',
+        background: '#0C0716',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 10 }}>
@@ -266,5 +264,11 @@ function Muted({ children }: { children: React.ReactNode }) {
 }
 
 function Msg({ tone, children }: { tone: string; children: React.ReactNode }) {
-  return <div style={{ color: tone, fontFamily: MONO, fontSize: 13 }}>{children}</div>;
+  // Same gutter as the loaded view, so a loading or error state does not sit
+  // flush against the sidebar either.
+  return (
+    <div className="vanna-section" style={{ color: tone, fontFamily: MONO, fontSize: 13 }}>
+      {children}
+    </div>
+  );
 }

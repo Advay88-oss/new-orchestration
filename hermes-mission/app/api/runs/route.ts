@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: Request) {
   const limit = Number(new URL(req.url).searchParams.get('limit') ?? 50);
-  const runs = gtmLegacyRuns(Number.isFinite(limit) ? limit : 50);
+  const runs = await gtmLegacyRuns(Number.isFinite(limit) ? limit : 50);
   return NextResponse.json({
     runs,
     total_runs: runs.length,

@@ -3,6 +3,7 @@ import { runPython, lastJson, pythonPath } from '@/lib/python';
 import { exec, spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import { localOnly } from '@/lib/local-only';
 
 const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : 'D:/new orchestration');
 const SCHEDULER_SCRIPT = path.join(REPO_ROOT, 'pipeline/scheduler/configurable_scheduler_daemon.py');
@@ -12,6 +13,9 @@ const CONFIG_FILE = path.join(REPO_ROOT, 'config/scheduler.yaml');
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  const blocked = localOnly('the scheduler');
+  if (blocked) return blocked;
+
   try {
     // 1. First try reading directly from state file & config for sub-millisecond response
     if (fs.existsSync(SCHEDULER_STATE_FILE) && fs.existsSync(CONFIG_FILE)) {
@@ -81,6 +85,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const blocked = localOnly('the scheduler');
+  if (blocked) return blocked;
+
   try {
     const body = await req.json();
     const { action, job, interval } = body;

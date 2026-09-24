@@ -20,12 +20,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
 
-const ACCENT = '#A387FF';
+const ACCENT = '#A98CFF';
 const DIM = '#6C6C6C';
 const FAINT = '#3A3A42';
 
 const MODEL_TONE: Record<string, string> = {
-  'gemini-3.8-flash': '#A387FF',
+  'gemini-3.8-flash': '#A98CFF',
   'gemini-3.1-flash-image': '#38C9EF',
   'gemini-3-pro-image': '#F5A524',
   'veo-3.1-generate-001': '#FF7AB6',
@@ -92,7 +92,7 @@ export function GtmAgents() {
     return () => clearInterval(t);
   }, [load]);
 
-  if (err) return <Note tone="#FC5457">Could not read agent status: {err}</Note>;
+  if (err) return <Note tone="#F0666B">Could not read agent status: {err}</Note>;
   if (!data) return <Note tone={DIM}>Loading…</Note>;
 
   const byId = new Map(data.agents.map((a) => [a.id, a]));
@@ -107,7 +107,7 @@ export function GtmAgents() {
     (acc, a, i) => (a.status !== 'never_ran' ? i : acc), -1);
 
   return (
-    <div>
+    <div className="vanna-section">
       <header style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0, fontSize: 20, color: '#EDEDED', fontWeight: 600 }}>
@@ -127,7 +127,7 @@ export function GtmAgents() {
           <Stat v={`${data.ranThisRun}/${data.declared}`} l="ran this cycle" />
           <Stat v={String(data.modelBacked)} l="model-backed" />
           <Stat v={String(data.failed.length)} l="failed"
-                tone={data.failed.length ? '#FC5457' : undefined} />
+                tone={data.failed.length ? '#F0666B' : undefined} />
         </div>
 
         {data.modelsUsed.length > 0 && (
@@ -181,9 +181,9 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
   const tone =
     pending ? FAINT
       : silent ? '#F5A524'
-      : a.status === 'ok' ? '#38EF7D'
+      : a.status === 'ok' ? '#4ADE9B'
       : a.status === 'degraded' ? '#F5A524'
-      : a.status === 'failed' ? '#FC5457'
+      : a.status === 'failed' ? '#F0666B'
       : a.status === 'skipped' ? '#5A5A66'
       : FAINT;
 
@@ -199,7 +199,7 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
       borderLeft: `2px solid ${tone}`,
       borderRadius: 6,
       padding: '11px 13px 12px',
-      background: '#0C0C0F',
+      background: '#0C0716',
       opacity: pending ? 0.5 : 1,
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
@@ -275,5 +275,11 @@ function Stat({ v, l, tone }: { v: string; l: string; tone?: string }) {
 }
 
 function Note({ tone, children }: { tone: string; children: React.ReactNode }) {
-  return <div style={{ color: tone, fontFamily: MONO, fontSize: 13 }}>{children}</div>;
+  // Same gutter as the loaded view, so a loading or error state does not sit
+  // flush against the sidebar either.
+  return (
+    <div className="vanna-section" style={{ color: tone, fontFamily: MONO, fontSize: 13 }}>
+      {children}
+    </div>
+  );
 }

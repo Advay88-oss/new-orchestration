@@ -26,7 +26,10 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
       try {
         const res = await fetch("/api/progress", { cache: "no-store" });
         const d = await res.json();
-        if (d.step) {
+        // Unscoped, this returns the newest run it can see — for the first
+        // minute of a new cycle that is the PREVIOUS run, finished at 13/13,
+        // and the ticker showed a completed run while A01 was still scraping.
+        if (d.step && !d.finished) {
           setLiveStep(d);
         }
       } catch {}
@@ -88,58 +91,91 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
     setExecuting(true);
     setErrorMessage(null);
     setRunResult(null);
+    // The last run's final step would otherwise stay on screen until the new
+    // run's first agent reports.
+    setLiveStep({ step: 0, total: 13, agent_name: "starting…",
+                  detail: "waiting for the first agent to report…" });
 
     try {
-      // The pipeline no longer runs inside this request. /api/run enqueues a
-      // job for the supervised worker; a multi-minute run tied to an HTTP
-      // request could not survive a timeout, a deploy, or the process dying.
-      // So: enqueue, then watch the journal for the run it produces.
+      const seen = async (): Promise<Set<string>> => {
+        try {
+          const j = await (await fetch("/api/gtm/active?limit=8", { cache: "no-store" })).json();
+          return new Set<string>((j.runs ?? []).map((r: any) => r.runId));
+        } catch {
+          return new Set<string>();
+        }
+      };
+      // Snapshot BEFORE launching. Taken after, it raced the cycle: Python
+      // creates the run directory within a second, and in dev the first
+      // /api/gtm/active hit compiles for longer than that — so the new run
+      // was already in `before`, never looked new, and a live run was
+      // reported as "no run directory appeared".
+      const before = await seen();
+
+      // /api/run spawns `pipeline.gtm_os.autonomous_cycle` detached and
+      // returns { success, pid, directive, autonomous, note, log }. It has no
+      // `job` field — the console read `data.job`, which is why the failure
+      // said "Queued as undefined".
       const res = await fetch("/api/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ directive: textToRun })
+        body: JSON.stringify({ directive: textToRun }),
       });
 
       const data = await res.json();
       if (!data.success) {
-        setErrorMessage(data.error || "Could not queue the directive.");
-        return;
-      }
-      if (data.worker && data.worker.alive === false) {
         setErrorMessage(
-          "Queued, but no worker is running — nothing will pick it up. Start one: python -m core.worker"
+          data.error || `Could not start the cycle (HTTP ${res.status}).`,
         );
         return;
       }
 
-      const before = new Set<string>(
-        ((await (await fetch("/api/v2/runs?limit=10", { cache: "no-store" })).json()).runs ?? [])
-          .map((r: any) => r.runId)
-      );
-
-      // Poll for the run the worker creates. Bounded: if it never appears the
-      // console says so rather than spinning.
-      const deadline = Date.now() + 90_000;
+      // Wait for the run to APPEAR, not to finish. The cycle creates its
+      // directory when it takes the lock, so this resolves in a second or
+      // two. The old code polled a listing that hides any run without a
+      // summary.json — a file written only when the cycle ends, 2-5 minutes
+      // later — so its 90s deadline could never be met.
       let runId: string | null = null;
-      while (Date.now() < deadline && !runId) {
-        await new Promise((r) => setTimeout(r, 2500));
-        try {
-          const j = await (await fetch("/api/v2/runs?limit=10", { cache: "no-store" })).json();
-          const fresh = (j.runs ?? []).find((r: any) => !before.has(r.runId));
-          if (fresh) runId = fresh.runId;
-        } catch {
-          /* keep polling until the deadline */
-        }
+      const appearBy = Date.now() + 60_000;
+      while (Date.now() < appearBy && !runId) {
+        await new Promise((r) => setTimeout(r, 1500));
+        const now = await seen();
+        runId = [...now].find((id) => !before.has(id)) ?? null;
       }
 
       if (!runId) {
         setErrorMessage(
-          `Queued as ${data.job}, but no run appeared within 90s. Check the worker.`
+          `Started (pid ${data.pid ?? "?"}) but no run directory appeared. ` +
+            `Check ${data.log ?? "pipeline/state/gtm_runs/last_launch.log"}.`,
         );
         return;
       }
 
-      setRunResult({ run_id: runId, job: data.job, queued: true });
+      setRunResult({ run_id: runId, pid: data.pid, queued: true });
+
+      // Now follow it to completion. A cycle is 2-5 minutes (Veo dominates),
+      // so this deadline is generous; the stage ticker above updates from
+      // /api/progress while it runs.
+      const finishBy = Date.now() + 8 * 60_000;
+      let finished = false;
+      while (Date.now() < finishBy && !finished) {
+        await new Promise((r) => setTimeout(r, 3000));
+        try {
+          const j = await (await fetch(`/api/progress?runId=${runId}`, { cache: "no-store" })).json();
+          if (j.step) {
+            setLiveStep({
+              step: j.step,
+              total: j.total ?? 13,
+              agent_name: j.agent_name ?? "—",
+              detail: j.detail ?? "",
+            });
+          }
+          finished = Boolean(j.finished);
+        } catch {
+          /* keep waiting; a transient read must not abort the run */
+        }
+      }
+
       try {
         const stored = sessionStorage.getItem("vanna_session_runs");
         const list = stored ? JSON.parse(stored) : [];
@@ -149,6 +185,12 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
           window.dispatchEvent(new Event("vanna_session_updated"));
         }
       } catch {}
+
+      if (!finished) {
+        setErrorMessage(
+          `${runId} is still running after 8 minutes — opening it anyway so you can watch the agents.`,
+        );
+      }
       vm.openRun(runId);
     } catch (err: any) {
       setErrorMessage(err.message || "Network error while connecting to swarm.");
@@ -161,26 +203,24 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
     <div
       className="console-container"
       style={{
-        background: "radial-gradient(ellipse at top left, #120A24 0%, #07020D 70%)",
-        border: "1px solid rgba(163, 135, 255, 0.25)",
-        borderRadius: "20px",
+        background: "var(--vn-surface)",
+        border: "1px solid var(--vn-line)",
+        borderRadius: "14px",
         padding: "clamp(18px, 2.2vw, 26px) clamp(20px, 2.8vw, 32px)",
         margin: "clamp(12px, 2vw, 20px) clamp(14px, 2.5vw, 32px) 0",
         display: "flex",
         flexDirection: "column",
         gap: "16px",
-        boxShadow: "0 16px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)",
       }}
     >
       {/* Console Top Header: Title, Daemon Switch, Reasoning Engine */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+        {/* A glowing dot, a letter-spaced green title, and a violet "13
+            AGENTS ACTIVE" badge, all naming the same box. The heading says
+            what it is; the count belongs next to the agents, not here. */}
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#38EF7D", boxShadow: "0 0 10px #38EF7D" }} />
-          <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "#38EF7D", letterSpacing: "0.1em" }}>
-            MISSION COMMAND CONSOLE
-          </span>
-          <span style={{ fontFamily: MONO, fontSize: "10px", background: "rgba(112, 58, 230, 0.3)", color: "#A387FF", padding: "2px 8px", borderRadius: "4px" }}>
-            13 AGENTS ACTIVE
+          <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--vn-ink)" }}>
+            Run a directive
           </span>
         </div>
 
@@ -190,28 +230,27 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
             disabled={daemonToggling}
             style={{
               background: daemonState.running ? "rgba(56, 239, 125, 0.15)" : "rgba(255, 255, 255, 0.05)",
-              border: `1px solid ${daemonState.running ? "#38EF7D" : "rgba(255, 255, 255, 0.12)"}`,
-              color: daemonState.running ? "#38EF7D" : "#DFDFDF",
+              border: `1px solid ${daemonState.running ? "#4ADE9B" : "rgba(255, 255, 255, 0.12)"}`,
+              color: daemonState.running ? "#4ADE9B" : "#B8B3C6",
               borderRadius: "8px",
               padding: "5px 12px",
-              fontFamily: MONO,
-              fontSize: "11px",
-              fontWeight: 700,
+              fontSize: "12px",
+              fontWeight: 500,
               cursor: daemonToggling ? "not-allowed" : "pointer",
               display: "flex",
               alignItems: "center",
               gap: "6px"
             }}
           >
-            <span style={{ width: "6px", height: "6px", borderRadius: "999px", background: daemonState.running ? "#38EF7D" : "#8E85A8" }} />
+            <span style={{ width: "6px", height: "6px", borderRadius: "999px", background: daemonState.running ? "#4ADE9B" : "#7B7590" }} />
             {daemonToggling
-              ? "Updating..."
+              ? "Updating…"
               : daemonState.running
-                ? `24/7 DAEMON: ACTIVE (PID ${daemonState.pid}) · CLICK TO PAUSE`
-                : "24/7 DAEMON: IDLE · CLICK TO ACTIVATE"}
+                ? "Daemon on"
+                : "Daemon off"}
           </button>
-          <span style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8" }}>
-            ⚡ GEMINI 3.8 FLASH
+          <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-faint)" }}>
+            gemini-3.8-flash
           </span>
         </div>
       </div>
@@ -223,19 +262,16 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
           display: "flex",
           gap: "10px",
           alignItems: "center",
-          background: isFocused ? "rgba(18, 10, 36, 0.9)" : "rgba(12, 7, 22, 0.8)",
-          border: `1px solid ${isFocused ? "#A387FF" : "rgba(255, 255, 255, 0.12)"}`,
-          borderRadius: "14px",
+          background: "var(--vn-sunken)",
+          border: `1px solid ${isFocused ? "var(--vn-accent)" : "var(--vn-line-strong)"}`,
+          borderRadius: "10px",
           padding: "6px 8px 6px 14px",
-          boxShadow: isFocused ? "0 0 0 3px rgba(112, 58, 230, 0.25)" : "inset 0 2px 4px rgba(0,0,0,0.5)",
           transition: "all 0.2s ease",
           width: "100%",
           boxSizing: "border-box"
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: "1 1 auto", minWidth: 0 }}>
-          <span style={{ color: "#32EEE2", fontFamily: MONO, fontSize: "16px", fontWeight: 700, flexShrink: 0 }}>›</span>
-
           <input
             type="text"
             value={query}
@@ -268,7 +304,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
               style={{
                 background: "transparent",
                 border: "none",
-                color: "#8E85A8",
+                color: "#7B7590",
                 cursor: "pointer",
                 fontSize: "14px",
                 padding: "4px 8px",
@@ -285,30 +321,28 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
           disabled={executing || !query.trim()}
           style={{
             flexShrink: 0,
-            background: executing || !query.trim() ? "rgba(112, 58, 230, 0.25)" : "linear-gradient(135deg, #703AE6 0%, #32EEE2 100%)",
-            color: executing || !query.trim() ? "#7E7598" : "#000000",
+            background: executing || !query.trim() ? "rgba(255,255,255,0.05)" : "var(--vn-accent)",
+            color: executing || !query.trim() ? "var(--vn-ink-faint)" : "#FFFFFF",
             border: "none",
-            borderRadius: "10px",
-            padding: "10px 18px",
-            fontFamily: MONO,
-            fontSize: "12px",
-            fontWeight: 800,
+            borderRadius: "8px",
+            padding: "9px 18px",
+            fontSize: "13px",
+            fontWeight: 600,
             cursor: executing || !query.trim() ? "not-allowed" : "pointer",
             whiteSpace: "nowrap",
-            boxShadow: executing ? "none" : "0 4px 14px rgba(50, 238, 226, 0.3)",
             display: "flex",
             alignItems: "center",
             gap: "6px"
           }}
         >
-          {executing ? "⏳ Deliberating..." : "⚡ Execute Directive ↵"}
+          {executing ? "Running…" : "Run"}
         </button>
       </div>
 
       {/* Categorized Quick Directive Pills */}
       <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-        <span style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8", textTransform: "uppercase" }}>
-          QUICK DIRECTIVES:
+        <span style={{ fontSize: "12px", color: "var(--vn-ink-faint)" }}>
+          Try
         </span>
         {CATEGORIZED_PROMPTS.map((item, i) => (
           <button
@@ -321,7 +355,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
             style={{
               background: "rgba(255,255,255,0.03)",
               border: "1px solid rgba(255,255,255,0.08)",
-              color: "#DFDFDF",
+              color: "#B8B3C6",
               borderRadius: "8px",
               padding: "5px 12px",
               fontSize: "11px",
@@ -332,9 +366,8 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
               transition: "all 0.15s ease"
             }}
           >
-            <span style={{ fontFamily: MONO, fontSize: "9px", background: "rgba(112, 58, 230, 0.3)", color: "#A387FF", padding: "1px 5px", borderRadius: "3px" }}>
-              {item.tag}
-            </span>
+            {/* Each pill carried a second, violet-filled pill inside it
+                naming a category the sentence beside it already implies. */}
             <span>{item.text}</span>
           </button>
         ))}
@@ -345,29 +378,28 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
         <div
           style={{
             background: "#080310",
-            border: "1px solid rgba(50, 238, 226, 0.4)",
-            borderRadius: "14px",
-            padding: "20px 24px",
+            border: "1px solid var(--vn-line)",
+            borderRadius: "12px",
+            padding: "18px 22px",
             display: "flex",
             alignItems: "center",
-            gap: "20px",
-            boxShadow: "0 8px 32px rgba(50, 238, 226, 0.15)"
+            gap: "20px"
           }}
         >
-          <div style={{ width: "28px", height: "28px", border: "3px solid #32EEE2", borderTopColor: "transparent", borderRadius: "999px", animation: "spin 1s linear infinite", flexShrink: 0 }} />
+          <div style={{ width: "28px", height: "28px", border: "2px solid var(--vn-accent)", borderTopColor: "transparent", borderRadius: "999px", animation: "spin 1s linear infinite", flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
               <div style={{ fontSize: "14px", fontWeight: 700, color: "#FFFFFF", display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#32EEE2", background: "rgba(50, 238, 226, 0.15)", padding: "2px 8px", borderRadius: "4px" }}>
+                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#A98CFF", background: "var(--vn-accent-soft)", padding: "2px 8px", borderRadius: "4px" }}>
                   STEP {liveStep.step} / {liveStep.total}
                 </span>
                 {liveStep.agent_name}
               </div>
-              <span style={{ fontFamily: MONO, fontSize: "11px", color: "#38EF7D" }}>
-                ● Active Execution
+              <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-faint)" }}>
+                running
               </span>
             </div>
-            <div style={{ fontSize: "12px", color: "#DFDFDF" }}>
+            <div style={{ fontSize: "12px", color: "#B8B3C6" }}>
               {liveStep.detail}
             </div>
             {/* Progress track bar */}
@@ -376,7 +408,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
                 style={{
                   width: `${Math.round((liveStep.step / liveStep.total) * 100)}%`,
                   height: "100%",
-                  background: "linear-gradient(90deg, #703AE6 0%, #32EEE2 100%)",
+                  background: "linear-gradient(90deg, #703AE6 0%, #A98CFF 100%)",
                   transition: "width 0.4s ease"
                 }}
               />
@@ -392,95 +424,54 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
         </div>
       )}
 
-      {/* Live Deliberation & Generated Outcome Display (NO MOCK DATA) */}
+      {/* What the launch produced.
+          This panel used to render `92/100 PASS` from a literal, a duration
+          that fell back to "24.5", and copy read from `agent_outputs.debate`
+          and `agent_outputs.plan` — keys the API does not emit. With
+          runResult now { run_id, pid } it showed a fabricated scorecard over
+          an empty body. The run's real content is on Run Detail, which this
+          opens; here it only needs to say what started and where it went. */}
       {runResult && (
         <div
           style={{
             background: "#080310",
             border: "1px solid rgba(56, 239, 125, 0.3)",
             borderRadius: "16px",
-            padding: "20px 24px",
+            padding: "16px 20px",
             display: "flex",
-            flexDirection: "column",
-            gap: "16px",
-            boxShadow: "0 8px 32px rgba(56, 239, 125, 0.15)"
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "12px",
           }}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "10px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#38EF7D" }} />
-              <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#38EF7D" }}>
-                ✓ DIRECTIVE EXECUTED // {runResult.run_id} ({runResult.duration_s || "24.5"}s)
-              </span>
-            </div>
-
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button
-                onClick={vm.goLive}
-                style={{
-                  background: "rgba(112, 58, 230, 0.2)",
-                  border: "1px solid #703AE6",
-                  color: "#FFFFFF",
-                  borderRadius: "8px",
-                  padding: "6px 14px",
-                  fontFamily: MONO,
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  cursor: "pointer"
-                }}
-              >
-                👁️ View Live Debate →
-              </button>
-              <button
-                onClick={() => {
-                  if (runResult.run_id) {
-                    vm.openRun(runResult.run_id);
-                  }
-                }}
-                style={{
-                  background: "#38EF7D",
-                  color: "#000000",
-                  border: "none",
-                  borderRadius: "8px",
-                  padding: "6px 14px",
-                  fontFamily: MONO,
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  cursor: "pointer"
-                }}
-              >
-                🔍 Inspect Deliverables →
-              </button>
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#4ADE9B" }} />
+            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#4ADE9B" }}>
+              {runResult.run_id}
+            </span>
+            <span style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590" }}>
+              {executing ? "running — all 13 agents" : "finished"}
+              {runResult.pid ? ` · pid ${runResult.pid}` : ""}
+            </span>
           </div>
 
-          {/* Generated Deliverables Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: "14px" }}>
-            {/* Winning X Post */}
-            <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", padding: "16px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#32EEE2", fontWeight: 700 }}>𝕏 WINNING THREAD LEAD</span>
-                <span style={{ fontFamily: MONO, fontSize: "10px", color: "#38EF7D" }}>● Published</span>
-              </div>
-              <div style={{ fontSize: "13px", lineHeight: 1.6, color: "#FFFFFF" }}>
-                {runResult.winner_body || runResult.winner_hook}
-              </div>
-            </div>
-
-            {/* Strategy & Reviewer Verdict */}
-            <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", padding: "16px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#A387FF", fontWeight: 700 }}>REVIEWER AUDIT</span>
-                <span style={{ fontFamily: MONO, fontSize: "10px", color: "#38EF7D" }}>92/100 PASS</span>
-              </div>
-              <div style={{ fontSize: "13px", color: "#DFDFDF", lineHeight: 1.5 }}>
-                <div><strong>Audience:</strong> {runResult.agent_outputs?.debate?.audience || "— not recorded"}</div>
-                <div style={{ marginTop: "4px" }}><strong>Machine:</strong> {runResult.agent_outputs?.plan?.playbook?.id || "— not recorded"}</div>
-                {/* "Humanizer: Zero em dashes · Anti-AI clichés: Clean" was asserted
-                    unconditionally — nothing measured either property. */}
-              </div>
-            </div>
-          </div>
+          <button
+            onClick={() => runResult.run_id && vm.openRun(runResult.run_id)}
+            style={{
+              background: "rgba(112, 58, 230, 0.25)",
+              border: "1px solid #703AE6",
+              color: "#FFFFFF",
+              padding: "7px 14px",
+              borderRadius: "8px",
+              fontFamily: MONO,
+              fontSize: "11px",
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            Open run →
+          </button>
         </div>
       )}
     </div>

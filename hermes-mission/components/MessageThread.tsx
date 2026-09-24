@@ -182,7 +182,7 @@ export function MessageThread({
                       letterSpacing: "0.06em",
                       textTransform: "uppercase",
                       color: "#FFFFFF",
-                      background: "#E54C4F",
+                      background: "#F0666B",
                       padding: "3px 8px",
                       borderRadius: "999px",
                     }}

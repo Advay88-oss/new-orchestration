@@ -161,14 +161,14 @@ export default function V2Page() {
           placeholder="Directive for the next run…"
           style={{
             flex: 1, padding: '10px 12px', borderRadius: 8, border: '1px solid #374151',
-            background: '#0b0f17', color: '#e5e7eb', fontSize: 13,
+            background: '#0C0716', color: '#e5e7eb', fontSize: 13,
           }}
         />
         <button
           onClick={trigger}
           style={{
             padding: '10px 18px', borderRadius: 8, border: 'none', cursor: 'pointer',
-            background: '#a387ff', color: '#0b0f17', fontWeight: 600, fontSize: 13,
+            background: '#A98CFF', color: '#0C0716', fontWeight: 600, fontSize: 13,
           }}
         >
           Queue run
@@ -184,8 +184,8 @@ export default function V2Page() {
             onClick={() => setSel(r.runId)}
             style={{
               padding: '7px 11px', borderRadius: 7, fontSize: 12, cursor: 'pointer',
-              border: `1px solid ${r.runId === sel ? '#a387ff' : '#374151'}`,
-              background: r.runId === sel ? '#1e1b32' : '#0b0f17',
+              border: `1px solid ${r.runId === sel ? '#A98CFF' : '#374151'}`,
+              background: r.runId === sel ? '#1e1b32' : '#0C0716',
               color: '#e5e7eb', display: 'flex', alignItems: 'center', gap: 7,
             }}
           >
@@ -322,7 +322,7 @@ const td: React.CSSProperties = { padding: '10px', verticalAlign: 'top' };
 function Pill({ label, value, tone }: { label: string; value: string; tone?: string }) {
   return (
     <div style={{
-      padding: '8px 12px', borderRadius: 8, border: '1px solid #1f2937', background: '#0b0f17',
+      padding: '8px 12px', borderRadius: 8, border: '1px solid #1f2937', background: '#0C0716',
     }}>
       <div style={{ fontSize: 9.5, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '.06em' }}>
         {label}

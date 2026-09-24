@@ -19,6 +19,7 @@
  */
 import fs from 'fs';
 import path from 'path';
+import { isDeployed, getText, getBytes, runIds as gcsRunIds } from '@/lib/gcs';
 
 const REPO_ROOT = path.resolve(process.cwd(), '..');
 const RUNS_DIR = path.join(REPO_ROOT, 'pipeline', 'state', 'gtm_runs');
@@ -43,11 +44,24 @@ export interface GtmAgent {
   durationS: number;
 }
 
+/**
+ * Did this journal row actually call a model?
+ *
+ * `calls.jsonl` also carries deterministic work — A08 records the drawn
+ * lockup there, with `model: null` and `transport: "deterministic"`, so the
+ * journal shows every step it took. Those rows are real, but they are not
+ * model calls: counting them showed A08 making calls it never made, and the
+ * spend view grouped them under a model literally named "unknown".
+ */
+function isModelCall(c: any): boolean {
+  return Boolean(c?.model) && c?.transport !== 'deterministic';
+}
+
 /** The routing table, mirrored from `pipeline/gtm_os/agent_runtime.py`. */
 const MODELS: Record<string, string> = {
   reasoning: 'gemini-3.8-flash',
   image: 'gemini-3.1-flash-image',
-  meme: 'nano-banana-pro-preview',
+  meme: 'gemini-3-pro-image',
   video: 'veo-3.1-generate-001',
 };
 
@@ -67,26 +81,40 @@ const AGENTS: Array<[string, string, GtmAgentRole]> = [
   ['A13_learning_engine', 'Closed-Loop Learning Engine', 'reasoning'],
 ];
 
-function readJsonl(file: string): any[] {
+/**
+ * One run file, from whichever side of the seam this process is on.
+ *
+ * Locally the dashboard reads the pipeline's own directory; there is no reason
+ * to make a developer round-trip through a bucket to see a run they just
+ * produced. On Cloud Run that directory does not exist, so the same file comes
+ * from GCS.
+ */
+async function runFile(runId: string, name: string): Promise<string | null> {
+  if (isDeployed()) return getText(`gtm_runs/${runId}/${name}`);
   try {
-    return fs
-      .readFileSync(file, 'utf-8')
-      .split('\n')
-      .filter((l) => l.trim())
-      .map((l) => {
-        try {
-          return JSON.parse(l);
-        } catch {
-          return null;
-        }
-      })
-      .filter(Boolean);
+    return fs.readFileSync(path.join(RUNS_DIR, runId, name), 'utf-8');
   } catch {
-    return [];
+    return null;
   }
 }
 
-export function listGtmRunIds(limit = 25): string[] {
+function parseJsonl(text: string | null): any[] {
+  if (!text) return [];
+  return text
+    .split('\n')
+    .filter((l) => l.trim())
+    .map((l) => {
+      try {
+        return JSON.parse(l);
+      } catch {
+        return null;
+      }
+    })
+    .filter(Boolean);
+}
+
+export async function listGtmRunIds(limit = 25): Promise<string[]> {
+  if (isDeployed()) return gcsRunIds(limit);
   try {
     return fs
       .readdirSync(RUNS_DIR)
@@ -99,11 +127,22 @@ export function listGtmRunIds(limit = 25): string[] {
   }
 }
 
-export function gtmRunSummary(runId: string): any | null {
+/** The founder's decision on a run (approve / revise / kill), if one was given. */
+export async function gtmFeedback(runId: string): Promise<any | null> {
+  const raw = await runFile(runId, 'feedback.json');
+  if (!raw) return null;
   try {
-    return JSON.parse(
-      fs.readFileSync(path.join(RUNS_DIR, runId, 'summary.json'), 'utf-8'),
-    );
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export async function gtmRunSummary(runId: string): Promise<any | null> {
+  const raw = await runFile(runId, 'summary.json');
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
   } catch {
     return null;
   }
@@ -116,56 +155,39 @@ export function gtmRunSummary(runId: string): any | null {
  * calls.jsonl. An agent with `kind: DETERMINISTIC` is expected to show zero
  * model calls — that is correct, not a fault, and the UI should not flag it.
  */
-export function gtmAgents(runId?: string): {
+export async function gtmAgents(runId?: string): Promise<{
   runId: string | null;
   agents: GtmAgent[];
   summary: any | null;
-} {
-  const rid = runId || listGtmRunIds(1)[0];
-  if (!rid) {
-    return {
-      runId: null,
-      agents: AGENTS.map(([id, name, role], i) => ({
-        n: i + 1,
-        id,
-        name,
-        role,
-        model: role === 'none' ? null : MODELS[role],
-        kind: role === 'none' ? 'DETERMINISTIC' : 'MODEL_BACKED',
-        status: 'never_ran',
-        detail: '',
-        outputs: [],
-        at: null,
-        modelCalls: 0,
-        modelCallsOk: 0,
-        inputTokens: 0,
-        outputTokens: 0,
-        durationS: 0,
-      })),
-      summary: null,
-    };
-  }
+}> {
+  const rid = runId || (await listGtmRunIds(1))[0];
+  const blank = (): GtmAgent[] =>
+    AGENTS.map(([id, name, role], i) => ({
+      n: i + 1, id, name, role,
+      model: role === 'none' ? null : MODELS[role],
+      kind: role === 'none' ? 'DETERMINISTIC' : 'MODEL_BACKED',
+      status: 'never_ran', detail: '', outputs: [], at: null,
+      modelCalls: 0, modelCallsOk: 0, inputTokens: 0, outputTokens: 0, durationS: 0,
+    }));
 
-  const dir = path.join(RUNS_DIR, rid);
-  const stages = readJsonl(path.join(dir, 'stages.jsonl'));
-  const calls = readJsonl(path.join(dir, 'calls.jsonl'));
+  if (!rid) return { runId: null, agents: blank(), summary: null };
 
-  // Last stage row per agent wins: an agent that degraded and then recovered
-  // should not be reported by its first attempt.
+  const stages = parseJsonl(await runFile(rid, 'stages.jsonl'));
+  const calls = parseJsonl(await runFile(rid, 'calls.jsonl'));
+
+  // The cycle's stage wrapper writes a second row after an agent has already
+  // recorded its own with artifact paths on it. Taking the last row alone
+  // dropped those paths, so a rendered PNG existed with no link to it.
   const lastStage = new Map<string, any>();
   for (const s of stages) {
     const prior = lastStage.get(s.agent);
-    // The cycle's stage wrapper writes a second row after an agent has already
-    // recorded its own with artifact paths on it. Taking the last row alone
-    // dropped those paths, so a rendered PNG existed with no link to it.
-    const outputs = Array.from(
-      new Set([...(prior?.outputs ?? []), ...(s.outputs ?? [])]),
-    );
+    const outputs = Array.from(new Set([...(prior?.outputs ?? []), ...(s.outputs ?? [])]));
     lastStage.set(s.agent, { ...s, outputs });
   }
 
   const byAgentCalls = new Map<string, any[]>();
   for (const c of calls) {
+    if (!isModelCall(c)) continue;
     const arr = byAgentCalls.get(c.agent) || [];
     arr.push(c);
     byAgentCalls.set(c.agent, arr);
@@ -175,10 +197,7 @@ export function gtmAgents(runId?: string): {
     const s = lastStage.get(id);
     const cs = byAgentCalls.get(id) || [];
     return {
-      n: i + 1,
-      id,
-      name,
-      role,
+      n: i + 1, id, name, role,
       model: role === 'none' ? null : MODELS[role],
       kind: role === 'none' ? 'DETERMINISTIC' : 'MODEL_BACKED',
       status: s?.status ?? 'never_ran',
@@ -189,20 +208,72 @@ export function gtmAgents(runId?: string): {
       modelCallsOk: cs.filter((c) => c.ok).length,
       inputTokens: cs.reduce((a, c) => a + (c.input_tokens || 0), 0),
       outputTokens: cs.reduce((a, c) => a + (c.output_tokens || 0), 0),
-      durationS: Number(
-        cs.reduce((a, c) => a + (c.duration_s || 0), 0).toFixed(2),
-      ),
+      durationS: Number(cs.reduce((a, c) => a + (c.duration_s || 0), 0).toFixed(2)),
     };
   });
 
-  return { runId: rid, agents, summary: gtmRunSummary(rid) };
+  return { runId: rid, agents, summary: await gtmRunSummary(rid) };
+}
+
+/** Everything one run produced, for the detail and per-section views. */
+export async function gtmRunDetail(runId?: string) {
+  const rid = runId || (await listGtmRunIds(1))[0];
+  if (!rid) return null;
+
+  // A run in flight has a journal but no summary.json yet — it is written when
+  // the cycle finishes. Returning null 404'd the whole view for the two-to-four
+  // minutes a cycle takes, which is exactly when someone is watching it.
+  const s = (await gtmRunSummary(rid)) ?? { status: 'running' };
+  const { agents } = await gtmAgents(rid);
+
+  return {
+    runId: rid,
+    status: s.status,
+    reason: s.reason ?? null,
+    signal: s.signal ?? null,
+    actionStatus: s.action_status ?? null,
+    machine: s.machine ?? null,
+    pillar: s.pillar ?? null,
+    visualConcept: s.visual_concept ?? null,
+    visualArchetype: s.visual_archetype ?? null,
+    visualWhy: s.visual_why ?? null,
+    posts: s.posts ?? {},
+    spendByModel: s.spend_by_model ?? null,
+    reviewPassed: s.review_passed ?? null,
+    reviewNotes: s.review_notes ?? null,
+    creativeReview: s.creative_review ?? null,
+    startedAt: s.started_at ?? null,
+    durationS: s.duration_s ?? 0,
+    inFlight: !s.ended_at,
+    inputTokens: s.input_tokens ?? 0,
+    outputTokens: s.output_tokens ?? 0,
+    modelCalls: s.model_calls ?? 0,
+    modelCallsOk: s.model_calls_ok ?? 0,
+    modelsUsed: s.models_used ?? [],
+    selection: s.selection ?? null,
+    candidateSignals: s.candidate_signals ?? [],
+    signalSourceType: s.signal_source_type ?? null,
+    signalObservedAt: s.signal_observed_at ?? null,
+    strategyReasoning: s.strategy_reasoning ?? [],
+    problem: s.problem ?? null,
+    opportunity: s.opportunity ?? null,
+    audience: s.audience ?? null,
+    proofClaims: s.proof_claims ?? [],
+    agents,
+    artifacts: {
+      visual: s.visual_path ? '/api/gtm/artifact/' + rid + '/visual' : null,
+      meme: s.meme_path ? '/api/gtm/artifact/' + rid + '/meme' : null,
+      video: s.video_path ? '/api/gtm/artifact/' + rid + '/video' : null,
+    },
+  };
 }
 
 /** Recent runs, newest first, for the Runs view. */
-export function gtmRuns(limit = 15) {
-  return listGtmRunIds(limit)
-    .map((id) => {
-      const s = gtmRunSummary(id);
+export async function gtmRuns(limit = 15) {
+  const ids = await listGtmRunIds(limit);
+  const out = await Promise.all(
+    ids.map(async (id) => {
+      const s = await gtmRunSummary(id);
       if (!s) return null;
       return {
         runId: id,
@@ -216,118 +287,69 @@ export function gtmRuns(limit = 15) {
         inputTokens: s.input_tokens ?? 0,
         outputTokens: s.output_tokens ?? 0,
         durationS: s.duration_s ?? 0,
-    inFlight: !s.ended_at,
         startedAt: s.started_at ?? null,
         hasVisual: Boolean(s.visual_path),
         hasVideo: Boolean(s.video_path),
         hasMeme: Boolean(s.meme_path),
         reviewPassed: s.review_passed ?? null,
-    selection: s.selection ?? null,
-    candidateSignals: s.candidate_signals ?? [],
-    signalSourceType: s.signal_source_type ?? null,
-    signalObservedAt: s.signal_observed_at ?? null,
-    strategyReasoning: s.strategy_reasoning ?? [],
-    problem: s.problem ?? null,
-    opportunity: s.opportunity ?? null,
-    audience: s.audience ?? null,
-    proofClaims: s.proof_claims ?? [],
       };
-    })
-    .filter(Boolean);
+    }),
+  );
+  return out.filter(Boolean);
 }
 
 /**
- * Absolute path to a run artifact, guarded against traversal.
+ * A run artifact, from whichever side of the seam this process is on.
  *
- * The artifact route serves whatever this returns, so it must never resolve
- * outside the state directory no matter what the caller passes.
+ * Locally this is a file path; deployed it is a GCS object key. The route
+ * needs bytes either way, so both resolve to bytes here rather than leaking
+ * the difference into the route handler.
  */
-export function gtmArtifactPath(
+export async function gtmArtifact(
   runId: string,
-  kind: 'visual' | 'video' | 'meme',
-): string | null {
-  const s = gtmRunSummary(runId);
+  kind: 'visual' | 'meme' | 'video',
+): Promise<{ body: Buffer; contentType: string } | null> {
+  const type = kind === 'video' ? 'video/mp4' : 'image/png';
+
+  if (isDeployed()) {
+    const ext = kind === 'video' ? 'mp4' : 'png';
+    const got = await getBytes('assets/' + runId + '/' + kind + '.' + ext);
+    return got ? { body: Buffer.from(got.body), contentType: type } : null;
+  }
+
+  const s = await gtmRunSummary(runId);
   if (!s) return null;
-  const p =
-    kind === 'visual' ? s.visual_path : kind === 'meme' ? s.meme_path : s.video_path;
-  if (!p) return null;
-  const resolved = path.resolve(String(p));
+  const raw = kind === 'visual' ? s.visual_path : kind === 'meme' ? s.meme_path : s.video_path;
+  if (!raw) return null;
+
+  // Guard against traversal: whatever the summary holds must resolve inside
+  // the pipeline's own state directory.
+  const resolved = path.resolve(String(raw));
   const stateRoot = path.resolve(path.join(REPO_ROOT, 'pipeline', 'state'));
-  if (!resolved.startsWith(stateRoot)) return null;
-  return fs.existsSync(resolved) ? resolved : null;
-}
-
-
-/** Everything one run produced, for the detail and per-section views. */
-export function gtmRunDetail(runId?: string) {
-  const rid = runId || listGtmRunIds(1)[0];
-  if (!rid) return null;
-
-  // A run in flight has a directory and a journal but no summary.json yet —
-  // it is written when the cycle finishes. Returning null here 404'd the whole
-  // view for the two-to-four minutes a cycle takes, which is exactly when
-  // someone is watching it. Serve what the journal already has instead.
-  const s = gtmRunSummary(rid) ?? { status: 'running' };
-  const { agents } = gtmAgents(rid);
-
-  return {
-    runId: rid,
-    status: s.status,
-    reason: s.reason ?? null,
-    signal: s.signal ?? null,
-    actionStatus: s.action_status ?? null,
-    machine: s.machine ?? null,
-    pillar: s.pillar ?? null,
-    visualConcept: s.visual_concept ?? null,
-    posts: s.posts ?? {},
-    reviewPassed: s.review_passed ?? null,
-    reviewNotes: s.review_notes ?? null,
-    startedAt: s.started_at ?? null,
-    durationS: s.duration_s ?? 0,
-    inputTokens: s.input_tokens ?? 0,
-    outputTokens: s.output_tokens ?? 0,
-    modelCalls: s.model_calls ?? 0,
-    modelCallsOk: s.model_calls_ok ?? 0,
-    modelsUsed: s.models_used ?? [],
-    agents,
-    artifacts: {
-      visual: s.visual_path ? `/api/gtm/artifact/${rid}/visual` : null,
-      meme: s.meme_path ? `/api/gtm/artifact/${rid}/meme` : null,
-      video: s.video_path ? `/api/gtm/artifact/${rid}/video` : null,
-    },
-  };
+  if (!resolved.startsWith(stateRoot) || !fs.existsSync(resolved)) return null;
+  return { body: fs.readFileSync(resolved), contentType: type };
 }
 
 /**
  * A GTM run in the shape the existing views already consume.
  *
- * The Runs Observatory, Run Detail, Posts and Memes views were all built
- * against `legacyRun()` from lib/v2.ts, which reads the `core/` pipeline's
- * journal — a different system from the founder's 13 agents. Rather than
- * rewrite four large views, this emits the same keys from GTM data, so the
- * dashboard shows the 13 agents everywhere and `core/` stops being a data
- * source for any surface.
+ * The Runs Observatory, Run Detail, Posts and Memes views were built against
+ * `legacyRun()` from lib/v2.ts, which reads the `core/` pipeline — a different
+ * system from the founder's 13 agents. This emits the same keys from GTM data
+ * so `core/` stops being a data source for any surface.
  */
-export function gtmLegacyRun(runId: string): Record<string, unknown> | null {
-  const d = gtmRunDetail(runId);
+export async function gtmLegacyRun(runId: string): Promise<Record<string, unknown> | null> {
+  const d = await gtmRunDetail(runId);
   if (!d) return null;
 
   const agent_outputs: Record<string, unknown> = {};
   for (const a of d.agents) {
     if (a.status === 'never_ran') continue;
     agent_outputs[a.id] = {
-      kind: a.kind,
-      name: a.name,
-      status: a.status,
-      model: a.model,
-      role: a.role,
-      input_tokens: a.inputTokens,
-      output_tokens: a.outputTokens,
-      duration_s: a.durationS,
-      detail: a.detail,
-      outputs: a.outputs,
-      // Kept for view compatibility: these surfaces render `tool_calls`.
-      tool_calls: a.modelCalls > 0 ? [`${a.model} x${a.modelCalls}`] : [],
+      kind: a.kind, name: a.name, status: a.status, model: a.model, role: a.role,
+      input_tokens: a.inputTokens, output_tokens: a.outputTokens,
+      duration_s: a.durationS, detail: a.detail, outputs: a.outputs,
+      tool_calls: a.modelCalls > 0 ? [a.model + ' x' + a.modelCalls] : [],
       degraded_reason: a.status === 'degraded' ? a.detail : null,
       error: a.status === 'failed' ? a.detail : null,
     };
@@ -335,8 +357,34 @@ export function gtmLegacyRun(runId: string): Record<string, unknown> | null {
 
   const blocked =
     d.reviewPassed === false
-      ? `pre-delivery firewall blocked this run: ${JSON.stringify(d.reviewNotes ?? {})}`.slice(0, 400)
+      ? ('pre-delivery firewall blocked this run: ' +
+          JSON.stringify(d.reviewNotes ?? {})).slice(0, 400)
       : null;
+
+  const startedUnix = d.startedAt ? Math.floor(Date.parse(d.startedAt) / 1000) : null;
+
+  // Priced from the per-model tally the cycle writes at finish. A run
+  // recorded before that field existed has no tally, so it stays unpriced
+  // rather than being priced from a total that omits the media calls.
+  const rates = await modelRates();
+  const tally: Record<string, { calls: number; input_tokens: number; output_tokens: number }> =
+    (d.spendByModel && typeof d.spendByModel === 'object') ? d.spendByModel : {};
+  const tallied = Object.keys(tally);
+  const unpricedForRun = tallied.length
+    ? tallied.filter((m) => rateCost(rates[m], 1, 0, 0) === null)
+    : d.modelsUsed;
+  let runCostUsd: number | null = null;
+  if (tallied.length) {
+    let acc = 0;
+    let any = false;
+    for (const [m, v] of Object.entries(tally)) {
+      const c = rateCost(rates[m], v.calls, v.input_tokens, v.output_tokens);
+      if (c === null) continue;
+      acc += c;
+      any = true;
+    }
+    runCostUsd = any ? acc : null;
+  }
 
   return {
     run_id: d.runId,
@@ -344,13 +392,10 @@ export function gtmLegacyRun(runId: string): Record<string, unknown> | null {
     trend: d.signal,
     directive: d.signal,
     // These views do `new Date(started * 1000)` — they want unix seconds, not
-    // an ISO string. Passing the ISO string through produced NaN and the whole
+    // an ISO string. Passing the string through produced NaN and the whole
     // dashboard died on `Invalid time value`.
-    started: d.startedAt ? Math.floor(Date.parse(d.startedAt) / 1000) : null,
-    ended:
-      d.startedAt && d.durationS
-        ? Math.floor(Date.parse(d.startedAt) / 1000) + Math.round(d.durationS)
-        : null,
+    started: startedUnix,
+    ended: startedUnix && d.durationS ? startedUnix + Math.round(d.durationS) : null,
     duration_s: d.durationS,
     status: d.status,
     brain: d.modelsUsed[0] ?? null,
@@ -362,12 +407,15 @@ export function gtmLegacyRun(runId: string): Record<string, unknown> | null {
     agents_that_reasoned: d.agents.filter((a) => a.modelCallsOk > 0).length,
     agent_outputs,
     spend: {
-      // Token counts are measured. Cost is not: the GTM agents call through
-      // Model Garden and the API key, and no per-model rate table is wired, so
-      // reporting a dollar figure here would be inventing one.
-      cost_usd: null,
-      cost_complete: false,
-      unpriced_models: d.modelsUsed,
+      // Cost is real now. `pipeline/state/model_rates.json` holds the
+      // published Google rates and the summary holds a per-model tally, so
+      // the media calls — which are billed per call and report no tokens, and
+      // which are most of a full run's cost — are priced rather than skipped.
+      // Still null, never 0, for any run whose models are not all in the
+      // table: a 0 reads as free, and "not priced" is a different fact.
+      cost_usd: runCostUsd,
+      cost_complete: runCostUsd !== null && unpricedForRun.length === 0,
+      unpriced_models: unpricedForRun,
       input_tokens: d.inputTokens,
       output_tokens: d.outputTokens,
       calls: d.modelCalls,
@@ -378,14 +426,29 @@ export function gtmLegacyRun(runId: string): Record<string, unknown> | null {
     machine: d.machine,
     pillar: d.pillar,
     visual_concept: d.visualConcept,
+    visual_archetype: d.visualArchetype,
+    visual_why: d.visualWhy,
     posts: d.posts,
     models_used: d.modelsUsed,
     publishable: d.reviewPassed === true,
     blocked_reason: blocked,
+    // The judge's real per-asset verdicts and the firewall's findings. These
+    // were parsed and then dropped here, so the Gates view had no data to
+    // render and showed four hardcoded PASS cards instead — over a run the
+    // judge had actually rejected.
+    creative_review: d.creativeReview,
+    review_passed: d.reviewPassed,
+    review_notes: d.reviewNotes,
+    // A11 never dispatches unprompted, so "published" is a claim only the
+    // dispatch stage can support.
+    dispatched:
+      d.agents.find((a) => a.id.startsWith('A11'))?.status === 'ok',
+    dispatch_detail:
+      d.agents.find((a) => a.id.startsWith('A11'))?.detail ?? null,
     decisions: [],
     reasoning: {
       arc: d.pillar,
-      audience: null,
+      audience: d.audience,
       playbook: d.machine,
       hook: (d.posts as any)?.x?.hook ?? null,
       claims: 0,
@@ -394,15 +457,70 @@ export function gtmLegacyRun(runId: string): Record<string, unknown> | null {
   };
 }
 
-export function gtmLegacyRuns(limit = 50): Record<string, unknown>[] {
-  return listGtmRunIds(limit)
-    .map((id) => gtmLegacyRun(id))
-    .filter((r): r is Record<string, unknown> => r !== null);
+export async function gtmLegacyRuns(limit = 50): Promise<Record<string, unknown>[]> {
+  const ids = await listGtmRunIds(limit);
+  const out = await Promise.all(ids.map((id) => gtmLegacyRun(id)));
+  return out.filter((r): r is Record<string, unknown> => r !== null);
+}
+
+/**
+ * Published rates per model, if the operator has supplied them.
+ *
+ * `pipeline/state/model_rates.json` (pushed to the bucket as
+ * `config/model_rates.json`) maps a model id to its billing rate. Nothing is
+ * assumed: a model absent from the file stays unpriced rather than being
+ * guessed at, because a made-up rate would produce a made-up invoice.
+ *
+ *   {
+ *     "gemini-3.8-flash":       {"input_per_1m": 0.0, "output_per_1m": 0.0},
+ *     "gemini-3.1-flash-image": {"per_call": 0.0},
+ *     "veo-3.1-generate-001":   {"per_call": 0.0}
+ *   }
+ */
+export interface ModelRate {
+  input_per_1m?: number;
+  output_per_1m?: number;
+  per_call?: number;
+}
+
+async function modelRates(): Promise<Record<string, ModelRate>> {
+  try {
+    const raw = isDeployed()
+      ? await getText('config/model_rates.json')
+      : (() => {
+          const p = path.join(REPO_ROOT, 'pipeline', 'state', 'model_rates.json');
+          return fs.existsSync(p) ? fs.readFileSync(p, 'utf-8') : null;
+        })();
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, ModelRate>;
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+/** Cost of one model's usage, or null when no rate is published for it. */
+function rateCost(
+  rate: ModelRate | undefined,
+  calls: number,
+  inputTokens: number,
+  outputTokens: number,
+): number | null {
+  if (!rate) return null;
+  const hasToken = rate.input_per_1m != null || rate.output_per_1m != null;
+  const hasCall = rate.per_call != null;
+  if (!hasToken && !hasCall) return null;
+  return (
+    (inputTokens / 1_000_000) * (rate.input_per_1m ?? 0) +
+    (outputTokens / 1_000_000) * (rate.output_per_1m ?? 0) +
+    calls * (rate.per_call ?? 0)
+  );
 }
 
 /** Aggregate spend across GTM runs, in the shape the Cost view consumes. */
-export function gtmSpend(capUsd = 10) {
-  const ids = listGtmRunIds(200);
+export async function gtmSpend(capUsd = 10) {
+  const ids = await listGtmRunIds(200);
+  const rates = await modelRates();
   const byModel = new Map<
     string,
     { model: string; roles: Set<string>; calls: number; inputTokens: number; outputTokens: number }
@@ -412,8 +530,9 @@ export function gtmSpend(capUsd = 10) {
   let outputTokens = 0;
 
   for (const id of ids) {
-    for (const c of readJsonl(path.join(RUNS_DIR, id, 'calls.jsonl'))) {
-      const m = String(c.model ?? 'unknown');
+    for (const c of parseJsonl(await runFile(id, 'calls.jsonl'))) {
+      if (!isModelCall(c)) continue;
+      const m = String(c.model);
       const row =
         byModel.get(m) ??
         { model: m, roles: new Set<string>(), calls: 0, inputTokens: 0, outputTokens: 0 };
@@ -428,27 +547,226 @@ export function gtmSpend(capUsd = 10) {
     }
   }
 
-  return {
-    capUsd,
-    // Deliberately null, not 0. No rate table is wired for Model Garden or the
-    // API key, so any dollar figure here would be invented — and a 0 reads as
-    // "this cost nothing", which is worse than "unpriced".
-    costUsd: null,
-    costComplete: false,
-    unpricedModels: [...byModel.keys()],
-    calls,
-    inputTokens,
-    outputTokens,
-    runs: ids.length,
-    byModel: [...byModel.values()].map((r) => ({
+  const rows = [...byModel.values()].map((r) => {
+    const cost = rateCost(rates[r.model], r.calls, r.inputTokens, r.outputTokens);
+    return {
       model: r.model,
       roles: [...r.roles],
       calls: r.calls,
       inputTokens: r.inputTokens,
       outputTokens: r.outputTokens,
-      costUsd: null,
-      costKnown: false,
-    })),
+      costUsd: cost,
+      costKnown: cost !== null,
+    };
+  });
+
+  const unpricedModels = rows.filter((r) => !r.costKnown).map((r) => r.model);
+  const priced = rows.filter((r) => r.costKnown);
+
+  return {
+    capUsd,
+    // Null, never 0, while any model is unpriced. A 0 reads as "this cost
+    // nothing", which is a stronger and more wrong claim than "unknown".
+    costUsd: priced.length ? priced.reduce((a, r) => a + (r.costUsd ?? 0), 0) : null,
+    costComplete: unpricedModels.length === 0 && rows.length > 0,
+    unpricedModels,
+    calls,
+    inputTokens,
+    outputTokens,
+    runs: ids.length,
+    byModel: rows,
+  };
+}
+
+/**
+ * What A01 actually brought back on a run, and from where.
+ *
+ * The summary keeps only a headline, a type and a date per candidate, so
+ * everything answering "which source, whose news, pulled when" was discarded
+ * once A02 picked a winner. `harvest.json` is the full record; this reads it
+ * for the Scraped Intelligence view.
+ */
+export async function gtmHarvest(runId?: string) {
+  const rid = runId || (await listGtmRunIds(1))[0];
+  if (!rid) return null;
+
+  // The newest run may have aborted before A01 wrote anything, so fall back
+  // through recent runs rather than showing an empty page.
+  const ids = runId ? [runId] : await listGtmRunIds(8);
+  for (const id of ids) {
+    const raw = await runFile(id, 'harvest.json');
+    if (!raw) continue;
+    try {
+      const h = JSON.parse(raw);
+      const signals = Array.isArray(h.signals) ? h.signals : [];
+
+      // Group by publisher and by company so the view can show both without
+      // recomputing them per render.
+      const bySource = new Map<string, number>();
+      const byCompany = new Map<string, number>();
+      const companyCase = new Map<string, string>();
+      for (const s of signals) {
+        const src = String(s.source_root || s.source_type || 'unknown');
+        bySource.set(src, (bySource.get(src) ?? 0) + 1);
+        for (const e of s.entities ?? []) {
+          if (e === '(unattributed)') continue;
+          // Archive signals carry lowercase entities and the live extractor
+          // capitalises, so "aave" and "Aave" were counted as two companies.
+          // Key on the lowered form, display the best-cased spelling seen.
+          const key = String(e).toLowerCase();
+          const prior = companyCase.get(key);
+          if (!prior || (prior === prior.toLowerCase() && e !== key)) {
+            companyCase.set(key, String(e));
+          }
+          byCompany.set(key, (byCompany.get(key) ?? 0) + 1);
+        }
+      }
+      const rank = (m: Map<string, number>, display?: Map<string, string>) =>
+        [...m.entries()]
+          .sort((a, b) => b[1] - a[1])
+          .map(([name, count]) => ({ name: display?.get(name) ?? name, count }));
+
+      return {
+        runId: id,
+        scrapedAt: h.scraped_at ?? null,
+        sources: h.sources ?? {},
+        totalSignals: signals.length,
+        signals,
+        bySource: rank(bySource),
+        byCompany: rank(byCompany, companyCase),
+      };
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+/* -------------------------------------------------------------------------
+ * Vanna References — each scraped item with its source, and what it is for.
+ *
+ * `harvest.json` holds the references and `analysis.json` holds A02's reading
+ * of them: a grade, a move per relevant signal, and strategies that cite
+ * signal ids. Neither file was shown next to the other, so the dashboard
+ * listed links and never said what Vanna could do with any of them. This
+ * joins them per signal, and resolves every strategy's citations back to the
+ * items it rests on.
+ * ---------------------------------------------------------------------- */
+
+export type RefKind = 'post' | 'docs' | 'news' | 'data';
+
+/** What kind of reference a signal is, from the id prefix the collector set. */
+function refKind(s: any): { kind: RefKind; channel: string } | null {
+  const id = String(s.signal_id || '');
+  const tag = id.split('-')[1]?.toUpperCase() ?? '';
+  if (String(s.source_type) === 'ARCHIVE' || tag === 'OPP') return null;
+  if (tag === 'TWITTER') return { kind: 'post', channel: 'X' };
+  if (tag === 'REDDIT') return { kind: 'post', channel: 'Reddit' };
+  if (tag === 'TG') return { kind: 'post', channel: 'Telegram' };
+  if (tag === 'DOCS') return { kind: 'docs', channel: 'Docs & blogs' };
+  if (tag === 'NEWS') return { kind: 'news', channel: 'News' };
+  if (tag === 'LLAMA') return { kind: 'data', channel: 'DefiLlama' };
+  // An unknown collector is still a live reference; call it news rather than
+  // dropping it, and keep the raw source type visible.
+  return { kind: 'news', channel: String(s.source_root || s.source_type || 'Other') };
+}
+
+export async function gtmReferences(runId?: string) {
+  const ids = runId ? [runId] : await listGtmRunIds(10);
+
+  // Which recent runs have a harvest, and which were read by A02 — the view
+  // offers these as a selector, because the newest run is not always the one
+  // with a reading (A02 degrades on a bad model reply and the run goes on).
+  const recent: { runId: string; hasAnalysis: boolean }[] = [];
+  let chosen: { id: string; harvest: any; analysis: any } | null = null;
+  for (const id of ids) {
+    const h = await runFile(id, 'harvest.json');
+    if (!h) continue;
+    const a = await runFile(id, 'analysis.json');
+    recent.push({ runId: id, hasAnalysis: Boolean(a) });
+    if (!chosen) {
+      try {
+        chosen = { id, harvest: JSON.parse(h), analysis: a ? JSON.parse(a) : null };
+      } catch {
+        /* a half-written file; try the next run */
+      }
+    }
+  }
+  if (!chosen) return null;
+
+  // When the chosen run was not read, say why, from A02's own journal line.
+  let analysisNote: string | null = null;
+  if (!chosen.analysis) {
+    const stages = await runFile(chosen.id, 'stages.jsonl');
+    const line = (stages ?? '')
+      .split('\n')
+      .map((l) => { try { return JSON.parse(l); } catch { return null; } })
+      .filter((r) => r && r.agent === 'A02_market_analyst')
+      .pop();
+    analysisNote = line
+      ? `A02 ${line.status}: ${String(line.detail ?? '').slice(0, 200)}`
+      : 'A02 did not run on this cycle.';
+  }
+
+  const readings = new Map<string, any>();
+  for (const r of chosen.analysis?.signals ?? []) readings.set(String(r.signal_id), r);
+
+  const items: any[] = (chosen.harvest.signals ?? [])
+    .map((s: any) => {
+      const k = refKind(s);
+      if (!k) return null;
+      const r = readings.get(String(s.signal_id));
+      const url = String(s.source || '');
+      return {
+        id: String(s.signal_id),
+        kind: k.kind,
+        channel: k.channel,
+        headline: String(s.headline || ''),
+        url: /^https?:\/\//.test(url) ? url : null,
+        publisher: String(s.source_root || ''),
+        observedAt: s.observed_at ?? null,
+        entities: (s.entities ?? []).filter((e: string) => e !== '(unattributed)'),
+        whatItIs: r?.what_it_is ?? null,
+        relevance: (r?.relevance ?? null) as 'DIRECT' | 'ADJACENT' | 'NONE' | null,
+        why: r?.why ?? null,
+        vannaMove: r?.vanna_move || null,
+      };
+    })
+    .filter(Boolean);
+
+  const byId = new Map<string, any>(items.map((i) => [i.id, i] as [string, any]));
+  const land = chosen.analysis?.landscape ?? null;
+  const cite = (sids: any) =>
+    (Array.isArray(sids) ? sids : [])
+      .map((sid: any) => byId.get(String(sid)))
+      .filter(Boolean)
+      .map((i: any) => ({ id: i.id, headline: i.headline, url: i.url, channel: i.channel }));
+
+  const counts: Record<RefKind, number> = { post: 0, docs: 0, news: 0, data: 0 };
+  for (const i of items) counts[i.kind as RefKind] += 1;
+
+  return {
+    runId: chosen.id,
+    scrapedAt: chosen.harvest.scraped_at ?? null,
+    recent,
+    analysisNote,
+    counts,
+    items,
+    landscape: land
+      ? {
+          summary: land.summary ?? '',
+          forVanna: land.for_vanna ?? '',
+          quietOn: land.quiet_on ?? [],
+          themes: (land.themes ?? []).map((t: any) => ({
+            theme: t.theme, whatIsHappening: t.what_is_happening,
+            mattersToVanna: Boolean(t.matters_to_vanna), cites: cite(t.signal_ids),
+          })),
+          strategies: (land.strategies ?? []).map((st: any) => ({
+            title: st.title, move: st.move, rationale: st.rationale,
+            horizon: st.horizon ?? null, cites: cite(st.signal_ids),
+          })),
+        }
+      : null,
   };
 }
 
@@ -461,4 +779,147 @@ export function gtmManifest() {
     purpose: name,
     model: role === 'none' ? null : MODELS[role],
   }));
+}
+
+/* -------------------------------------------------------------------------
+ * Problems — what has been going wrong, grouped.
+ *
+ * Every agent records `degraded` or `failed` with a reason, and until now
+ * that reason was only legible one run at a time. Reading fifty stage
+ * journals by hand is how a JSON-truncation bug that was firing in four
+ * different agents got found four separate times.
+ *
+ * Grouping needs a signature, because the details differ per occurrence —
+ * one carries a filename, another a character offset. `signature()` strips
+ * the parts that vary and keeps the part that names the class of failure, so
+ * "no PNG on disk: GTM-20260922-083620_visual.png" and the same failure on a
+ * different run land in one row with a count of two.
+ * ---------------------------------------------------------------------- */
+
+function signature(detail: string): string {
+  return String(detail || 'no reason recorded')
+    // Run ids, artifact names, offsets and quantities are what differ between
+    // two occurrences of the same fault.
+    .replace(/GTM-\d{8}-\d{6}[A-Za-z0-9_.-]*/g, '<run>')
+    .replace(/line \d+ column \d+ \(char \d+\)/g, '<position>')
+    .replace(/line \d+/g, '<position>')
+    .replace(/\b\d+(\.\d+)?\b/g, 'N')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 120);
+}
+
+// The signature groups occurrences of one fault in one agent. The family
+// groups the same *kind* of fault across agents, which is the view that
+// matters: "unparseable JSON" was firing in A02, A03, A07 and A08 and it was
+// found four separate times because nothing ever put those four next to each
+// other.
+const FAMILIES: [RegExp, string][] = [
+  [/unparseable JSON|Unterminated string|Expecting value|JSONDecode/i,
+   'Model returned unparseable JSON — usually the reply was cut at the token limit'],
+  [/RemoteDisconnected|Connection aborted|timed out|ReadTimeout|502|503/i,
+   'Model connection dropped mid-call'],
+  [/no PNG on disk|returned no|not found on disk|no such file/i,
+   'A render reported success and produced no file'],
+  [/REJECT(ED)?|show no mechanism/i,
+   'Creative judge rejected the assets'],
+  [/no Veo prompt|no prompt|missing prompt/i,
+   'A stage ran without the input the previous stage should have produced'],
+  [/CalledProcessError|ffmpeg|subprocess/i,
+   'An external command failed'],
+  [/reframed|refused|declined/i,
+   'A directive or signal was declined and substituted'],
+  [/quota|rate limit|429|RESOURCE_EXHAUSTED/i,
+   'Provider quota or rate limit'],
+  // Added after the first read of this page put fifteen occurrences in
+  // "Other". Each of these four was a real class hiding in the tail.
+  [/access token|application-default login|Vertex token|credentials not found|ADC/i,
+   'Google credentials expired — re-run gcloud auth application-default login'],
+  [/does not accept|unexpected keyword argument|missing \d+ required positional|takes \d+ positional/i,
+   'A renderer was called with arguments it does not accept'],
+  [/REVISE/i,
+   'Creative judge asked for a revision'],
+];
+
+function family(detail: string): string {
+  const d = String(detail || '');
+  for (const [re, label] of FAMILIES) if (re.test(d)) return label;
+  return 'Other';
+}
+
+export type Problem = {
+  agent: string;
+  status: 'degraded' | 'failed';
+  family: string;
+  signature: string;
+  count: number;
+  runs: string[];
+  lastSeen: string | null;
+  sample: string;
+};
+
+export async function gtmProblems(limit = 60): Promise<{
+  scanned: number;
+  problems: Problem[];
+  runsAffected: number;
+  cleanRuns: number;
+}> {
+  const ids = await listGtmRunIds(limit);
+  const byKey = new Map<string, Problem>();
+  const affected = new Set<string>();
+  let scanned = 0;
+
+  for (const id of ids) {
+    const raw = await runFile(id, 'stages.jsonl');
+    if (!raw) continue;
+    scanned += 1;
+
+    // A stage can record more than once per run (the cycle's wrapper writes a
+    // second row). Counting both would double every figure on the page.
+    const seen = new Set<string>();
+    for (const s of parseJsonl(raw)) {
+      const status = String(s.status || '');
+      if (status !== 'degraded' && status !== 'failed') continue;
+      const agent = String(s.agent || 'unknown');
+      const sig = signature(String(s.detail || ''));
+      const key = agent + '|' + status + '|' + sig;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      affected.add(id);
+
+      const prior = byKey.get(key);
+      if (prior) {
+        prior.count += 1;
+        if (prior.runs.length < 12) prior.runs.push(id);
+        if (s.at && (!prior.lastSeen || String(s.at) > prior.lastSeen)) {
+          prior.lastSeen = String(s.at);
+        }
+      } else {
+        byKey.set(key, {
+          agent,
+          status: status as 'degraded' | 'failed',
+          family: family(String(s.detail || '')),
+          signature: sig,
+          count: 1,
+          runs: [id],
+          lastSeen: s.at ? String(s.at) : null,
+          sample: String(s.detail || '').slice(0, 400),
+        });
+      }
+    }
+  }
+
+  const problems = [...byKey.values()].sort((a, b) => {
+    // A failure outranks a degradation at equal frequency: one stopped the
+    // run and the other did not.
+    if (a.status !== b.status) return a.status === 'failed' ? -1 : 1;
+    return b.count - a.count;
+  });
+
+  return {
+    scanned,
+    problems,
+    runsAffected: affected.size,
+    cleanRuns: scanned - affected.size,
+  };
 }

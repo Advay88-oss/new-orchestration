@@ -32,7 +32,7 @@ export function BackendNote({ vm }: { vm: MissionVM }) {
 
       // 3. Measure Agent Status
       const t2 = performance.now();
-      await fetch("/api/agents/status", { cache: "no-store" });
+      await fetch("/api/gtm/agents", { cache: "no-store" });
       measured.database = `${Math.round(performance.now() - t2)}ms`;
     } catch (e) {
       console.warn("Error running diagnostic ping:", e);
@@ -80,16 +80,16 @@ export function BackendNote({ vm }: { vm: MissionVM }) {
       <div className="vanna-banner">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#38EF7D" }} />
-            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#38EF7D", letterSpacing: "0.08em" }}>
+            <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#4ADE9B" }} />
+            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#4ADE9B", letterSpacing: "0.08em" }}>
               SYSTEM ARCHITECTURE & REAL-TIME DIAGNOSTICS
             </span>
           </div>
           <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#FFFFFF", marginTop: "6px" }}>
             Vanna GTM OS Backend Topology & Live Services
           </h2>
-          <p style={{ fontSize: "14px", color: "#A2A1A6", marginTop: "4px" }}>
-            Measured round-trip latencies across core services, live proxy endpoints, and database stores. Zero mock benchmarks.
+          <p style={{ fontSize: "14px", color: "#7B7590", marginTop: "4px" }}>
+            Measured round-trip latency to each service.
           </p>
         </div>
 
@@ -127,11 +127,11 @@ export function BackendNote({ vm }: { vm: MissionVM }) {
         <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
           <thead>
             <tr style={{ background: "#080310", borderBottom: "1px solid rgba(255, 255, 255, 0.08)" }}>
-              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>Subsystem / Service</th>
-              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>Binding / Process</th>
-              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>Status</th>
-              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>Measured Latency</th>
-              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>Operational Role</th>
+              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase" }}>Subsystem / Service</th>
+              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase" }}>Binding / Process</th>
+              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase" }}>Status</th>
+              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase" }}>Measured Latency</th>
+              <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase" }}>Operational Role</th>
             </tr>
           </thead>
           <tbody>
@@ -146,7 +146,7 @@ export function BackendNote({ vm }: { vm: MissionVM }) {
                 <td style={{ padding: "16px 20px", fontWeight: 700, color: "#FFFFFF", fontSize: "14px" }}>
                   {sub.name}
                 </td>
-                <td style={{ padding: "16px 20px", fontFamily: MONO, fontSize: "12px", color: "#32EEE2" }}>
+                <td style={{ padding: "16px 20px", fontFamily: MONO, fontSize: "12px", color: "#A98CFF" }}>
                   {sub.portOrProcess}
                 </td>
                 <td style={{ padding: "16px 20px" }}>
@@ -155,7 +155,7 @@ export function BackendNote({ vm }: { vm: MissionVM }) {
                       fontFamily: MONO,
                       fontSize: "11px",
                       fontWeight: 700,
-                      color: "#38EF7D",
+                      color: "#4ADE9B",
                       background: "rgba(56, 239, 125, 0.12)",
                       border: "1px solid rgba(56, 239, 125, 0.3)",
                       padding: "4px 10px",
@@ -165,10 +165,10 @@ export function BackendNote({ vm }: { vm: MissionVM }) {
                     ● {sub.status}
                   </span>
                 </td>
-                <td style={{ padding: "16px 20px", fontFamily: MONO, fontSize: "12px", color: "#A387FF" }}>
+                <td style={{ padding: "16px 20px", fontFamily: MONO, fontSize: "12px", color: "#A98CFF" }}>
                   {sub.latency}
                 </td>
-                <td style={{ padding: "16px 20px", fontSize: "13px", color: "#A2A1A6", lineHeight: 1.5 }}>
+                <td style={{ padding: "16px 20px", fontSize: "13px", color: "#7B7590", lineHeight: 1.5 }}>
                   {sub.notes}
                 </td>
               </tr>

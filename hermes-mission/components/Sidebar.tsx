@@ -11,6 +11,22 @@ interface SidebarProps {
 }
 
 export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps) {
+  // null while unknown, so the rail says "checking…" rather than asserting
+  // either state before it has an answer.
+  const [daemon, setDaemon] = React.useState<boolean | null>(null);
+  React.useEffect(() => {
+    const check = () =>
+      fetch("/api/daemon", { cache: "no-store" })
+        .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+        .then((d) => setDaemon(Boolean(d.running)))
+        // A 501 is the deployed dashboard saying the pipeline is not here,
+        // which is a real "not running" from this page's point of view.
+        .catch(() => setDaemon(false));
+    check();
+    const t = setInterval(check, 15000);
+    return () => clearInterval(t);
+  }, []);
+
   const sidebarContent = (
     <div
       style={{
@@ -39,35 +55,35 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
                 width: "32px",
                 height: "32px",
                 borderRadius: "10px",
-                backgroundImage: "linear-gradient(135deg, #FC5457 10%, #703AE6 80%)",
+                background: "#703AE6",
                 flex: "0 0 32px",
-                boxShadow: "0 4px 12px rgba(112, 58, 230, 0.4)"
-              }}
+                }}
             />
             <div>
               <div
                 style={{
                   fontSize: "16px",
                   lineHeight: "22px",
-                  fontWeight: 700,
-                  color: "#FFFFFF",
+                  fontWeight: 600,
+                  color: "var(--vn-ink)",
                   letterSpacing: "-0.01em",
                 }}
               >
                 Mission Control
               </div>
+              {/* Was mono, uppercase, letter-spaced and terminal green —
+                  four devices on a six-word subtitle, under a heading that
+                  needed none of them. "System 2" also named nothing a reader
+                  of this page can see. */}
               <div
                 style={{
-                  fontFamily: "var(--font-jetbrains-mono), monospace",
-                  fontSize: "10px",
-                  lineHeight: "14px",
-                  fontWeight: 600,
-                  letterSpacing: "0.06em",
-                  color: "#38EF7D",
-                  textTransform: "uppercase",
+                  fontSize: "11px",
+                  lineHeight: "16px",
+                  fontWeight: 500,
+                  color: "var(--vn-ink-faint)",
                 }}
               >
-                System 2: 13-Agent GTM OS
+                13-agent GTM OS
               </div>
             </div>
           </div>
@@ -126,23 +142,23 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
       {/* Footer Info Cards */}
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto", paddingTop: "20px" }}>
         <div style={{ background: "#130B22", borderRadius: "12px", padding: "14px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
-          <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "10px", fontWeight: 700, color: "#8E85A8", textTransform: "uppercase" }}>
+          <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "10px", fontWeight: 700, color: "#7B7590", textTransform: "uppercase" }}>
             AUTONOMOUS DAEMON
           </div>
+          {/* Checked, not asserted. This was a green dot and the literal
+              "Active · 30m cycle" on every page — while no scheduled task
+              existed and nothing had ticked the scheduler in 17 hours. The
+              Runs view already polls /api/daemon; the rail now does too. */}
           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px" }}>
-            <span style={{ width: "7px", height: "7px", borderRadius: "999px", background: "#38EF7D" }} />
-            <span style={{ fontSize: "12px", fontWeight: 600, color: "#FFFFFF" }}>Active · 30m cycle</span>
-          </div>
-        </div>
-
-        <div style={{ background: "#130B22", borderRadius: "12px", padding: "14px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "10px", color: "#8E85A8" }}>SPEND CAP</span>
-            <span style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "11px", color: "#38EF7D", fontWeight: 700 }}>
-              {vm.spentText} / {vm.capText}
+            <span style={{ width: "7px", height: "7px", borderRadius: "999px",
+                           background: daemon ? "#4ADE9B" : "#7B7590" }} />
+            <span style={{ fontSize: "12px", fontWeight: 600,
+                           color: daemon ? "#FFFFFF" : "#7B7590" }}>
+              {daemon === null ? "checking…" : daemon ? "Active · 30m cycle" : "Not scheduled"}
             </span>
           </div>
         </div>
+
       </div>
     </div>
   );
@@ -152,14 +168,17 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
       {/* Desktop Pinned Sidebar */}
       <aside
         className="desktop-sidebar-pin"
+        // Geometry lives in globals.css so the fixed rail and the matching
+        // gutter on <main> are declared together and cannot drift apart.
+        //
+        // Sticky was wrong twice over: sticky only on the vertical axis let
+        // the rail slide off the left edge whenever the page scrolled
+        // sideways, and making it sticky horizontally instead parked it on
+        // top of the content. Fixed + a reserved gutter makes overlap
+        // structurally impossible, whatever the scroll position.
         style={{
-          width: "240px",
-          flex: "0 0 240px",
           background: "#0C0716",
           borderRight: "1px solid rgba(255, 255, 255, 0.08)",
-          position: "sticky",
-          top: 0,
-          height: "100vh",
         }}
       >
         {sidebarContent}

@@ -4,19 +4,18 @@ import React, { useState } from "react";
 import { PageHeader } from "./PageHeader";
 import { Sidebar } from "./Sidebar";
 import { CommandConsole } from "./CommandConsole";
-import { Agents } from "./views/Agents";
 import { GtmAgents } from "./views/GtmAgents";
-import { BackendNote } from "./views/BackendNote";
-import { Cost } from "./views/Cost";
 import { AgentReasoning } from "./views/AgentReasoning";
+import { LiveTrace } from "./views/LiveTrace";
 import { Posts } from "./views/Posts";
+import { Problems } from "./views/Problems";
 import { RunDetail } from "./views/RunDetail";
 import { Runs } from "./views/Runs";
 import { Research } from "./views/Research";
+import { VannaReferences } from "./views/VannaReferences";
 import { SchedulerView } from "./views/SchedulerView";
 import { IdeasView } from "./views/IdeasView";
 import { MemesView } from "./views/MemesView";
-import { PipelineView } from "./views/PipelineView";
 import { useMissionControl } from "@/lib/viewmodel";
 import type { MissionControlProps } from "@/lib/types";
 
@@ -47,7 +46,9 @@ export function MissionControl({
         onCloseMobile={() => setMobileMenuOpen(false)}
       />
 
+      {/* `app-shell-main` reserves the gutter the fixed sidebar occupies. */}
       <main
+        className="app-shell-main"
         style={{
           flex: "1 1 auto",
           minWidth: 0,
@@ -63,7 +64,7 @@ export function MissionControl({
             alignItems: "center",
             justifyContent: "space-between",
             padding: "12px 16px",
-            background: "#090412",
+            background: "#0C0716",
             borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
             position: "sticky",
             top: 0,
@@ -76,7 +77,7 @@ export function MissionControl({
                 width: "24px",
                 height: "24px",
                 borderRadius: "8px",
-                backgroundImage: "linear-gradient(135deg, #FC5457 10%, #703AE6 80%)",
+                background: "#703AE6",
               }}
             />
             <span style={{ fontSize: "15px", fontWeight: 700, color: "#FFFFFF" }}>
@@ -89,7 +90,7 @@ export function MissionControl({
             style={{
               background: "#130B22",
               border: "1px solid rgba(255, 255, 255, 0.15)",
-              color: "#32EEE2",
+              color: "#A98CFF",
               padding: "6px 14px",
               borderRadius: "8px",
               fontSize: "13px",
@@ -104,20 +105,18 @@ export function MissionControl({
         <PageHeader vm={vm} />
         <CommandConsole vm={vm} />
 
+        {(vm as any).isTrace && <LiveTrace />}
         {vm.isLive && <AgentReasoning />}
         {(vm as any).isScheduler && <SchedulerView vm={vm} />}
         {(vm as any).isIdeas && <IdeasView vm={vm} />}
         {(vm as any).isMemes && <MemesView vm={vm} />}
-        {/* One view per nav item. PipelineView and Lifecycles both rendered
-            here, stacking two different accounts of the same run. */}
-        {(vm as any).isPipeline && <PipelineView />}
         {vm.isPosts && <Posts vm={vm} />}
         {vm.isRuns && <Runs vm={vm} />}
+        {vm.isProblems && <Problems vm={vm} />}
         {vm.isRun && <RunDetail vm={vm} />}
         {vm.isAgents && <GtmAgents />}
         {(vm as any).isResearch && <Research vm={vm} />}
-        {vm.isCost && <Cost vm={vm} />}
-        {vm.isNotes && <BackendNote vm={vm} />}
+        {(vm as any).isReferences && <VannaReferences />}
       </main>
     </div>
   );

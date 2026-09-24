@@ -18,14 +18,16 @@ import type {
 } from "./types";
 
 const CHANNEL = "31098616-3d0b-4202-86b4-96bfd36680cd";
-const RELAY = "http://127.0.0.1:3000";
+// Empty means same origin. A hardcoded localhost made the deployed
+// dashboard probe the viewer's own machine.
+const RELAY = "";
 const CAP_USD = 10.0;
 const LEDGER_STARTED = "2026-08-08T16:28:05Z";
 
 const HUE: Record<ArcId, string> = {
-  "capital-efficiency": "#38EF7D",
-  "risk-relief": "#32EEE2",
-  "agentic-credit": "#A387FF",
+  "capital-efficiency": "#4ADE9B",
+  "risk-relief": "#A98CFF",
+  "agentic-credit": "#A98CFF",
 };
 
 /** All 13 Specialized Vanna GTM OS Agents */
@@ -117,8 +119,8 @@ const AGENTS: Agent[] = [
     distinct: "Senior CMO, Risk Officer, and Art Director firewall; halts at WAITING_FOR_HUMAN",
     pubkey: "pubkey-10-reviewer-firewall",
     status: "connected",
-    working_on: "Adversarial Humanizer & Claim Audit (Verdict: PASS 96/100)",
-    log: "Em dash check: clean · Anti-AI clichés: none · Thresholds: calibrated"
+    working_on: "",
+    log: ""
   },
   {
     id: "agent-11-dispatch-worker",
@@ -153,9 +155,18 @@ const AGENT_BY_KEY: Record<string, string> = Object.fromEntries(
   AGENTS.map((a) => [a.pubkey, a.id]),
 );
 
+// Published rates, from ai.google.dev/gemini-api/docs/pricing (paid tier,
+// read 2026-09-24). The previous values here were gemini-2.5-flash's rates
+// wearing gemini-3.8-flash's name — 0.30/2.50 against a real 0.75/3.75 — so
+// every figure this produced was under-reported by 2.5x. The image entry was
+// worse: it priced an image model per *token*, and image calls return no
+// token counts, so it always evaluated to zero.
+//
+// pipeline/state/model_rates.json is the same table for the server side and
+// carries the per-call media rates, including Veo, which dominates a full
+// run's cost and has no representation here at all.
 const PRICE: Record<string, { in: number; cached: number; out: number }> = {
-  "gemini-3.8-flash": { in: 0.30e-6, cached: 0.075e-6, out: 2.50e-6 },
-  "gemini-3.1-flash-image": { in: 0.03, cached: 0.0, out: 0.0 },
+  "gemini-3.8-flash": { in: 0.75e-6, cached: 0.1875e-6, out: 3.75e-6 },
 };
 
 const STAGE_ORDER: StageId[] = [

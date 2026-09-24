@@ -34,7 +34,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
   const handleRunNow = async (jobName: string) => {
     setRunningJob(jobName);
     setCompletedJobTarget(null);
-    setActionFeedback(`⚡ Triggering immediate execution for '${jobName}'...`);
+    setActionFeedback(`Triggering immediate execution for '${jobName}'...`);
     try {
       const res = await fetch("/api/scheduler", {
         method: "POST",
@@ -45,9 +45,9 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
       if (data.success) {
         const targetAction =
           jobName === "ideas_panel"
-            ? { label: "💡 Ideas Panel", action: () => (vm as any).goIdeas?.() }
+            ? { label: "Ideas Panel", action: () => (vm as any).goIdeas?.() }
             : jobName === "memes_panel"
-            ? { label: "🎭 Crypto Memes", action: () => (vm as any).goMemes?.() }
+            ? { label: "Crypto Memes", action: () => (vm as any).goMemes?.() }
             : jobName === "research_collect" || jobName === "trend_scan"
             ? { label: "🔍 Scraped Intelligence", action: () => (vm as any).goResearch?.() }
             : null;
@@ -96,15 +96,15 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
       <div className="vanna-banner">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#38EF7D", boxShadow: "0 0 10px #38EF7D" }} />
-            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "#38EF7D", letterSpacing: "0.1em" }}>
+            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#4ADE9B", boxShadow: "0 0 10px #4ADE9B" }} />
+            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "#4ADE9B", letterSpacing: "0.1em" }}>
               24/7 AUTONOMOUS SCHEDULER & RESTART RESILIENCE
             </span>
           </div>
           <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#FFFFFF", marginTop: "6px" }}>
             Configurable Interval Jobs & Anti-Overlap Daemon
           </h2>
-          <p style={{ fontSize: "14px", color: "#A2A1A6", marginTop: "4px" }}>
+          <p style={{ fontSize: "14px", color: "#7B7590", marginTop: "4px" }}>
             Continuous background execution engine that survives machine reboots, prevents concurrent job stacking, and enforces interval sanity to protect API spend.
           </p>
         </div>
@@ -112,14 +112,14 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
         {/* Global Daemon Health Pill */}
         <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
           <div style={{ background: "rgba(56, 239, 125, 0.1)", border: "1px solid rgba(56, 239, 125, 0.3)", borderRadius: "10px", padding: "10px 16px" }}>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>DAEMON SERVICE</div>
-            <div style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: "#38EF7D", marginTop: "2px" }}>
+            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>DAEMON SERVICE</div>
+            <div style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: "#4ADE9B", marginTop: "2px" }}>
               ● ACTIVE (SURVIVES BOOT)
             </div>
           </div>
           <div style={{ background: "rgba(112, 58, 230, 0.1)", border: "1px solid rgba(163, 135, 255, 0.3)", borderRadius: "10px", padding: "10px 16px" }}>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>JOBS CONFIGURED</div>
-            <div style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: "#A387FF", marginTop: "2px" }}>
+            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>JOBS CONFIGURED</div>
+            <div style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: "#A98CFF", marginTop: "2px" }}>
               {jobs.length} SCHEDULED
             </div>
           </div>
@@ -131,7 +131,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
           style={{
             fontFamily: MONO,
             fontSize: "12px",
-            color: actionFeedback.startsWith("❌") ? "#FC5457" : actionFeedback.startsWith("⚠️") ? "#F5A623" : "#38EF7D",
+            color: actionFeedback.startsWith("❌") ? "#F0666B" : actionFeedback.startsWith("⚠️") ? "#F5A623" : "#4ADE9B",
             background: actionFeedback.startsWith("❌") ? "rgba(252, 84, 87, 0.1)" : "rgba(56, 239, 125, 0.1)",
             padding: "12px 18px",
             borderRadius: "10px",
@@ -148,7 +148,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
             <button
               onClick={() => completedJobTarget.action()}
               style={{
-                background: "linear-gradient(135deg, #703AE6 0%, #32EEE2 100%)",
+                background: "linear-gradient(135deg, #703AE6 0%, #A98CFF 100%)",
                 color: "#07020D",
                 border: "none",
                 borderRadius: "6px",
@@ -171,12 +171,12 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
           const isModelHeavy = j.job === "ideas_panel" || j.job === "research_collect";
           const statusColor =
             j.status === "RUNNING"
-              ? "#32EEE2"
+              ? "#A98CFF"
               : j.status === "COMPLETED"
-                ? "#38EF7D"
+                ? "#4ADE9B"
                 : j.status === "DISABLED_AUTO_BACKOFF"
-                  ? "#FC5457"
-                  : "#8E85A8";
+                  ? "#F0666B"
+                  : "#7B7590";
 
           return (
             <div
@@ -213,11 +213,11 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                     </span>
                     {isModelHeavy && (
                       <span style={{ fontFamily: MONO, fontSize: "10px", color: "#F5A623", background: "rgba(245, 166, 35, 0.1)", border: "1px solid rgba(245, 166, 35, 0.3)", padding: "2px 8px", borderRadius: "4px" }}>
-                        ⚡ AI MODEL REASONING
+                        AI MODEL REASONING
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: "13px", color: "#DFDFDF", marginTop: "4px" }}>
+                  <div style={{ fontSize: "13px", color: "#B8B3C6", marginTop: "4px" }}>
                     {j.description}
                   </div>
                 </div>
@@ -229,7 +229,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                       style={{
                         background: "rgba(112, 58, 230, 0.15)",
                         border: "1px solid rgba(163, 135, 255, 0.3)",
-                        color: "#A387FF",
+                        color: "#A98CFF",
                         borderRadius: "8px",
                         padding: "8px 14px",
                         fontFamily: MONO,
@@ -238,7 +238,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                         cursor: "pointer"
                       }}
                     >
-                      💡 View Ideas Panel →
+                      View Ideas Panel →
                     </button>
                   )}
                   {j.job === "memes_panel" && (
@@ -247,7 +247,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                       style={{
                         background: "rgba(112, 58, 230, 0.15)",
                         border: "1px solid rgba(163, 135, 255, 0.3)",
-                        color: "#A387FF",
+                        color: "#A98CFF",
                         borderRadius: "8px",
                         padding: "8px 14px",
                         fontFamily: MONO,
@@ -256,7 +256,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                         cursor: "pointer"
                       }}
                     >
-                      🎭 View Crypto Memes →
+                      View Crypto Memes →
                     </button>
                   )}
                   {(j.job === "research_collect" || j.job === "trend_scan") && (
@@ -265,7 +265,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                       style={{
                         background: "rgba(50, 238, 226, 0.15)",
                         border: "1px solid rgba(50, 238, 226, 0.3)",
-                        color: "#32EEE2",
+                        color: "#A98CFF",
                         borderRadius: "8px",
                         padding: "8px 14px",
                         fontFamily: MONO,
@@ -281,8 +281,8 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                     onClick={() => handleRunNow(j.job)}
                     disabled={runningJob === j.job}
                     style={{
-                      background: runningJob === j.job ? "rgba(112, 58, 230, 0.3)" : "linear-gradient(135deg, #703AE6 0%, #32EEE2 100%)",
-                      color: runningJob === j.job ? "#8E85A8" : "#07020D",
+                      background: runningJob === j.job ? "rgba(112, 58, 230, 0.3)" : "linear-gradient(135deg, #703AE6 0%, #A98CFF 100%)",
+                      color: runningJob === j.job ? "#7B7590" : "#07020D",
                       border: "none",
                       borderRadius: "8px",
                       padding: "8px 16px",
@@ -293,7 +293,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                       whiteSpace: "nowrap"
                     }}
                   >
-                    {runningJob === j.job ? "⏳ Executing..." : "⚡ Run Now"}
+                    {runningJob === j.job ? "Executing..." : "Run Now"}
                   </button>
                 </div>
               </div>
@@ -301,26 +301,26 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
               {/* Row 2: Metrics Strip */}
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", background: "rgba(255,255,255,0.02)", padding: "12px 16px", borderRadius: "10px" }}>
                 <div>
-                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>CURRENT INTERVAL</div>
-                  <div style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "#32EEE2", marginTop: "2px" }}>
+                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>CURRENT INTERVAL</div>
+                  <div style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "#A98CFF", marginTop: "2px" }}>
                     Every {j.interval}
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>LAST RUN</div>
+                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>LAST RUN</div>
                   <div style={{ fontFamily: MONO, fontSize: "13px", color: "#FFFFFF", marginTop: "2px" }}>
                     {j.last_run !== "Never" ? new Date(j.last_run).toLocaleTimeString() : "Never"} ({j.last_duration_s}s)
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>NEXT SCHEDULED</div>
-                  <div style={{ fontFamily: MONO, fontSize: "13px", color: "#38EF7D", marginTop: "2px" }}>
+                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>NEXT SCHEDULED</div>
+                  <div style={{ fontFamily: MONO, fontSize: "13px", color: "#4ADE9B", marginTop: "2px" }}>
                     {j.next_run !== "Overdue / Pending" ? new Date(j.next_run).toLocaleTimeString() : "Pending Tick"}
                   </div>
                 </div>
                 <div>
-                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>FAILURES / HEALTH</div>
-                  <div style={{ fontFamily: MONO, fontSize: "13px", color: j.consecutive_failures > 0 ? "#FC5457" : "#38EF7D", marginTop: "2px" }}>
+                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>FAILURES / HEALTH</div>
+                  <div style={{ fontFamily: MONO, fontSize: "13px", color: j.consecutive_failures > 0 ? "#F0666B" : "#4ADE9B", marginTop: "2px" }}>
                     {j.consecutive_failures} Failures (Total: {j.total_runs} runs)
                   </div>
                 </div>
@@ -328,7 +328,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
 
               {/* Row 3: Configurable Interval Selector Pills */}
               <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px" }}>
-                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", marginRight: "4px" }}>
+                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", marginRight: "4px" }}>
                   SET INTERVAL:
                 </span>
                 {ALLOWED_INTERVALS.map((inv) => {
@@ -342,7 +342,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                       style={{
                         background: isSelected ? "rgba(112, 58, 230, 0.35)" : "rgba(255, 255, 255, 0.04)",
                         border: `1px solid ${isSelected ? "#703AE6" : isDangerous ? "rgba(252,84,87,0.3)" : "rgba(255, 255, 255, 0.1)"}`,
-                        color: isSelected ? "#FFFFFF" : isDangerous ? "#8E85A8" : "#DFDFDF",
+                        color: isSelected ? "#FFFFFF" : isDangerous ? "#7B7590" : "#B8B3C6",
                         padding: "5px 12px",
                         borderRadius: "6px",
                         fontFamily: MONO,

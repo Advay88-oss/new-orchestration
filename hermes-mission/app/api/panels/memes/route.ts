@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runPython, lastJson, pythonPath } from '@/lib/python';
+import { isDeployed, getText } from '@/lib/gcs';
 import fs from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
@@ -14,6 +15,18 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    // Deployed there is no pipeline filesystem; the panel comes from the same
+    // bucket the runs do. `state_sync.push_panels()` is the writing half.
+    if (isDeployed()) {
+      const raw = await getText('panels/memes.json');
+      if (!raw) {
+        return NextResponse.json(
+          { success: false, error: 'panels/memes.json not in state bucket' },
+          { status: 404 },
+        );
+      }
+      return NextResponse.json({ success: true, ...JSON.parse(raw) });
+    }
     const targetFile = fs.existsSync(MEMES_FILE_2) ? MEMES_FILE_2 : MEMES_FILE_1;
     if (!fs.existsSync(targetFile)) {
       return NextResponse.json({ success: false, error: 'memes.json not found' }, { status: 404 });
@@ -29,6 +42,21 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { action, meme_id, reason } = body;
+
+    // Both actions need the pipeline: `dismiss` appends to outcomes.jsonl and
+    // `render_visual` spawns Python. Neither exists in the container, and a
+    // dismiss written to an ephemeral disk would report success and vanish.
+    if (isDeployed()) {
+      return NextResponse.json(
+        {
+          success: false,
+          error:
+            `'${action}' runs the pipeline, which lives on the founder's ` +
+            'machine. The deployed dashboard is read-only.',
+        },
+        { status: 501 },
+      );
+    }
 
     if (action === 'dismiss') {
       const outcomeRecord = {

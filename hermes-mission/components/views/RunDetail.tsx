@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
+import { FeedbackBar } from "./FeedbackBar";
 
 // Helper to ensure media files load cleanly across production and local environments
 const resolveMediaUrl = (url: string | null | undefined): string => {
@@ -19,7 +20,10 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
   const [activeTab, setActiveTab] = useState<"OVERVIEW" | "COPY" | "MEDIA" | "GATES">("OVERVIEW");
   const [runData, setRunData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [approvalStatus, setApprovalStatus] = useState<"WAITING_FOR_HUMAN" | "APPROVED" | "KILLED">("APPROVED");
+  // Waiting, not approved. Defaulting to APPROVED told the founder a run had
+  // cleared review before they had seen it — including runs the firewall
+  // blocked and never delivered to anyone.
+  const [approvalStatus, setApprovalStatus] = useState<"WAITING_FOR_HUMAN" | "APPROVED" | "KILLED">("WAITING_FOR_HUMAN");
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
 
   // Dynamically load active run by ID or latest
@@ -38,33 +42,6 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       .finally(() => setLoading(false));
   }, [(vm as any).runKey]);
 
-  const handleAction = async (act: "APPROVE" | "REVISE" | "KILL") => {
-    if (!runData?.run_id) return;
-    try {
-      const res = await fetch(`/api/runs/${runData.run_id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: act })
-      });
-      const data = await res.json();
-      if (data.success) {
-        if (act === "APPROVE") {
-          setApprovalStatus("APPROVED");
-          setActionFeedback("✓ Approved by Founder. Autonomous dispatch confirmed across X, LinkedIn, and Reddit.");
-        } else if (act === "KILL") {
-          setApprovalStatus("KILLED");
-          setActionFeedback("💀 Run marked KILLED. Retracted from distribution pipeline.");
-        } else {
-          setActionFeedback("🔄 Revision requested. Routed back to Agent 6 (Channel Adapter).");
-        }
-      } else {
-        setActionFeedback(`⚠️ Failed to record action: ${data.error || "Unknown error"}`);
-      }
-    } catch (e: any) {
-      setActionFeedback(`⚠️ Network error: ${e.message}`);
-    }
-    setTimeout(() => setActionFeedback(null), 5000);
-  };
 
   if (!runData && !loading) {
     return (
@@ -72,7 +49,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
         <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "18px", padding: "40px 32px", textAlign: "center" }}>
           <div style={{ fontSize: "36px", marginBottom: "12px" }}>🔍</div>
           <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#FFFFFF" }}>No System 2 Run Selected</h3>
-          <p style={{ color: "#A2A1A6", fontSize: "14px", marginTop: "8px", maxWidth: "56ch", margin: "8px auto 0" }}>
+          <p style={{ color: "#7B7590", fontSize: "14px", marginTop: "8px", maxWidth: "56ch", margin: "8px auto 0" }}>
             The pipeline is reset and clean. Launch an autonomous directive from the Command Console above or inspect a run from the Observatory once executed.
           </p>
           <button
@@ -100,10 +77,13 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
   // Run-specific dynamic data extraction
   const title = runData?.title || runData?.run_id || "(untitled run)";
   const runId = runData?.run_id || "RUN_AUTO_LATEST";
-  const audience = runData?.agent_outputs?.agent_03_strategist?.audience || "A2: Quantitative Traders";
-  const machine = runData?.agent_outputs?.agent_04_machine?.name || "MACH_04: Technical Telemetry Series";
-  const duration = runData?.duration_s ? `${runData.duration_s}s` : "24.50s";
-  const score = runData?.agent_outputs?.agent_10_reviewer?.score || "96/100";
+  // These read `agent_outputs.agent_03_strategist` / `agent_04_machine`, keys
+  // the API does not emit, so every run showed the same two typed strings.
+  // A03 records the audience and A04 the machine; both are on the run.
+  const audience = runData?.reasoning?.audience ?? "—";
+  const machine = runData?.machine ?? runData?.reasoning?.playbook ?? "—";
+  const duration = runData?.duration_s ? `${runData.duration_s}s` : "—";
+  
   const directive = runData?.directive || null;
 
   // Run-specific media assets
@@ -111,9 +91,20 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
   const videoUrl = videoData?.public_url || runData?.video || null;
   const visualUrl = runData?.agent_outputs?.agent_08_visual?.public_url || runData?.visual || null;
   // No invented fallback: if the run recorded no concept, the UI says so.
-  const visualConcept = runData?.agent_outputs?.agent_07_creative?.concept
+  // The 13-agent summary records these as top-level fields; the keys this
+  // read first belong to the retired core/ pipeline and are never set now,
+  // which is why every run said "no visual concept recorded".
+  const visualConcept = runData?.visual_concept
+    ?? runData?.agent_outputs?.agent_07_creative?.concept
     ?? runData?.reasoning?.chosenConcept?.idea
     ?? null;
+  // The image is composed by an archetype renderer under A07; A08's model is
+  // only involved when the archetype asks it for a background.
+  const visualAgent = runData?.agent_outputs?.A08_visual_synthesis
+    ?? runData?.agent_outputs?.visual ?? null;
+  const directorAgent = runData?.agent_outputs?.A07_creative_director ?? null;
+  const mediaModels: string[] = (runData?.models_used ?? []).filter(
+    (m: string) => /image|veo|imagen|banana/i.test(m));
   const metaphorFamily = runData?.agent_outputs?.agent_07_creative?.metaphor_family || "OPTICAL_REFRACTION";
 
   // Dynamic Creative Direction Fields
@@ -125,23 +116,64 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
   const cameraLanguage = videoData?.camera_language || null;
   const typographyLanguage = videoData?.typography_language || null;
   const productionStrategy = videoData?.production_strategy || videoData?.composition || "HYBRID_VEO_AND_REMOTION";
-  const noveltyScore = videoData?.novelty_score ?? 94;
+  const noveltyScore = videoData?.novelty_score ?? null;
   const previousSimilarity = videoData?.previous_similarity || "LOW";
   const reasonSelected = videoData?.reason_selected || null;
   const scenePlan = Array.isArray(videoData?.scene_plan) ? videoData.scene_plan : [];
   const useProductScreen = videoData?.use_product_screen;
   const productScreenAsset = videoData?.product_screen_asset;
 
-  // Run-specific multi-channel copy
-  const content = runData?.agent_outputs?.agent_06_content;
-  const xThreads: string[] = Array.isArray(content?.x_threads) && content.x_threads.length > 0
-    ? content.x_threads
-    : (runData?.winner_body ? [runData.winner_body] : (content?.x_lead ? [content.x_lead] : ["Generation in progress..."]));
+  // Run-specific multi-channel copy.
+  //
+  // A06 writes this and always has. It was read from
+  // `agent_outputs.agent_06_content.{x_threads,linkedin_copy,reddit_copy}` —
+  // a key namespace the API has never emitted (`agent_outputs` is keyed by
+  // agent id, e.g. `A06_channel_adapter`, and holds metadata, not text). So
+  // every chain fell through to the literal "Generation in progress…" while
+  // three finished posts sat in the same payload under `posts`.
+  const posts = runData?.posts ?? {};
+  const xCopy: string | null = posts?.x?.copy ?? null;
+  const xHook: string | null = posts?.x?.hook ?? null;
+  // The X post is one body; splitting on blank lines gives the thread as A06
+  // actually wrote it rather than inventing tweet boundaries.
+  const xThreads: string[] = xCopy
+    ? xCopy.split(/\n\s*\n/).map((s: string) => s.trim()).filter(Boolean)
+    : [];
 
-  const linkedinCopy: string = content?.linkedin_copy || (runData?.winner_body ? `Strategic brief for ${title}:\n\n${runData.winner_body}` : "Generation in progress...");
+  const linkedinHook: string | null = posts?.linkedin?.hook ?? null;
+  const linkedinCopy: string | null = posts?.linkedin?.copy ?? null;
+  const redditHook: string | null = posts?.reddit?.hook ?? null;
+  const redditCopy: string | null = posts?.reddit?.copy ?? null;
 
-  const redditHook: string = content?.reddit_hook || (runData?.winner_hook ? runData.winner_hook : `Technical breakdown: ${title}`);
-  const redditCopy: string = content?.reddit_copy || (runData?.winner_body ? `Architecture breakdown for ${title}:\n\n${runData.winner_body}` : "Generation in progress...");
+  // The judge's real output. `creative_review` holds one entry per rendered
+  // asset plus a copy verdict; A10's firewall records blocked claims
+  // separately. Neither produces a numeric score, so none is displayed.
+  const review = runData?.creative_review ?? null;
+  const overallVerdict: string | null =
+    review?.overall ?? runData?.creative_verdict ?? null;
+  const copyVerdict: string | null = review?.copy_verdict ?? null;
+  const copyCritique: string | null = review?.copy_critique ?? null;
+  const assetVerdicts: any[] = Array.isArray(review?.assets)
+    ? review.assets
+    : Object.entries(review ?? {})
+        .filter(([, v]: [string, any]) => v && typeof v === "object" && v.verdict)
+        .map(([k, v]: [string, any]) => ({ asset: k, ...v }));
+  const blockedClaims: any[] = Array.isArray(runData?.review_notes?.blocked_claims)
+    ? runData.review_notes.blocked_claims
+    : [];
+
+  const verdictTone = (v: string | null) =>
+    v === "SHIP" ? "#4ADE9B" : v === "REVISE" ? "#F5A524" : v === "REJECT" ? "#F0666B" : "#7B7590";
+
+  // Nothing here is published until A11 dispatches, and A11 does not run
+  // unprompted. The three cards used to assert "Published & Live" from a
+  // literal, on runs the reviewer firewall had blocked.
+  const dispatched: boolean = runData?.dispatched === true;
+  const channelState = dispatched
+    ? { label: "● Published & Live", color: "#4ADE9B" }
+    : runData?.publishable === true
+      ? { label: "○ Approved · awaiting dispatch", color: "#F5A524" }
+      : { label: "○ Draft · not published", color: "#7B7590" };
 
   const receipts: string[] = Array.isArray(runData?.agent_outputs?.agent_11_dispatch?.receipts)
     ? runData.agent_outputs.agent_11_dispatch.receipts
@@ -157,7 +189,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             style={{
               background: "rgba(255, 255, 255, 0.06)",
               border: "1px solid rgba(255, 255, 255, 0.12)",
-              color: "#32EEE2",
+              color: "#A98CFF",
               padding: "6px 14px",
               borderRadius: "8px",
               fontSize: "11px",
@@ -170,8 +202,8 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             ← Back to Runs Observatory
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#38EF7D" }} />
-            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#38EF7D", letterSpacing: "0.08em" }}>
+            <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#4ADE9B" }} />
+            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#4ADE9B", letterSpacing: "0.08em" }}>
               {runId} // IMMUTABLE TELEMETRY RECORD
             </span>
           </div>
@@ -179,84 +211,35 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             {title}
           </h2>
           {directive && (
-            <div style={{ marginTop: "6px", fontSize: "13px", color: "#32EEE2" }}>
+            <div style={{ marginTop: "6px", fontSize: "13px", color: "#A98CFF" }}>
               <strong>Founder Directive Executed:</strong> &ldquo;{directive}&rdquo;
             </div>
           )}
-          <div style={{ display: "flex", gap: "16px", marginTop: "8px", fontSize: "13px", color: "#A2A1A6", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "16px", marginTop: "8px", fontSize: "13px", color: "#7B7590", flexWrap: "wrap" }}>
             <span><strong>Target Audience:</strong> {audience}</span>
             <span>·</span>
             <span><strong>Machine:</strong> {machine}</span>
             <span>·</span>
             <span><strong>Duration:</strong> {duration}</span>
             <span>·</span>
-            <span><strong>Reviewer Score:</strong> {score} PASS</span>
+            <span><strong>Review:</strong> {overallVerdict ?? "not reviewed"}</span>
           </div>
         </div>
 
-        {/* Governance Action Center */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
-          <div style={{ display: "flex", gap: "8px" }}>
-            <button
-              onClick={() => handleAction("APPROVE")}
-              style={{
-                background: "#38EF7D",
-                color: "#000000",
-                border: "none",
-                borderRadius: "8px",
-                padding: "8px 18px",
-                fontFamily: MONO,
-                fontSize: "12px",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              APPROVE (DISPATCH)
-            </button>
-            <button
-              onClick={() => handleAction("REVISE")}
-              style={{
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#DFDFDF",
-                borderRadius: "8px",
-                padding: "8px 14px",
-                fontFamily: MONO,
-                fontSize: "12px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              REVISE
-            </button>
-            <button
-              onClick={() => handleAction("KILL")}
-              style={{
-                background: "rgba(239, 68, 68, 0.15)",
-                border: "1px solid rgba(239, 68, 68, 0.3)",
-                color: "#EF4444",
-                borderRadius: "8px",
-                padding: "8px 14px",
-                fontFamily: MONO,
-                fontSize: "12px",
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              KILL
-            </button>
-          </div>
-          <span style={{ fontFamily: MONO, fontSize: "11px", color: approvalStatus === "APPROVED" ? "#38EF7D" : "#EF4444" }}>
-            ● STATE: {approvalStatus} (Founder: 5501720892)
-          </span>
-        </div>
+        {/* The Approve/Revise/Kill buttons that sat here posted to
+            /api/runs/[id], which has no POST handler, so every click failed —
+            while the approve button promised "dispatch". The FeedbackBar
+            below the header replaces them and records, never publishes. */}
       </div>
 
       {actionFeedback && (
-        <div style={{ fontFamily: MONO, fontSize: "12px", color: "#38EF7D", background: "rgba(56, 239, 125, 0.1)", padding: "10px 18px", borderRadius: "10px", border: "1px solid rgba(56, 239, 125, 0.3)" }}>
+        <div style={{ fontFamily: MONO, fontSize: "12px", color: "#4ADE9B", background: "rgba(56, 239, 125, 0.1)", padding: "10px 18px", borderRadius: "10px", border: "1px solid rgba(56, 239, 125, 0.3)" }}>
           {actionFeedback}
         </div>
       )}
+
+      {/* The founder's decision: the reward the learning loop records. */}
+      {runData?.run_id && <FeedbackBar runId={runData.run_id} />}
 
       {/* Tab Controls */}
       <div style={{ display: "flex", gap: "10px", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "12px", flexWrap: "wrap" }}>
@@ -264,7 +247,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           { id: "OVERVIEW", label: "Executive Overview" },
           { id: "MEDIA", label: `🎬 Run Video & Visuals (${runId})` },
           { id: "COPY", label: `📱 Post Content (${xThreads.length} X Chunks · LI · Reddit)` },
-          { id: "GATES", label: `🛡️ Reviewer Scorecard (${score})` }
+          { id: "GATES", label: `🛡️ Review${overallVerdict ? ` (${overallVerdict})` : ""}` }
         ].map((t) => (
           <button
             key={t.id}
@@ -272,7 +255,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             style={{
               background: activeTab === t.id ? "rgba(112, 58, 230, 0.25)" : "transparent",
               border: `1px solid ${activeTab === t.id ? "#703AE6" : "transparent"}`,
-              color: activeTab === t.id ? "#FFFFFF" : "#A2A1A6",
+              color: activeTab === t.id ? "#FFFFFF" : "#7B7590",
               padding: "8px 18px",
               borderRadius: "8px",
               cursor: "pointer",
@@ -294,13 +277,13 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", flexWrap: "wrap", gap: "12px" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "6px" }}>
-                  <span style={{ fontFamily: MONO, fontSize: "10px", fontWeight: 800, color: "#38EF7D", background: "rgba(56, 239, 125, 0.15)", padding: "2px 8px", borderRadius: "4px" }}>
+                  <span style={{ fontFamily: MONO, fontSize: "10px", fontWeight: 800, color: "#4ADE9B", background: "rgba(56, 239, 125, 0.15)", padding: "2px 8px", borderRadius: "4px" }}>
                     CREATIVE NOVELTY: {noveltyScore}/100
                   </span>
-                  <span style={{ fontFamily: MONO, fontSize: "10px", color: previousSimilarity === "LOW" ? "#32EEE2" : "#F5A623", background: "rgba(255,255,255,0.05)", padding: "2px 8px", borderRadius: "4px" }}>
+                  <span style={{ fontFamily: MONO, fontSize: "10px", color: previousSimilarity === "LOW" ? "#A98CFF" : "#F5A623", background: "rgba(255,255,255,0.05)", padding: "2px 8px", borderRadius: "4px" }}>
                     SIMILARITY: {previousSimilarity}
                   </span>
-                  <span style={{ fontFamily: MONO, fontSize: "10px", color: "#A387FF", background: "rgba(112, 58, 230, 0.2)", padding: "2px 8px", borderRadius: "4px" }}>
+                  <span style={{ fontFamily: MONO, fontSize: "10px", color: "#A98CFF", background: "rgba(112, 58, 230, 0.2)", padding: "2px 8px", borderRadius: "4px" }}>
                     PIPELINE: {productionStrategy}
                   </span>
                 </div>
@@ -308,7 +291,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                   {creativeConcept || title}
                 </h3>
                 {visualThesis && (
-                  <p style={{ fontSize: "13px", color: "#DFDFDF", marginTop: "6px", maxWidth: "900px", lineHeight: 1.55 }}>
+                  <p style={{ fontSize: "13px", color: "#B8B3C6", marginTop: "6px", maxWidth: "900px", lineHeight: 1.55 }}>
                     <strong>Visual Thesis:</strong> {visualThesis}
                   </p>
                 )}
@@ -320,7 +303,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                     href={videoUrl}
                     download
                     style={{
-                      background: "linear-gradient(135deg, #703AE6, #32EEE2)",
+                      background: "linear-gradient(135deg, #703AE6, #A98CFF)",
                       color: "#07020D",
                       padding: "8px 16px",
                       borderRadius: "8px",
@@ -353,10 +336,10 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                   Your browser does not support the video tag.
                 </video>
               ) : (
-                <div style={{ padding: "60px 20px", textAlign: "center", color: "#8E85A8" }}>
+                <div style={{ padding: "60px 20px", textAlign: "center", color: "#7B7590" }}>
                   <div style={{ fontSize: "28px", marginBottom: "8px" }}>🎬</div>
                   <div style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: "#FFFFFF" }}>No Video Requested for this Run</div>
-                  <div style={{ fontSize: "12px", color: "#8E85A8", marginTop: "4px" }}>
+                  <div style={{ fontSize: "12px", color: "#7B7590", marginTop: "4px" }}>
                     Videos are art-directed on demand when requested in the directive (e.g. &ldquo;generate a video walkthrough of blend pools margin&rdquo;).
                   </div>
                 </div>
@@ -368,69 +351,69 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
               <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "10px" }}>
                   <div style={{ background: "#080310", padding: "14px 16px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#32EEE2", textTransform: "uppercase", fontWeight: 700 }}>
+                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#A98CFF", textTransform: "uppercase", fontWeight: 700 }}>
                       VISUAL METAPHOR & LANGUAGE
                     </div>
                     <div style={{ fontSize: "13px", color: "#FFFFFF", marginTop: "4px", fontWeight: 600 }}>
                       {visualMetaphor || "— not recorded for this run"}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#8E85A8", marginTop: "2px" }}>
+                    <div style={{ fontSize: "11px", color: "#7B7590", marginTop: "2px" }}>
                       {visualLanguage}
                     </div>
                   </div>
 
                   <div style={{ background: "#080310", padding: "14px 16px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#A387FF", textTransform: "uppercase", fontWeight: 700 }}>
+                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#A98CFF", textTransform: "uppercase", fontWeight: 700 }}>
                       CAMERA & MOTION CHOREOGRAPHY
                     </div>
                     <div style={{ fontSize: "13px", color: "#FFFFFF", marginTop: "4px", fontWeight: 600 }}>
                       {cameraLanguage || "Subtle tracking shot"}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#8E85A8", marginTop: "2px" }}>
+                    <div style={{ fontSize: "11px", color: "#7B7590", marginTop: "2px" }}>
                       {motionLanguage}
                     </div>
                   </div>
 
                   <div style={{ background: "#080310", padding: "14px 16px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#FC5457", textTransform: "uppercase", fontWeight: 700 }}>
+                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#F0666B", textTransform: "uppercase", fontWeight: 700 }}>
                       PRODUCT INTEGRATION
                     </div>
                     <div style={{ fontSize: "13px", color: "#FFFFFF", marginTop: "4px", fontWeight: 600 }}>
                       {useProductScreen ? `REAL UI: ${productScreenAsset}` : "Abstract Physical Metaphor"}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#8E85A8", marginTop: "2px" }}>
+                    <div style={{ fontSize: "11px", color: "#7B7590", marginTop: "2px" }}>
                       {runData?.agent_outputs?.media?.tool_calls?.join(", ") || "— no media recorded for this run"}
                     </div>
                   </div>
                 </div>
 
                 {reasonSelected && (
-                  <div style={{ background: "rgba(112, 58, 230, 0.08)", border: "1px solid rgba(163, 135, 255, 0.2)", borderRadius: "10px", padding: "12px 16px", fontSize: "12px", color: "#DFDFDF" }}>
-                    <strong style={{ color: "#32EEE2" }}>Creative Judge Selection Rationale:</strong> {reasonSelected}
+                  <div style={{ background: "rgba(112, 58, 230, 0.08)", border: "1px solid rgba(163, 135, 255, 0.2)", borderRadius: "10px", padding: "12px 16px", fontSize: "12px", color: "#B8B3C6" }}>
+                    <strong style={{ color: "#A98CFF" }}>Creative Judge Selection Rationale:</strong> {reasonSelected}
                   </div>
                 )}
 
                 {/* Scene-by-Scene Direction Plan */}
                 {scenePlan.length > 0 && (
                   <div style={{ marginTop: "10px" }}>
-                    <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase", marginBottom: "8px" }}>
+                    <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase", marginBottom: "8px" }}>
                       ART-DIRECTED SCENE CHOREOGRAPHY PLAN ({scenePlan.length} SCENES)
                     </div>
                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "10px" }}>
                       {scenePlan.map((s: any, idx: number) => (
                         <div key={idx} style={{ background: "#080310", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", padding: "14px" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                            <span style={{ fontFamily: MONO, fontSize: "10px", color: "#38EF7D", fontWeight: 700 }}>
+                            <span style={{ fontFamily: MONO, fontSize: "10px", color: "#4ADE9B", fontWeight: 700 }}>
                               SCENE 0{s.scene_id || idx+1} ({s.duration_seconds}s)
                             </span>
-                            <span style={{ fontFamily: MONO, fontSize: "9px", background: "rgba(255,255,255,0.06)", color: "#DFDFDF", padding: "2px 6px", borderRadius: "3px" }}>
+                            <span style={{ fontFamily: MONO, fontSize: "9px", background: "rgba(255,255,255,0.06)", color: "#B8B3C6", padding: "2px 6px", borderRadius: "3px" }}>
                               {s.production_method || "COMPOSITED"}
                             </span>
                           </div>
                           <div style={{ fontSize: "12px", color: "#FFFFFF", fontWeight: 600 }}>
                             {s.narrative_beat}
                           </div>
-                          <div style={{ fontSize: "11px", color: "#8E85A8", marginTop: "4px", lineHeight: 1.4 }}>
+                          <div style={{ fontSize: "11px", color: "#7B7590", marginTop: "4px", lineHeight: 1.4 }}>
                             {s.visual_concept}
                           </div>
                         </div>
@@ -446,15 +429,19 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "18px", padding: "26px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", flexWrap: "wrap", gap: "8px" }}>
               <div>
-                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#32EEE2", fontWeight: 700 }}>
+                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#A98CFF", fontWeight: 700 }}>
                   VANNA ARCHITECTURAL SCHEMATIC // 2X RETINA
                 </span>
                 <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#FFFFFF", marginTop: "2px" }}>
                   {title}
                 </h3>
               </div>
-              <span style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", background: "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: "6px" }}>
-                {runData?.agent_outputs?.media?.tool_calls?.join(" · ") || "no media recorded"}
+              <span style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", background: "rgba(255,255,255,0.04)", padding: "4px 10px", borderRadius: "6px" }}>
+                {mediaModels.length
+                  ? mediaModels.join(" · ")
+                  : runData?.visual_archetype
+                    ? "typeset in code · no image model"
+                    : "no media recorded"}
               </span>
             </div>
 
@@ -467,7 +454,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                     style={{ width: "100%", height: "auto", display: "block" }}
                   />
                 ) : (
-                  <div style={{ padding: "60px 20px", textAlign: "center", color: "#8E85A8" }}>
+                  <div style={{ padding: "60px 20px", textAlign: "center", color: "#7B7590" }}>
                     <div style={{ fontFamily: MONO, fontSize: "13px" }}>No visual recorded for this run</div>
                   </div>
                 )}
@@ -488,44 +475,54 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                     none measured, and the last two are figures this pipeline's
                     own verifier marks unsupported. */}
                 <div style={{ background: "#080310", padding: "16px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)" }}>
-                  <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     VISUAL CONCEPT
                   </div>
                   <div style={{ fontSize: "14px", color: "#FFFFFF", marginTop: "6px", lineHeight: 1.6 }}>
                     {runData?.reasoning?.chosenConcept?.title || visualConcept || "— no visual concept recorded"}
                   </div>
+                  {runData?.visual_archetype && (
+                    <div style={{ fontSize: "12px", color: "#B8B3C6", marginTop: "10px", lineHeight: 1.5 }}>
+                      <span style={{ fontFamily: MONO, color: "#A98CFF", fontWeight: 700 }}>{runData.visual_archetype}</span>
+                      {runData.visual_why ? ` — ${runData.visual_why}` : ""}
+                    </div>
+                  )}
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
                   <div style={{ background: "#080310", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8", textTransform: "uppercase" }}>RENDERED BY</div>
-                    <div style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "#A387FF", marginTop: "3px" }}>
-                      {runData?.agent_outputs?.visual?.model || "—"}
+                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590", textTransform: "uppercase" }}>RENDERED BY</div>
+                    <div style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "#A98CFF", marginTop: "3px" }}>
+                      {runData?.visual_archetype || visualAgent?.model || "—"}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#8E85A8", marginTop: "2px" }}>
-                      {runData?.agent_outputs?.visual?.duration_s != null
-                        ? `${runData.agent_outputs.visual.duration_s}s`
-                        : "not recorded"}
+                    <div style={{ fontSize: "11px", color: "#7B7590", marginTop: "2px" }}>
+                      {directorAgent
+                        ? `A07 creative director · ${directorAgent.status}`
+                        : visualAgent?.duration_s != null
+                          ? `${visualAgent.duration_s}s`
+                          : "not recorded"}
                     </div>
                   </div>
                   <div style={{ background: "#080310", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)" }}>
-                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8", textTransform: "uppercase" }}>MEDIA MODEL</div>
-                    <div style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "#32EEE2", marginTop: "3px" }}>
-                      {runData?.agent_outputs?.media?.model || "—"}
+                    <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590", textTransform: "uppercase" }}>MEDIA MODEL</div>
+                    <div style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "#A98CFF", marginTop: "3px" }}>
+                      {mediaModels[0] || (runData?.visual_archetype ? "none" : "—")}
                     </div>
-                    <div style={{ fontSize: "11px", color: "#8E85A8", marginTop: "2px" }}>
-                      {runData?.agent_outputs?.media?.degraded_reason ? "degraded" : "ok"}
+                    <div style={{ fontSize: "11px", color: "#7B7590", marginTop: "2px" }}>
+                      {mediaModels.length
+                        ? "background only — every word is typeset"
+                        : runData?.visual_archetype ? "typeset layout" : "not recorded"}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ background: "#080310", padding: "14px 16px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)", fontSize: "12px", color: "#DFDFDF" }}>
-                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8", textTransform: "uppercase", marginBottom: "6px" }}>
+                <div style={{ background: "#080310", padding: "14px 16px", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.05)", fontSize: "12px", color: "#B8B3C6" }}>
+                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590", textTransform: "uppercase", marginBottom: "6px" }}>
                     CLAIMS IN THIS ASSET
                   </div>
                   {runData?.reasoning ? (
                     <span>
-                      <span style={{ color: "#38EF7D", fontWeight: 700 }}>{runData.reasoning.verified ?? 0} verified</span>
+                      <span style={{ color: "#4ADE9B", fontWeight: 700 }}>{runData.reasoning.verified ?? 0} verified</span>
                       {" · "}
                       <span style={{ color: "#F5A524" }}>
                         {(runData.reasoning.claims ?? 0) - (runData.reasoning.verified ?? 0)} unverified
@@ -537,7 +534,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                       )}
                     </span>
                   ) : (
-                    <span style={{ color: "#8E85A8" }}>not recorded</span>
+                    <span style={{ color: "#7B7590" }}>not recorded</span>
                   )}
                 </div>
               </div>
@@ -554,19 +551,21 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <span style={{ fontSize: "18px" }}>𝕏</span>
-                <span style={{ fontFamily: MONO, fontSize: "12px", color: "#32EEE2", fontWeight: 700 }}>
+                <span style={{ fontFamily: MONO, fontSize: "12px", color: "#A98CFF", fontWeight: 700 }}>
                   X (FORMERLY TWITTER) // {xThreads.length}-PART DEVELOPER THREAD
                 </span>
               </div>
-              <span style={{ fontFamily: MONO, fontSize: "11px", color: "#38EF7D" }}>● Published & Live</span>
+              <span style={{ fontFamily: MONO, fontSize: "11px", color: channelState.color }}>
+                {channelState.label}
+              </span>
             </div>
 
             {/* Dynamic X Thread Cards with Connector Lines */}
-            <div style={{ background: "#06020A", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.1)", padding: "20px" }}>
+            <div style={{ background: "#080310", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.1)", padding: "20px" }}>
               {xThreads.map((chunk, i) => (
                 <div key={i} style={{ display: "flex", gap: "14px", marginTop: i > 0 ? "14px" : "0" }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-                    <div style={{ width: "40px", height: "40px", borderRadius: "999px", background: "linear-gradient(135deg, #FC5457 10%, #703AE6 80%)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "#FFF", fontSize: "13px" }}>
+                    <div style={{ width: "40px", height: "40px", borderRadius: "999px", background: "#703AE6", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "#FFF", fontSize: "13px" }}>
                       V
                     </div>
                     {i < xThreads.length - 1 && (
@@ -577,8 +576,8 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                       <span style={{ fontWeight: 700, color: "#FFFFFF", fontSize: "14px" }}>Vanna Protocol</span>
-                      <span style={{ color: "#38EF7D", fontSize: "12px" }}>✓</span>
-                      <span style={{ color: "#8E85A8", fontSize: "13px" }}>@vanna_finance</span>
+                      <span style={{ color: "#4ADE9B", fontSize: "12px" }}>✓</span>
+                      <span style={{ color: "#7B7590", fontSize: "13px" }}>@vanna_finance</span>
                     </div>
 
                     <div style={{ marginTop: "6px", fontSize: "14px", lineHeight: 1.6, color: "#F3F1F8" }}>
@@ -594,17 +593,19 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "18px", padding: "26px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
               <span style={{ fontFamily: MONO, fontSize: "12px", color: "#0A66C2", fontWeight: 700 }}>LINKEDIN // INSTITUTIONAL THOUGHT LEADERSHIP</span>
-              <span style={{ fontFamily: MONO, fontSize: "11px", color: "#38EF7D" }}>● Published & Live</span>
+              <span style={{ fontFamily: MONO, fontSize: "11px", color: channelState.color }}>
+                {channelState.label}
+              </span>
             </div>
 
-            <div style={{ background: "#06020A", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.1)", padding: "22px" }}>
+            <div style={{ background: "#080310", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.1)", padding: "22px" }}>
               <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "14px" }}>
                 <div style={{ width: "44px", height: "44px", borderRadius: "999px", background: "#703AE6", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#FFF" }}>
                   AA
                 </div>
                 <div>
                   <div style={{ fontWeight: 700, color: "#FFFFFF", fontSize: "15px" }}>Advay Anand</div>
-                  <div style={{ fontSize: "12px", color: "#8E85A8" }}>Founder @ Vanna Protocol · Composable Credit on Stellar Soroban</div>
+                  <div style={{ fontSize: "12px", color: "#7B7590" }}>Founder @ Vanna Protocol · Composable Credit on Stellar Soroban</div>
                 </div>
               </div>
 
@@ -618,14 +619,18 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "18px", padding: "26px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
               <span style={{ fontFamily: MONO, fontSize: "12px", color: "#FF4500", fontWeight: 700 }}>REDDIT // r/defi & r/Stellar DEEP DIVE</span>
-              <span style={{ fontFamily: MONO, fontSize: "11px", color: "#38EF7D" }}>● Published & Live</span>
+              <span style={{ fontFamily: MONO, fontSize: "11px", color: channelState.color }}>
+                {channelState.label}
+              </span>
             </div>
 
-            <div style={{ background: "#06020A", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.1)", padding: "22px", display: "flex", gap: "16px" }}>
+            <div style={{ background: "#080310", borderRadius: "14px", border: "1px solid rgba(255, 255, 255, 0.1)", padding: "22px", display: "flex", gap: "16px" }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
-                <span style={{ color: "#38EF7D", fontSize: "16px" }}>▲</span>
-                <span style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "#FFFFFF" }}>124</span>
-                <span style={{ color: "#8E85A8", fontSize: "16px" }}>▼</span>
+                <span style={{ color: "#4ADE9B", fontSize: "16px" }}>▲</span>
+                <span style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "#4A4A4A" }}>
+                  {/* No score exists: the post was never submitted. */}—
+                </span>
+                <span style={{ color: "#7B7590", fontSize: "16px" }}>▼</span>
               </div>
 
               <div style={{ flex: 1 }}>
@@ -633,7 +638,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                   {redditHook}
                 </h4>
 
-                <div style={{ fontSize: "14px", lineHeight: 1.7, color: "#DFDFDF", whiteSpace: "pre-line" }}>
+                <div style={{ fontSize: "14px", lineHeight: 1.7, color: "#B8B3C6", whiteSpace: "pre-line" }}>
                   {redditCopy}
                 </div>
               </div>
@@ -643,12 +648,12 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           {/* Published Receipts */}
           {receipts.length > 0 && (
             <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "16px", padding: "20px 24px" }}>
-              <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase", marginBottom: "8px" }}>
+              <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase", marginBottom: "8px" }}>
                 LIVE SOCIAL PUBLICATION RECEIPTS
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 {receipts.map((url, idx) => (
-                  <a key={idx} href={url} target="_blank" rel="noreferrer" style={{ fontSize: "13px", color: "#32EEE2", fontFamily: MONO }}>
+                  <a key={idx} href={url} target="_blank" rel="noreferrer" style={{ fontSize: "13px", color: "#A98CFF", fontFamily: MONO }}>
                     ↗ {url}
                   </a>
                 ))}
@@ -659,52 +664,98 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       )}
 
       {/* ------------------------------------------------------------- TAB: GATES */}
+      {/*
+        This tab used to render four PASS cards and a 96/100 verdict from
+        string literals — no props, no state, no run data. They could not
+        render as FAIL. On this very run the judge returned REJECT: the meme
+        carried garbled baked-in text, and the copy implied mainnet. The card
+        reading "zero premature mainnet claims" sat directly over it.
+
+        Everything below is the judge's own output: `creative_review` from
+        `pipeline/gtm_os/creative_judge.py` and `review_notes` from the A10
+        firewall. The judge records enum verdicts and prose critiques, not
+        scores, so no score is shown.
+      */}
       {activeTab === "GATES" && (
         <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "18px", padding: "26px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
             <div>
-              <span style={{ fontFamily: MONO, fontSize: "11px", color: "#32EEE2", fontWeight: 700 }}>PRE-DELIVERY QUALITY REVIEW FIREWALL</span>
+              <span style={{ fontFamily: MONO, fontSize: "11px", color: "#A98CFF", fontWeight: 700 }}>PRE-DELIVERY REVIEW FIREWALL</span>
               <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#FFFFFF", marginTop: "2px" }}>
-                Reviewer Agent Scorecard (Brain: Gemini 3.8 Flash)
+                What the judge actually returned
               </h3>
             </div>
-            <span style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 800, color: "#38EF7D", background: "rgba(56, 239, 125, 0.15)", padding: "6px 14px", borderRadius: "6px" }}>
-              FINAL VERDICT: PASS ({score})
+            <span style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 800, color: verdictTone(overallVerdict), background: `${verdictTone(overallVerdict)}22`, padding: "6px 14px", borderRadius: "6px" }}>
+              {overallVerdict ? `VERDICT: ${overallVerdict}` : "NOT REVIEWED"}
             </span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "14px" }}>
-            <div style={{ background: "#080310", padding: "18px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>CLAIM EVIDENCE GATE</div>
-              <div style={{ fontSize: "18px", fontWeight: 700, color: "#38EF7D", marginTop: "4px" }}>PASS · 100% Validated</div>
-              <p style={{ fontSize: "13px", color: "#A2A1A6", margin: "6px 0 0" }}>
-                All numerical assertions confirmed against canonical DB and Stellar Horizon.
-              </p>
-            </div>
+          {assetVerdicts.length === 0 && blockedClaims.length === 0 && !overallVerdict && (
+            <p style={{ fontSize: "14px", color: "#7B7590", margin: 0 }}>
+              This run recorded no review. A07 judges the rendered assets and A10 checks
+              the claims; neither left anything in this run&apos;s journal.
+            </p>
+          )}
 
-            <div style={{ background: "#080310", padding: "18px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>AUDIENCE FIT GATE</div>
-              <div style={{ fontSize: "18px", fontWeight: 700, color: "#38EF7D", marginTop: "4px" }}>PASS · 100% Aligned</div>
-              <p style={{ fontSize: "13px", color: "#A2A1A6", margin: "6px 0 0" }}>
-                Target audience strictly matched to execution friction and capital drag pains.
-              </p>
+          {assetVerdicts.length > 0 && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
+              {assetVerdicts.map((a: any) => (
+                <div key={a.asset} style={{ background: "#080310", padding: "18px", borderRadius: "12px", border: `1px solid ${verdictTone(a.verdict)}33` }}>
+                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590", textTransform: "uppercase" }}>{a.asset}</div>
+                  <div style={{ fontSize: "18px", fontWeight: 700, color: verdictTone(a.verdict), marginTop: "4px" }}>{a.verdict}</div>
+                  {a.critique && (
+                    <p style={{ fontSize: "13px", color: "#7B7590", margin: "8px 0 0", lineHeight: 1.6 }}>{a.critique}</p>
+                  )}
+                  {a.fix && (
+                    <p style={{ fontSize: "12px", color: "#F5A524", margin: "8px 0 0", lineHeight: 1.6 }}>
+                      <strong>Fix:</strong> {a.fix}
+                    </p>
+                  )}
+                </div>
+              ))}
             </div>
+          )}
 
-            <div style={{ background: "#080310", padding: "18px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>PRODUCT STAGE FIT GATE</div>
-              <div style={{ fontSize: "18px", fontWeight: 700, color: "#38EF7D", marginTop: "4px" }}>PASS · Testnet Calibrated</div>
-              <p style={{ fontSize: "13px", color: "#A2A1A6", margin: "6px 0 0" }}>
-                Testnet boundaries respected; zero premature mainnet claims.
-              </p>
+          {/* A10's claim firewall, which is a separate check from the creative judge. */}
+          <div style={{ marginTop: "18px", background: "#080310", padding: "18px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.06)" }}>
+            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>CLAIM FIREWALL (A10)</div>
+            <div style={{ fontSize: "18px", fontWeight: 700, marginTop: "4px", color: blockedClaims.length ? "#F0666B" : runData?.review_notes ? "#4ADE9B" : "#7B7590" }}>
+              {blockedClaims.length
+                ? `${blockedClaims.length} claim${blockedClaims.length === 1 ? "" : "s"} blocked`
+                : // The firewall ran and blocked nothing. A run can still be
+                  // blocked overall — this one was, by the creative judge —
+                  // so the two results are reported separately.
+                  runData?.review_notes
+                  ? "no claims blocked"
+                  : "not recorded"}
             </div>
+            {blockedClaims.length > 0 && (
+              <ul style={{ margin: "8px 0 0", paddingLeft: "18px", color: "#7B7590", fontSize: "13px", lineHeight: 1.7 }}>
+                {blockedClaims.map((c: any, i: number) => (
+                  <li key={i}>{typeof c === "string" ? c : JSON.stringify(c)}</li>
+                ))}
+              </ul>
+            )}
+            {runData?.blocked_reason && (
+              <p style={{ fontSize: "13px", color: "#F0666B", margin: "8px 0 0" }}>{runData.blocked_reason}</p>
+            )}
+          </div>
 
-            <div style={{ background: "#080310", padding: "18px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.06)" }}>
-              <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>ADVERSARIAL HUMANIZER</div>
-              <div style={{ fontSize: "18px", fontWeight: 700, color: "#38EF7D", marginTop: "4px" }}>CLEAN · 0 Violations</div>
-              <p style={{ fontSize: "13px", color: "#A2A1A6", margin: "6px 0 0" }}>
-                Em dash check: clean. Zero banned AI clichés. Active developer tone.
-              </p>
+          {copyVerdict && (
+            <div style={{ marginTop: "14px", background: "#080310", padding: "18px", borderRadius: "12px", border: `1px solid ${verdictTone(copyVerdict)}33` }}>
+              <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>COPY</div>
+              <div style={{ fontSize: "18px", fontWeight: 700, color: verdictTone(copyVerdict), marginTop: "4px" }}>{copyVerdict}</div>
+              {copyCritique && (
+                <p style={{ fontSize: "13px", color: "#7B7590", margin: "8px 0 0", lineHeight: 1.6 }}>{copyCritique}</p>
+              )}
             </div>
+          )}
+
+          {/* Delivery is the terminus. Saying a run passed means nothing if no
+              human ever received it. */}
+          <div style={{ marginTop: "14px", fontFamily: MONO, fontSize: "12px", color: "#7B7590" }}>
+            DELIVERED TO REVIEWER: {runData?.dispatched === true ? "yes" : "no"}
+            {runData?.dispatch_detail ? ` · ${runData.dispatch_detail}` : ""}
           </div>
         </div>
       )}
@@ -713,30 +764,30 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       {activeTab === "OVERVIEW" && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "20px" }}>
           <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", padding: "26px" }}>
-            <span style={{ fontFamily: MONO, fontSize: "11px", color: "#32EEE2", fontWeight: 700 }}>STRATEGIC ANCHOR & NARRATIVE</span>
+            <span style={{ fontFamily: MONO, fontSize: "11px", color: "#A98CFF", fontWeight: 700 }}>STRATEGIC ANCHOR & NARRATIVE</span>
             <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#FFFFFF", marginTop: "4px" }}>{title}</h3>
-            <p style={{ fontSize: "14px", color: "#DFDFDF", lineHeight: 1.75, marginTop: "10px" }}>
+            <p style={{ fontSize: "14px", color: "#B8B3C6", lineHeight: 1.75, marginTop: "10px" }}>
               {runData?.reasoning?.hook || runData?.winner_hook || "— no copy recorded for this run"}
             </p>
           </div>
 
           <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", padding: "26px" }}>
-            <span style={{ fontFamily: MONO, fontSize: "11px", color: "#38EF7D", fontWeight: 700 }}>RUN INVARIANTS & TELEMETRY</span>
+            <span style={{ fontFamily: MONO, fontSize: "11px", color: "#4ADE9B", fontWeight: 700 }}>RUN INVARIANTS & TELEMETRY</span>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "14px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px" }}>
-                <span style={{ color: "#8E85A8", fontSize: "14px" }}>Run ID:</span>
-                <span style={{ color: "#A387FF", fontFamily: MONO, fontWeight: 700 }}>{runId}</span>
+                <span style={{ color: "#7B7590", fontSize: "14px" }}>Run ID:</span>
+                <span style={{ color: "#A98CFF", fontFamily: MONO, fontWeight: 700 }}>{runId}</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px" }}>
-                <span style={{ color: "#8E85A8", fontSize: "14px" }}>Reasoning Brain:</span>
-                <span style={{ color: "#38EF7D", fontFamily: MONO, fontWeight: 700 }}>gemini-3.8-flash</span>
+                <span style={{ color: "#7B7590", fontSize: "14px" }}>Reasoning Brain:</span>
+                <span style={{ color: "#4ADE9B", fontFamily: MONO, fontWeight: 700 }}>gemini-3.8-flash</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "8px" }}>
-                <span style={{ color: "#8E85A8", fontSize: "14px" }}>Visual Model:</span>
-                <span style={{ color: "#32EEE2", fontFamily: MONO, fontWeight: 700 }}>gemini-3.1-flash-image</span>
+                <span style={{ color: "#7B7590", fontSize: "14px" }}>Visual Model:</span>
+                <span style={{ color: "#A98CFF", fontFamily: MONO, fontWeight: 700 }}>gemini-3.1-flash-image</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#8E85A8", fontSize: "14px" }}>Total Duration:</span>
+                <span style={{ color: "#7B7590", fontSize: "14px" }}>Total Duration:</span>
                 <span style={{ color: "#FFFFFF", fontFamily: MONO, fontWeight: 700 }}>{duration}</span>
               </div>
             </div>

@@ -1,0 +1,15 @@
+# What Cloud Build uploads. Without this, gcloud falls back to .gitignore
+# resolution and shipped node_modules and .next — 660 MiB per deploy, for
+# files .dockerignore then strips out of the image anyway.
+#
+# .env* is excluded for the same reason it is in .dockerignore: an upload to
+# Cloud Build leaves this machine.
+node_modules/
+.next/
+.git/
+.env
+.env.*
+*.pem
+*.key
+npm-debug.log*
+*.local

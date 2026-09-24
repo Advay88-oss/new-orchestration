@@ -8,20 +8,36 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
   const [launching, setLaunching] = React.useState(false);
   const [launchMsg, setLaunchMsg] = React.useState<string | null>(null);
 
+  // Three buttons fired this POST and only the one inside the history table
+  // recorded the run it started, so a run launched from the header never
+  // appeared under "Fresh Session" — the filter looked broken when it was
+  // being told nothing. That button is gone and its behaviour is here, on
+  // the one launch affordance that remains.
   const handleLaunchRun = async () => {
     setLaunching(true);
     setLaunchMsg(null);
     try {
       const res = await fetch("/api/run", { method: "POST" });
       const data = await res.json();
-      if (data.success) {
-        setLaunchMsg("✓ Run Dispatched!");
-        setTimeout(() => setLaunchMsg(null), 4000);
-      } else {
-        setLaunchMsg("Triggered");
+      const runId = data.run_id || data.result?.run_id;
+      if (runId) {
+        try {
+          const stored = sessionStorage.getItem("vanna_session_runs");
+          const list = stored ? JSON.parse(stored) : [];
+          if (!list.includes(runId)) {
+            list.unshift(runId);
+            sessionStorage.setItem("vanna_session_runs", JSON.stringify(list));
+            window.dispatchEvent(new Event("vanna_session_updated"));
+          }
+        } catch {
+          // sessionStorage is unavailable in some privacy modes; the run has
+          // already been dispatched and the history table will still show it.
+        }
       }
+      setLaunchMsg(data.success ? "✓ Run dispatched" : "Dispatched");
+      setTimeout(() => setLaunchMsg(null), 4000);
     } catch {
-      setLaunchMsg("Triggered");
+      setLaunchMsg("Dispatched");
       setTimeout(() => setLaunchMsg(null), 4000);
     } finally {
       setLaunching(false);
@@ -32,7 +48,7 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
     <header
       style={{
         borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-        background: "#090412",
+        background: "#0C0716",
         padding: "20px 32px",
         display: "flex",
         alignItems: "center",
@@ -62,7 +78,7 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
           style={{
             fontSize: "13px",
             lineHeight: "20px",
-            color: "#A2A1A6",
+            color: "#7B7590",
             maxWidth: "78ch",
             marginTop: "2px",
           }}
@@ -85,7 +101,7 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
           onClick={handleLaunchRun}
           disabled={launching}
           style={{
-            background: "linear-gradient(135deg, #703AE6 0%, #38EF7D 100%)",
+            background: "#703AE6",
             color: "#000000",
             border: "none",
             borderRadius: "10px",
@@ -94,88 +110,17 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
             fontSize: "12px",
             fontWeight: 800,
             cursor: launching ? "not-allowed" : "pointer",
-            boxShadow: "0 4px 16px rgba(56, 239, 125, 0.3)",
             whiteSpace: "nowrap",
             transition: "all 0.15s ease",
           }}
         >
-          {launching ? "⏳ Launching Swarm..." : (launchMsg || "▶ Launch Run")}
+          {launching ? "Launching…" : (launchMsg || "Launch Run")}
         </button>
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "16px",
-            background: "#0C0716",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            borderRadius: "14px",
-            padding: "8px 16px",
-          }}
-        >
-        <div>
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: "10px",
-              lineHeight: "14px",
-              fontWeight: 600,
-              letterSpacing: "0.08em",
-              textTransform: "uppercase",
-              color: "#8E85A8",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Session Spend / Cap
-          </div>
-          <div
-            style={{
-              fontFamily: MONO,
-              fontSize: "16px",
-              fontWeight: 700,
-              fontVariantNumeric: "tabular-nums",
-              marginTop: "2px",
-              color: "#38EF7D",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {vm.spentText}
-            <span style={{ color: "#8E85A8", fontSize: "13px", fontWeight: 500 }}> / {vm.capText}</span>
-          </div>
-        </div>
-
-        <div style={{ width: "130px" }}>
-          <div
-            style={{
-              height: "6px",
-              background: "rgba(255, 255, 255, 0.08)",
-              borderRadius: "999px",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                height: "100%",
-                width: vm.capPct,
-                borderRadius: "999px",
-                background: "linear-gradient(90deg, #703AE6 0%, #38EF7D 100%)",
-              }}
-            />
-          </div>
-          <div
-            style={{
-              marginTop: "4px",
-              fontSize: "11px",
-              lineHeight: "16px",
-              color: "#A2A1A6",
-              textAlign: "right",
-              fontFamily: MONO,
-            }}
-          >
-            {vm.capNote}
-          </div>
-        </div>
-      </div>
+        {/* The Session Spend / Cap card lived here. Every model that runs
+            is unpriced, so it could only ever read "unpriced / $10.00" on
+            every page. Usage that IS measured — calls and tokens — is on
+            each row of the agent history, beside the run that spent it. */}
       </div>
     </header>
   );

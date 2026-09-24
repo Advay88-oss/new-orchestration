@@ -66,7 +66,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
   };
 
   const handleDraftPost = async (idea: any) => {
-    setActionFeedback(`🚀 Launching 13-agent run for: "${idea.hook.slice(0, 50)}..."`);
+    setActionFeedback(`Launching 13-agent run for: "${idea.hook.slice(0, 50)}..."`);
     try {
       const res = await fetch("/api/run", {
         method: "POST",
@@ -103,7 +103,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       });
       const data = await res.json();
       if (data.success) {
-        setActionFeedback(`✓ Idea ${ideaId} dismissed and logged to outcomes.jsonl`);
+        setActionFeedback(`✓ Idea ${ideaId} dismissed`);
         // Remove locally from state
         setIdeasData((prev: any) => ({
           ...prev,
@@ -122,7 +122,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
     return true;
   });
 
-  const TYPES = ["ALL", "POST", "THREAD", "VISUAL", "VIDEO", "DOC"];
+  const TYPES = ["ALL", "PROPOSED", "GTM_CYCLE"];
 
   return (
     <section className="vanna-section">
@@ -130,30 +130,30 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       <div className="vanna-banner">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#32EEE2", boxShadow: "0 0 10px #32EEE2" }} />
-            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "#32EEE2", letterSpacing: "0.1em" }}>
+            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#A98CFF", boxShadow: "0 0 10px #A98CFF" }} />
+            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "#A98CFF", letterSpacing: "0.1em" }}>
               STRATEGIC GTM IDEAS OBSERVATORY
             </span>
           </div>
           <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#FFFFFF", marginTop: "6px" }}>
             Actionable Ideas Synthesized from Scraped Market Intelligence
           </h2>
-          <p style={{ fontSize: "14px", color: "#A2A1A6", marginTop: "4px" }}>
-            Curated 8 to 12 claim-gated ideas tracing to verified patterns, Curve/Stellar news, and competitor teardowns. Render visuals on demand or draft with 1-click.
+          <p style={{ fontSize: "14px", color: "#7B7590", marginTop: "4px" }}>
+            Angles worth drafting, and the runs already made.
           </p>
         </div>
 
         {/* Global Counter */}
         <div style={{ display: "flex", gap: "16px" }}>
           <div>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>RUNNABLE TODAY</div>
-            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "#38EF7D" }}>
+            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>RUNNABLE TODAY</div>
+            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "#4ADE9B" }}>
               {ideasData?.runnable_today_count || 0} Ideas
             </div>
           </div>
           <div>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>BLOCKED (MAINNET)</div>
-            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "#FC5457" }}>
+            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>BLOCKED (MAINNET)</div>
+            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "#F0666B" }}>
               {ideasData?.blocked_count || 0} Ideas
             </div>
           </div>
@@ -161,7 +161,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       </div>
 
       {actionFeedback && (
-        <div style={{ fontFamily: MONO, fontSize: "12px", color: "#38EF7D", background: "rgba(56, 239, 125, 0.1)", padding: "12px 18px", borderRadius: "10px", border: "1px solid rgba(56, 239, 125, 0.3)" }}>
+        <div style={{ fontFamily: MONO, fontSize: "12px", color: "#4ADE9B", background: "rgba(56, 239, 125, 0.1)", padding: "12px 18px", borderRadius: "10px", border: "1px solid rgba(56, 239, 125, 0.3)" }}>
           {actionFeedback}
         </div>
       )}
@@ -174,7 +174,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid rgba(255, 255, 255, 0.12)",
-              color: "#DFDFDF",
+              color: "#B8B3C6",
               padding: "6px 14px",
               borderRadius: "8px",
               fontFamily: MONO,
@@ -193,7 +193,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
               style={{
                 background: filterType === t ? "rgba(112, 58, 230, 0.3)" : "rgba(255,255,255,0.04)",
                 border: `1px solid ${filterType === t ? "#703AE6" : "rgba(255,255,255,0.1)"}`,
-                color: filterType === t ? "#FFFFFF" : "#8E85A8",
+                color: filterType === t ? "#FFFFFF" : "#7B7590",
                 padding: "6px 14px",
                 borderRadius: "8px",
                 cursor: "pointer",
@@ -207,12 +207,12 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
           ))}
         </div>
 
-        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontFamily: MONO, fontSize: "12px", color: "#DFDFDF" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontFamily: MONO, fontSize: "12px", color: "#B8B3C6" }}>
           <input
             type="checkbox"
             checked={onlyRunnable}
             onChange={(e) => setOnlyRunnable(e.target.checked)}
-            style={{ cursor: "pointer", accentColor: "#38EF7D" }}
+            style={{ cursor: "pointer", accentColor: "#4ADE9B" }}
           />
           Show Only Runnable Today (No Blocked Claims)
         </label>
@@ -221,16 +221,13 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       {/* Ideas Cards Grid */}
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
         {filteredIdeas.map((idea) => {
+          // PROPOSED is an angle nobody has drafted yet; GTM_CYCLE already ran.
           const typeColor =
-            idea.type === "POST"
-              ? "#32EEE2"
-              : idea.type === "THREAD"
-                ? "#A387FF"
-                : idea.type === "VISUAL"
-                  ? "#38EF7D"
-                  : idea.type === "VIDEO"
-                    ? "#FC5457"
-                    : "#F5A623";
+            idea.type === "PROPOSED"
+              ? "#F5A524"
+              : idea.type === "GTM_CYCLE"
+                ? "#A98CFF"
+                : "#A98CFF";
 
           const renderedImg = renderedVisuals[idea.id];
 
@@ -266,8 +263,8 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                     >
                       {idea.type}
                     </span>
-                    <span style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8" }}>{idea.id}</span>
-                    <span style={{ fontFamily: MONO, fontSize: "10px", color: idea.runnable_today ? "#38EF7D" : "#FC5457", background: idea.runnable_today ? "rgba(56,239,125,0.1)" : "rgba(252,84,87,0.1)", padding: "2px 8px", borderRadius: "4px" }}>
+                    <span style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590" }}>{idea.id}</span>
+                    <span style={{ fontFamily: MONO, fontSize: "10px", color: idea.runnable_today ? "#4ADE9B" : "#F0666B", background: idea.runnable_today ? "rgba(56,239,125,0.1)" : "rgba(252,84,87,0.1)", padding: "2px 8px", borderRadius: "4px" }}>
                       {idea.runnable_today ? "● RUNNABLE TODAY" : "⛔ BLOCKED"}
                     </span>
                   </div>
@@ -280,7 +277,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                       style={{
                         background: "rgba(112, 58, 230, 0.2)",
                         border: "1px solid rgba(163, 135, 255, 0.4)",
-                        color: "#A387FF",
+                        color: "#A98CFF",
                         padding: "6px 14px",
                         borderRadius: "8px",
                         fontFamily: MONO,
@@ -289,13 +286,13 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                         cursor: renderingIdeaId === idea.id ? "not-allowed" : "pointer"
                       }}
                     >
-                      {renderingIdeaId === idea.id ? "⏳ Rendering..." : "🎨 Render Visual"}
+                      {renderingIdeaId === idea.id ? "Rendering..." : "🎨 Render Visual"}
                     </button>
 
                     <button
                       onClick={() => handleDraftPost(idea)}
                       style={{
-                        background: "linear-gradient(135deg, #703AE6, #32EEE2)",
+                        background: "linear-gradient(135deg, #703AE6, #A98CFF)",
                         border: "none",
                         color: "#07020D",
                         padding: "6px 14px",
@@ -306,7 +303,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                         cursor: "pointer"
                       }}
                     >
-                      ⚡ Draft Post
+                      Draft Post
                     </button>
 
                     <button
@@ -314,7 +311,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                       style={{
                         background: "rgba(255, 255, 255, 0.04)",
                         border: "1px solid rgba(255, 255, 255, 0.1)",
-                        color: "#8E85A8",
+                        color: "#7B7590",
                         padding: "6px 12px",
                         borderRadius: "8px",
                         fontFamily: MONO,
@@ -330,19 +327,43 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                 <h3 style={{ fontSize: "17px", fontWeight: 700, color: "#FFFFFF", marginTop: "10px" }}>
                   {idea.hook}
                 </h3>
-                <p style={{ fontSize: "13px", color: "#DFDFDF", lineHeight: 1.5, marginTop: "4px" }}>
+                <p style={{ fontSize: "13px", color: "#B8B3C6", lineHeight: 1.5, marginTop: "4px" }}>
                   {idea.rationale}
                 </p>
                 {idea.blocked_by && (
-                  <div style={{ fontSize: "12px", color: "#FC5457", background: "rgba(252,84,87,0.1)", padding: "8px 12px", borderRadius: "6px", marginTop: "8px" }}>
+                  <div style={{ fontSize: "12px", color: "#F0666B", background: "rgba(252,84,87,0.1)", padding: "8px 12px", borderRadius: "6px", marginTop: "8px" }}>
                     <strong>Blocker Notice:</strong> {idea.blocked_by}
                   </div>
                 )}
               </div>
 
+              {/* Creative direction — what to MAKE, not only what to say.
+                  Present on PROPOSED entries; a finished run has the real
+                  asset above instead. */}
+              {(idea.visual_direction || idea.video_direction || idea.gtm_play) && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "10px" }}>
+                  {[
+                    ["🎨 VISUAL", idea.visual_direction, "#A98CFF"],
+                    ["🎬 VIDEO", idea.video_direction, "#A98CFF"],
+                    ["GTM PLAY", idea.gtm_play, "#4ADE9B"],
+                  ].map(([label, text, tone]) =>
+                    text ? (
+                      <div key={label as string} style={{ background: "#080310", border: `1px solid ${tone}26`, borderRadius: "10px", padding: "12px 14px" }}>
+                        <div style={{ fontFamily: MONO, fontSize: "10px", color: tone as string, fontWeight: 700, letterSpacing: "0.06em" }}>
+                          {label}
+                        </div>
+                        <div style={{ fontSize: "12px", color: "#B8B3C6", lineHeight: 1.55, marginTop: "5px" }}>
+                          {text}
+                        </div>
+                      </div>
+                    ) : null,
+                  )}
+                </div>
+              )}
+
               {/* Rendered Visual Preview */}
               {(renderedImg || idea.visual_url) && (
-                <div style={{ borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)", maxWidth: "560px", background: "#05010A" }}>
+                <div style={{ borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)", maxWidth: "560px", background: "#080310" }}>
                   <img
                     src={resolveMediaUrl(renderedImg || idea.visual_url)}
                     alt={idea.hook}
@@ -355,7 +376,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                         div.className = "fallback-notice";
                         div.style.padding = "24px";
                         div.style.textAlign = "center";
-                        div.style.color = "#8E85A8";
+                        div.style.color = "#7B7590";
                         div.style.fontSize = "12px";
                         div.style.fontFamily = "JetBrains Mono, monospace";
                         div.innerHTML = "<div style='font-size: 20px; margin-bottom: 6px;'>🎨</div><div>3D Isometric schematic ready. Click <strong>Render Visual</strong> above to generate with Gemini 3.1 Flash Image.</div>";
@@ -367,19 +388,31 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
               )}
 
               {/* Provenance & Claims Footer */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px", background: "rgba(255,255,255,0.02)", padding: "12px 14px", borderRadius: "8px", fontSize: "11px", fontFamily: MONO, color: "#8E85A8" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px", background: "rgba(255,255,255,0.02)", padding: "12px 14px", borderRadius: "8px", fontSize: "11px", fontFamily: MONO, color: "#7B7590" }}>
+                {idea.pattern_ref && (
+                  <div>
+                    <span style={{ color: "#B8B3C6" }}>PATTERN:</span> {idea.pattern_ref}
+                  </div>
+                )}
+                {idea.audience_segment && (
+                  <div>
+                    <span style={{ color: "#B8B3C6" }}>AUDIENCE:</span> {idea.audience_segment}
+                  </div>
+                )}
+                {idea.signal_headline && (
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <span style={{ color: "#B8B3C6" }}>FROM SIGNAL:</span> {idea.signal_headline}
+                  </div>
+                )}
                 <div>
-                  <span style={{ color: "#DFDFDF" }}>PATTERN:</span> {idea.pattern_ref}
-                </div>
-                <div>
-                  <span style={{ color: "#DFDFDF" }}>AUDIENCE:</span> {idea.audience_segment}
-                </div>
-                <div>
-                  <span style={{ color: "#DFDFDF" }}>EFFORT:</span> {idea.effort} · CLAIMS: <span style={{ color: "#38EF7D" }}>{idea.claims_gate}</span>
+                  <span style={{ color: "#B8B3C6" }}>EFFORT:</span> {idea.effort} · CLAIMS:{" "}
+                  <span style={{ color: idea.claims_gate === "PASS" ? "#4ADE9B" : idea.claims_gate === "UNCHECKED" ? "#F5A524" : "#F0666B" }}>
+                    {idea.claims_gate}
+                  </span>
                 </div>
                 {idea.pattern_source && (
                   <div>
-                    <a href={idea.trend_link || "#"} target="_blank" rel="noreferrer" style={{ color: "#32EEE2", textDecoration: "none" }}>
+                    <a href={idea.trend_link || "#"} target="_blank" rel="noreferrer" style={{ color: "#A98CFF", textDecoration: "none" }}>
                       Source Proof ↗
                     </a>
                   </div>

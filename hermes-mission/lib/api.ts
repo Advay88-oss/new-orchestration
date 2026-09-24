@@ -16,7 +16,7 @@ export const ROUTES = {
     (since != null ? `&since=${since}` : "") +
     `&limit=${limit}`,
   identities: () => `${API_BASE}/api/identities`,
-  spend: () => `${API_BASE}/api/spend`,
+  spend: () => `${API_BASE}/api/v2/spend`,
   calls: (sinceIso?: string) =>
     `${API_BASE}/api/calls` + (sinceIso ? `?since=${encodeURIComponent(sinceIso)}` : ""),
   agentsStatus: () => `${API_BASE}/api/agents/status`,
@@ -26,10 +26,14 @@ export const ROUTES = {
 };
 
 export interface SpendLedger {
-  cap_usd: number;
-  remaining_usd: number;
+  cap_usd?: number;
+  capUsd?: number;
+  remaining_usd?: number;
   spent_usd?: number;
-  started: string;
+  /** Null while any model that ran has no published rate. */
+  costUsd?: number | null;
+  costComplete?: boolean;
+  started?: string;
 }
 
 /** Last-read state, so the UI can say "stale" instead of silently showing fixtures. */
@@ -72,9 +76,8 @@ export async function fetchIdentities(): Promise<Record<string, string>> {
 export async function fetchSpend(): Promise<SpendLedger> {
   const fallback: SpendLedger = {
     cap_usd: 10.0,
-    remaining_usd: 10.0,
-    spent_usd: 0.0,
-    started: "2026-09-19T00:00:00Z",
+    costUsd: null,
+    costComplete: false,
   };
   return getJson<SpendLedger>(ROUTES.spend(), fallback);
 }
@@ -101,12 +104,23 @@ export async function fetchReview(draftId: string): Promise<Review> {
   return getJson<Review>(ROUTES.review(draftId), defaultReview);
 }
 
+/**
+ * Is the data relay answering?
+ *
+ * Two bugs lived here. The default pointed at `http://127.0.0.1:3000`, so the
+ * deployed dashboard probed the *viewer's* machine rather than its own origin
+ * and always failed. And the catch returned "live", so a network error — the
+ * one case this function exists to detect — lit the indicator green.
+ *
+ * The relay is whatever origin served the page, so the default is a relative
+ * URL, and a throw is a failure.
+ */
 export async function probeRelay(relayUrl?: string): Promise<"live" | "failed"> {
   try {
-    const res = await fetch(relayUrl || "http://127.0.0.1:3000/api/spend", { cache: "no-store" });
+    const res = await fetch(`${relayUrl ?? ""}/api/spend`, { cache: "no-store" });
     return res.ok ? "live" : "failed";
   } catch {
-    return "live";
+    return "failed";
   }
 }
 
@@ -145,12 +159,17 @@ export async function loadMissionData(): Promise<MissionData> {
     const dynamicRuns: Run[] = (Array.isArray(runsData?.runs) ? runsData.runs : []).map((r: any) => {
       const started = r.started || Math.floor(Date.now() / 1000) - 30;
       const ended = r.ended || started + (r.duration_s || 24);
-      const scoreNum = parseInt(r.agent_outputs?.agent_10_reviewer?.score) || 96;
-      const xThreads: string[] = Array.isArray(r.agent_outputs?.agent_06_content?.x_threads)
-        ? r.agent_outputs.agent_06_content.x_threads
-        : (r.winner_body ? [r.winner_body] : [r.winner_hook || r.title || "Vanna Protocol Run"]);
-      const hook = r.winner_hook || xThreads[0] || r.title || "Vanna Run";
-      const body = r.winner_body || xThreads.join("\n\n");
+      // No score exists in this pipeline; the judge returns enum verdicts.
+      const scoreNum: number | null = null;
+      // A06 writes the copy to `posts.<channel>.{hook,copy}`. This read
+      // `agent_outputs.agent_06_content.x_threads`, a key the API has never
+      // emitted, so it always fell through to a placeholder title.
+      const xPost = r.posts?.x ?? null;
+      const xThreads: string[] = xPost?.copy
+        ? String(xPost.copy).split(/\n\s*\n/).map((s: string) => s.trim()).filter(Boolean)
+        : [];
+      const hook = xPost?.hook || r.title || r.run_id;
+      const body = xPost?.copy || "";
 
       return {
         key: r.run_id,
@@ -215,8 +234,19 @@ export async function loadMissionData(): Promise<MissionData> {
 
     return {
       ...MISSION_DATA,
-      CAP_USD: spend?.cap_usd || 10.0,
-      SPENT_USD: spend?.spent_usd ?? 0.0,
+      CAP_USD: spend?.capUsd ?? spend?.cap_usd ?? 10.0,
+      // Null when unpriced, never 0. The header renders it as "unpriced"
+      // rather than printing a dollar figure nothing measured.
+      // Counted, not multiplied. The sidebar badge was runs*3, which
+      // assumed every run produced three posts — so 50 runs showed 150
+      // while the feed itself listed 120, because NO_ACTION and aborted
+      // runs produce none.
+      POSTS_TOTAL: (Array.isArray(runsData?.runs) ? runsData.runs : [])
+        .reduce((n: number, r: any) =>
+          n + ["x", "linkedin", "reddit"].filter((k) => r?.posts?.[k]?.copy).length, 0),
+      SPENT_USD: typeof spend?.costUsd === "number" && spend?.costComplete
+        ? spend.costUsd
+        : null,
       AGENTS: Array.isArray(agents) ? agents : [],
       AGENT_BY_KEY: identities || {},
       RUNS: dynamicRuns

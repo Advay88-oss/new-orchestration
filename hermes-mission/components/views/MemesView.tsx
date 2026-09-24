@@ -77,7 +77,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
   };
 
   const handleDraftPost = async (meme: any) => {
-    setActionFeedback(`🚀 Staging post for: "${meme.vanna_angle.slice(0, 50)}..."`);
+    setActionFeedback(`Staging post for: "${meme.vanna_angle.slice(0, 50)}..."`);
     try {
       const promptText = `Draft a humorous cultural crypto post: ${meme.vanna_angle}. Copy: ${meme.copy.replace(/\n/g, ' ')}`;
       const res = await fetch("/api/run", {
@@ -106,7 +106,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
       });
       const data = await res.json();
       if (data.success) {
-        setActionFeedback(`✓ Meme ${memeId} dismissed and logged to outcomes.jsonl`);
+        setActionFeedback(`✓ Meme ${memeId} dismissed`);
         setMemesData((prev: any) => ({
           ...prev,
           memes: prev.memes.filter((m: any) => m.id !== memeId)
@@ -125,15 +125,15 @@ export function MemesView({ vm }: { vm: MissionVM }) {
       <div className="vanna-banner">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#FC5457", boxShadow: "0 0 10px #FC5457" }} />
-            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "#FC5457", letterSpacing: "0.1em" }}>
+            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#F0666B", boxShadow: "0 0 10px #F0666B" }} />
+            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "#F0666B", letterSpacing: "0.1em" }}>
               CULTURALLY GROUNDED CRYPTO & DEFI MEMES
             </span>
           </div>
           <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#FFFFFF", marginTop: "6px" }}>
             Meme Engineering: Liquidation Pain & Gas Anxiety
           </h2>
-          <p style={{ fontSize: "14px", color: "#A2A1A6", marginTop: "4px" }}>
+          <p style={{ fontSize: "14px", color: "#7B7590", marginTop: "4px" }}>
             Separate pipeline with strict claim gating and honest risk evaluations. Zero competitor attacks, zero fabricated numbers, verified format freshness.
           </p>
         </div>
@@ -141,13 +141,13 @@ export function MemesView({ vm }: { vm: MissionVM }) {
         {/* Global Risk Distribution & View Toggle */}
         <div style={{ display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap" }}>
           <div>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>LOW RISK</div>
-            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "#38EF7D" }}>
+            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>LOW RISK</div>
+            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "#4ADE9B" }}>
               {memesData?.low_risk_count || 0} Memes
             </div>
           </div>
           <div>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#8E85A8" }}>MEDIUM RISK</div>
+            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>MEDIUM RISK</div>
             <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "#F5A623" }}>
               {memesData?.medium_risk_count || 0} Memes
             </div>
@@ -158,7 +158,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
             style={{
               background: "rgba(255, 255, 255, 0.05)",
               border: "1px solid rgba(255, 255, 255, 0.12)",
-              color: "#DFDFDF",
+              color: "#B8B3C6",
               padding: "8px 14px",
               borderRadius: "8px",
               fontFamily: MONO,
@@ -175,7 +175,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
             style={{
               background: showAllVisuals ? "rgba(112, 58, 230, 0.25)" : "rgba(255, 255, 255, 0.05)",
               border: `1px solid ${showAllVisuals ? "#703AE6" : "rgba(255, 255, 255, 0.1)"}`,
-              color: showAllVisuals ? "#FFFFFF" : "#A2A1A6",
+              color: showAllVisuals ? "#FFFFFF" : "#7B7590",
               padding: "8px 16px",
               borderRadius: "8px",
               fontFamily: MONO,
@@ -191,7 +191,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
       </div>
 
       {actionFeedback && (
-        <div style={{ fontFamily: MONO, fontSize: "12px", color: "#38EF7D", background: "rgba(56, 239, 125, 0.1)", padding: "12px 18px", borderRadius: "10px", border: "1px solid rgba(56, 239, 125, 0.3)" }}>
+        <div style={{ fontFamily: MONO, fontSize: "12px", color: "#4ADE9B", background: "rgba(56, 239, 125, 0.1)", padding: "12px 18px", borderRadius: "10px", border: "1px solid rgba(56, 239, 125, 0.3)" }}>
           {actionFeedback}
         </div>
       )}
@@ -199,7 +199,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
       {/* Memes Cards Grid */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 540px), 1fr))", gap: "18px" }}>
         {memes.map((m) => {
-          const riskColor = m.risk === "LOW" ? "#38EF7D" : m.risk === "MEDIUM" ? "#F5A623" : "#FC5457";
+          const riskColor = m.risk === "LOW" ? "#4ADE9B" : m.risk === "MEDIUM" ? "#F5A623" : "#F0666B";
           const renderedImg = renderedVisuals[m.id];
 
           return (
@@ -221,18 +221,18 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                 {/* Header Strip */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px", flexWrap: "wrap" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
-                    <span style={{ fontFamily: MONO, fontSize: "10px", fontWeight: 800, color: "#A387FF", background: "rgba(112, 58, 230, 0.2)", padding: "2px 8px", borderRadius: "4px" }}>
+                    <span style={{ fontFamily: MONO, fontSize: "10px", fontWeight: 800, color: "#A98CFF", background: "rgba(112, 58, 230, 0.2)", padding: "2px 8px", borderRadius: "4px" }}>
                       {m.format}
                     </span>
                     <span style={{ fontFamily: MONO, fontSize: "10px", color: riskColor, background: `${riskColor}18`, border: `1px solid ${riskColor}40`, padding: "2px 8px", borderRadius: "4px" }}>
                       RISK: {m.risk}
                     </span>
-                    <span style={{ fontFamily: MONO, fontSize: "10px", color: m.freshness === "in circulation" ? "#32EEE2" : "#8E85A8" }}>
+                    <span style={{ fontFamily: MONO, fontSize: "10px", color: m.freshness === "in circulation" ? "#A98CFF" : "#7B7590" }}>
                       ● {m.freshness}
                     </span>
                   </div>
 
-                  <span style={{ fontFamily: MONO, fontSize: "11px", color: "#32EEE2", background: "rgba(50, 238, 226, 0.1)", padding: "3px 10px", borderRadius: "6px" }}>
+                  <span style={{ fontFamily: MONO, fontSize: "11px", color: "#A98CFF", background: "rgba(50, 238, 226, 0.1)", padding: "3px 10px", borderRadius: "6px" }}>
                     Format: {m.reference}
                   </span>
                 </div>
@@ -243,19 +243,19 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                 </h3>
 
                 {/* Copy / Dialogue */}
-                <div style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", padding: "12px 14px", marginTop: "10px", fontSize: "13px", color: "#DFDFDF", whiteSpace: "pre-line", lineHeight: 1.55 }}>
+                <div style={{ background: "rgba(0,0,0,0.4)", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "10px", padding: "12px 14px", marginTop: "10px", fontSize: "13px", color: "#B8B3C6", whiteSpace: "pre-line", lineHeight: 1.55 }}>
                   {m.copy}
                 </div>
 
                 {/* Risk Explanation */}
-                <div style={{ fontSize: "11px", color: "#8E85A8", marginTop: "10px", lineHeight: 1.5 }}>
+                <div style={{ fontSize: "11px", color: "#7B7590", marginTop: "10px", lineHeight: 1.5 }}>
                   <strong style={{ color: riskColor }}>Risk Analysis:</strong> {m.risk_reason}
                 </div>
               </div>
 
               {/* Inline Meme Visual Preview */}
               {(renderedVisuals[m.id] || (showAllVisuals ? m.visual_url : null)) && (
-                <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)", background: "#05010A", marginTop: "8px" }}>
+                <div style={{ borderRadius: "12px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)", background: "#080310", marginTop: "8px" }}>
                   <img
                     src={resolveMediaUrl(renderedVisuals[m.id] || m.visual_url)}
                     alt={m.vanna_angle}
@@ -268,7 +268,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                         div.className = "fallback-notice";
                         div.style.padding = "24px";
                         div.style.textAlign = "center";
-                        div.style.color = "#8E85A8";
+                        div.style.color = "#7B7590";
                         div.style.fontSize = "12px";
                         div.style.fontFamily = "JetBrains Mono, monospace";
                         div.innerHTML = "<div style='font-size: 20px; margin-bottom: 6px;'>🎨</div><div>Visual ready to synthesize. Click <strong>Render Visual</strong> below to generate with Gemini 3.1 Flash Image.</div>";
@@ -281,7 +281,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
 
               {/* Action Buttons */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "12px", marginTop: "8px" }}>
-                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#38EF7D" }}>
+                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#4ADE9B" }}>
                   CLAIMS: {m.claims_gate}
                 </span>
 
@@ -292,7 +292,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                     style={{
                       background: "rgba(112, 58, 230, 0.2)",
                       border: "1px solid rgba(163, 135, 255, 0.3)",
-                      color: "#A387FF",
+                      color: "#A98CFF",
                       padding: "6px 12px",
                       borderRadius: "6px",
                       fontFamily: MONO,
@@ -301,13 +301,13 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                       cursor: renderingMemeId === m.id ? "not-allowed" : "pointer"
                     }}
                   >
-                    {renderingMemeId === m.id ? "⏳ Rendering..." : "🎨 Render Visual"}
+                    {renderingMemeId === m.id ? "Rendering..." : "🎨 Render Visual"}
                   </button>
 
                   <button
                     onClick={() => handleDraftPost(m)}
                     style={{
-                      background: "linear-gradient(135deg, #FC5457, #703AE6)",
+                      background: "linear-gradient(135deg, #F0666B, #703AE6)",
                       border: "none",
                       color: "#FFFFFF",
                       padding: "6px 14px",
@@ -318,7 +318,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                       cursor: "pointer"
                     }}
                   >
-                    ⚡ Draft Post
+                    Draft Post
                   </button>
 
                   <button
@@ -326,7 +326,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                     style={{
                       background: "transparent",
                       border: "1px solid rgba(255,255,255,0.1)",
-                      color: "#8E85A8",
+                      color: "#7B7590",
                       padding: "6px 10px",
                       borderRadius: "6px",
                       fontFamily: MONO,

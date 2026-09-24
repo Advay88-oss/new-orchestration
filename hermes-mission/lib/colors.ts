@@ -15,15 +15,15 @@ export const ACCENT_DEEP = "#3E207F";
 export const OK = "#24A0A9";
 export const OK_SOFT = "#EBFCFD";
 
-export const BAD = "#E54C4F";
+export const BAD = "#F0666B";
 export const BAD_SOFT = "#FEEEEE";
 
-export const WARN = "#E8006F";
+export const WARN = "#D2679B";
 export const WARN_SOFT = "#FFE6F2";
 
 export const NEUTRAL = "#777777";
 
-export const GRADIENT = "linear-gradient(135deg, #FC5457 10%, #703AE6 80%)";
+export const GRADIENT = "#703AE6";
 
 /**
  * The original wrote this literally as `'JetBrains Mono', monospace`. next/font

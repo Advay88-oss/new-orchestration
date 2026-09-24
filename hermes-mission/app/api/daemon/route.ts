@@ -3,6 +3,7 @@ import { runPython, lastJson, pythonPath } from '@/lib/python';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
+import { localOnly } from '@/lib/local-only';
 
 const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : 'D:/new orchestration');
 const SCRIPT_PATH = path.join(REPO_ROOT, 'pipeline/scripts/daemon_manager.py');
@@ -12,6 +13,9 @@ const STATUS_FILE = path.join(REPO_ROOT, 'pipeline/state/daemon_status.json');
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  const blocked = localOnly('the daemon');
+  if (blocked) return blocked;
+
   try {
     let pid: number | null = null;
     let isRunning = false;
@@ -53,6 +57,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const blocked = localOnly('the daemon');
+  if (blocked) return blocked;
+
   try {
     const body = await req.json().catch(() => ({}));
     const action = (body.action || "status").toLowerCase(); // "start" | "stop" | "restart" | "status"

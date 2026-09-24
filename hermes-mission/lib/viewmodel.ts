@@ -90,7 +90,7 @@ export function useMissionControl(props: MissionControlProps) {
           setRunKey(prev => prev || d.RUNS[0].key);
         }
         // Auto-probe the relay on every tick
-        probeRelay(d.RELAY ?? "http://127.0.0.1:3000").then(setRelay);
+        probeRelay(d.RELAY ?? "").then(setRelay);
       }),
     );
     return () => {
@@ -141,7 +141,9 @@ export function useMissionControl(props: MissionControlProps) {
 
   const runs = useCallback((): Run[] => (data ? data.RUNS : []), [data]);
 
-  const totalSpent = data ? (data.SPENT_USD ?? data.RUNS.reduce((a, r) => a + runCost(r), 0)) : 0;
+  // Null propagates: an unknown spend must not become a zero on the way
+  // to the header, because a zero reads as a measurement.
+  const totalSpent: number | null = data ? (data.SPENT_USD ?? null) : null;
 
   const outcomeMeta = useCallback((run?: Run | null) => {
     if (!run) return { label: "Standby", color: NEUTRAL, soft: "#F4F4F4", note: "No active run" };
@@ -179,7 +181,7 @@ export function useMissionControl(props: MissionControlProps) {
 
   const tryRelay = useCallback(() => {
     setRelay("trying");
-    probeRelay(data ? data.RELAY : "http://127.0.0.1:3000").then(setRelay);
+    probeRelay(data?.RELAY ?? "").then(setRelay);
   }, [data]);
 
   /* ================================================================ renderVals */
@@ -188,19 +190,32 @@ export function useMissionControl(props: MissionControlProps) {
   const vals = (() => {
     const d = data;
 
+    // Nine sections, not twelve. Three were removed rather than reworded:
+    //   "Run Detail" was a nav entry for a page about a run you had not
+    //     chosen yet, so clicking it with nothing selected was a dead end.
+    //     It is still where "Inspect →" goes, which is the only way it was
+    //     ever meant to be reached.
+    //   "Cost & Cap" could only ever say "unpriced": no rate table is wired
+    //     for Model Garden or the API key. Token and call counts are real and
+    //     they are in the history table, next to the run that spent them.
+    //   "Backend Topology" reported "~1.2s", "~4.2s" and "Active (30m)" as
+    //     subsystem latencies that were typed into the component, not
+    //     measured. A diagnostics page that asserts its readings is worse
+    //     than no diagnostics page.
+    // Emoji came off the three labels that had them; nine items where three
+    // are decorated and six are not is not a set.
     const nav = [
+      { id: "trace", label: "Live Trace" },
       { id: "live", label: "Agent Decisions" },
-      { id: "scheduler", label: "⏰ 24/7 Scheduler" },
-      { id: "ideas", label: "💡 Ideas Panel" },
-      { id: "memes", label: "🎭 Crypto Memes" },
-      { id: "runs", label: "Runs Observatory" },
-      { id: "run", label: "Run Detail" },
+      { id: "scheduler", label: "24/7 Scheduler" },
+      { id: "ideas", label: "Ideas Panel" },
+      { id: "memes", label: "Crypto Memes" },
+      { id: "runs", label: "Agent History" },
+      { id: "problems", label: "Problems" },
       { id: "agents", label: "13 GTM Agents" },
       { id: "research", label: "Scraped Intelligence" },
-      { id: "pipeline", label: "13-Stage Matrix" },
+      { id: "references", label: "Vanna References" },
       { id: "posts", label: "Multi-Channel Feed" },
-      { id: "cost", label: "Cost & Cap" },
-      { id: "notes", label: "Backend Topology" },
     ].map((n) => {
       const on = view === n.id;
       return {
@@ -212,7 +227,7 @@ export function useMissionControl(props: MissionControlProps) {
             : n.id === "agents"
               ? "13"
               : n.id === "posts"
-                ? String(runs().length > 0 ? runs().length * 3 : 0)
+                ? String(data?.POSTS_TOTAL ?? 0)
                 : n.id === "live"
                   ? runs().some((r) => r.outcome === "running")
                     ? "●"
@@ -224,7 +239,7 @@ export function useMissionControl(props: MissionControlProps) {
           height: "6px",
           borderRadius: "999px",
           flex: "0 0 6px",
-          background: on ? ACCENT : "#2C2C2C",
+          background: on ? "var(--vn-accent)" : "#2A2637",
         } as const,
         style: {
           display: "flex",
@@ -234,22 +249,28 @@ export function useMissionControl(props: MissionControlProps) {
           width: "100%",
           textAlign: "left",
           padding: "11px 14px",
-          borderRadius: "12px",
+          borderRadius: "10px",
           cursor: "pointer",
           border: "none",
-          background: on ? "#1E1E1E" : "transparent",
-          color: on ? "#FFFFFF" : "#A9A9A9",
-          fontWeight: 600,
+          // Selected was a neutral #1E1E1E block and a white label — the same
+          // treatment any grey UI gives any selected row. The rail is the one
+          // place a reader looks to know where they are, so the accent earns
+          // its keep here: a violet edge, the surface behind it, and the
+          // brightest text on the page.
+          background: on ? "var(--vn-surface)" : "transparent",
+          boxShadow: on ? "inset 2px 0 0 var(--vn-accent)" : "none",
+          color: on ? "var(--vn-ink)" : "var(--vn-ink-muted)",
+          fontWeight: on ? 600 : 500,
           fontSize: "14px",
           lineHeight: "21px",
         } as React.CSSProperties,
       };
     });
 
-    const spent = totalSpent,
-      pct = Math.min(1, spent / cap);
+    const spent = totalSpent;
+    const pct = spent === null ? 0 : Math.min(1, spent / cap);
     const capColor = pct > 0.85 ? BAD : pct > 0.6 ? ACCENT : INK;
-    const capBar = pct > 0.85 ? "linear-gradient(90deg, #FC5457, #E54C4F)" : GRADIENT;
+    const capBar = pct > 0.85 ? "#F0666B" : GRADIENT;
     const secsLeft = Math.max(0, Math.ceil(interval_ - (Date.now() - lastPoll) / 1000));
     const intervals = [10, 15, 60].map((v) => {
       const on = interval_ === v;
@@ -277,16 +298,18 @@ export function useMissionControl(props: MissionControlProps) {
       nav,
       intervals,
       isRuns: view === "runs",
+      isProblems: view === "problems",
       isRun: view === "run",
       isAgents: view === "agents",
       isResearch: view === "research",
+      isReferences: view === "references",
       isScheduler: view === "scheduler",
       isIdeas: view === "ideas",
       isMemes: view === "memes",
       isCost: view === "cost",
       isNotes: view === "notes",
       isLive: view === "live",
-      isPipeline: view === "pipeline",
+      isTrace: view === "trace",
       isPosts: view === "posts",
       goRuns: () => setView("runs"),
       goLive: () => setView("live"),
@@ -303,14 +326,18 @@ export function useMissionControl(props: MissionControlProps) {
         if (e && e.preventDefault) e.preventDefault();
         setView("notes");
       },
-      spentText: usd(spent, 4),
+      spentText: spent === null ? "unpriced" : usd(spent, 4),
       capText: usd(cap, 2),
-      capPct: (pct * 100).toFixed(1) + "%",
+      capPct: spent === null ? "0%" : (pct * 100).toFixed(1) + "%",
       capColor,
       capBar,
-      capNote: pct > 0.85 ? "approaching cap" : Math.round(pct * 100) + "% of cap used",
+      capNote: spent === null
+        ? "no rate table"
+        : pct > 0.85 ? "approaching cap" : Math.round(pct * 100) + "% of cap used",
       relayDotColor: relay === "live" ? OK : "#595959",
-      relayLabel: d ? "127.0.0.1:3000" : "loading…",
+      relayLabel: d
+        ? (typeof window === "undefined" ? "same origin" : window.location.host)
+        : "loading…",
       relayNote:
         relay === "live"
           ? "live relay"
@@ -331,8 +358,10 @@ export function useMissionControl(props: MissionControlProps) {
     if (!d) {
       return {
         ...base,
-        pageTitle: "Runs",
-        pageSub: "Loading captured channel…",
+        // The loading state announced a different page than the one that
+        // arrives a moment later, and named a Telegram channel while doing it.
+        pageTitle: "Agent History",
+        pageSub: "Loading…",
         runRows: [],
         d: null,
         agentRows: [],
@@ -369,9 +398,16 @@ export function useMissionControl(props: MissionControlProps) {
     }
 
     const titles: Record<string, [string, string]> = {
+      trace: [
+        "Live Trace",
+        "Each agent, each model call and each judgement, as it is recorded.",
+      ],
+      // Was titled "Live debate — whether the three arcs are actually
+      // arguing". These 13 agents do not debate; they run in sequence, and
+      // this view renders the decisions they recorded.
       live: [
-        "Live debate",
-        "The channel as it happens: who is speaking, who is answering whom, and whether the three arcs are actually arguing.",
+        "Agent Decisions",
+        "What A02, A03 and A07 chose on the last run, and what they turned down.",
       ],
       pipeline: [
         "Lifecycles",
@@ -381,11 +417,16 @@ export function useMissionControl(props: MissionControlProps) {
         "Posts",
         "Every piece of copy the pipeline produced, across all runs, with what happened to it.",
       ],
+      problems: [
+        "Problems",
+        "Every degraded or failed stage across recent runs, grouped by the "
+        + "kind of fault rather than by the run it happened in.",
+      ],
       runs: [
-        "Runs",
-        "Every lifecycle observed on channel " +
-          d.CHANNEL.slice(0, 8) +
-          "…, newest first. Boundaries are inferred, not recorded.",
+        "Agent History",
+        // The Telegram channel id was in this line, truncated to eight
+        // characters. It identified nothing a reader could act on.
+        "Every run the agents have completed, newest first.",
       ],
       run: [
         "Run detail",
@@ -400,13 +441,18 @@ export function useMissionControl(props: MissionControlProps) {
       ],
       cost: [
         "Cost",
-        "Spend against the " +
-          usd(cap, 0) +
-          " cap, by run, agent and stage. Cached input is priced separately.",
+        // "Cached input is priced separately" described a billing model
+        // nothing here implements, and there is no per-stage breakdown.
+        "Model calls, tokens and spend across every cycle the agents have run.",
       ],
       notes: [
         "Backend note",
         "The endpoints this needs, what the sources cannot answer, and the run-id decision.",
+      ],
+      references: [
+        "Vanna References",
+        "Every scraped post, doc and article with its source, what A02 read "
+        + "in it, and the strategies it supports for Vanna.",
       ],
       research: [
         "Scraped Intelligence",
@@ -485,9 +531,9 @@ export function useMissionControl(props: MissionControlProps) {
                   : s.status === "failed"
                     ? BAD
                     : s.status === "skipped"
-                      ? "#DFDFDF"
+                      ? "#B8B3C6"
                       : "#FFFFFF",
-            border: s.status === "not_reached" ? "1px solid #DFDFDF" : "none",
+            border: s.status === "not_reached" ? "1px solid #B8B3C6" : "none",
           } as React.CSSProperties,
         })),
         open: () => {
@@ -569,7 +615,7 @@ export function useMissionControl(props: MissionControlProps) {
           meta: "#BFBFBF",
           weight: 500,
           bg: "#FFFFFF",
-          border: "1px dashed #DFDFDF",
+          border: "1px dashed #B8B3C6",
         },
       }[s.status];
       let meta: string;
@@ -600,7 +646,7 @@ export function useMissionControl(props: MissionControlProps) {
           background: cfg.dot,
           border:
             s.status === "not_reached"
-              ? "1.5px solid #DFDFDF"
+              ? "1.5px solid #B8B3C6"
               : s.status === "skipped"
                 ? "1.5px dashed #A9A9A9"
                 : "none",
@@ -1654,7 +1700,7 @@ export function useMissionControl(props: MissionControlProps) {
                 : s.status === "failed"
                   ? BAD
                   : s.status === "skipped"
-                    ? "#DFDFDF"
+                    ? "#B8B3C6"
                     : "transparent";
           return {
             id: s.id,
@@ -1668,7 +1714,7 @@ export function useMissionControl(props: MissionControlProps) {
               height: "14px",
               borderRadius: "4px",
               background: bg,
-              border: s.status === "not_reached" ? "1px dashed #DFDFDF" : "none",
+              border: s.status === "not_reached" ? "1px dashed #B8B3C6" : "none",
               boxSizing: "border-box",
               minWidth: "10px",
             } as React.CSSProperties,
@@ -1701,7 +1747,7 @@ export function useMissionControl(props: MissionControlProps) {
       costByAgent,
       costByStage,
       costCapLine: "across " + runs().length + " runs and " + allCalls.length + " model calls",
-      remainingText: usd(cap - spent, 4),
+      remainingText: spent === null ? "unpriced" : usd(cap - spent, 4),
       ledgerStarted: d.LEDGER_STARTED,
       cachedPct: Math.round((cachedTok / inTok) * 100) + "%",
       cachedTokens: int(cachedTok),
@@ -1712,7 +1758,7 @@ export function useMissionControl(props: MissionControlProps) {
       outputCost: usd(outCost, 4),
       cachedOverstate: usd(naive - (cachedCost + freshCost), 2),
       totalCalls: String(allCalls.length),
-      meanCall: usd(spent / allCalls.length, 4),
+      meanCall: spent === null ? "unpriced" : usd(spent / allCalls.length, 4),
       rewrites: String(rewrites),
       rewriteNote: rewrites
         ? rewrites +

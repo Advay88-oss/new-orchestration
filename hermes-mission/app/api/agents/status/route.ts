@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { manifest, listRunIds, runView } from '@/lib/v2';
+import { localOnly } from '@/lib/local-only';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,6 +13,13 @@ export const dynamic = 'force-dynamic';
  * synthesised: `status` reflects what the last run actually recorded.
  */
 export async function GET() {
+  // This reports the `core/` pipeline, whose manifest is read from disk. In
+  // the container that file does not exist, and a bare 503 reads as a server
+  // fault rather than a system that was never deployed. The founder's own 13
+  // agents are at /api/gtm/agents, which is sourced from GCS.
+  const blocked = localOnly('core/ stage status');
+  if (blocked) return blocked;
+
   const stages = manifest();
   if (stages.length === 0) {
     return NextResponse.json(

@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import { pythonPath } from '@/lib/python';
 import { listGtmRunIds, gtmRunSummary } from '@/lib/gtm';
+import { localOnly } from '@/lib/local-only';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +23,9 @@ const LOG_DIR = path.join(REPO_ROOT, 'pipeline', 'state', 'gtm_runs');
  * empty directive is the autonomous path: A02 picks the topic itself.
  */
 export async function POST(req: Request) {
+  const blocked = localOnly('starting a run');
+  if (blocked) return blocked;
+
   let directive = '';
   let withVideo = true;
   try {
@@ -69,8 +73,8 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
-  const latest = listGtmRunIds(1)[0];
-  const s = latest ? gtmRunSummary(latest) : null;
+  const latest = (await listGtmRunIds(1))[0];
+  const s = latest ? await gtmRunSummary(latest) : null;
   return NextResponse.json({
     latestRun: latest ?? null,
     status: s?.status ?? null,

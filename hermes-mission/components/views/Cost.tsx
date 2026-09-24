@@ -35,15 +35,33 @@ export function Cost({ vm }: { vm: MissionVM }) {
     return () => clearInterval(id);
   }, []);
 
-  const cap = spendData.cap_usd ?? 10.0;
-  const spent = typeof spendData.spent_usd === "number" ? spendData.spent_usd : 0.0;
-  const remaining = typeof spendData.remaining_usd === "number" ? spendData.remaining_usd : (cap - spent);
-  const pct = Math.min(100, Math.max(0, (spent / cap) * 100)).toFixed(1);
-  const calls = typeof spendData.calls === "number" ? spendData.calls : 0;
+  // The journal is the source of truth, not the :8900 proxy. The proxy is
+  // usually not running, so its ledger reported "$0.0000 ... (0 calls)" next
+  // to a table showing 63 real calls — a zero that reads as "this cost
+  // nothing" rather than "nothing measured this".
+  const cap = real?.capUsd ?? spendData.cap_usd ?? 10.0;
+  const calls = real?.calls ?? 0;
+  const runs = real?.runs ?? 0;
+  const inTok = real?.inputTokens ?? 0;
+  const outTok = real?.outputTokens ?? 0;
+
+  // Known only when every model that ran has a published rate. Partial
+  // pricing is reported as partial, never rounded up into a total.
+  const costKnown = typeof real?.costUsd === "number";
+  const spent = costKnown ? (real.costUsd as number) : null;
+  const complete = Boolean(real?.costComplete);
+  const unpriced: string[] = real?.unpricedModels ?? [];
+  const remaining = spent !== null && complete ? Math.max(0, cap - spent) : null;
+  const pct = spent !== null && complete ? Math.min(100, Math.max(0, (spent / cap) * 100)) : null;
+  const perRun = spent !== null && complete && runs > 0 ? spent / runs : null;
+  const cycles = perRun && perRun > 0 && remaining !== null ? Math.floor(remaining / perRun) : null;
+
+  const DASH = "—";
+  const money = (v: number | null) => (v === null ? DASH : `$${v.toFixed(4)}`);
 
   // Measured, not apportioned: one row per model the journals actually recorded.
   const totalOut = (real?.byModel ?? []).reduce((a: number, m: any) => a + m.outputTokens, 0) || 1;
-  const PALETTE = ["#A387FF", "#FF007A", "#38EF7D", "#32EEE2", "#F5A524", "#FC5457"];
+  const PALETTE = ["#A98CFF", "#FF007A", "#4ADE9B", "#A98CFF", "#F5A524", "#F0666B"];
   const MODALITY_BREAKDOWN = (real?.byModel ?? []).map((m: any, i: number) => ({
     name: m.model,
     cost: m.costKnown ? `$${m.costUsd.toFixed(4)}` : "unpriced",
@@ -52,30 +70,28 @@ export function Cost({ vm }: { vm: MissionVM }) {
     desc: `${m.calls} call${m.calls === 1 ? "" : "s"} · ${m.inputTokens.toLocaleString()} in / ${m.outputTokens.toLocaleString()} out · stages: ${m.roles.join(", ")}`,
   }));
 
-  const estimatedCyclesRemaining = Math.max(0, Math.floor(remaining / 0.024));
-  const estimatedHoursRemaining = (estimatedCyclesRemaining * 0.5).toFixed(1);
-
   return (
     <section className="vanna-section">
       {/* Header Banner */}
       <div className="vanna-banner">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#38EF7D" }} />
-            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#38EF7D", letterSpacing: "0.08em" }}>
-              LIVE SPEND PROXY TELEMETRY (:8900) // SOURCE: {spendData.source || "PROXY"}
+            <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "#4ADE9B" }} />
+            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: complete ? "#4ADE9B" : "#F5A524", letterSpacing: "0.08em" }}>
+              SOURCE: RUN JOURNAL ({runs} RUN{runs === 1 ? "" : "S"})
+              {complete ? " · PRICED" : ""}
             </span>
           </div>
           <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#FFFFFF", marginTop: "6px" }}>
-            Session Financial Observability & Quota Runway
+            Usage &amp; Cap
           </h2>
-          <p style={{ fontSize: "14px", color: "#A2A1A6", marginTop: "4px" }}>
-            Direct real-time billing metrics tracked across Google Vertex AI, Model Garden, and autonomous storage. Zero mock figures.
+          <p style={{ fontSize: "14px", color: "#7B7590", marginTop: "4px" }}>
+            What the 13 agents spent, counted from every cycle they ran.
           </p>
         </div>
 
         <div style={{ background: "rgba(255,255,255,0.05)", padding: "10px 20px", borderRadius: "12px", border: "1px solid rgba(255,255,255,0.1)" }}>
-          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8" }}>HARD CAP ENFORCEMENT</div>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590" }}>HARD CAP ENFORCEMENT</div>
           <div style={{ fontSize: "18px", fontWeight: 800, color: "#FFFFFF", marginTop: "2px" }}>${cap.toFixed(2)} USD CAP</div>
         </div>
       </div>
@@ -83,45 +99,57 @@ export function Cost({ vm }: { vm: MissionVM }) {
       {/* Hero Financial Metrics Strip */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "16px" }}>
         <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "16px", padding: "20px" }}>
-          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>TOTAL SESSION SPEND</div>
-          <div style={{ fontSize: "32px", fontWeight: 800, color: "#FFFFFF", marginTop: "4px" }}>${spent.toFixed(4)}</div>
-          <div style={{ fontSize: "12px", color: "#A2A1A6", marginTop: "4px" }}>{pct}% of allocated ${cap.toFixed(2)} cap ({calls} calls)</div>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase" }}>MODEL CALLS</div>
+          <div style={{ fontSize: "32px", fontWeight: 800, color: "#FFFFFF", marginTop: "4px" }}>{calls.toLocaleString()}</div>
+          <div style={{ fontSize: "12px", color: "#7B7590", marginTop: "4px" }}>across {runs} run{runs === 1 ? "" : "s"}</div>
         </div>
 
         <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "16px", padding: "20px" }}>
-          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>REMAINING BUDGET</div>
-          <div style={{ fontSize: "32px", fontWeight: 800, color: "#38EF7D", marginTop: "4px" }}>${remaining.toFixed(4)}</div>
-          <div style={{ fontSize: "12px", color: "#38EF7D", marginTop: "4px" }}>Positive credit balance</div>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase" }}>TOKENS</div>
+          <div style={{ fontSize: "32px", fontWeight: 800, color: "#A98CFF", marginTop: "4px" }}>{((inTok + outTok) / 1000).toFixed(1)}k</div>
+          <div style={{ fontSize: "12px", color: "#7B7590", marginTop: "4px" }}>{inTok.toLocaleString()} in / {outTok.toLocaleString()} out</div>
         </div>
 
         <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "16px", padding: "20px" }}>
-          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>AUTONOMOUS RUNWAY</div>
-          <div style={{ fontSize: "32px", fontWeight: 800, color: "#32EEE2", marginTop: "4px" }}>~{estimatedCyclesRemaining} Cycles</div>
-          <div style={{ fontSize: "12px", color: "#A2A1A6", marginTop: "4px" }}>~{estimatedHoursRemaining} hours of continuous execution</div>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase" }}>MEASURED COST</div>
+          <div style={{ fontSize: "32px", fontWeight: 800, color: complete ? "#4ADE9B" : "#F5A524", marginTop: "4px" }}>
+            {complete ? money(spent) : "unpriced"}
+          </div>
+          <div style={{ fontSize: "12px", color: "#7B7590", marginTop: "4px" }}>
+            {complete
+              ? `${pct!.toFixed(1)}% of the $${cap.toFixed(2)} cap`
+              : unpriced.length
+                ? `${unpriced.length} model${unpriced.length === 1 ? "" : "s"} without a rate`
+                : "no calls yet"}
+          </div>
         </div>
 
         <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "16px", padding: "20px" }}>
-          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#8E85A8", textTransform: "uppercase" }}>AVG COST PER RUN</div>
-          <div style={{ fontSize: "32px", fontWeight: 800, color: "#A387FF", marginTop: "4px" }}>$0.024</div>
-          <div style={{ fontSize: "12px", color: "#A2A1A6", marginTop: "4px" }}>Includes copy, visual & video</div>
+          <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase" }}>COST PER RUN</div>
+          <div style={{ fontSize: "32px", fontWeight: 800, color: "#A98CFF", marginTop: "4px" }}>
+            {perRun === null ? DASH : money(perRun)}
+          </div>
+          <div style={{ fontSize: "12px", color: "#7B7590", marginTop: "4px" }}>
+            {cycles === null ? `over ${runs} run${runs === 1 ? "" : "s"}` : `~${cycles} cycles left under the cap`}
+          </div>
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: "16px", padding: "20px 24px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-          <span style={{ fontFamily: MONO, fontSize: "12px", color: "#DFDFDF" }}>CAP CONSUMPTION: ${spent.toFixed(2)} / ${cap.toFixed(2)}</span>
-          <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#38EF7D" }}>{pct}% USED</span>
+      {/* The cap-consumption bar lived here. With no rate table it could only
+          draw an empty track labelled NOT MEASURABLE above a paragraph
+          explaining why — a large block of UI whose whole content was an
+          apology. The cap itself is stated in the banner; when rates exist
+          the MEASURED COST card carries the percentage. */}
+      {spendErr && (
+        <div style={{ background: "#0C0716", border: "1px solid rgba(252,84,87,0.3)", borderRadius: "16px", padding: "14px 20px", fontSize: "12px", color: "#F0666B", fontFamily: MONO }}>
+          journal unreachable: {spendErr}
         </div>
-        <div style={{ width: "100%", height: "10px", background: "rgba(255,255,255,0.06)", borderRadius: "999px", overflow: "hidden" }}>
-          <div style={{ width: `${pct}%`, height: "100%", background: "linear-gradient(90deg, #703AE6 0%, #38EF7D 100%)", borderRadius: "999px" }} />
-        </div>
-      </div>
+      )}
 
       {/* Modality Breakdown */}
       <div style={{ background: "#0C0716", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "18px", padding: "24px 28px" }}>
         <h3 style={{ fontSize: "17px", fontWeight: 700, color: "#FFFFFF", marginBottom: "16px" }}>
-          Cost Allocation by Computational Modality (Derived from Live Spend)
+          Per model
         </h3>
         <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
           {MODALITY_BREAKDOWN.map((m: any, idx: number) => (
@@ -145,10 +173,10 @@ export function Cost({ vm }: { vm: MissionVM }) {
                 <span style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: m.color }}>{m.cost}</span>
               </div>
               <div>
-                <span style={{ fontFamily: MONO, fontSize: "12px", color: "#8E85A8" }}>{m.pct}</span>
+                <span style={{ fontFamily: MONO, fontSize: "12px", color: "#7B7590" }}>{m.pct}</span>
               </div>
               <div>
-                <span style={{ fontSize: "12px", color: "#A2A1A6", lineHeight: 1.4 }}>{m.desc}</span>
+                <span style={{ fontSize: "12px", color: "#7B7590", lineHeight: 1.4 }}>{m.desc}</span>
               </div>
             </div>
           ))}

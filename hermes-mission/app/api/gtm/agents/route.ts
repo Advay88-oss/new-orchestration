@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: Request) {
   const runId = new URL(req.url).searchParams.get('run') || undefined;
-  const { runId: rid, agents, summary } = gtmAgents(runId);
+  const { runId: rid, agents, summary } = await gtmAgents(runId);
 
   return NextResponse.json({
     runId: rid,

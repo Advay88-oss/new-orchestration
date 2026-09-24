@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: { runId: string } },
 ) {
   const id = params.runId === 'latest' ? undefined : params.runId;
-  const detail = gtmRunDetail(id);
+  const detail = await gtmRunDetail(id);
   if (!detail) return NextResponse.json({ error: 'no run found' }, { status: 404 });
   return NextResponse.json(detail);
 }

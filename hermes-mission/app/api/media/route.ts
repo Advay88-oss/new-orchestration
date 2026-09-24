@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { isDeployed, assetKey, getBytes } from '@/lib/gcs';
 import fs from 'fs';
 import path from 'path';
 
@@ -16,6 +17,27 @@ export async function GET(req: Request) {
 
     // Clean filename of path traversal
     const safeName = path.basename(filename);
+
+    // Deployed, the render lives in the state bucket rather than on a disk
+    // this container has. Without this every meme and visual 404s and the
+    // views fall back to "Visual ready to synthesize" over assets that were
+    // rendered hours ago.
+    if (isDeployed()) {
+      const key = assetKey(safeName);
+      const obj = key ? await getBytes(key) : null;
+      if (!obj) {
+        return NextResponse.json(
+          { error: `not in state bucket: ${safeName}` },
+          { status: 404 },
+        );
+      }
+      return new NextResponse(obj.body, {
+        headers: {
+          'Content-Type': obj.contentType,
+          'Cache-Control': 'public, max-age=31536000, immutable',
+        },
+      });
+    }
 
     const candidates = [
       path.join(REPO_ROOT, 'hermes-mission/public', safeName),
