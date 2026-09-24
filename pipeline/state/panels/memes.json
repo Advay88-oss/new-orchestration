@@ -1,10 +1,26 @@
 {
-  "generated": "2026-09-23T11:20:13.244485+00:00",
+  "generated": "2026-09-24T19:39:48.866576+00:00",
   "total_memes": 24,
   "low_risk_count": 24,
   "medium_risk_count": 0,
   "high_risk_count": 0,
   "memes": [
+    {
+      "id": "GTM-20260924-193535-meme",
+      "format": "IMAGE",
+      "reference": "Pillar 2: Isolated SmartAccount Sandboxes (Contagion Elimination)",
+      "reference_url": null,
+      "vanna_angle": "Anchor into the Stellar leadership discussion to position isolated execution sandboxes as the necessary architectural bridge moving institutional credit from experimental pilots to production-ready deployments on Soroban.",
+      "copy": "Institutional LPs will not deploy serious capital into pooled credit.",
+      "visual_spec": "A triptych of physically isolated monolithic SmartAccount cells anchored to an obsidian bedrock floor. The central cell executes an orderly internal liquidation unwind without transmitting stress, structural displacement, or liquid bleed to the adjoining sibling cells.",
+      "claims_gate": "PASS",
+      "risk": "LOW",
+      "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
+      "freshness": "LIVE",
+      "model": "gemini-3-pro-image",
+      "run_id": "GTM-20260924-193535",
+      "visual_url": "GTM-20260924-193535_meme.png"
+    },
     {
       "id": "GTM-20260923-111618-meme",
       "format": "IMAGE",
@@ -372,22 +388,6 @@
       "model": "gemini-3-pro-image",
       "run_id": "GTM-20260922-201811",
       "visual_url": "GTM-20260922-201811_meme.png"
-    },
-    {
-      "id": "GTM-20260922-201353-meme",
-      "format": "IMAGE",
-      "reference": "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
-      "reference_url": null,
-      "vanna_angle": "Showcase how Vanna's composable credit layer natively integrates Blend b-tokens inside isolated SmartAccounts to enable up to 10x leverage on Soroban testnet without manual looping overhead.",
-      "copy": "Looping b-tokens on Soroban just got viable.",
-      "visual_spec": "A single monolithic glass-and-obsidian SmartAccount unit receives an internal credit expansion beam, instantly projecting a precise conduit into an external Blend lending node that returns a stacked geometric pillar of b-token yield strata, all sealed within the unit's sovereign footprint.",
-      "claims_gate": "BLOCKED",
-      "risk": "LOW",
-      "risk_reason": "Generated from a claim-gated strategy; no rendered text in frame.",
-      "freshness": "LIVE",
-      "model": "gemini-3-pro-image",
-      "run_id": "GTM-20260922-201353",
-      "visual_url": "GTM-20260922-201353_meme.png"
     }
   ]
 }

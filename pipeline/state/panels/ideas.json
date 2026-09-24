@@ -1,9 +1,122 @@
 {
-  "generated": "2026-09-24T11:08:28.852012+00:00",
+  "generated": "2026-09-24T19:39:48.863641+00:00",
   "total_ideas": 24,
-  "runnable_today_count": 18,
-  "blocked_count": 6,
+  "runnable_today_count": 19,
+  "blocked_count": 5,
   "ideas": [
+    {
+      "id": "PROP-bvnk-chain-expands-infrastructure-integr",
+      "type": "PROPOSED",
+      "hook": "Stellar's expanding stablecoin infrastructure unlocks the settlement layer needed for programmable credit.",
+      "rationale": "Expanding enterprise stablecoin infrastructure on Stellar delivers native settlement rails for programmable, composable onchain credit lines.",
+      "format_spec": {
+        "archetype": "REDDIT_DEEPDIVE"
+      },
+      "trend_link": "https://www.reddit.com/r/Stellar/comments/1wndxkc/bvnk_expands_multichain_stablecoin_infrastructure/",
+      "source_type": "REDDIT_COMMUNITY_OBSERVED",
+      "pattern_source": "Composable credit lines on Stellar Soroban",
+      "objection_addressed": "BVNK integrated Stellar to expand multi-chain stablecoin infrastructure for global enterprise payments.",
+      "visual_direction": "Flat obsidian schematic with violet payment rails feeding directly into sealed pink SmartAccount credit facilities.",
+      "video_direction": "A fixed-frame animation tracing linear violet pulses flowing along parallel paths into isolated contract chambers.",
+      "gtm_play": "Post on r/Stellar targeting Soroban developers, following up with technical discussion in developer Discord channels.",
+      "claims_gate": "UNCHECKED",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "NEEDS_DRAFTING",
+      "signal_headline": "BVNK expands multi-chain stablecoin infrastructure with Stellar integration",
+      "run_id": "GTM-20260924-193535",
+      "visual_url": null
+    },
+    {
+      "id": "PROP-analysis-application-defi-insolvency-law",
+      "type": "PROPOSED",
+      "hook": "When a DeFi pool collapses, who actually owns the remaining collateral?",
+      "rationale": "Commingled lending pools obscure asset ownership during insolvency, whereas segregated SmartAccounts preserve clear per-borrower property boundaries onchain.",
+      "format_spec": {
+        "archetype": "LINKEDIN_POST"
+      },
+      "trend_link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNeWtjdUlsc1F4OUZ0STlXOGgzQkcyd0tFQkNYVTRrQk82X285bnV2VVgxNzZSNHhFTXN1SE8wN25ZRU90djhBRjE4ejZTeFdjZGt2YVhpd1R3YXdOTWJROXd5SnJIcjNySmZkS3dBRFdVN3ZuZUdHMDN6MkdRRVo5d0E1REZPUDZtYVRPV0F5WkJHVElDV184SnJxLV9CczVuTXkyQVlLY0wwazRuOEF6eEVpdHFLR19DWlJ2aw?oc=5",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "pattern_source": "Per-borrower collateral segregation via SmartAccounts",
+      "objection_addressed": "Legal researchers are actively analyzing whether pooled DeFi depositors retain distinct property title during protocol insolvency.",
+      "visual_direction": "Obsidian canvas displaying strictly partitioned geometric vaults connected by narrow conduits in subdued violet and pink.",
+      "video_direction": "Locked-off view showing assets moving through isolated conduits into individual bounded chambers without commingling.",
+      "gtm_play": "Publish on LinkedIn targeting fintech legal counsel and DeFi risk officers, following up with architectural diagrams.",
+      "claims_gate": "UNCHECKED",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "NEEDS_DRAFTING",
+      "signal_headline": "An Analysis of the Application of Property and Insolvency Laws to DeFi Lending Structures",
+      "run_id": "GTM-20260924-193535",
+      "visual_url": null
+    },
+    {
+      "id": "PROP-calls-crypto-die-factors-health-liquidat",
+      "type": "PROPOSED",
+      "hook": "Most liquidations fail because one bad loan drains an entire pool's solvency.",
+      "rationale": "Pool-wide liquidations socialize bad debt, while isolated SmartAccounts confine insolvency strictly within individual collateral sandboxes on Soroban testnet.",
+      "format_spec": {
+        "archetype": "THREAD"
+      },
+      "trend_link": "https://news.google.com/rss/articles/CBMifEFVX3lxTFBZSVBIUU96OUxzOHViMVNKYXZ2UEpsRThOTVNHMkNodnE0MjZTYlpuaUJPZEkyVFlacnRITjV1aWk2R2ZMcVV2T1NYYnJiQ0U3MUg4MC1CRzJTZHp1SzNiRkRKZmpwNHdFVmJDTTc3dWtzdFBoc0F5R3owNmI?oc=5",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "pattern_source": "Deterministic liquidation within isolated SmartAccount sandboxes",
+      "objection_addressed": "Market participants are actively questioning how health factor calculations and liquidation cascades destroy protocol solvency.",
+      "visual_direction": "Obsidian ground showing segregated violet chambers containing pink warning thresholds while adjacent chambers remain completely undisturbed.",
+      "video_direction": "A static diagram where a single pink chamber flushes clean without disturbing neighboring violet enclosures.",
+      "gtm_play": "Lead on X as a technical breakdown, engaging protocol researchers and risk analysts monitoring DeFi liquidation designs.",
+      "claims_gate": "UNCHECKED",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "NEEDS_DRAFTING",
+      "signal_headline": "What is liquidation in crypto? Margin calls, health factors, and how positions die",
+      "run_id": "GTM-20260924-193535",
+      "visual_url": null
+    },
+    {
+      "id": "GTM-20260924-193535-idea",
+      "type": "GTM_CYCLE",
+      "hook": "Institutional LPs will not deploy serious capital into pooled credit.",
+      "rationale": "Directly addresses institutional bottlenecks on Stellar; Vanna provides the necessary Soroban composable credit architecture, oracle-integrated risk models, and automated liquidation to graduate institutional pilots to production.",
+      "pattern_ref": "MACH_06_INSTITUTIONAL_CREDIBILITY",
+      "trend_link": "https://www.reddit.com/r/Stellar/comments/1wne6nx/the_redstone_podcast_ep3_raja_chakravorti_stellar/",
+      "pattern_source": "Formal Security & Sandbox Verification Machine \u2014 observed in AAVE_ARC_INSTITUTIONAL_FRAMEWORK",
+      "source_type": "REDDIT_COMMUNITY_OBSERVED",
+      "audience_segment": "A3: Institutional Liquidity Providers",
+      "objection_addressed": "Institutions remain trapped in pilot phases because traditional shared-pool lending protocols socialize bad debt and expose conservative liquidity providers to systemic counterparty contagion.",
+      "claims_gate": "PASS",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "AUTONOMOUS",
+      "rejected": [
+        {
+          "headline": "What is liquidation in crypto? Margin calls, health factors, and how positions die",
+          "why": "A generic liquidation primer that lacks Stellar-specific context or discussion of institutional credit primitives."
+        },
+        {
+          "headline": "BVNK expands multi-chain stablecoin infrastructure with Stellar integration",
+          "why": "Highlights Stellar payments infrastructure, but centers on stablecoin settlement rather than decentralized credit or risk mechanics."
+        },
+        {
+          "headline": "Analyst: \u201cI\u2019m Doubling On Stellar\u201d Before XLM Price Does",
+          "why": "Pure token price speculation, which violates instructions to reject price movements and trading calls."
+        },
+        {
+          "headline": "Circle launches Bitcoin-backed USDC borrowing",
+          "why": "Focuses on CeFi/centralized institutional borrowing rather than onchain composable smart contract credit architecture."
+        },
+        {
+          "headline": "Rhea Lend TVL rose 53.0% in 7 days to $186.0M (Lending)",
+          "why": "Driven solely by short-term TVL growth, violating the requirement to prioritize mechanisms over metric hype."
+        },
+        {
+          "headline": "RT @Morpho: New all-time high.\n\nOnchain credit is just getting started. https://t.co/ZUChR9sPJB...",
+          "why": "Generic promotional post celebrating TVL milestones rather than substantive discussion of credit mechanics or risk."
+        }
+      ],
+      "run_id": "GTM-20260924-193535",
+      "visual_url": "GTM-20260924-193535_visual.png"
+    },
     {
       "id": "PROP-collateral-equity-first-launches-ondo-pe",
       "type": "PROPOSED",
@@ -24,52 +137,6 @@
       "blocked_by": null,
       "effort": "NEEDS_DRAFTING",
       "signal_headline": "Ondo Perps Launches First Equity Perpetuals Platform With Tokenized Stock Collateral",
-      "run_id": "GTM-20260924-110455",
-      "visual_url": null
-    },
-    {
-      "id": "PROP-bvnk-chain-expands-infrastructure-integr",
-      "type": "PROPOSED",
-      "hook": "Enterprise stablecoin rails on Stellar require compartmentalized credit accounts, not commingled lending pools.",
-      "rationale": "Commercial stablecoin rails on Stellar need isolated credit sandboxes to prevent institutional operational balances from commingling with speculative borrowing.",
-      "format_spec": {
-        "archetype": "LINKEDIN_POST"
-      },
-      "trend_link": "https://www.reddit.com/r/Stellar/comments/1wndxkc/bvnk_expands_multichain_stablecoin_infrastructure/",
-      "source_type": "REDDIT_COMMUNITY_OBSERVED",
-      "pattern_source": "Per-borrower collateral segregation via SmartAccounts",
-      "objection_addressed": "BVNK expanding stablecoin infrastructure on Stellar signals incoming institutional liquidity needing segregated credit infrastructure.",
-      "visual_direction": "Flat obsidian schematic with two parallel violet conduits feeding separate, walled pink chambers without cross-contamination.",
-      "video_direction": "Static obsidian frame where pink pulses travel sequentially down parallel violet lines into isolated terminal boxes.",
-      "gtm_play": "Lead on LinkedIn targeting Stellar fintech builders, following up directly with developers exploring Soroban testnet credit rails.",
-      "claims_gate": "UNCHECKED",
-      "runnable_today": true,
-      "blocked_by": null,
-      "effort": "NEEDS_DRAFTING",
-      "signal_headline": "BVNK expands multi-chain stablecoin infrastructure with Stellar integration",
-      "run_id": "GTM-20260924-110455",
-      "visual_url": null
-    },
-    {
-      "id": "PROP-calls-crypto-die-factors-health-liquidat",
-      "type": "PROPOSED",
-      "hook": "Most liquidations wreck entire protocols because collateral is pooled instead of sandboxed.",
-      "rationale": "Isolated SmartAccount sandboxes prevent margin liquidation cascades by strictly confining bad debt to individual accounts instead of pooled reserves.",
-      "format_spec": {
-        "archetype": "THREAD"
-      },
-      "trend_link": "https://news.google.com/rss/articles/CBMifEFVX3lxTFBZSVBIUU96OUxzOHViMVNKYXZ2UEpsRThOTVNHMkNodnE0MjZTYlpuaUJPZEkyVFlacnRITjV1aWk2R2ZMcVV2T1NYYnJiQ0U3MUg4MC1CRzJTZHp1SzNiRkRKZmpwNHdFVmJDTTc3dWtzdFBoc0F5R3owNmI?oc=5",
-      "source_type": "PRIMARY_NEWS_OBSERVED",
-      "pattern_source": "Isolated SmartAccount sandboxes and deterministic liquidation",
-      "objection_addressed": "Broad industry explainers on liquidation failure modes open the door to present isolated credit sandboxes as the architectural solution.",
-      "visual_direction": "Obsidian plane holding three discrete violet outlined chambers, one flashing pink while adjacent chambers remain completely unbreached.",
-      "video_direction": "A locked-off overhead view showing a single chamber border turn pink without affecting adjacent conduit pathways.",
-      "gtm_play": "Post on X targeting DeFi risk modelers, following up with a Soroban testnet contract link in replies.",
-      "claims_gate": "UNCHECKED",
-      "runnable_today": true,
-      "blocked_by": null,
-      "effort": "NEEDS_DRAFTING",
-      "signal_headline": "What is liquidation in crypto? Margin calls, health factors, and how positions die - crypto.news",
       "run_id": "GTM-20260924-110455",
       "visual_url": null
     },
@@ -133,29 +200,6 @@
       "rejected": [],
       "run_id": "GTM-20260924-110016",
       "visual_url": "GTM-20260924-110016_visual.png"
-    },
-    {
-      "id": "PROP-analysis-application-defi-insolvency-law",
-      "type": "PROPOSED",
-      "hook": "When a lending protocol fails, who owns your collateral? Pooled models make property rights impossible to untangle.",
-      "rationale": "Commingled lending pools obscure asset ownership under legal scrutiny, while per-borrower collateral segregation establishes transparent property rights in code.",
-      "format_spec": {
-        "archetype": "LINKEDIN_POST"
-      },
-      "trend_link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNeWtjdUlsc1F4OUZ0STlXOGgzQkcyd0tFQkNYVTRrQk82X285bnV2VVgxNzZSNHhFTXN1SE8wN25ZRU90djhBRjE4ejZTeFdjZGt2YVhpd1R3YXdOTWJROXd5SnJIcjNySmZkS3dBRFdVN3ZuZUdHMDN6MkdRRVo5d0E1REZPUDZtYVRPV0F5WkJHVElDV184SnJxLV9CczVuTXkyQVlLY0wwazRuOEF6eEVpdHFLR19DWlJ2aw?oc=5",
-      "source_type": "PRIMARY_NEWS_OBSERVED",
-      "pattern_source": "Per-borrower collateral segregation via isolated SmartAccounts",
-      "objection_addressed": "Fresh legal analysis examines how traditional property and insolvency doctrines intersect with DeFi lending pool structures.",
-      "visual_direction": "Flat obsidian field featuring distinct, non-overlapping violet chambers, each containing an individual asset node anchored by clear structural boundaries.",
-      "video_direction": "Static frame where individual partitioned boxes light up sequentially in pink without any shared connecting liquidity conduits.",
-      "gtm_play": "Post on LinkedIn aimed at institutional DeFi researchers, following up with legal engineers in specialized Telegram governance groups.",
-      "claims_gate": "UNCHECKED",
-      "runnable_today": true,
-      "blocked_by": null,
-      "effort": "NEEDS_DRAFTING",
-      "signal_headline": "An Analysis of the Application of Property and Insolvency Laws to DeFi Lending Structures",
-      "run_id": "GTM-20260924-105400",
-      "visual_url": null
     },
     {
       "id": "GTM-20260924-105400-idea",
@@ -492,25 +536,6 @@
       "rejected": [],
       "run_id": "GTM-20260923-112822",
       "visual_url": "GTM-20260923-112822_visual.png"
-    },
-    {
-      "id": "GTM-20260923-112352-idea",
-      "type": "GTM_CYCLE",
-      "hook": "Cascading liquidations happen when 1.0x math fails.",
-      "rationale": "Demonstrate how Vanna's RiskEngine enforces an architectural 1.10x Health Factor floor, triggering automated defense before positions touch insolvency thresholds, thereby protecting underlying LendingPool capital.",
-      "pattern_ref": "MACH_04_TECHNICAL_TELEMETRY_SERIES",
-      "trend_link": "founder-directive",
-      "pattern_source": "Sub-Second Risk Telemetry Education Machine \u2014 observed in GEARBOX_TELEMETRY_SERIES",
-      "source_type": "LIVE_OBSERVED",
-      "audience_segment": "A3",
-      "objection_addressed": "Institutional LPs face cascading bad debt and socialized insolvencies when pooled protocols allow borrower health factors to plunge below solvency thresholds during market drawdowns.",
-      "claims_gate": "BLOCKED",
-      "runnable_today": false,
-      "blocked_by": "{'blocked_claims': [], 'slop': [], 'creative': 'REJECT'}",
-      "effort": "AUTONOMOUS",
-      "rejected": [],
-      "run_id": "GTM-20260923-112352",
-      "visual_url": "GTM-20260923-112352_visual.png"
     }
   ]
 }

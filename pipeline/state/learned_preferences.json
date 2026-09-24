@@ -1,21 +1,63 @@
 {
-  "at": "2026-09-24T18:47:25.534058+00:00",
-  "reviewed_runs": 0,
+  "at": "2026-09-24T19:48:50.689306+00:00",
+  "reviewed_runs": 1,
   "verdicts": {
-    "approve": 0,
+    "approve": 1,
     "revise": 0,
     "kill": 0
   },
   "dimensions": {
-    "visual_archetype": {},
-    "pillar": {},
-    "machine": {}
+    "visual_archetype": {
+      "P2_announcement": {
+        "alpha": 2.0,
+        "beta": 1.0,
+        "n": 1,
+        "mean": 0.667
+      }
+    },
+    "pillar": {
+      "Pillar 2: Isolated SmartAccount Sandboxes (Contagion Elimination)": {
+        "alpha": 2.0,
+        "beta": 1.0,
+        "n": 1,
+        "mean": 0.667
+      }
+    },
+    "machine": {
+      "MACH_06_INSTITUTIONAL_CREDIBILITY": {
+        "alpha": 2.0,
+        "beta": 1.0,
+        "n": 1,
+        "mean": 0.667
+      }
+    }
   },
   "retired": {
     "visual_archetype": [],
     "pillar": [],
     "machine": []
   },
-  "approved_examples": [],
+  "visual_renderers": {
+    "direct_model": {
+      "alpha": 5.0,
+      "beta": 1.0,
+      "n": 4,
+      "mean": 0.833
+    },
+    "code_set": {
+      "alpha": 2.2,
+      "beta": 1.7999999999999998,
+      "n": 2,
+      "mean": 0.55
+    }
+  },
+  "approved_examples": [
+    {
+      "run_id": "GTM-20260924-193535",
+      "hook": "Institutional LPs will not deploy serious capital into pooled credit.",
+      "opening": "Institutions remain stuck in pilot mode for a simple reason: shared-pool lending socializes bad debt. When an aggressive borrower blows up on a standard pooled protocol, passive lenders take the haircut alongside them. Risk officers cannot sign off on unsegregated counterparty contagion. Graduation requires moving execution out of the shared pool. Instead of mixing deposits and margin trading in a",
+      "note": null
+    }
+  ],
   "corrections": []
 }

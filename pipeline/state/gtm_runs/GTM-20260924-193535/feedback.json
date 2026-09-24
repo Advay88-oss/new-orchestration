@@ -1,0 +1,29 @@
+{
+  "run_id": "GTM-20260924-193535",
+  "latest": {
+    "verdict": "approve",
+    "reward": 1.0,
+    "note": null,
+    "source": "dashboard",
+    "by": null,
+    "at": "2026-09-24T19:42:19.049637+00:00"
+  },
+  "history": [
+    {
+      "verdict": "approve",
+      "reward": 1.0,
+      "note": null,
+      "source": "dashboard",
+      "by": null,
+      "at": "2026-09-24T19:41:59.898966+00:00"
+    },
+    {
+      "verdict": "approve",
+      "reward": 1.0,
+      "note": null,
+      "source": "dashboard",
+      "by": null,
+      "at": "2026-09-24T19:42:19.049637+00:00"
+    }
+  ]
+}
