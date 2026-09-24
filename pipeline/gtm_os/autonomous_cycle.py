@@ -768,9 +768,18 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             return _finish(summary, t0, rid)
 
         # A04 — Machine Library
+        # The machine's standing with the founder goes on A04's line, so the
+        # dashboard shows whether a learned preference was followed.
+        try:
+            from pipeline.gtm_learning.preferences import posteriors as _post
+            _mp = _post("machine").get(str(strategy.gtm_machine_id))
+            from pipeline.gtm_learning.preferences import record_text as _rt
+            _rec = (" · founder: " + _rt(_mp)) if _mp else " · not yet reviewed"
+        except Exception:                           # noqa: BLE001 — boundary
+            _rec = ""
         machine = _stage("A04_machine_library",
                          lambda: GTMMachineLibrary().get_machine(strategy.gtm_machine_id),
-                         detail="verified machine " + str(strategy.gtm_machine_id))
+                         detail="verified machine " + str(strategy.gtm_machine_id) + _rec)
         if machine is not None:
             summary["machine_name"] = str(getattr(machine, "name", ""))
             summary["machine_evidence"] = [
@@ -1139,8 +1148,16 @@ def _select_signal(signals):
         "the cycle produces nothing — pick a mechanism, risk, architecture or "
         "incident story instead.\n"
         "Return strict JSON and keep every rationale under 30 words.")
+    # What the founder approved and killed before. Empty until a run has been
+    # reviewed; after that the choice leans toward subjects that worked.
+    try:
+        from pipeline.gtm_learning.preferences import prompt_block as _learned
+        record = _learned(for_agent="A02")
+    except Exception:                               # noqa: BLE001 — boundary
+        record = ""
     data = R.brain_json(
-        "CANDIDATE SIGNALS\n" + listing + "\n\n"
+        (record + "\n\n" if record else "")
+        + "CANDIDATE SIGNALS\n" + listing + "\n\n"
         'Return {"index": int, "why": str, "rejected": [{"index": int, "why": str}]}\n\n'
         "Include at most 6 entries in rejected — the closest runners-up, not "
         "every candidate. Keep each why under 30 words.",

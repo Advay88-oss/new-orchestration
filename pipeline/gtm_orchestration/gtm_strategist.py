@@ -130,6 +130,14 @@ class GTMStrategist:
                     "audiences": list(getattr(m, "eligible_audiences", []) or []),
                     "channels": list(getattr(m, "supported_channels", []) or []),
                 })
+        # A04's learning: the machines are ordered by the founder's record and
+        # each carries it; a machine consistently killed leaves the list.
+        # Unchanged until a run using a machine has been reviewed.
+        try:
+            from pipeline.gtm_learning.preferences import rank_machines
+            machines_for_prompt = rank_machines(machines_for_prompt)
+        except Exception:                           # noqa: BLE001 — boundary
+            pass
         strategy_system = (
             "You are Vanna's GTM strategist. Vanna is composable credit "
             "infrastructure on Stellar Soroban TESTNET.\n\n"
@@ -184,7 +192,10 @@ class GTMStrategist:
             "cannot be honoured truthfully — e.g. it presumes mainnet. Then "
             "state what was changed and why. Leave it EMPTY when you kept the "
             "subject; choosing an angle is not a reframe.\n"
-            "- Choose ONE narrative pillar. Do not blend pillars."
+            "- Choose ONE narrative pillar. Do not blend pillars.\n"
+            "- Machines may carry a `founder_record`. When two machines fit "
+            "the subject equally, take the one the founder has approved more; "
+            "an unreviewed machine is fine to try when it fits better."
         )
         strategy_schema_hint = (
             '{"relevant": bool, "rationale": str, "audience_segment": str, '

@@ -354,8 +354,7 @@ def _learned_block(options: list[str]) -> str:
              "fit the argument equally, take the one higher on this list:"]
     for opt, _ in ranked:
         p = post.get(opt)
-        lines.append("  - " + opt + (": approved " + str(int(p["mean"] * 100)) + "% of "
-                                     + str(p["n"]) + " reviewed" if p else ": not yet reviewed"))
+        lines.append("  - " + opt + (": " + P.record_text(p) if p else ": not yet reviewed"))
     return "\n".join(lines) + ("\n" + notes if notes else "") + "\n\n"
 
 

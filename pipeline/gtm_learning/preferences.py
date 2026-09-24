@@ -68,7 +68,10 @@ def posteriors(dim: str, rows: Optional[list[dict]] = None) -> dict[str, dict[st
         opt = (r.get("features") or {}).get(dim)
         if not opt:
             continue
-        p = out.setdefault(str(opt), {"alpha": 1.0, "beta": 1.0, "n": 0})
+        p = out.setdefault(str(opt), {"alpha": 1.0, "beta": 1.0, "n": 0,
+                                      "approved": 0, "killed": 0})
+        p["approved"] += r.get("verdict") == "approve"
+        p["killed"] += r.get("verdict") == "kill"
         reward = float(r.get("reward", 0.0))
         p["alpha"] += reward
         p["beta"] += 1.0 - reward
@@ -76,6 +79,16 @@ def posteriors(dim: str, rows: Optional[list[dict]] = None) -> dict[str, dict[st
     for p in out.values():
         p["mean"] = round(p["alpha"] / (p["alpha"] + p["beta"]), 3)
     return out
+
+
+def record_text(p: dict) -> str:
+    """The founder's record in plain counts. The posterior mean is what the
+    choice uses, but shown as a percentage it read "66% of 1" for a run the
+    founder approved outright."""
+    parts = [str(p.get("approved", 0)) + " of " + str(p["n"]) + " approved"]
+    if p.get("killed"):
+        parts.append(str(p["killed"]) + " killed")
+    return ", ".join(parts)
 
 
 def retired(dim: str, rows: Optional[list[dict]] = None) -> set[str]:
@@ -156,11 +169,44 @@ def corrections(k: int = 6, rows: Optional[list[dict]] = None) -> list[dict]:
     return out
 
 
+def topic_record(k: int = 5, rows: Optional[list[dict]] = None) -> dict[str, list[dict]]:
+    """The subjects the founder approved and killed, most recent first."""
+    out: dict[str, list[dict]] = {"approve": [], "revise": [], "kill": []}
+    for r in sorted(latest_per_run(rows), key=lambda r: str(r.get("at")), reverse=True):
+        f = r.get("features") or {}
+        topic = f.get("directive") or f.get("signal")
+        v = r.get("verdict")
+        if topic and v in out and len(out[v]) < k:
+            out[v].append({"topic": " ".join(str(topic).split())[:180],
+                           "pillar": f.get("pillar"), "note": r.get("note")})
+    return out
+
+
+def _a02_block(rows: list[dict]) -> str:
+    rec = topic_record(rows=rows)
+    if not any(rec.values()):
+        return ""
+    lines = ["FOUNDER'S RECORD ON PAST SUBJECTS — learned from reviewed runs. "
+             "Prefer candidates like the approved ones; a candidate close to a "
+             "killed one needs a clearly different angle to be worth choosing."]
+    for v, label in (("approve", "Approved"), ("revise", "Sent back for revision"),
+                     ("kill", "Killed")):
+        if rec[v]:
+            lines.append(label + ":")
+            lines += ['  - "' + t["topic"] + '"'
+                      + (" [" + str(t["pillar"]) + "]" if t.get("pillar") else "")
+                      + (" — founder: " + str(t["note"]) if t.get("note") else "")
+                      for t in rec[v]]
+    return "\n".join(lines)
+
+
 def prompt_block(*, for_agent: str) -> str:
     """Text for an agent's prompt. Empty until there is feedback to learn from."""
     rows = latest_per_run()
     if not rows:
         return ""
+    if for_agent == "A02":
+        return _a02_block(rows)
     counts = {v: sum(1 for r in rows if r.get("verdict") == v)
               for v in ("approve", "revise", "kill")}
     lines = ["FOUNDER PREFERENCES — learned from " + str(len(rows))
@@ -182,9 +228,32 @@ def prompt_block(*, for_agent: str) -> str:
         post = posteriors("pillar", rows)
         if post:
             lines.append("Approval rate by pillar (approved share of reviewed runs):")
-            lines += ["  - " + k + ": " + str(int(p["mean"] * 100)) + "% of " + str(p["n"])
+            lines += ["  - " + k + ": " + record_text(p)
                       for k, p in sorted(post.items(), key=lambda kv: -kv[1]["mean"])]
     return "\n".join(lines) if len(lines) > 1 else ""
+
+
+def rank_machines(machines: list[dict], *, rng: Optional[random.Random] = None) -> list[dict]:
+    """A03's machine options, learned: consistently killed machines leave the
+    list (while at least two remain), the rest are ordered by a Thompson draw
+    and each carries the founder's record, so the strategist sees which
+    machines have worked and still gets to try unreviewed ones."""
+    post = posteriors("machine")
+    if not post:
+        return machines
+    gone = retired("machine")
+    kept = [m for m in machines if m.get("machine_id") not in gone]
+    if len(kept) < 2:
+        kept = list(machines)
+    order = dict(thompson_order("machine", [m.get("machine_id") for m in kept], rng=rng))
+    ranked = sorted(kept, key=lambda m: -order.get(m.get("machine_id"), 0.0))
+    out = []
+    for m in ranked:
+        p = post.get(m.get("machine_id"))
+        out.append({**m, "founder_record": (
+            record_text(p)
+            if p else "not yet reviewed")})
+    return out
 
 
 def _renderers() -> dict[str, Any]:
