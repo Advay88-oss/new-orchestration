@@ -295,7 +295,7 @@ class Brain:
         with self._db() as con:
             con.execute(
                 "INSERT INTO images(id, path, kind, caption, style_tags, score, note, source, embedding, created_at) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET kind=excluded.kind, "
+                "VALUES (?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET kind=excluded.kind, path=excluded.path, "
                 "caption=COALESCE(NULLIF(excluded.caption,''), images.caption), "
                 "style_tags=COALESCE(excluded.style_tags, images.style_tags), score=excluded.score, "
                 "note=excluded.note, embedding=COALESCE(excluded.embedding, images.embedding)",

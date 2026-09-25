@@ -38,7 +38,7 @@ STATE = Path(__file__).resolve().parents[1] / "state"
 API = "https://api.telegram.org/bot{token}/{method}"
 
 ENV_FILES = [
-    Path("C:/Users/Advay Anand/AppData/Local/hermes/.env"),
+    Path.home() / "AppData" / "Local" / "hermes" / ".env",
     Path.home() / ".agent-reach" / "tools" / "telegram-bot" / ".env",
     Path.home() / ".agent-reach" / ".env",
     Path(os.environ.get("VANNA_ROOT", Path(__file__).resolve().parents[2])) / Path("/Agent-Reach/.env"),

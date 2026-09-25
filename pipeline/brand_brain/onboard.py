@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 import subprocess
 import tempfile
@@ -140,7 +141,7 @@ def _image_items(tenant: str, src: dict) -> list[dict]:
             st = _still(mp4, stills / (Path(r["file"]).stem + "_last.png")) if mp4.exists() else None
             if st:
                 items.append({"file": st, "score": r.get("score"), "note": r.get("note") or "",
-                              "video": str(mp4.relative_to(REPO))})
+                              "video": mp4.relative_to(REPO).as_posix()})
     elif kind == "image_glob":
         items = [{"file": f, "score": None, "note": ""} for f in sorted(path.glob(src["glob"]))]
     elif kind == "image_file" and path.exists():
@@ -170,11 +171,20 @@ def ingest_images(tenant: str) -> dict[str, int]:
     brain = Brain(tenant, create=True)
     items = [it for src in s["images"] for it in _image_items(tenant, src)]
     todo = []
+    # The brain keeps its own copy of every image, so it is self-contained:
+    # the design references, for one, are not shipped in the container image.
+    from pipeline.brand_brain.store import tenant_dir
+    img_dir = tenant_dir(tenant) / "images"
+    img_dir.mkdir(parents=True, exist_ok=True)
     for it in items:
         it["id"] = hashlib.sha1(it["file"].read_bytes()).hexdigest()[:12]
+        own = img_dir / (it["id"] + it["file"].suffix.lower())
+        if not own.exists():
+            shutil.copyfile(it["file"], own)
+        it["file"] = own
         if brain.has_image(it["id"]):
             # Known image: refresh score and note only (the founder may re-rate).
-            brain.add_image(it["id"], str(it["file"].relative_to(REPO)), kind=it["kind"],
+            brain.add_image(it["id"], it["file"].relative_to(REPO).as_posix(), kind=it["kind"],
                             score=it.get("score"), note=it.get("note", ""), source=it.get("video", ""))
         else:
             todo.append(it)
@@ -189,7 +199,7 @@ def ingest_images(tenant: str) -> dict[str, int]:
 
     with ThreadPoolExecutor(max_workers=6) as pool:
         for it, d, v in pool.map(work, todo):
-            brain.add_image(it["id"], str(it["file"].relative_to(REPO)), kind=it["kind"],
+            brain.add_image(it["id"], it["file"].relative_to(REPO).as_posix(), kind=it["kind"],
                             caption=d["caption"], style_tags=d["style_tags"], score=it.get("score"),
                             note=it.get("note", ""), source=it.get("video", ""), vector=v)
     return {"images": len(items), "new": len(todo)}
@@ -203,6 +213,7 @@ def build_competitor_patterns(tenant: str, *, max_runs: int = 40) -> dict[str, i
     from pipeline.gtm_os import agent_runtime as R
     s = spec(tenant)
     handles = {k.lower(): v for k, v in (s.get("competitor_handles") or {}).items()}
+    names = sorted(set(handles.values()))
     posts: dict[str, set[str]] = {}
     runs = sorted((REPO / "pipeline" / "state" / "gtm_runs").glob("GTM-*"))[-max_runs:]
     for d in runs:
@@ -212,18 +223,26 @@ def build_competitor_patterns(tenant: str, *, max_runs: int = 40) -> dict[str, i
             continue
         for sig in h.get("signals") or []:
             sid = str(sig.get("signal_id", ""))
+            head = str(sig.get("headline", ""))[:280]
             if sid.upper().startswith("SIG-TWITTER-"):
                 handle = sid.split("-")[2].lower()
                 if handle in handles:
-                    posts.setdefault(handles[handle], set()).add(str(sig.get("headline", ""))[:280])
+                    posts.setdefault(handles[handle], set()).add(head)
+                continue
+            # Since X is no longer scraped: news, community and channel items
+            # that name a competitor, which is how they are seen publicly.
+            low = head.lower()
+            for name in names:
+                if re.search(r"\b" + re.escape(name.lower()) + r"\b", low):
+                    posts.setdefault(name, set()).add(head)
     brain = Brain(tenant, create=True)
     n = 0
     for comp, texts in posts.items():
         sample = sorted(texts)[:40]
         try:
             out = R.brain_json(
-                "These are recent public posts by " + comp + ", a competitor. Describe HOW they "
-                "post — formats, hook types, recurring topics, length, tone, calls to action — as "
+                "These are recent public posts by or news items about " + comp + ", a competitor. Describe HOW they "
+                "post and are covered — formats, hook types, recurring topics, length, tone, calls to action — as "
                 "patterns another brand could learn from. Do NOT quote or closely paraphrase any "
                 "post, and do not include product claims or figures.\n\n"
                 + "\n".join("- " + t for t in sample)
@@ -273,7 +292,7 @@ def remember_image(path: Path, *, kind: str, score: Optional[float] = None, note
         brain = Brain(t, create=True)
         path = Path(path)
         iid = hashlib.sha1(path.read_bytes()).hexdigest()[:12]
-        rel = str(path.relative_to(REPO)) if path.is_relative_to(REPO) else str(path)
+        rel = path.relative_to(REPO).as_posix() if path.is_relative_to(REPO) else path.as_posix()
         if brain.has_image(iid):
             brain.add_image(iid, rel, kind=kind, score=score, note=note, source=source)
             return iid

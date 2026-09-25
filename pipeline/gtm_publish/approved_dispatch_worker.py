@@ -28,7 +28,7 @@ from pipeline.gtm_learning.performance_store import PerformanceStore
 from pipeline.gtm_storage.atomic_store import AtomicJsonlStore
 from pipeline.gtm_orchestration.config import BRAIN_DB_DIR, BRAIN_ROOT, CANONICAL_KNOWLEDGE_ROOT
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 DB_POSTS_FILE = BRAIN_DB_DIR / "posts.jsonl"
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
 STATE_POSTS_FILE = STATE_DIR / "posts_published.jsonl"

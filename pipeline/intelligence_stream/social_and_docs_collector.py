@@ -1,470 +1,532 @@
-"""Phase 12 Extension: Social, Community & Competitor Docs Intelligence Collector.
+"""A01's collectors — free sources that run anywhere, no browser bridge.
 
-Scrapes and streams verified market intelligence from:
-  1. Live Protocol Twitter/X Feeds (via native opencli twitter tweets).
-  2. Telegram Announcement Channels (via public web mirrors https://t.me/s/<channel>).
-  3. Reddit Communities (r/defi, r/Stellar via Atom/RSS feeds).
-  4. DeFi Competitor Blogs & Technical Docs (Stellar Org, Morpho, Blend, Gearbox, Aave, Silo).
-Features:
-  - Real-time live extraction with zero mock data.
-  - Native Python XML/HTML extraction + OpenCLI browser bridge.
-  - Keyword and semantic filtering (liquidation, leverage, margin, bad debt, Soroban, SmartAccount).
-  - Snapshot caching and deduplication.
+Every source here is a public feed or API reachable with plain HTTP, so the
+scrape runs the same on a laptop, on another machine and in a container:
+
+  news_feeds       crypto newsroom RSS (CoinDesk, Cointelegraph, The Block,
+                   Decrypt, The Defiant, …) — configurable, no key
+  google_news      Google News RSS over a rotating slice of queries, no key
+  gdelt            GDELT DOC 2.0 article search, one request a run, no key
+                   (it allows one request per 5 s and answers 429 above that)
+  reddit           the official Reddit API when REDDIT_CLIENT_ID and
+                   REDDIT_CLIENT_SECRET are set (scores and comment counts);
+                   otherwise the public multireddit RSS
+  telegram         public broadcast channels via their t.me/s/ web preview;
+                   with TELEGRAM_API_ID, TELEGRAM_API_HASH and a
+                   TELEGRAM_SESSION string, Telethon reads them (and groups
+                   the account has joined) through Telegram's own API
+  docs_blogs       blog RSS, and docs pages that emit a signal only when the
+                   page's content actually changed since the last scrape
+  defillama        TVL movers from the DefiLlama API, no key
+  defillama_hacks  recent exploits from the DefiLlama hacks API, no key
+
+The X/Twitter collector (OpenCLI driving the founder's logged-in Chrome) is
+gone: it could not run anywhere but one laptop, and reading X at volume is
+not free by any route. Two rules carried over from the previous version:
+
+  * A source that fails contributes nothing. No placeholder signal is ever
+    made up — the Telegram and Blend "fallbacks" this replaces were fixed
+    strings presented as HIGH-confidence observations every run.
+  * Relevance words come from the tenant's brand profile, not from code.
 """
-
 from __future__ import annotations
 
 import hashlib
 import json
 import os
 import re
-import subprocess
 import time
-import urllib.request
 import urllib.error
+import urllib.parse
+import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from html import unescape
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from pipeline.intelligence_stream import source_config as _source_config
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
+DOCS_WATCH = STATE_DIR / "docs_watch.json"
 
-# Wall-clock allowance for all X handles together. A01 gives every source 90s;
-# this leaves room for the slowest handle to finish inside it.
-TWITTER_BUDGET_S = 75.0
+# Always interesting to a credit / DeFi infrastructure brand; the tenant's own
+# relevance terms are added to these.
+BASE_KEYWORDS = [
+    "liquidation", "margin", "leverage", "bad debt", "contagion", "exploit", "hack",
+    "lending", "borrow", "collateral", "credit", "stablecoin", "oracle", "audit",
+    "yield", "vault", "defi", "tokeniz", "rwa", "restaking", "perp",
+]
 
 
-def _run_killing_tree(cmd: List[str], timeout: float) -> tuple[int, str]:
-    """subprocess.run, except a timeout kills the whole process tree.
-
-    On Windows opencli runs as cmd.exe -> node. subprocess.run's timeout kills
-    cmd.exe only; node keeps the stdout pipe open, so the call blocked until
-    node finished on its own. A 25s timeout measured 86s, which pushed the X
-    source past A01's deadline and failed the scout.
-    """
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            text=True, encoding="utf-8", errors="replace")
+def _env(name: str) -> Optional[str]:
+    v = os.environ.get(name)
+    if v:
+        return v
     try:
-        out, _ = proc.communicate(timeout=timeout)
-        return proc.returncode, out or ""
-    except subprocess.TimeoutExpired:
-        if os.name == "nt":
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(proc.pid)],
-                           capture_output=True)
-        else:
-            proc.kill()
-        proc.communicate()
-        return -1, ""
+        for line in (REPO_ROOT / "pipeline" / ".env").read_text(encoding="utf-8").splitlines():
+            if line.startswith(name + "="):
+                return line.split("=", 1)[1].strip().strip('"') or None
+    except FileNotFoundError:
+        pass
+    return None
+
+
+def _strip(html: str) -> str:
+    return " ".join(unescape(re.sub(r"<[^>]+>", " ", html or "")).split())
+
+
+def _iso(when: str) -> str:
+    """RSS dates (RFC 822) and ISO both come back as ISO 8601, UTC."""
+    if not when:
+        return ""
+    try:
+        from email.utils import parsedate_to_datetime
+        return parsedate_to_datetime(when).astimezone(timezone.utc).isoformat()
+    except Exception:                               # noqa: BLE001 — already ISO, or unparseable
+        return when
+
+
+def _sid(prefix: str, text: str) -> str:
+    return prefix + "-" + hashlib.md5(text.encode("utf-8", "replace")).hexdigest()[:8]
 
 
 class SocialAndDocsCollector:
-    """Collects live signals from Twitter feeds, Telegram channels, Reddit discussions, and DeFi docs/blogs."""
+    """Free, portable collectors for A01. Each returns raw signal dicts."""
 
-    # Source lists come from pipeline/config/intelligence_sources.json so the
-    # engine's field of view is data, not code. They were hardcoded here and
-    # were narrow enough to determine the output: four doc sources of which
-    # two were Blend and Stellar, and two subreddits.
     _CFG = _source_config.load()
-
-    TWITTER_PROTOCOLS = _CFG["twitter_protocols"]
     TELEGRAM_CHANNELS = _CFG["telegram_channels"]
     REDDIT_SUBREDDITS = _CFG["reddit_subreddits"]
     DOCS_AND_BLOGS = _CFG["docs_and_blogs"]
+    NEWS_FEEDS = _CFG.get("news_feeds", [])
     DEFILLAMA = _CFG.get("defillama", {})
-
-    KEYWORDS_OF_INTEREST = [
-        "liquidation", "margin", "leverage", "bad debt", "contagion",
-        "soroban", "blend", "smartaccount", "gas", "mempool", "mev", "credit", "audit", "tps", "yield"
-    ]
 
     def __init__(self):
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                          "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
         }
+        try:
+            from pipeline.brand_brain import context as C
+            terms = [t.lower() for t in C.relevance_terms()]
+        except Exception:                           # noqa: BLE001 — brain not onboarded
+            terms = []
+        self.keywords = list(dict.fromkeys(BASE_KEYWORDS + terms))
 
-    def collect_twitter_signals(self, limit: int = 2) -> List[Dict[str, Any]]:
-        """Collects real-time live tweets from competitor DeFi protocols via opencli."""
-        signals = []
-        # Handles are fetched one at a time. They were parallel, but opencli
-        # drives a single Chrome tab through the bridge: six concurrent
-        # navigations collided ("Navigation rejected") and X returned nothing,
-        # and even two at once lost a handle. Sequential is ~10s a handle and
-        # 6/6 succeed, so the cost is time — bounded by a budget that sits
-        # inside A01's 90s deadline, spent on as many handles as it covers.
-        deadline = time.monotonic() + TWITTER_BUDGET_S
+    # --------------------------------------------------------------- helpers
 
-        def _one(proto):
-            handle = proto["handle"]
-            signals = []
+    def _get(self, url: str, timeout: float = 15.0, headers: Optional[dict] = None,
+             data: Optional[bytes] = None) -> bytes:
+        req = urllib.request.Request(url, headers=headers or self.headers, data=data)
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.read()
+
+    def _relevant(self, text: str) -> bool:
+        low = text.lower()
+        return any(k in low for k in self.keywords)
+
+    def _rss_items(self, xml_bytes: bytes) -> List[Dict[str, str]]:
+        out = []
+        try:
+            root = ET.fromstring(xml_bytes)
+        except ET.ParseError:
+            return out
+        ns = {"atom": "http://www.w3.org/2005/Atom"}
+        for item in root.findall(".//item"):
+            out.append({"title": _strip(item.findtext("title", "")),
+                        "link": (item.findtext("link", "") or "").strip(),
+                        "summary": _strip(item.findtext("description", ""))[:600],
+                        "published": _iso(item.findtext("pubDate", "") or "")})
+        for entry in root.findall(".//atom:entry", ns):
+            link = entry.find("atom:link", ns)
+            out.append({"title": _strip(entry.findtext("atom:title", "", ns)),
+                        "link": link.get("href", "") if link is not None else "",
+                        "summary": _strip(entry.findtext("atom:summary", "", ns)
+                                          or entry.findtext("atom:content", "", ns))[:600],
+                        "published": entry.findtext("atom:updated", "", ns)
+                        or entry.findtext("atom:published", "", ns) or ""})
+        return [i for i in out if i["title"]]
+
+    # ------------------------------------------------------------ news feeds
+
+    def collect_news_feed_signals(self, per_feed: int = 4) -> List[Dict[str, Any]]:
+        """Crypto newsroom RSS: the most recent relevant items from each feed."""
+        signals: List[Dict[str, Any]] = []
+        for feed in self.NEWS_FEEDS:
             try:
-                cmd = ["opencli", "twitter", "tweets", handle, "--limit", str(limit), "-f", "json"]
-                if os.name == "nt":
-                    cmd = ["cmd.exe", "/c", "opencli", "twitter", "tweets", handle, "--limit", str(limit), "-f", "json"]
-
-                # opencli emits UTF-8; without saying so, Python decodes it
-                # with the Windows ANSI codepage and any non-ASCII character
-                # in a tweet raises UnicodeDecodeError inside the reader
-                # thread. The exception surfaced as a traceback and an empty
-                # result, so X has been contributing zero signals every run.
-                remaining = deadline - time.monotonic()
-                if remaining < 5:
-                    return signals
-                returncode, stdout = _run_killing_tree(cmd, timeout=min(25.0, remaining))
-                if returncode == 0 and stdout.strip():
-                    # Parse JSON from stdout (ignoring update notices)
-                    raw_out = stdout
-                    start_idx = raw_out.find("[")
-                    end_idx = raw_out.rfind("]")
-                    if start_idx != -1 and end_idx != -1:
-                        tweets = json.loads(raw_out[start_idx:end_idx+1])
-                        for t in tweets:
-                            sig_id = f"SIG-TWITTER-{handle.upper()}-{t.get('id', '')[-6:]}"
-                            signals.append({
-                                "signal_id": sig_id,
-                                "headline": f"[@{handle}] {t.get('text', '')[:120]}...",
-                                "source": t.get("url", f"https://x.com/{handle}"),
-                                "source_type": "TWITTER_OBSERVED",
-                                "derivation_provenance": f"OPENCLI_TWITTER_FEED:@{handle}",
-                                "timestamp": t.get("created_at", datetime.now(timezone.utc).isoformat()),
-                                "confidence": "HIGH",
-                                "data": {
-                                    "platform": "twitter",
-                                    "handle": handle,
-                                    "tweet_id": t.get("id"),
-                                    "text": t.get("text"),
-                                    "likes": t.get("likes", 0),
-                                    "retweets": t.get("retweets", 0),
-                                    "views": t.get("views", 0),
-                                    "has_media": t.get("has_media", False),
-                                    "url": t.get("url")
-                                }
-                            })
-            except Exception:
-                pass
-            return signals
-
-        for proto in self.TWITTER_PROTOCOLS:
-            if deadline - time.monotonic() < 5:
-                break
-            signals.extend(_one(proto) or [])
-
-        if not signals:
-            social_file = Path("D:/new orchestration/pipeline/state/scraped_social_posts.jsonl")
-            if social_file.exists():
-                for line in social_file.read_text(encoding="utf-8").splitlines():
-                    if line.strip():
-                        try:
-                            sp = json.loads(line)
-                            if sp.get("platform") == "X":
-                                sig_id = f"SIG-TWITTER-{sp.get('player_id', 'PROTO').upper()}-{int(time.time())}"
-                                signals.append({
-                                    "signal_id": sig_id,
-                                    "headline": f"[{sp.get('author_handle')}] {sp.get('content_snippet', '')[:120]}...",
-                                    "source": sp.get("post_url", "https://x.com"),
-                                    "source_type": "TWITTER_OBSERVED",
-                                    "derivation_provenance": f"SCRAPED_X_FEED:{sp.get('author_handle')}",
-                                    "timestamp": sp.get("date", datetime.now(timezone.utc).isoformat()),
-                                    "confidence": "HIGH",
-                                    "data": sp
-                                })
-                        except Exception:
-                            pass
+                items = self._rss_items(self._get(feed["url"], timeout=15.0))
+            except Exception:                       # noqa: BLE001 — this feed fails alone
+                continue
+            kept = 0
+            for it in items:
+                if kept >= per_feed:
+                    break
+                if not self._relevant(it["title"] + " " + it["summary"]):
+                    continue
+                kept += 1
+                key = re.sub(r"[^A-Z0-9]", "", feed["name"].upper())[:14]
+                signals.append({
+                    "signal_id": _sid("SIG-FEED-" + key, it["title"]),
+                    "headline": it["title"] + " - " + feed["name"],
+                    "description": it["summary"] or it["title"],
+                    "source": it["link"] or feed["url"],
+                    "source_type": "PRIMARY_NEWS_OBSERVED",
+                    "derivation_provenance": "NEWS_RSS:" + feed["name"],
+                    "timestamp": it["published"] or datetime.now(timezone.utc).isoformat(),
+                    "confidence": "HIGH",
+                    "data": {"publisher": feed["name"], "title": it["title"], "summary": it["summary"]},
+                })
         return signals
+
+    def collect_google_news_signals(self, query: str = "defi lending", limit: int = 5) -> List[Dict[str, Any]]:
+        """Google News RSS search for one query."""
+        # "when:7d" keeps the search to the last week; without it the feed
+        # ranks by relevance and returned stories months old.
+        url = ("https://news.google.com/rss/search?q=" + urllib.parse.quote(query + " when:7d")
+               + "&hl=en-US&gl=US&ceid=US:en")
+        try:
+            items = self._rss_items(self._get(url, timeout=12.0))
+        except Exception:                           # noqa: BLE001 — boundary
+            return []
+        return [{
+            "signal_id": _sid("SIG-NEWS", it["title"]),
+            "headline": "[Market News] " + it["title"],
+            "source": it["link"] or url,
+            "source_type": "PRIMARY_NEWS_OBSERVED",
+            "derivation_provenance": "GOOGLE_NEWS_RSS_SYNDICATION",
+            "timestamp": it["published"] or datetime.now(timezone.utc).isoformat(),
+            "confidence": "HIGH",
+            "data": {"title": it["title"], "url": it["link"], "query": query},
+        } for it in items[:limit]]
+
+    def collect_gdelt_signals(self, queries: List[str], limit: int = 8) -> List[Dict[str, Any]]:
+        """GDELT article search: one combined request a run (its limit is one
+        request per 5 s, and a 429 is taken as 'nothing this run')."""
+        if not queries:
+            return []
+        q = "(" + " OR ".join('"' + x.replace('"', "") + '"' for x in queries[:4]) + ")"
+        url = ("https://api.gdeltproject.org/api/v2/doc/doc?query=" + urllib.parse.quote(q)
+               + "&mode=artlist&format=json&maxrecords=" + str(limit * 3)
+               + "&timespan=3d&sort=datedesc&sourcelang=english")
+        try:
+            arts = json.loads(self._get(url, timeout=25.0).decode("utf-8", "replace")).get("articles", [])
+        except Exception:                           # noqa: BLE001 — rate-limited or down
+            return []
+        out, seen = [], set()
+        for a in arts:
+            title = _strip(a.get("title", ""))
+            if not title or title.lower() in seen or not self._relevant(title):
+                continue
+            seen.add(title.lower())
+            out.append({
+                "signal_id": _sid("SIG-GDELT", title),
+                "headline": title + " - " + str(a.get("domain", "")),
+                "source": a.get("url", ""),
+                "source_type": "PRIMARY_NEWS_OBSERVED",
+                "derivation_provenance": "GDELT_DOC_API",
+                "timestamp": a.get("seendate", "") or datetime.now(timezone.utc).isoformat(),
+                "confidence": "MEDIUM",
+                "data": {"publisher": a.get("domain"), "title": title},
+            })
+            if len(out) >= limit:
+                break
+        return out
+
+    # ---------------------------------------------------------------- reddit
+
+    def _reddit_token(self) -> Optional[str]:
+        cid, secret = _env("REDDIT_CLIENT_ID"), _env("REDDIT_CLIENT_SECRET")
+        if not (cid and secret):
+            return None
+        import base64
+        auth = base64.b64encode((cid + ":" + secret).encode()).decode()
+        try:
+            body = self._get("https://www.reddit.com/api/v1/access_token", timeout=15.0,
+                             headers={"Authorization": "Basic " + auth,
+                                      "User-Agent": "brand-gtm-research/1.0",
+                                      "Content-Type": "application/x-www-form-urlencoded"},
+                             data=b"grant_type=client_credentials")
+            return json.loads(body).get("access_token")
+        except Exception:                           # noqa: BLE001 — fall back to RSS
+            return None
 
     def collect_reddit_signals(self, limit: int = 5) -> List[Dict[str, Any]]:
-        """Collects discussion signals from r/defi and r/Stellar RSS feeds."""
-        signals = []
-        # One multireddit request, not one per subreddit. Unauthenticated
-        # Reddit allows a handful of requests before it answers 429, so seven
-        # back-to-back feeds got the first through and the other six refused:
-        # Reddit contributed 0-1 signals a run. The combined feed carries every
-        # subreddit's posts, and each entry's link says which one it came from.
+        """Reddit: the official API with scores when keys exist, else RSS."""
         subs = list(self.REDDIT_SUBREDDITS)
-        by_sub: Dict[str, list] = {s.lower(): [] for s in subs}
-        canon = {s.lower(): s for s in subs}
-        url = "https://www.reddit.com/r/" + "+".join(subs) + "/.rss?limit=100"
-        entries: list = []
-        for attempt in range(2):
+        multi = "+".join(subs)
+        posts: List[Dict[str, Any]] = []
+        token = self._reddit_token()
+        if token:
             try:
-                req = urllib.request.Request(url, headers=self.headers)
-                with urllib.request.urlopen(req, timeout=10.0) as resp:
-                    entries = self._parse_atom_feed(resp.read())
-                break
-            except urllib.error.HTTPError as exc:
-                if exc.code != 429 or attempt:
-                    break
-                # The window is short (seconds, per x-ratelimit-reset); one
-                # wait-and-retry inside A01's deadline is worth it.
+                j = json.loads(self._get("https://oauth.reddit.com/r/" + multi + "/hot?limit=100",
+                                         timeout=15.0,
+                                         headers={"Authorization": "bearer " + token,
+                                                  "User-Agent": "brand-gtm-research/1.0"}))
+                for c in j.get("data", {}).get("children", []):
+                    d = c.get("data", {})
+                    posts.append({"sub": d.get("subreddit", ""), "title": d.get("title", ""),
+                                  "link": "https://www.reddit.com" + d.get("permalink", ""),
+                                  "updated": datetime.fromtimestamp(d.get("created_utc", 0), timezone.utc).isoformat(),
+                                  "score": d.get("score"), "comments": d.get("num_comments"),
+                                  "via": "REDDIT_API"})
+            except Exception:                       # noqa: BLE001 — fall back to RSS
+                posts = []
+        if not posts:
+            url = "https://www.reddit.com/r/" + multi + "/.rss?limit=100"
+            for attempt in range(2):
                 try:
-                    wait = float(exc.headers.get("x-ratelimit-reset") or 10)
-                except ValueError:
-                    wait = 10.0
-                time.sleep(min(max(wait, 1.0), 30.0))
-            except Exception:                       # noqa: BLE001 — boundary
-                break
-        for entry in entries:
-            m = re.search(r"/r/([^/]+)/", entry.get("link", ""))
-            if m and m.group(1).lower() in by_sub:
-                by_sub[m.group(1).lower()].append(entry)
-
-        # A failed fetch yields nothing. The fallback this replaces invented a
-        # Reddit post — fake permalink, fabricated "10-15% losses" figure,
-        # confidence HIGH — and handed it to the strategist as observed.
-        for key, sub_entries in by_sub.items():
-            sub = canon[key]
-            for entry in sub_entries[:limit]:
-                title_lower = entry["title"].lower()
-                if any(k in title_lower for k in self.KEYWORDS_OF_INTEREST) or sub == "Stellar":
-                    sig_id = f"SIG-REDDIT-{sub.upper()}-{hashlib.md5(entry['title'].encode()).hexdigest()[:8]}"
-                    signals.append({
-                        "signal_id": sig_id,
-                        "headline": f"[Reddit r/{sub}] {entry['title']}",
-                        "source": entry["link"],
-                        "source_type": "REDDIT_COMMUNITY_OBSERVED",
-                        "derivation_provenance": f"REDDIT_ATOM_FEED:r/{sub}",
-                        "timestamp": entry.get("updated", datetime.now(timezone.utc).isoformat()),
-                        "confidence": "HIGH",
-                        "data": {
-                            "platform": "reddit",
-                            "subreddit": f"r/{sub}",
-                            "title": entry["title"],
-                            "link": entry["link"]
-                        }
-                    })
-        return signals
-
-    def collect_telegram_signals(self) -> List[Dict[str, Any]]:
-        """Collects announcements from public Telegram channel web mirrors (t.me/s/<channel>)."""
+                    for it in self._rss_items(self._get(url, timeout=12.0)):
+                        m = re.search(r"/r/([^/]+)/", it["link"])
+                        posts.append({"sub": m.group(1) if m else "", "title": it["title"],
+                                      "link": it["link"], "updated": it["published"],
+                                      "score": None, "comments": None, "via": "REDDIT_RSS"})
+                    break
+                except urllib.error.HTTPError as exc:
+                    if exc.code != 429 or attempt:
+                        break
+                    time.sleep(10)
+                except Exception:                   # noqa: BLE001 — boundary
+                    break
+        per_sub: Dict[str, int] = {}
+        canon = {s.lower(): s for s in subs}
         signals = []
-        for ch in self.TELEGRAM_CHANNELS:
-            url = f"https://t.me/s/{ch['handle']}"
-            try:
-                req = urllib.request.Request(url, headers=self.headers)
-                with urllib.request.urlopen(req, timeout=4.0) as resp:
-                    if resp.status == 200:
-                        html = resp.read().decode("utf-8", "replace")
-                        messages = self._extract_telegram_messages(html)
-                        for msg in messages[:2]:
-                            if any(k in msg.lower() for k in self.KEYWORDS_OF_INTEREST):
-                                sig_id = f"SIG-TG-{ch['handle'].upper()}-{hashlib.md5(msg[:50].encode()).hexdigest()[:8]}"
-                                signals.append({
-                                    "signal_id": sig_id,
-                                    "headline": f"[{ch['entity']} Telegram] {msg[:120]}...",
-                                    "source": f"https://t.me/{ch['handle']}",
-                                    "source_type": "TELEGRAM_CHANNEL_OBSERVED",
-                                    "derivation_provenance": f"TELEGRAM_WEB_MIRROR:t.me/s/{ch['handle']}",
-                                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                                    "confidence": "HIGH",
-                                    "data": {
-                                        "platform": "telegram",
-                                        "channel": ch["handle"],
-                                        "entity": ch["entity"],
-                                        "snippet": msg[:250]
-                                    }
-                                })
-            except Exception:
-                pass
-
-        if not signals:
+        for p in posts:
+            sub = canon.get(str(p["sub"]).lower())
+            if not sub or per_sub.get(sub, 0) >= limit or not self._relevant(p["title"]):
+                continue
+            per_sub[sub] = per_sub.get(sub, 0) + 1
             signals.append({
-                "signal_id": "SIG-TG-STELLAR-VERIFIED",
-                "headline": "[Stellar Org Telegram] Protocol 20 smart contracts and Blend v2 liquidity expansion live",
-                "source": "https://t.me/s/stellar_org",
-                "source_type": "TELEGRAM_CHANNEL_OBSERVED",
-                "derivation_provenance": "TELEGRAM_COMMUNITY_FEED",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "signal_id": _sid("SIG-REDDIT-" + sub.upper(), p["title"]),
+                "headline": "[Reddit r/" + sub + "] " + p["title"],
+                "source": p["link"],
+                "source_type": "REDDIT_COMMUNITY_OBSERVED",
+                "derivation_provenance": p["via"] + ":r/" + sub,
+                "timestamp": p["updated"] or datetime.now(timezone.utc).isoformat(),
                 "confidence": "HIGH",
-                "data": {
-                    "platform": "telegram",
-                    "channel": "stellar_org",
-                    "entity": "Stellar Development Foundation",
-                    "snippet": "Protocol 20 smart contracts upgrade completed. Blend Protocol v2 money market pools operating at fixed base fees."
-                }
+                "data": {"platform": "reddit", "subreddit": "r/" + sub, "title": p["title"],
+                         "link": p["link"], "score": p["score"], "comments": p["comments"]},
             })
-
         return signals
 
-    def collect_docs_and_blog_signals(self) -> List[Dict[str, Any]]:
-        """Collects official technical roadmap and architectural updates from competitor blogs & docs."""
-        signals = []
+    # -------------------------------------------------------------- telegram
+
+    def _telegram_via_telethon(self, per_channel: int) -> Optional[List[Dict[str, Any]]]:
+        api_id, api_hash, session = (_env("TELEGRAM_API_ID"), _env("TELEGRAM_API_HASH"),
+                                     _env("TELEGRAM_SESSION"))
+        if not (api_id and api_hash and session):
+            return None
+        try:
+            from telethon.sessions import StringSession
+            from telethon.sync import TelegramClient
+        except Exception:                           # noqa: BLE001 — telethon not installed
+            return None
+        out = []
+        try:
+            with TelegramClient(StringSession(session), int(api_id), api_hash) as client:
+                for ch in self.TELEGRAM_CHANNELS:
+                    for msg in client.iter_messages(ch["handle"], limit=per_channel * 3):
+                        text = " ".join(str(msg.message or "").split())
+                        if text:
+                            out.append((ch, text, msg.date.isoformat(),
+                                        "https://t.me/" + ch["handle"] + "/" + str(msg.id),
+                                        getattr(msg, "views", None)))
+        except Exception:                           # noqa: BLE001 — fall back to web preview
+            return None
+        return self._telegram_signals(out, per_channel, "TELEGRAM_API")
+
+    def _telegram_signals(self, rows, per_channel: int, via: str) -> List[Dict[str, Any]]:
+        signals, per = [], {}
+        for ch, text, when, link, views in rows:
+            h = ch["handle"]
+            if per.get(h, 0) >= per_channel or not self._relevant(text):
+                continue
+            per[h] = per.get(h, 0) + 1
+            signals.append({
+                "signal_id": _sid("SIG-TG-" + h.upper(), text[:120]),
+                "headline": "[" + ch["entity"] + " Telegram] " + text[:160],
+                "description": text[:700],
+                "source": link,
+                "source_type": "TELEGRAM_CHANNEL_OBSERVED",
+                "derivation_provenance": via + ":" + h,
+                "timestamp": when or datetime.now(timezone.utc).isoformat(),
+                "confidence": "HIGH",
+                "data": {"platform": "telegram", "channel": h, "entity": ch["entity"],
+                         "snippet": text[:250], "views": views},
+            })
+        return signals
+
+    def collect_telegram_signals(self, per_channel: int = 3) -> List[Dict[str, Any]]:
+        """Public channels. Telethon when keys exist; else the t.me/s/ preview,
+        which public broadcast channels serve (groups and chats do not)."""
+        via_api = self._telegram_via_telethon(per_channel)
+        if via_api is not None:
+            return via_api
+        rows = []
+        for ch in self.TELEGRAM_CHANNELS:
+            try:
+                html = self._get("https://t.me/s/" + ch["handle"], timeout=15.0).decode("utf-8", "replace")
+            except Exception:                       # noqa: BLE001 — this channel fails alone
+                continue
+            blocks = re.split(r'<div class="tgme_widget_message_wrap', html)[1:]
+            for b in reversed(blocks):              # newest last on the page
+                text = re.search(r'<div class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', b, re.S)
+                when = re.search(r'<time datetime="([^"]+)"', b)
+                post = re.search(r'data-post="([^"]+)"', b)
+                views = re.search(r'<span class="tgme_widget_message_views">([^<]+)</span>', b)
+                if text:
+                    rows.append((ch, _strip(text.group(1)), when.group(1) if when else "",
+                                 "https://t.me/" + post.group(1) if post else "https://t.me/s/" + ch["handle"],
+                                 views.group(1) if views else None))
+        return self._telegram_signals(rows, per_channel, "TELEGRAM_WEB_PREVIEW")
+
+    # ----------------------------------------------------------- docs & blogs
+
+    def collect_docs_and_blog_signals(self, per_feed: int = 3) -> List[Dict[str, Any]]:
+        """Blog RSS items, and docs pages that changed since the last scrape.
+
+        A docs page is watched by the hash of its visible text. The first
+        scrape records it; a later one emits a signal only when the text
+        changed — a real "the docs were updated" event, never a standing
+        description of the page."""
+        signals: List[Dict[str, Any]] = []
+        try:
+            watch = json.loads(DOCS_WATCH.read_text(encoding="utf-8"))
+        except Exception:                           # noqa: BLE001 — first run
+            watch = {}
+        changed_watch = False
         for doc in self.DOCS_AND_BLOGS:
             if doc["type"] == "RSS":
                 try:
-                    req = urllib.request.Request(doc["url"], headers=self.headers)
-                    with urllib.request.urlopen(req, timeout=4.0) as resp:
-                        if resp.status == 200:
-                            content = resp.read()
-                            root = ET.fromstring(content)
-                            for item in root.findall(".//item")[:2]:
-                                title = item.findtext("title", "")
-                                link = item.findtext("link", doc["url"])
-                                if any(k in title.lower() for k in self.KEYWORDS_OF_INTEREST):
-                                    signals.append({
-                                        "signal_id": f"SIG-DOCS-{hashlib.md5(title.encode()).hexdigest()[:8]}",
-                                        "headline": f"[{doc['name']}] {title}",
-                                        "source": link,
-                                        "source_type": "PRIMARY_DOCS_OBSERVED",
-                                        "derivation_provenance": f"OFFICIAL_BLOG_FEED:{doc['name']}",
-                                        "timestamp": datetime.now(timezone.utc).isoformat(),
-                                        "confidence": "HIGH",
-                                        "data": {"title": title, "url": link, "publisher": doc["name"]}
-                                    })
-                except Exception:
-                    pass
-            else:
-                if "blend" in doc["name"].lower():
+                    items = self._rss_items(self._get(doc["url"], timeout=15.0))
+                except Exception:                   # noqa: BLE001 — this feed fails alone
+                    continue
+                kept = 0
+                for it in items:
+                    if kept >= per_feed:
+                        break
+                    if not self._relevant(it["title"] + " " + it["summary"]):
+                        continue
+                    kept += 1
                     signals.append({
-                        "signal_id": "SIG-DOCS-BLEND-V2-SPEC",
-                        "headline": "[Blend Protocol Docs] Blend v2 pool architecture formal verification and b-token specification",
-                        "source": "https://docs.blend.capital",
+                        "signal_id": _sid("SIG-DOCS", it["title"]),
+                        "headline": "[" + doc["name"] + "] " + it["title"],
+                        "description": it["summary"] or it["title"],
+                        "source": it["link"] or doc["url"],
                         "source_type": "PRIMARY_DOCS_OBSERVED",
-                        "derivation_provenance": "OFFICIAL_DOCS_VERIFIED",
+                        "derivation_provenance": "OFFICIAL_BLOG_FEED:" + doc["name"],
+                        "timestamp": it["published"] or datetime.now(timezone.utc).isoformat(),
+                        "confidence": "HIGH",
+                        "data": {"title": it["title"], "url": it["link"], "publisher": doc["name"]},
+                    })
+            else:
+                try:
+                    html = self._get(doc["url"], timeout=15.0).decode("utf-8", "replace")
+                except Exception:                   # noqa: BLE001 — this page fails alone
+                    continue
+                body = re.sub(r"(?is)<(script|style|nav|footer|header)[^>]*>.*?</\1>", " ", html)
+                text = _strip(body)
+                title = _strip((re.search(r"(?is)<title>(.*?)</title>", html) or [None, doc["name"]])[1])
+                h = hashlib.sha1(text.encode("utf-8", "replace")).hexdigest()
+                prev = watch.get(doc["url"])
+                if prev and prev.get("hash") != h:
+                    signals.append({
+                        "signal_id": _sid("SIG-DOCS", doc["url"] + h),
+                        "headline": "[" + doc["name"] + "] documentation updated: " + title,
+                        "description": text[:600],
+                        "source": doc["url"],
+                        "source_type": "PRIMARY_DOCS_OBSERVED",
+                        "derivation_provenance": "DOCS_CHANGE_DETECTED:" + doc["name"],
                         "timestamp": datetime.now(timezone.utc).isoformat(),
                         "confidence": "HIGH",
-                        "data": {
-                            "publisher": "Blend Protocol",
-                            "doc_section": "Smart Contract Invariants",
-                            "relevance": "Direct integration partner for Vanna 10x credit margin"
-                        }
+                        "data": {"publisher": doc["name"], "previous_scrape": prev.get("at")},
                     })
-
+                if not prev or prev.get("hash") != h:
+                    watch[doc["url"]] = {"hash": h, "at": datetime.now(timezone.utc).isoformat()}
+                    changed_watch = True
+        if changed_watch:
+            try:
+                DOCS_WATCH.write_text(json.dumps(watch, indent=1), encoding="utf-8")
+            except Exception:                       # noqa: BLE001 — boundary
+                pass
         return signals
+
+    # -------------------------------------------------------------- defillama
 
     def collect_defillama_signals(self, limit: int = 6) -> List[Dict[str, Any]]:
         """Protocols whose TVL moved most this week, from DefiLlama.
 
-        The other sources are editorial — someone had to publish something for
-        a signal to exist, so a quiet week produces the same headlines as the
-        last one. This one is measured: TVL changes daily, so the movers are
-        genuinely different each cycle, and each signal carries a real dated
-        number rather than a claim.
-
-        That matters for the claim gate too: a headline like "Aave V4 TVL rose
-        54.8% in 7 days to $607.1M" is checkable against the same endpoint,
-        where "protocol X announces Y" is not.
+        Measured rather than editorial: TVL changes daily, so the movers are
+        genuinely different each cycle and each signal carries a real, dated
+        number that the claim gate can check against the same endpoint.
         """
         cfg = dict(self.DEFILLAMA or {})
         if not cfg.get("enabled", True):
             return []
-
         categories = set(cfg.get("categories") or ["Lending", "CDP"])
         min_tvl = float(cfg.get("min_tvl_usd") or 20_000_000)
         limit = int(cfg.get("movers") or limit)
-
-        signals: List[Dict[str, Any]] = []
         try:
-            req = urllib.request.Request("https://api.llama.fi/protocols",
-                                         headers=self.headers)
-            with urllib.request.urlopen(req, timeout=20.0) as resp:
-                if resp.status != 200:
-                    return []
-                protocols = json.loads(resp.read())
-        except Exception:
+            protocols = json.loads(self._get("https://api.llama.fi/protocols", timeout=20.0))
+        except Exception:                           # noqa: BLE001 — boundary
             return []
-
         rows = [p for p in protocols
                 if p.get("category") in categories
                 and float(p.get("tvl") or 0) >= min_tvl
                 and p.get("change_7d") is not None]
-        # Biggest absolute movers: a collapse is as much of a story as a rally,
-        # and for credit infrastructure usually a better one.
+        # Biggest absolute movers: a collapse is as much of a story as a rally.
         rows.sort(key=lambda p: abs(float(p.get("change_7d") or 0)), reverse=True)
-
         now = datetime.now(timezone.utc).isoformat()
+        signals = []
         for p in rows[:limit]:
             name = str(p.get("name") or "?")
             tvl = float(p.get("tvl") or 0)
             d7 = float(p.get("change_7d") or 0)
-            direction = "rose" if d7 >= 0 else "fell"
-            headline = (f"{name} TVL {direction} {abs(d7):.1f}% in 7 days to "
-                        f"${tvl/1e6:,.1f}M ({p.get('category')})")
+            headline = (name + " TVL " + ("rose" if d7 >= 0 else "fell") + " "
+                        + f"{abs(d7):.1f}% in 7 days to ${tvl/1e6:,.1f}M ({p.get('category')})")
             signals.append({
-                "signal_id": "SIG-LLAMA-" + hashlib.md5(
-                    (name + str(round(d7, 2))).encode()).hexdigest()[:8],
+                "signal_id": "SIG-LLAMA-" + hashlib.md5((name + str(round(d7, 2))).encode()).hexdigest()[:8],
                 "headline": headline,
-                "source": f"https://defillama.com/protocol/{p.get('slug') or name}",
+                "source": "https://defillama.com/protocol/" + str(p.get("slug") or name),
                 "source_type": "PRIMARY_ONCHAIN_OBSERVED",
                 "derivation_provenance": "DEFILLAMA_API_TVL_SNAPSHOT",
                 "timestamp": now,
                 "confidence": "HIGH",
-                "data": {
-                    "protocol": name,
-                    "category": p.get("category"),
-                    "tvl_usd": tvl,
-                    "change_7d_pct": d7,
-                    "change_1d_pct": p.get("change_1d"),
-                    "chains": p.get("chains") or [],
-                },
+                "data": {"protocol": name, "category": p.get("category"), "tvl_usd": tvl,
+                         "change_7d_pct": d7, "change_1d_pct": p.get("change_1d"),
+                         "chains": p.get("chains") or []},
             })
         return signals
 
-    def collect_google_news_signals(self, query: str = "stellar soroban defi", limit: int = 5) -> List[Dict[str, Any]]:
-        """Collects verified real-time crypto & DeFi news signals via Google News RSS without rate-limits or bot-blocks."""
+    def collect_defillama_hacks(self, days: int = 30, limit: int = 5) -> List[Dict[str, Any]]:
+        """Exploits in the last `days`, largest first — each one a dated,
+        sourced instance of the risk a credit protocol is built to contain."""
+        try:
+            hacks = json.loads(self._get("https://api.llama.fi/hacks", timeout=20.0))
+        except Exception:                           # noqa: BLE001 — boundary
+            return []
+        since = (datetime.now(timezone.utc) - timedelta(days=days)).timestamp()
+        recent = [h for h in hacks if float(h.get("date") or 0) >= since]
+        recent.sort(key=lambda h: -float(h.get("amount") or 0))
         signals = []
-        safe_query = urllib.parse.quote(query)
-        url = f"https://news.google.com/rss/search?q={safe_query}&hl=en-US&gl=US&ceid=US:en"
-        try:
-            req = urllib.request.Request(url, headers=self.headers)
-            with urllib.request.urlopen(req, timeout=4.0) as resp:
-                if resp.status == 200:
-                    content = resp.read()
-                    root = ET.fromstring(content)
-                    for item in root.findall(".//item")[:limit]:
-                        title = item.findtext("title", "")
-                        link = item.findtext("link", url)
-                        pub_date = item.findtext("pubDate", datetime.now(timezone.utc).isoformat())
-                        if title:
-                            sig_id = f"SIG-NEWS-{hashlib.md5(title.encode()).hexdigest()[:8]}"
-                            signals.append({
-                                "signal_id": sig_id,
-                                "headline": f"[Market News] {title}",
-                                "source": link,
-                                "source_type": "PRIMARY_NEWS_OBSERVED",
-                                "derivation_provenance": "GOOGLE_NEWS_RSS_SYNDICATION",
-                                "timestamp": pub_date,
-                                "confidence": "HIGH",
-                                "data": {
-                                    "title": title,
-                                    "url": link,
-                                    "query": query
-                                }
-                            })
-        except Exception:
-            pass
+        for h in recent[:limit]:
+            name = str(h.get("name") or "?")
+            amt = float(h.get("amount") or 0)
+            when = datetime.fromtimestamp(float(h.get("date") or 0), timezone.utc)
+            how = str(h.get("technique") or h.get("classification") or "exploit")
+            headline = (name + " exploited for $" + f"{amt/1e6:,.1f}M" + " via " + how
+                        + " (" + when.strftime("%Y-%m-%d") + ")")
+            signals.append({
+                "signal_id": _sid("SIG-HACK", name + when.isoformat()),
+                "headline": headline,
+                "description": headline + ". Chains: " + ", ".join(h.get("chain") or []) + ".",
+                "source": str(h.get("source") or "https://defillama.com/hacks"),
+                "source_type": "PRIMARY_ONCHAIN_OBSERVED",
+                "derivation_provenance": "DEFILLAMA_HACKS_API",
+                "timestamp": when.isoformat(),
+                "confidence": "HIGH",
+                "data": {"protocol": name, "amount_usd": amt, "technique": h.get("technique"),
+                         "classification": h.get("classification"), "chains": h.get("chain") or [],
+                         "returned_usd": h.get("returnedFunds")},
+            })
         return signals
-
-    def _parse_atom_feed(self, xml_bytes: bytes) -> List[Dict[str, str]]:
-        entries = []
-        try:
-            root = ET.fromstring(xml_bytes)
-            ns = {"atom": "http://www.w3.org/2005/Atom"}
-            for entry in root.findall(".//atom:entry", ns):
-                title = entry.findtext("atom:title", "", ns)
-                link_el = entry.find("atom:link", ns)
-                link = link_el.get("href", "") if link_el is not None else ""
-                updated = entry.findtext("atom:updated", "", ns)
-                entries.append({"title": title, "link": link, "updated": updated})
-            if not entries:
-                for item in root.findall(".//item"):
-                    entries.append({
-                        "title": item.findtext("title", ""),
-                        "link": item.findtext("link", ""),
-                        "updated": item.findtext("pubDate", "")
-                    })
-        except Exception:
-            pass
-        return entries
-
-    def _extract_telegram_messages(self, html: str) -> List[str]:
-        matches = re.findall(r'<div class="tgme_widget_message_text[^"]*"[^>]*>(.*?)</div>', html, re.DOTALL)
-        clean = []
-        for m in matches:
-            text = re.sub(r"<[^>]+>", " ", m).strip()
-            text = " ".join(text.split())
-            if text:
-                clean.append(text)
-        return clean
-

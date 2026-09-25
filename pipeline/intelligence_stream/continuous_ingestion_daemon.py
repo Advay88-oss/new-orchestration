@@ -1,8 +1,8 @@
 """Phase 12: High-Performance Simultaneous Multi-Source Intelligence Daemon.
 
 Fetches ALL intelligence sources simultaneously in parallel worker threads:
-  Worker 1: Protocol Twitter/X Feeds (StellarOrg, MorphoLabs, GearboxProtocol via opencli).
-  Worker 2: Reddit Subreddits (r/defi, r/Stellar via opencli reddit & Atom RSS).
+  Worker 1: Crypto newsroom RSS feeds.
+  Worker 2: Reddit Subreddits (official API or RSS).
   Worker 3: DeFiLlama Money Markets (Blend v2 $149.7M+, Soroswap $1.2M+ TVL).
   Worker 4: Stellar Soroban Horizon RPC (Ledger sequence, base fee, capacity usage).
   Worker 5: Telegram Announcement Channels (t.me/s/stellar_org, morpho_labs, blend_capital).
@@ -27,7 +27,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 DB_EVIDENCE_FILE = BRAIN_DB_DIR / "evidence.jsonl"
 DB_OPPORTUNITIES_FILE = BRAIN_DB_DIR / "opportunities.jsonl"
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
@@ -118,7 +118,7 @@ class ContinuousIngestionDaemon:
             future_blend = executor.submit(self._poll_blend_liquidity)
             future_soroswap = executor.submit(self._poll_soroswap_liquidity)
             future_liquidation = executor.submit(self._poll_liquidation_telemetry)
-            future_twitter = executor.submit(self.social_collector.collect_twitter_signals)
+            future_twitter = executor.submit(self.social_collector.collect_news_feed_signals)
             future_reddit = executor.submit(self.social_collector.collect_reddit_signals)
             future_telegram = executor.submit(self.social_collector.collect_telegram_signals)
             future_docs = executor.submit(self.social_collector.collect_docs_and_blog_signals)
@@ -178,7 +178,7 @@ class ContinuousIngestionDaemon:
             try:
                 candidate_signals.extend(future_twitter.result(timeout=20))
             except Exception as e:
-                print(f"   ⚠️ Twitter opencli worker error: {e}")
+                print(f"   ⚠️ News feed worker error: {e}")
 
             try:
                 candidate_signals.extend(future_reddit.result(timeout=15))

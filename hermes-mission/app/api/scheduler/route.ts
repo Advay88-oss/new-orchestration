@@ -28,7 +28,7 @@ export async function GET() {
         const jobsList: any[] = [];
         
         const jobDefs: Record<string, { desc: string; defaultInt: string; isModel: boolean }> = {
-          research_collect: { desc: "Full research collection across all 8 sources via OpenCLI & on-chain RPC.", defaultInt: "12h", isModel: true },
+          research_collect: { desc: "Full research collection across the free news, community and on-chain sources.", defaultInt: "12h", isModel: true },
           trend_scan: { desc: "Zero-cost real-time trend & news monitoring (Google News RSS + Curve/Stellar news).", defaultInt: "2m", isModel: false },
           ideas_panel: { desc: "Synthesizes 8-12 claim-gated actionable GTM ideas from newly scraped artefacts.", defaultInt: "6h", isModel: true },
           memes_panel: { desc: "Scans crypto culture for liquidation/gas humor with strict claim & risk gating.", defaultInt: "2h", isModel: true }

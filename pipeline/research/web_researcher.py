@@ -39,7 +39,7 @@ from pipeline.research.tools.web_research_tool import WebResearchTool
 from pipeline.research.evidence_normalizer import EvidenceNormalizer
 from pipeline.gtm_orchestration.config import BRAIN_DB_DIR, BRAIN_ROOT, CANONICAL_KNOWLEDGE_ROOT
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 BRAIN_DB_DIR = BRAIN_DB_DIR
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
 

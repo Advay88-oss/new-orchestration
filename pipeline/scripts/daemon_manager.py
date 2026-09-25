@@ -18,7 +18,7 @@ import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
 LOGS_DIR = REPO_ROOT / "pipeline" / "logs"
 PID_FILE = STATE_DIR / "daemon.pid"

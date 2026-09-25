@@ -25,7 +25,7 @@ from pipeline.gtm_learning.pattern_weighting import PatternWeightingEngine
 from pipeline.gtm_learning.learning_engine import LearningEngine
 from pipeline.gtm_orchestration.config import BRAIN_DB_DIR, BRAIN_ROOT, CANONICAL_KNOWLEDGE_ROOT
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 DB_PATTERNS_FILE = BRAIN_DB_DIR / "patterns.jsonl"
 DB_POSTS_FILE = BRAIN_DB_DIR / "posts.jsonl"
 STATE_DIR = REPO_ROOT / "pipeline" / "state"

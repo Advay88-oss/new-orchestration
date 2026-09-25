@@ -38,3 +38,9 @@ build
 .hermes
 .agents
 .claude
+
+# Secrets never go into an image: keys come from the host's environment
+# (Cloud Run secrets / env vars), which every module reads first.
+**/.env
+**/.env.*
+pipeline/keys/

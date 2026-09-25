@@ -19,7 +19,7 @@ from typing import Any, Dict, List, Optional
 import urllib.request
 import urllib.error
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
 
 from pipeline.gtm_publish.publisher_schemas import (

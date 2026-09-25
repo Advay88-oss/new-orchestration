@@ -23,15 +23,13 @@ CONFIG_PATH = (Path(__file__).resolve().parents[1] / "config"
 DEFAULTS: dict[str, Any] = {
     "news_queries": ["stellar soroban defi", "defi lending protocol liquidation"],
     "reddit_subreddits": ["defi", "Stellar"],
-    "twitter_protocols": [
-        {"handle": "StellarOrg", "name": "Stellar Foundation"},
-        {"handle": "MorphoLabs", "name": "Morpho Protocol"},
-        {"handle": "GearboxProtocol", "name": "Gearbox Protocol"},
-    ],
     "telegram_channels": [
-        {"handle": "stellar_org", "entity": "Stellar Development Foundation"},
-        {"handle": "morpho_labs", "entity": "Morpho Protocol"},
-        {"handle": "blend_capital", "entity": "Blend Protocol"},
+        {"handle": "the_block_crypto", "entity": "The Block"},
+        {"handle": "cointelegraph", "entity": "Cointelegraph"},
+    ],
+    "news_feeds": [
+        {"name": "CoinDesk", "url": "https://www.coindesk.com/arc/outboundfeeds/rss/"},
+        {"name": "The Block", "url": "https://www.theblock.co/rss.xml"},
     ],
     "docs_and_blogs": [
         {"name": "Stellar Foundation Blog",

@@ -7,7 +7,7 @@ into pattern verdicts, ensuring deterministic claim-tier logic with grounded str
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 KNOWLEDGE_BASE = REPO_ROOT / "knowledge" / "internal"
 
 

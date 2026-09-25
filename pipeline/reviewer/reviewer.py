@@ -23,7 +23,7 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 REVIEWS_DIR = REPO_ROOT / "pipeline" / "state" / "reviews"
 REVIEWS_DIR.mkdir(parents=True, exist_ok=True)
 CLAIMS_PATH = REPO_ROOT / "registry" / "claims.jsonl"

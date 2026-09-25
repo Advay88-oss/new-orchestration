@@ -20,7 +20,7 @@ import urllib.error
 from pathlib import Path
 from typing import Any, Dict
 
-REPO_ROOT = Path("D:/new orchestration")
+REPO_ROOT = Path(__file__).resolve().parents[2]
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
 SPEND_FILE = STATE_DIR / "local_spend_tracker.json"
 PROXY_SCRIPT = REPO_ROOT / "pipeline" / "scripts" / "vertex_spend_proxy.py"

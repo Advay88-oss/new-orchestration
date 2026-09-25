@@ -63,3 +63,4 @@ pipeline/gtm_engine/registry/cache/
 # (python -m pipeline.brand_brain init <tenant>); never commit them.
 pipeline/brain/tenants/*/brain.db*
 pipeline/brain/tenants/*/stills/
+pipeline/brain/tenants/*/images/

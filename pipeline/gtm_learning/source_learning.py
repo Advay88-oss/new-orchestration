@@ -56,10 +56,18 @@ def arm_of(signal_id: str, query: Optional[str] = None) -> tuple[str, Optional[s
     sid = str(signal_id or "").upper()
     if sid.startswith("SIG-NEWS"):
         return "google_news", (query or None)
+    if sid.startswith("SIG-FEED-"):
+        return "news_feeds", sid.split("-")[2].lower()
+    if sid.startswith("SIG-GDELT"):
+        return "gdelt", None
+    if sid.startswith("SIG-HACK"):
+        return "defillama_hacks", None
     if sid.startswith("SIG-TWITTER-"):
         return "twitter", sid.split("-")[2].lower()
     if sid.startswith("SIG-REDDIT-"):
         return "reddit", sid.split("-")[2].lower()
+    if sid.startswith("SIG-TG-") and sid.count("-") >= 3:
+        return "telegram", sid.split("-")[2].lower()
     if sid.startswith("SIG-TG"):
         return "telegram", None
     if sid.startswith("SIG-DOCS"):

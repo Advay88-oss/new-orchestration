@@ -453,7 +453,7 @@ export function useMissionControl(props: MissionControlProps) {
       ],
       research: [
         "Scraped Intelligence",
-        "Deep web research, discovered ecosystem players, and canonical claims extracted via OpenCLI Browser Bridge.",
+        "Deep web research, discovered ecosystem players, and canonical claims from public sources.",
       ],
       scheduler: [
         "24/7 Autonomous Scheduler",

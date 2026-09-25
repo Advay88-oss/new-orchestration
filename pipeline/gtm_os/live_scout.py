@@ -6,9 +6,10 @@ source. So the "Intelligence Scout & Parallel Stream Daemon" scanned nothing,
 and every cycle for twelve days selected from the same frozen list while
 reporting HIGH confidence on a date that never moved.
 
-This module actually goes and looks: Google News, protocol docs and blogs,
-Reddit RSS, Telegram web mirrors and the X bridge, in parallel, each with its
-own timeout. Two rules:
+This module actually goes and looks: crypto news feeds, Google News, GDELT,
+protocol docs and blogs, Reddit, Telegram channels and DefiLlama, in
+parallel, each with its own timeout. Every source is a free public feed or
+API, so the scrape runs anywhere — no browser bridge. Two rules:
 
   * **A source that fails contributes nothing.** It does not contribute a
     plausible-looking cached signal. The collector's Reddit fallback used to
@@ -218,10 +219,12 @@ def collect_live(limit_per_source: int = 5) -> tuple[list[MarketSignal], dict[st
         "docs_blogs": lambda: c.collect_docs_and_blog_signals(),
         "reddit": lambda: c.collect_reddit_signals(limit=limit_per_source),
         "telegram": lambda: c.collect_telegram_signals(),
-        "twitter": lambda: c.collect_twitter_signals(limit=2),
+        "news_feeds": lambda: c.collect_news_feed_signals(),
+        "gdelt": lambda: c.collect_gdelt_signals(queries),
         # Measured rather than editorial: TVL moves every day, so this source
         # produces genuinely new signals even in a week when nobody publishes.
         "defillama": lambda: c.collect_defillama_signals(),
+        "defillama_hacks": lambda: c.collect_defillama_hacks(),
     }
 
     report: dict[str, Any] = {}

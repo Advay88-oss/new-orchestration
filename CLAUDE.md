@@ -16,8 +16,9 @@ and `OKF-PACKS.md` before adding a company.
 
 ## Architecture — hybrid cloud/local
 
-Scraping runs through a local Chrome bridge (OpenCLI), so it cannot run in the
-cloud. The dashboard is public on Cloud Run; the pipeline executes locally;
+Scraping uses only free public feeds and APIs (news RSS, Google News, GDELT,
+Reddit, Telegram channel previews, DefiLlama), so it runs anywhere. The
+dashboard is public on Cloud Run; the pipeline executes locally;
 **GCS is the seam between them**.
 
 ```

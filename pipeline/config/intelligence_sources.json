@@ -1,17 +1,22 @@
 {
   "_README": [
-    "What A01 scrapes. Edit this file to change the engine's field of view \u2014",
+    "What A01 scrapes. Edit this file to change the engine's field of view —",
     "no code change needed. Missing keys fall back to the defaults in",
     "pipeline/intelligence_stream/source_config.py.",
     "",
     "Why this exists: the source list used to be hardcoded in a class body,",
     "and two of its four doc sources were Blend and Stellar. A narrow input",
     "pool cannot produce varied output, however good the agents downstream",
-    "are \u2014 32 of 41 runs landed on the same Blend v2 topic.",
+    "are — 32 of 41 runs landed on the same Blend v2 topic.",
     "",
     "news_queries is a LIST and a different subset is used each cycle. One",
     "fixed query ('stellar soroban defi') returned near-identical headlines",
-    "every run, which was the single largest cause of the repetition."
+    "every run, which was the single largest cause of the repetition.",
+    "",
+    "Every source here is free and needs no browser: public RSS/APIs.",
+    "Telegram lists public BROADCAST channels (t.me/s/ previews); protocol",
+    "community groups cannot be read without an account (set TELEGRAM_* keys).",
+    "Reddit uses its official API when REDDIT_CLIENT_ID/SECRET are set."
   ],
   "news_queries": [
     "stellar soroban defi",
@@ -36,44 +41,18 @@
     "ethdev",
     "CryptoTechnology"
   ],
-  "twitter_protocols": [
-    {
-      "handle": "StellarOrg",
-      "name": "Stellar Foundation"
-    },
-    {
-      "handle": "MorphoLabs",
-      "name": "Morpho Protocol"
-    },
-    {
-      "handle": "GearboxProtocol",
-      "name": "Gearbox Protocol"
-    },
-    {
-      "handle": "aave",
-      "name": "Aave"
-    },
-    {
-      "handle": "eulerfinance",
-      "name": "Euler Finance"
-    },
-    {
-      "handle": "gauntlet_xyz",
-      "name": "Gauntlet"
-    }
-  ],
   "telegram_channels": [
     {
-      "handle": "stellar_org",
-      "entity": "Stellar Development Foundation"
+      "handle": "the_block_crypto",
+      "entity": "The Block"
     },
     {
-      "handle": "morpho_labs",
-      "entity": "Morpho Protocol"
+      "handle": "cointelegraph",
+      "entity": "Cointelegraph"
     },
     {
-      "handle": "blend_capital",
-      "entity": "Blend Protocol"
+      "handle": "wublockchainenglish",
+      "entity": "Wu Blockchain"
     }
   ],
   "docs_and_blogs": [
@@ -129,5 +108,32 @@
     ],
     "min_tvl_usd": 20000000,
     "movers": 6
+  },
+  "news_feeds": [
+    {
+      "name": "CoinDesk",
+      "url": "https://www.coindesk.com/arc/outboundfeeds/rss/"
+    },
+    {
+      "name": "Cointelegraph",
+      "url": "https://cointelegraph.com/rss"
+    },
+    {
+      "name": "The Block",
+      "url": "https://www.theblock.co/rss.xml"
+    },
+    {
+      "name": "Decrypt",
+      "url": "https://decrypt.co/feed"
+    },
+    {
+      "name": "The Defiant",
+      "url": "https://thedefiant.io/api/feed"
+    }
+  ],
+  "defillama_hacks": {
+    "enabled": true,
+    "days": 30,
+    "limit": 5
   }
 }

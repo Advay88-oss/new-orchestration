@@ -22,8 +22,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
-REPO_ROOT = Path("D:/new orchestration")
-REMOTION_DIR = Path("D:/vanna-remotion")
+REPO_ROOT = Path(__file__).resolve().parents[2]
+REMOTION_DIR = Path(os.environ.get("REMOTION_DIR") or (REPO_ROOT / "remotion-video"))
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
 JOBS_FILE = STATE_DIR / "video_render_jobs.jsonl"
 
