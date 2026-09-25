@@ -1,0 +1,27 @@
+{
+  "run_id": "GTM-20260924-112650",
+  "status": "completed",
+  "source": "studio",
+  "reason": "Made in the creative studio on 2026-09-25, outside a full cycle: no scrape, strategy or copy stages ran.",
+  "directive": "DeFi hot take: pooled lending doesn't spread risk, it socialises it",
+  "signal": "DeFi hot take: pooled lending doesn't spread risk, it socialises it",
+  "started_at": "2026-09-24T11:26:50.866199+00:00",
+  "ended_at": "2026-09-24T11:26:50.866199+00:00",
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\direct_posters\\01_hot_take.png",
+  "visual_archetype": "DIRECT_MODEL",
+  "visual_renderer": "direct_model",
+  "visual_why": "gemini-3-pro-image, shown the design references and the founder-approved posters; judged by a vision model",
+  "posts": {},
+  "review_passed": null,
+  "models_used": [
+    "gemini-3-pro-image",
+    "veo-3.1-generate-001"
+  ],
+  "video_path": "D:\\new orchestration\\pipeline\\state\\veo_videos\\01_hot_take.mp4",
+  "video_mode": "veo_image_to_video",
+  "video_review": {
+    "verdict": "REJECT",
+    "critique": "Veo image-to-video: text changed and a SmartAccount card was added at the end.",
+    "fix": ""
+  }
+}

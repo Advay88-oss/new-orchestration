@@ -1,0 +1,29 @@
+{
+  "run_id": "GTM-20260925-055640",
+  "status": "completed",
+  "source": "studio",
+  "reason": "Made in the creative studio on 2026-09-25, outside a full cycle: no scrape, strategy or copy stages ran.",
+  "directive": "Why Vanna's health factor and liquidity are better",
+  "signal": "Why Vanna's health factor and liquidity are better",
+  "started_at": "2026-09-25T05:56:40.808074+00:00",
+  "ended_at": "2026-09-25T05:56:40.808074+00:00",
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\veo_videos\\hf_liquidity_poster.png",
+  "visual_archetype": "DIRECT_MODEL",
+  "visual_renderer": "direct_model",
+  "visual_why": "gemini-3-pro-image, shown the design references and the founder-approved posters; judged by a vision model",
+  "posts": {},
+  "review_passed": null,
+  "models_used": [
+    "gemini-3-pro-image",
+    "veo-3.1-generate-001"
+  ],
+  "video_path": "D:\\new orchestration\\pipeline\\state\\veo_videos\\hf_liquidity_10s.mp4",
+  "video_mode": "veo_build",
+  "video_review": {
+    "verdict": "REVISE",
+    "critique": "Build from the empty ground; mid-build typos ('Congagion', 'Striraining') and invented icons that resolve by the end.",
+    "fix": ""
+  },
+  "poster_brief": "Written by hand (Claude) before the Motion Director existed: contrast a fragile shared pool with Vanna's isolated, liquid SmartAccount; 1.10x floor; credit to Blend, Aquarius, Soroswap as plain text.",
+  "motion_plan": "Generic build brief: glow breathes in, logo fades up, headline line by line, cards slide in, diagram assembles, settle."
+}

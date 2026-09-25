@@ -1,0 +1,27 @@
+{
+  "run_id": "GTM-20260925-063832",
+  "status": "completed",
+  "source": "studio",
+  "reason": "Made in the creative studio on 2026-09-25, outside a full cycle: no scrape, strategy or copy stages ran.",
+  "directive": "Vanna testnet is live for testing — check it now or regret later",
+  "signal": "Vanna testnet is live for testing — check it now or regret later",
+  "started_at": "2026-09-25T06:38:32.719229+00:00",
+  "ended_at": "2026-09-25T06:38:32.719229+00:00",
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\direct_posters\\testnet_live_v2.png",
+  "visual_archetype": "DIRECT_MODEL",
+  "visual_renderer": "direct_model",
+  "visual_why": "gemini-3-pro-image, shown the design references and the founder-approved posters; judged by a vision model",
+  "posts": {},
+  "review_passed": null,
+  "models_used": [
+    "gemini-3-pro-image",
+    "veo-3.1-generate-001"
+  ],
+  "video_path": "D:\\new orchestration\\pipeline\\state\\veo_videos\\testnet_live_10s.mp4",
+  "video_mode": "veo_build",
+  "video_review": {
+    "verdict": "REJECT",
+    "critique": "Camera tilted into 3D around an isometric chip hub; subtitle garbled mid-build.",
+    "fix": "Flat, face-on build; text arrives at its final position."
+  }
+}

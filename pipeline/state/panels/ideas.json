@@ -1,9 +1,120 @@
 {
-  "generated": "2026-09-24T19:39:48.863641+00:00",
+  "generated": "2026-09-25T06:32:05.122342+00:00",
   "total_ideas": 24,
   "runnable_today_count": 19,
   "blocked_count": 5,
   "ideas": [
+    {
+      "id": "PROP-assets-could-emerging-growth-lending-mar",
+      "type": "PROPOSED",
+      "hook": "Emerging market RWAs cannot thrive on rigid, one-size-fits-all pooled credit infrastructure.",
+      "rationale": "Unlocking emerging market RWA credit requires composable credit lines and per-borrower accounts to enforce varied localized risk parameters.",
+      "format_spec": {
+        "archetype": "LINKEDIN_POST"
+      },
+      "trend_link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNSGJHZmwwSTZicS0tR2dsSmgtc3cwZ1pHQzlreDcwa0FUQ1hXVk5hMFdXeDRZMlpySUhINnBjNWdXZlhrQV95MUVHLVpmSHRiZ2JncEtkTXJ6UEJwd0xzeGJEYTJsR19fTVphdHNMMmFUaUtEcWRVWTJoMTk0ZVhKVEJPcDRXdS1y?oc=5",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "pattern_source": "Composable credit lines built on Soroban SmartAccount architecture.",
+      "objection_addressed": "Discussions on RWA lending in emerging markets highlight the gap between standardized liquidity pools and varied local collateral requirements.",
+      "visual_direction": "Obsidian canvas with modular violet chambers connected by slender pink conduits, mapping custom credit paths per partition.",
+      "video_direction": "Locked-off overhead graphic showing separate conduits feeding into distinct violet cells without cross-contamination.",
+      "gtm_play": "Lead on LinkedIn aimed at institutional RWA originators, followed by direct outreach to Stellar development working groups.",
+      "claims_gate": "UNCHECKED",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "NEEDS_DRAFTING",
+      "signal_headline": "Why tokenizing real-world assets could unlock lending growth in emerging markets",
+      "run_id": "GTM-20260925-061830",
+      "visual_url": null
+    },
+    {
+      "id": "PROP-against-arch-equities-lend-lending-token",
+      "type": "PROPOSED",
+      "hook": "Tokenized equity collateral introduces idiosyncratic market shocks that pooled lending cannot safely swallow.",
+      "rationale": "Lending against tokenized equities requires isolated SmartAccount sandboxes to compartmentalize single-stock volatility from shared lending pools.",
+      "format_spec": {
+        "archetype": "THREAD"
+      },
+      "trend_link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5UWm9oZTNyWGR5T1ZYWC1uVXdhUDlIYkpmS2FzTVhYb1luNHNYTWFpeWhldUJXVnFZVFItajMwSjJ6a2dGdzRZbHFLaUo1Y3Z6LWFVY0dRVTktTUVuc2NpNXBOdVlUNjdPMnhGT3huS05EZlB6NF9Nb0YtdEZ5enM?oc=5",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "pattern_source": "Isolated SmartAccount sandboxes isolating per-asset collateral risk.",
+      "objection_addressed": "Lenders are entering tokenized equities, highlighting the need for isolated risk parameters per asset class.",
+      "visual_direction": "Obsidian surface displaying segregated violet vaults connected to isolated conduits, with one closed off by a pink perimeter.",
+      "video_direction": "Static camera showing a violet cell safely absorbing a shock pulse while neighboring credit conduits remain completely steady.",
+      "gtm_play": "Publish on X targeting RWA credit developers, following up with technical discussions on Stellar ecosystem spaces.",
+      "claims_gate": "UNCHECKED",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "NEEDS_DRAFTING",
+      "signal_headline": "Arch Lending to lend against tokenized equities",
+      "run_id": "GTM-20260925-061830",
+      "visual_url": null
+    },
+    {
+      "id": "PROP-calls-crypto-die-factors-health-liquidat",
+      "type": "PROPOSED",
+      "hook": "Liquidations should terminate the bad position, not contaminate the entire protocol's liquidity.",
+      "rationale": "Deterministic liquidation confined to individual account sandboxes prevents market-wide margin cascades without relying on pooled haircut socialization.",
+      "format_spec": {
+        "archetype": "THREAD"
+      },
+      "trend_link": "https://news.google.com/rss/articles/CBMifEFVX3lxTFBZSVBIUU96OUxzOHViMVNKYXZ2UEpsRThOTVNHMkNodnE0MjZTYlpuaUJPZEkyVFlacnRITjV1aWk2R2ZMcVV2T1NYYnJiQ0U3MUg4MC1CRzJTZHp1SzNiRkRKZmpwNHdFVmJDTTc3dWtzdFBoc0F5R3owNmI?oc=5",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "pattern_source": "Deterministic liquidation within isolated SmartAccount sandboxes.",
+      "objection_addressed": "Market primers are breaking down liquidation mechanics, opening an opportunity to contrast pool liquidations with isolated execution.",
+      "visual_direction": "Flat diagrammatic conduits severing an isolated pink chamber on an obsidian field while adjacent violet chambers remain untouched.",
+      "video_direction": "Locked-off view of a solitary perimeter flushing pink into violet, demonstrating containment without disturbing parallel lines.",
+      "gtm_play": "Post Twitter thread targeting DeFi risk engineers, linking to Soroban testnet contract references for liquidation logic.",
+      "claims_gate": "UNCHECKED",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "NEEDS_DRAFTING",
+      "signal_headline": "What is liquidation in crypto? Margin calls, health factors, and how positions die",
+      "run_id": "GTM-20260925-061830",
+      "visual_url": null
+    },
+    {
+      "id": "PROP-analysis-application-defi-insolvency-law",
+      "type": "PROPOSED",
+      "hook": "When a DeFi lender fails, who actually owns the collateral in the pool?",
+      "rationale": "Commingled lending pools blur asset custody during insolvency, whereas isolated smart accounts establish deterministic property boundaries for credit.",
+      "format_spec": {
+        "archetype": "REDDIT_DEEPDIVE"
+      },
+      "trend_link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNeWtjdUlsc1F4OUZ0STlXOGgzQkcyd0tFQkNYVTRrQk82X285bnV2VVgxNzZSNHhFTXN1SE8wN25ZRU90djhBRjE4ejZTeFdjZGt2YVhpd1R3YXdOTWJROXd5SnJIcjNySmZkS3dBRFdVN3ZuZUdHMDN6MkdRRVo5d0E1REZPUDZtYVRPV0F5WkJHVElDV184SnJxLV9CczVuTXkyQVlLY0wwazRuOEF6eEVpdHFLR19DWlJ2aw?oc=5",
+      "source_type": "PRIMARY_NEWS_OBSERVED",
+      "pattern_source": "Per-borrower collateral segregated within individual SmartAccount sandboxes.",
+      "objection_addressed": "Legal discourse is examining how insolvency frameworks apply to pooled versus segregated on-chain lending protocols.",
+      "visual_direction": "Diagrammatic violet lines delineating discrete rectangular enclosures on an obsidian background, representing separated property title per account.",
+      "video_direction": "A static obsidian frame where pink boundaries sequentially encapsulate violet nodes, highlighting strictly compartmentalized asset claims.",
+      "gtm_play": "Lead on r/deficryptos and Stellar developer forums, following up with fintech legal researchers seeking architectural segregation models.",
+      "claims_gate": "UNCHECKED",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "NEEDS_DRAFTING",
+      "signal_headline": "An Analysis of the Application of Property and Insolvency Laws to DeFi Lending Structures",
+      "run_id": "GTM-20260925-061830",
+      "visual_url": null
+    },
+    {
+      "id": "GTM-20260925-061830-idea",
+      "type": "GTM_CYCLE",
+      "hook": "Institutional LPs will not deploy capital into pooled credit.",
+      "rationale": "Contrast pooled debt socialization against Vanna's per-borrower SmartAccount sandboxes, showing how an isolated 1.10x Health Factor floor prevents bad debt from bleeding into the core LendingPool.",
+      "pattern_ref": "MACH_06_INSTITUTIONAL_CREDIBILITY",
+      "trend_link": "founder-directive",
+      "pattern_source": "Formal Security & Sandbox Verification Machine \u2014 observed in AAVE_ARC_INSTITUTIONAL_FRAMEWORK",
+      "source_type": "LIVE_OBSERVED",
+      "audience_segment": "A3: Institutional Liquidity Providers",
+      "objection_addressed": "In pooled lending protocols, health factor calculations fail to isolate insolvency risk: when a large position degrades or becomes illiquid, bad debt is socialized across the entire lending pool, contaminating passive liquidity.",
+      "claims_gate": "PASS",
+      "runnable_today": true,
+      "blocked_by": null,
+      "effort": "AUTONOMOUS",
+      "rejected": [],
+      "run_id": "GTM-20260925-061830",
+      "visual_url": "GTM-20260925-061830_visual.png"
+    },
     {
       "id": "PROP-bvnk-chain-expands-infrastructure-integr",
       "type": "PROPOSED",
@@ -24,52 +135,6 @@
       "blocked_by": null,
       "effort": "NEEDS_DRAFTING",
       "signal_headline": "BVNK expands multi-chain stablecoin infrastructure with Stellar integration",
-      "run_id": "GTM-20260924-193535",
-      "visual_url": null
-    },
-    {
-      "id": "PROP-analysis-application-defi-insolvency-law",
-      "type": "PROPOSED",
-      "hook": "When a DeFi pool collapses, who actually owns the remaining collateral?",
-      "rationale": "Commingled lending pools obscure asset ownership during insolvency, whereas segregated SmartAccounts preserve clear per-borrower property boundaries onchain.",
-      "format_spec": {
-        "archetype": "LINKEDIN_POST"
-      },
-      "trend_link": "https://news.google.com/rss/articles/CBMivAFBVV95cUxNeWtjdUlsc1F4OUZ0STlXOGgzQkcyd0tFQkNYVTRrQk82X285bnV2VVgxNzZSNHhFTXN1SE8wN25ZRU90djhBRjE4ejZTeFdjZGt2YVhpd1R3YXdOTWJROXd5SnJIcjNySmZkS3dBRFdVN3ZuZUdHMDN6MkdRRVo5d0E1REZPUDZtYVRPV0F5WkJHVElDV184SnJxLV9CczVuTXkyQVlLY0wwazRuOEF6eEVpdHFLR19DWlJ2aw?oc=5",
-      "source_type": "PRIMARY_NEWS_OBSERVED",
-      "pattern_source": "Per-borrower collateral segregation via SmartAccounts",
-      "objection_addressed": "Legal researchers are actively analyzing whether pooled DeFi depositors retain distinct property title during protocol insolvency.",
-      "visual_direction": "Obsidian canvas displaying strictly partitioned geometric vaults connected by narrow conduits in subdued violet and pink.",
-      "video_direction": "Locked-off view showing assets moving through isolated conduits into individual bounded chambers without commingling.",
-      "gtm_play": "Publish on LinkedIn targeting fintech legal counsel and DeFi risk officers, following up with architectural diagrams.",
-      "claims_gate": "UNCHECKED",
-      "runnable_today": true,
-      "blocked_by": null,
-      "effort": "NEEDS_DRAFTING",
-      "signal_headline": "An Analysis of the Application of Property and Insolvency Laws to DeFi Lending Structures",
-      "run_id": "GTM-20260924-193535",
-      "visual_url": null
-    },
-    {
-      "id": "PROP-calls-crypto-die-factors-health-liquidat",
-      "type": "PROPOSED",
-      "hook": "Most liquidations fail because one bad loan drains an entire pool's solvency.",
-      "rationale": "Pool-wide liquidations socialize bad debt, while isolated SmartAccounts confine insolvency strictly within individual collateral sandboxes on Soroban testnet.",
-      "format_spec": {
-        "archetype": "THREAD"
-      },
-      "trend_link": "https://news.google.com/rss/articles/CBMifEFVX3lxTFBZSVBIUU96OUxzOHViMVNKYXZ2UEpsRThOTVNHMkNodnE0MjZTYlpuaUJPZEkyVFlacnRITjV1aWk2R2ZMcVV2T1NYYnJiQ0U3MUg4MC1CRzJTZHp1SzNiRkRKZmpwNHdFVmJDTTc3dWtzdFBoc0F5R3owNmI?oc=5",
-      "source_type": "PRIMARY_NEWS_OBSERVED",
-      "pattern_source": "Deterministic liquidation within isolated SmartAccount sandboxes",
-      "objection_addressed": "Market participants are actively questioning how health factor calculations and liquidation cascades destroy protocol solvency.",
-      "visual_direction": "Obsidian ground showing segregated violet chambers containing pink warning thresholds while adjacent chambers remain completely undisturbed.",
-      "video_direction": "A static diagram where a single pink chamber flushes clean without disturbing neighboring violet enclosures.",
-      "gtm_play": "Lead on X as a technical breakdown, engaging protocol researchers and risk analysts monitoring DeFi liquidation designs.",
-      "claims_gate": "UNCHECKED",
-      "runnable_today": true,
-      "blocked_by": null,
-      "effort": "NEEDS_DRAFTING",
-      "signal_headline": "What is liquidation in crypto? Margin calls, health factors, and how positions die",
       "run_id": "GTM-20260924-193535",
       "visual_url": null
     },
@@ -282,29 +347,6 @@
       "visual_url": "GTM-20260924-101157_visual.png"
     },
     {
-      "id": "PROP-against-arch-equities-lend-lending-token",
-      "type": "PROPOSED",
-      "hook": "Tokenized equities bring real-world market halts to on-chain credit, breaking monolithic pool liquidations.",
-      "rationale": "Lending against tokenized real-world equities requires strict per-borrower collateral sandboxes to prevent off-market-hours price shocks from infecting shared liquidity.",
-      "format_spec": {
-        "archetype": "THREAD"
-      },
-      "trend_link": "https://news.google.com/rss/articles/CBMif0FVX3lxTE5UWm9oZTNyWGR5T1ZYWC1uVXdhUDlIYkpmS2FzTVhYb1luNHNYTWFpeWhldUJXVnFZVFItajMwSjJ6a2dGdzRZbHFLaUo1Y3Z6LWFVY0dRVTktTUVuc2NpNXBOdVlUNjdPMnhGT3huS05EZlB6NF9Nb0YtdEZ5enM?oc=5",
-      "source_type": "PRIMARY_NEWS_OBSERVED",
-      "pattern_source": "Per-borrower collateral isolation in isolated SmartAccounts",
-      "objection_addressed": "Arch Lending launched credit facilities against tokenized equities, exposing lending markets to equity-market trading-hour frictions.",
-      "visual_direction": "Obsidian schematic showing equity collateral quarantined within an isolated violet chamber away from liquid conduits.",
-      "video_direction": "Static frame animating pink liquidity flows bypassing a locked violet chamber during simulated off-hour halts.",
-      "gtm_play": "Release on X targeting RWA developers, linking to GitHub testnet contract specs for structured assets.",
-      "claims_gate": "UNCHECKED",
-      "runnable_today": true,
-      "blocked_by": null,
-      "effort": "NEEDS_DRAFTING",
-      "signal_headline": "Arch Lending to lend against tokenized equities",
-      "run_id": "GTM-20260924-100418",
-      "visual_url": null
-    },
-    {
       "id": "PROP-aave-among-defi-euler-lending-management",
       "type": "PROPOSED",
       "hook": "Modular lending is winning because monolithic credit pools cannot isolate idiosyncratic asset risk.",
@@ -412,29 +454,6 @@
       "visual_url": null
     },
     {
-      "id": "PROP-assets-could-emerging-growth-lending-mar",
-      "type": "PROPOSED",
-      "hook": "Unlocking emerging market RWA lending requires isolated accounts that prevent local defaults from infecting global liquidity.",
-      "rationale": "Real-world asset credit in emerging markets requires modular, composable credit lines that preserve local underwriting logic without global pool contagion.",
-      "format_spec": {
-        "archetype": "REDDIT_DEEPDIVE"
-      },
-      "trend_link": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxNSGJHZmwwSTZicS0tR2dsSmgtc3cwZ1pHQzlreDcwa0FUQ1hXVk5hMFdXeDRZMlpySUhINnBjNWdXZlhrQV95MUVHLVpmSHRiZ2JncEtkTXJ6UEJwd0xzeGJEYTJsR19fTVphdHNMMmFUaUtEcWRVWTJoMTk0ZVhKVEJPcDRXdS1y?oc=5",
-      "source_type": "PRIMARY_NEWS_OBSERVED",
-      "pattern_source": "Composable credit lines powered by isolated SmartAccount contracts on Soroban testnet",
-      "objection_addressed": "Market focus is shifting toward RWA lending efficiency in regions needing bespoke credit structures on high-throughput chains like Stellar.",
-      "visual_direction": "Obsidian background featuring modular violet rectangular enclosures linked by thin pink conduits demonstrating partitioned credit routing.",
-      "video_direction": "Locked-off camera tracking a smooth violet packet traversing a rigid conduit between two distinct obsidian chambers.",
-      "gtm_play": "Post to r/defirwdevs and cross-post to Stellar Reddit, engaging builders experimenting with testnet credit primitives.",
-      "claims_gate": "UNCHECKED",
-      "runnable_today": true,
-      "blocked_by": null,
-      "effort": "NEEDS_DRAFTING",
-      "signal_headline": "Why tokenizing real-world assets could unlock lending growth in emerging markets",
-      "run_id": "GTM-20260923-180756",
-      "visual_url": null
-    },
-    {
       "id": "GTM-20260923-180756-idea",
       "type": "GTM_CYCLE",
       "hook": "Shared liquidity pools always socialize bad debt.",
@@ -517,25 +536,6 @@
       "signal_headline": "Stablecoin yield is now live on @RaenestApp, powered by Gauntlet.\n\nRaenest's 1M+ users across Africa and beyond can now ...",
       "run_id": "GTM-20260923-112822",
       "visual_url": null
-    },
-    {
-      "id": "GTM-20260923-112822-idea",
-      "type": "GTM_CYCLE",
-      "hook": "Pooled risk models break under high volatility. Here is how we isolate USDC and XLM on Soroban.",
-      "rationale": "Demonstrate how Vanna integrates Stellar's primary liquidity assets (XLM and USDC) across isolated LendingPool contracts, allowing LPs to earn yield via vTokens without exposing their capital to uncontained margin liquidation contagion.",
-      "pattern_ref": "MACH_01_PHASED_TECHNICAL_LAUNCH",
-      "trend_link": "founder-directive",
-      "pattern_source": "Phased Technical Protocol Launch Machine \u2014 observed in CAMP_MIDNIGHT_LAUNCH, AAVE_V3_LAUNCH",
-      "source_type": "LIVE_OBSERVED",
-      "audience_segment": "A3: Institutional Liquidity Providers",
-      "objection_addressed": "In traditional pooled lending protocols, listing volatile collateral alongside stable assets exposes passive depositors to shared pool insolvency and bad debt contagion during rapid market drawdowns.",
-      "claims_gate": "PASS",
-      "runnable_today": true,
-      "blocked_by": null,
-      "effort": "AUTONOMOUS",
-      "rejected": [],
-      "run_id": "GTM-20260923-112822",
-      "visual_url": "GTM-20260923-112822_visual.png"
     }
   ]
 }

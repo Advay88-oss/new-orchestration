@@ -1,0 +1,19 @@
+{
+  "run_id": "GTM-20260924-113115",
+  "status": "completed",
+  "source": "studio",
+  "reason": "Made in the creative studio on 2026-09-25, outside a full cycle: no scrape, strategy or copy stages ran.",
+  "directive": "Discussion question for traders on leverage and isolated risk",
+  "signal": "Discussion question for traders on leverage and isolated risk",
+  "started_at": "2026-09-24T11:31:15.704912+00:00",
+  "ended_at": "2026-09-24T11:31:15.704912+00:00",
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\direct_posters\\03_discussion.png",
+  "visual_archetype": "DIRECT_MODEL",
+  "visual_renderer": "direct_model",
+  "visual_why": "gemini-3-pro-image, shown the design references and the founder-approved posters; judged by a vision model",
+  "posts": {},
+  "review_passed": null,
+  "models_used": [
+    "gemini-3-pro-image"
+  ]
+}

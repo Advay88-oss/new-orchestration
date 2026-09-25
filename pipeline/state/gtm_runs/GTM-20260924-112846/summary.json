@@ -1,0 +1,19 @@
+{
+  "run_id": "GTM-20260924-112846",
+  "status": "completed",
+  "source": "studio",
+  "reason": "Made in the creative studio on 2026-09-25, outside a full cycle: no scrape, strategy or copy stages ran.",
+  "directive": "AI agents need controlled, policy-bounded access to capital — Vanna as the example",
+  "signal": "AI agents need controlled, policy-bounded access to capital — Vanna as the example",
+  "started_at": "2026-09-24T11:28:46.127201+00:00",
+  "ended_at": "2026-09-24T11:28:46.127201+00:00",
+  "visual_path": "D:\\new orchestration\\pipeline\\state\\direct_posters\\02_ai_agents.png",
+  "visual_archetype": "DIRECT_MODEL",
+  "visual_renderer": "direct_model",
+  "visual_why": "gemini-3-pro-image, shown the design references and the founder-approved posters; judged by a vision model",
+  "posts": {},
+  "review_passed": null,
+  "models_used": [
+    "gemini-3-pro-image"
+  ]
+}

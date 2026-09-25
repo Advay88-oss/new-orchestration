@@ -1,0 +1,21 @@
+{
+  "run_id": "GTM-20260925-055640",
+  "latest": {
+    "verdict": "approve",
+    "reward": 1.0,
+    "note": "Founder 2026-09-25: 'wow, seriously acchi video' — the video benchmark.",
+    "source": "founder-chat",
+    "by": "founder",
+    "at": "2026-09-25T06:53:29.906918+00:00"
+  },
+  "history": [
+    {
+      "verdict": "approve",
+      "reward": 1.0,
+      "note": "Founder 2026-09-25: 'wow, seriously acchi video' — the video benchmark.",
+      "source": "founder-chat",
+      "by": "founder",
+      "at": "2026-09-25T06:53:29.906918+00:00"
+    }
+  ]
+}
