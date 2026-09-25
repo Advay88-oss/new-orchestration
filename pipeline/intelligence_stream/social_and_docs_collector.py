@@ -66,13 +66,16 @@ def _env(name: str) -> Optional[str]:
     v = os.environ.get(name)
     if v:
         return v
+    # The last definition wins, as in dotenv: a key added again below an old
+    # or placeholder line is the one meant.
+    found = None
     try:
         for line in (REPO_ROOT / "pipeline" / ".env").read_text(encoding="utf-8").splitlines():
             if line.startswith(name + "="):
-                return line.split("=", 1)[1].strip().strip('"') or None
+                found = line.split("=", 1)[1].strip().strip('"') or found
     except FileNotFoundError:
         pass
-    return None
+    return found
 
 
 def _strip(html: str) -> str:
@@ -460,9 +463,15 @@ class SocialAndDocsCollector:
 
         Needs APIFY_TOKEN (Apify's free plan carries monthly credit; the
         default actor charges per tweet returned). Without the token the
-        source is simply empty — nothing is invented. One synchronous actor
-        run a scrape, capped at `max_items`, with the per-account cap applied
-        here so one busy account cannot take every slot.
+        source is simply empty — nothing is invented.
+
+        The default actor (kaitoeasyapi's tweet scraper) runs on Apify's free
+        plan without a monthly run limit, applies `maxItems` to EACH search
+        term (so one run covers every account evenly) and honours
+        "-filter:replies". apidojo/tweet-scraper was tried first: it caps free
+        users' runs per month and returned only placeholder "noResults" items
+        once the cap was hit, and one shared maxItems let the first account
+        take every slot.
         """
         token = _env("APIFY_TOKEN")
         cfg = dict(self._CFG.get("x_scraper") or {})
@@ -472,24 +481,22 @@ class SocialAndDocsCollector:
         per = int(cfg.get("per_account", 3))
         days = int(cfg.get("max_age_days", 7))
         since = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
-        handles = [a["handle"] for a in accounts]
-        body = {
-            "searchTerms": ["from:" + h + " since:" + since + " -filter:replies" for h in handles],
-            "maxItems": int(cfg.get("max_items", per * len(handles) * 2)),
-            "sort": "Latest",
-            "tweetLanguage": "en",
-        }
-        actor = str(cfg.get("actor", "apidojo~tweet-scraper"))
+        actor = str(cfg.get("actor", "kaitoeasyapi~twitter-x-data-tweet-scraper-pay-per-result-cheapest"))
+        timeout_s = int(cfg.get("timeout_s", 80))
         url = ("https://api.apify.com/v2/acts/" + actor
-               + "/run-sync-get-dataset-items?timeout=" + str(int(cfg.get("timeout_s", 80))))
+               + "/run-sync-get-dataset-items?timeout=" + str(timeout_s))
+        body = {"searchTerms": ["from:" + a["handle"] + " since:" + since + " -filter:replies"
+                                for a in accounts],
+                "maxItems": int(cfg.get("items_per_account", 20)), "queryType": "Latest"}
         try:
-            items = json.loads(self._get(url, timeout=float(cfg.get("timeout_s", 80)) + 5,
+            items = json.loads(self._get(url, timeout=timeout_s + 5,
                                          headers={"Authorization": "Bearer " + token,
                                                   "Content-Type": "application/json",
                                                   "User-Agent": "brand-gtm-research/1.0"},
                                          data=json.dumps(body).encode()))
         except Exception:                           # noqa: BLE001 — no posts this run
             return []
+        items = [it for it in (items if isinstance(items, list) else []) if "noResults" not in it]
         names = {a["handle"].lower(): a.get("name") or a["handle"] for a in accounts}
         per_count: Dict[str, int] = {}
         signals = []
@@ -497,7 +504,8 @@ class SocialAndDocsCollector:
             author = (it.get("author") or {}).get("userName") or it.get("username") or ""
             handle = str(author).lstrip("@").lower()
             text = " ".join(str(it.get("text") or it.get("fullText") or "").split())
-            if handle not in names or not text or it.get("isRetweet"):
+            if (handle not in names or not text or it.get("isRetweet") or it.get("isReply")
+                    or text.startswith("@")):
                 continue
             if per_count.get(handle, 0) >= per:
                 continue

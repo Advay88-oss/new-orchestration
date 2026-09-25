@@ -142,7 +142,7 @@
       "name": "Stellar Foundation"
     },
     {
-      "handle": "MorphoLabs",
+      "handle": "Morpho",
       "name": "Morpho"
     },
     {
@@ -164,11 +164,11 @@
   ],
   "x_scraper": {
     "enabled": true,
-    "actor": "apidojo~tweet-scraper",
+    "actor": "kaitoeasyapi~twitter-x-data-tweet-scraper-pay-per-result-cheapest",
     "per_account": 3,
-    "max_items": 36,
+    "items_per_account": 20,
     "max_age_days": 7,
     "timeout_s": 80,
-    "_note": "Needs APIFY_TOKEN in pipeline/.env. apidojo/tweet-scraper charges per tweet returned; max_items caps the cost of one run."
+    "_note": "Needs APIFY_TOKEN in pipeline/.env. One run a scrape; the actor returns up to items_per_account (min 20) per account at $0.18 per 1,000 tweets, about $0.02 a scrape for 6 accounts; per_account are kept."
   }
 }
