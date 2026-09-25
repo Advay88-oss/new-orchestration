@@ -47,6 +47,18 @@ def _learned_rules() -> str:
             + "\n".join("- " + r for r in rules[-12:])) if rules else ""
 
 
+# The founder's rulebook forbids these, and the creative judge rejects on
+# them, but neither the image prompt nor this file's own judge said so. Run
+# GTM-20260925-104259 drew an isometric safe with a dial and a 3D cardboard
+# box, passed its own judge as SHIP, and was rejected at the end of a
+# 14-minute run, after its video had been built from it.
+FLAT_RULE = (
+    "FLAT, FACE-ON ONLY: every element is drawn flat and straight-on (2D "
+    "glass cards, flat boundaries and enclosures, straight arrows). Never "
+    "isometric, 3D, angled or perspective objects; never safes, vaults, "
+    "combination dials, boxes or crates, coins, tokens or piles of wealth.")
+
+
 def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
     return (
         "You are designing ONE finished square (1:1) image for an X post by "
@@ -73,6 +85,7 @@ def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
         "line at the bottom: a few bold white words then a short grey "
         "caveat that says testnet. Generous spacing, nothing overlapping, "
         "everything aligned.\n\n"
+        + FLAT_RULE + "\n\n"
         "LOGO: use the logo from the LAST attached image, exactly as it is — "
         "same mark, same lowercase wordmark 'vanna', same colours, drawn "
         "once. Do NOT invent a mark and do NOT use the cube icon in the "
@@ -117,9 +130,10 @@ def judge(image: Path, brief: str) -> dict[str, Any]:
         "no logo or brand mark of ANY other protocol (Blend, Aquarius, "
         "Soroswap and others appear as plain text names only — an invented "
         "icon for them is a fake brand mark); no markdown characters "
-        "(asterisks, underscores, hashes) rendered as text. "
+        "(asterisks, underscores, hashes) rendered as text; " + FLAT_RULE + " "
         "REJECT on any spelling error, invented figure, wrong logo, another "
-        "protocol's logo, markdown characters or overlap. Cyan or teal is "
+        "protocol's logo, markdown characters, overlap, or any isometric/3D "
+        "object, safe, vault, box or coin. Cyan or teal is "
         "NOT a reason to reject — the founder approved a poster with it — "
         "but name it in `fix` if present. `fix` says exactly what to change, "
         "in one or two sentences." + _learned_rules()
