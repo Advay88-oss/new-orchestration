@@ -55,6 +55,7 @@ def features(run_id: str) -> dict[str, Any]:
         "machine": s.get("machine"),
         "visual_archetype": s.get("visual_archetype"),
         "visual_renderer": s.get("visual_renderer"),
+        "video_mode": s.get("video_mode"),
         "x_hook": str(x.get("hook") or "")[:200] or None,
         "x_chars": len(str(x.get("copy") or "")),
         "creative_verdict": s.get("creative_verdict"),
@@ -101,6 +102,21 @@ def record(run_id: str, verdict: str, note: str = "", *,
 
     from pipeline.gtm_storage.atomic_store import AtomicJsonlStore
     AtomicJsonlStore(LEDGER).append(row)
+
+    # A decision on a run with a Veo clip is also a rating of that clip, so
+    # A09 learns from the same Approve / Revise / Kill with no separate step.
+    try:
+        s = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+        vid = s.get("video_path")
+        if vid and Path(str(vid)).exists() and s.get("video_mode") in (
+                "veo_image_to_video", "veo_build"):
+            from pipeline.gtm_creative.veo_video import add_exemplar
+            add_exemplar(vid, score=row["reward"],
+                         note=row["note"] or (verdict + " (no note)"),
+                         prompt=s.get("video_prompt") or "",
+                         still=s.get("visual_path"))
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
 
     # Push to GCS so the deployed dashboard shows the decision too. Best
     # effort: a missing client or expired ADC must not lose the local record.

@@ -111,7 +111,10 @@ def _video_still(video_path: str, out: Path) -> Optional[Path]:
     out.parent.mkdir(parents=True, exist_ok=True)
     try:
         subprocess.run(
-            [ffmpeg, "-y", "-ss", "4", "-i", str(video_path),
+            # One second from the end, not at 4s: A09's clips now build the
+            # poster out of the empty ground, so 4s is a half-built frame and
+            # the judge would grade an unfinished poster.
+            [ffmpeg, "-y", "-sseof", "-1", "-i", str(video_path),
              "-frames:v", "1", "-q:v", "3", str(out)],
             capture_output=True, timeout=60, check=True)
     except Exception:                               # noqa: BLE001 — boundary

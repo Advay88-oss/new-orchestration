@@ -474,6 +474,44 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                     TELEMETRY panel reading "0.00014 XLM Gas / ~320ms Mercury" —
                     none measured, and the last two are figures this pipeline's
                     own verifier marks unsupported. */}
+                {/* The Motion Director's own work: the brief the image model
+                    drew from and the beat-by-beat build Veo was given. These
+                    were hand-written for the first liked video; an agent writes
+                    them now, from the founder's record. */}
+                {(runData?.poster_brief || runData?.motion_plan) && (
+                  <div style={{ background: "#080310", padding: "16px", borderRadius: "10px", border: "1px solid rgba(112,58,230,0.35)" }}>
+                    <div style={{ fontFamily: MONO, fontSize: "11px", color: "#A98CFF", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>
+                      MOTION DIRECTOR
+                    </div>
+                    {runData?.poster_brief && (
+                      <>
+                        <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590", marginTop: "10px" }}>POSTER BRIEF</div>
+                        <div style={{ fontSize: "12px", color: "#E6E1F0", marginTop: "4px", lineHeight: 1.55, whiteSpace: "pre-wrap" }}>
+                          {runData.poster_brief}
+                        </div>
+                      </>
+                    )}
+                    {runData?.motion_plan && (
+                      <>
+                        <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590", marginTop: "12px" }}>
+                          MOTION PLAN · {runData.video_mode === "veo_build" ? "Veo 3.1 builds the poster from the empty ground" : runData.video_mode || "—"}
+                        </div>
+                        <div style={{ fontSize: "12px", color: "#E6E1F0", marginTop: "4px", lineHeight: 1.55, whiteSpace: "pre-wrap" }}>
+                          {runData.motion_plan}
+                        </div>
+                      </>
+                    )}
+                    {runData?.video_review?.verdict && (
+                      <div style={{ fontSize: "12px", color: "#B8B3C6", marginTop: "10px", lineHeight: 1.5 }}>
+                        <span style={{ fontFamily: MONO, fontWeight: 700, color: runData.video_review.verdict === "SHIP" ? "#4ADE9B" : runData.video_review.verdict === "REVISE" ? "#F5A524" : "#F0666B" }}>
+                          VIDEO {runData.video_review.verdict}
+                        </span>
+                        {runData.video_review.critique ? ` — ${runData.video_review.critique}` : ""}
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 <div style={{ background: "#080310", padding: "16px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.06)" }}>
                   <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     VISUAL CONCEPT

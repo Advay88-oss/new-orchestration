@@ -53,6 +53,12 @@ MODELS: dict[str, str] = {
     # 404s on Model Garden; this is the id the publisher actually serves.
     "meme":      os.environ.get("VANNA_GTM_MODEL_MEME", "gemini-3-pro-image"),
     "video":     os.environ.get("VANNA_GTM_MODEL_VIDEO", "veo-3.1-generate-001"),
+    # The Motion Director (poster brief + Veo motion plan). Its own role so its
+    # model can change without moving every other agent. Flash by default:
+    # tested against gemini-3.1-pro-preview on 2026-09-25, Pro wrote a sparser
+    # motion plan with gaps in the timeline, named a competitor in the brief,
+    # and took two to four times as long.
+    "director":  os.environ.get("VANNA_GTM_MODEL_DIRECTOR", "gemini-3.8-flash"),
 }
 
 # Which agent uses which role. Declared here so `--manifest` can print the

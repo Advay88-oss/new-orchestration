@@ -201,8 +201,18 @@ def _render_direct(hook: str, body: str, subject: str,
     judge, so the caller can fall back."""
     from pipeline.gtm_creative.direct_image_posters import MODEL, make
 
-    brief = ("Subject: " + (subject or hook) + "\nHook: " + hook
-             + "\nThe post: " + " ".join(body.split())[:1400])
+    # The Motion Director writes the brief — the idea, headline, contrast and
+    # diagram — from the query and the post, learning from the posters the
+    # founder approved. The raw post is the fallback if the agent fails.
+    director_brief = None
+    try:
+        from pipeline.gtm_creative.motion_director import poster_brief
+        director_brief = poster_brief(subject or hook, hook, body)["brief"]
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        R.record_stage("A07_creative_director", "degraded",
+                       "motion director brief failed: " + str(exc)[:160])
+    brief = director_brief or ("Subject: " + (subject or hook) + "\nHook: " + hook
+                               + "\nThe post: " + " ".join(body.split())[:1400])
     try:
         out = make(brief, run_id + "_visual",
                    out_dir=Path(__file__).resolve().parents[1] / "state")
@@ -223,7 +233,8 @@ def _render_direct(hook: str, body: str, subject: str,
             "why": "image model shown the founder-approved posters and the "
                    "design references; own judge: SHIP after "
                    + str(len(out["attempts"])) + " attempt(s)",
-            "public_url": "/" + png.name, "renderer": "direct_model"}
+            "public_url": "/" + png.name, "renderer": "direct_model",
+            "poster_brief": brief}
 
 
 def render_visual_legacy(strategy, content_pkg, blueprint, run_id: str) -> Optional[dict]:
@@ -385,6 +396,45 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
     s = summary_or_blueprint if isinstance(summary_or_blueprint, dict) else {}
     posts = (s.get("posts") or {}).get("x") or {}
     out = RUNS_DIR / run_id / (run_id + "_video.mp4")
+
+    # First choice: Veo 3.1 animates this run's own visual, with the camera
+    # locked and every word held, prompted with what the founder approved and
+    # rejected in past clips, and judged frame by frame against the poster.
+    # The hand-described motion graphic below is the fallback.
+    visual = s.get("visual_path")
+    if visual and Path(str(visual)).exists():
+        try:
+            from pipeline.gtm_creative import veo_video as VV
+            from pipeline.gtm_creative.motion_director import motion_plan
+            brief = (str(posts.get("hook") or s.get("signal") or "") + " "
+                     + " ".join(str(posts.get("copy") or "").split())[:600])
+            # The Motion Director looks at this run's poster and writes its
+            # build, beat by beat, from what the founder approved in past
+            # clips; Veo 3.1 builds the poster out of the empty ground.
+            plan = motion_plan(visual, s.get("poster_brief") or brief)
+            s["motion_plan"] = plan["plan"][:2000]
+            res = VV.make_build(visual, brief, out, total_s=10.0, attempts=2,
+                                directed=plan["prompt"])
+            verdicts = [str(a.get("verdict")).upper() for a in res["attempts"]]
+            if "SHIP" in verdicts or "REVISE" in verdicts:
+                s["video_mode"] = "veo_build"
+                s["video_prompt"] = res["attempts"][-1].get("prompt", "")[:1500]
+                s["video_review"] = {k: res["attempts"][-1].get(k) for k in
+                                     ("verdict", "critique", "fix")}
+                R.record_stage("A09_video_production", "ok",
+                               "Motion Director planned, Veo 3.1 built the poster from "
+                               "the empty ground (10s); judge " + "/".join(verdicts),
+                               outputs=[str(out)])
+                return str(out)
+            R.record_stage("A09_video_production", "degraded",
+                           "Veo clip did not pass review ("
+                           + str(res["attempts"][-1].get("critique") or "")[:140]
+                           + "); falling back to the motion graphic")
+        except Exception as exc:                    # noqa: BLE001 — boundary
+            R.record_stage("A09_video_production", "degraded",
+                           "Veo image-to-video failed: " + str(exc)[:160]
+                           + "; falling back to the motion graphic")
+    s["video_mode"] = "motion_graphic"
 
     # Per-run element. The default cache is one shared file, so every cycle
     # reused the same clip and the journal correctly showed no Veo call — the
@@ -567,9 +617,10 @@ def _assets_wanted(directive: Optional[str]) -> dict[str, bool]:
     # Nothing named: the founder described a subject, not a format.
     if not any(asked.values()):
         return {"visual": True, "video": True, "meme": True}
-    # A video or a meme still needs the copy it is built from; it just does
-    # not need the other formats.
-    asked["visual"] = asked["visual"] or not (asked["video"] or asked["meme"])
+    # A video or a meme still needs the copy it is built from. The video is
+    # also built FROM the visual now — Veo builds the poster out of the empty
+    # ground — so asking for a video makes the visual too.
+    asked["visual"] = asked["visual"] or asked["video"] or not asked["meme"]
     return asked
 
 
@@ -831,6 +882,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             summary["visual_path"] = visual.get("path") or visual.get("filename")
             summary["visual_archetype"] = visual.get("archetype")
             summary["visual_renderer"] = visual.get("renderer", "code_set")
+            if visual.get("poster_brief"):
+                summary["poster_brief"] = visual["poster_brief"][:2000]
             summary["visual_why"] = visual.get("why")
             summary["visual_public_url"] = visual.get("public_url")
 
@@ -1221,6 +1274,15 @@ def _run_learning():
         rend_line = (" | visuals: " + lead + " preferred ("
                      + ", ".join(k + " " + str(v["mean"]) for k, v in rend.items())
                      + "; " + str(rated) + " rated)")
+    try:
+        from pipeline.gtm_creative.veo_video import _rows as _vrows
+        _vr = _vrows()
+        if _vr:
+            rend_line += (" | videos: " + str(len(_vr)) + " rated, "
+                          + str(sum(1 for r in _vr if r.get("score", 0) >= 0.7))
+                          + " approved as Veo examples")
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
     if snap["reviewed_runs"]:
         v = snap["verdicts"]
         best = {d: max(ps.items(), key=lambda kv: kv[1]["mean"])[0]
