@@ -108,8 +108,12 @@ def record(run_id: str, verdict: str, note: str = "", *,
     try:
         s = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
         vid = s.get("video_path")
-        if vid and Path(str(vid)).exists() and s.get("video_mode") in (
-                "veo_image_to_video", "veo_build"):
+        # A clip its own judge REJECTED is not rated by a run approval: the
+        # founder approving that run was approving the poster or the post —
+        # a hot-take run's approval turned a melted-text clip into a "benchmark".
+        rejected = str((s.get("video_review") or {}).get("verdict") or "").upper() == "REJECT"
+        if (vid and Path(str(vid)).exists() and not (rejected and verdict == "approve")
+                and s.get("video_mode") in ("veo_image_to_video", "veo_build")):
             from pipeline.gtm_creative.veo_video import add_exemplar
             add_exemplar(vid, score=row["reward"],
                          note=row["note"] or (verdict + " (no note)"),

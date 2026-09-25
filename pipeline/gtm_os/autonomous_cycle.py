@@ -163,11 +163,16 @@ def render_visual(strategy, content_pkg, blueprint, run_id: str,
     # model made directly from the references far above the code-set ones, so
     # the direct renderer usually wins the Thompson draw — while code-set is
     # still tried now and then, so the preference can move if feedback does.
-    try:
-        from pipeline.gtm_learning.visual_exemplars import preferred_renderer
-        renderer = preferred_renderer()
-    except Exception:                               # noqa: BLE001 — boundary
-        renderer = "code_set"
+    # The founder wants every run to look like the posters they approved —
+    # "ditto same" — so the direct renderer is always used. The code-set
+    # renderer is still explored only when VANNA_VISUAL_EXPLORE=1.
+    renderer = "direct_model"
+    if os.environ.get("VANNA_VISUAL_EXPLORE") == "1":
+        try:
+            from pipeline.gtm_learning.visual_exemplars import preferred_renderer
+            renderer = preferred_renderer()
+        except Exception:                           # noqa: BLE001 — boundary
+            renderer = "direct_model"
 
     if renderer == "direct_model":
         direct = _render_direct(hook, body, subject, run_id)
@@ -225,14 +230,18 @@ def _render_direct(hook: str, body: str, subject: str,
                              note="direct poster attempt, judged "
                                   + str(a.get("verdict")),
                              transport="model-garden"))
-    if not any(str(a.get("verdict")).upper() == "SHIP" for a in out["attempts"]):
-        return None
+    # The direct poster is kept even when no attempt reached SHIP: a code-set
+    # poster is not the style the founder approved, and nothing publishes
+    # without the founder's review anyway. The judge's note travels with it.
+    verdicts = [str(a.get("verdict")).upper() for a in out["attempts"]]
+    best = next((a for v in ("SHIP", "REVISE", "REJECT") for a in out["attempts"]
+                 if str(a.get("verdict")).upper() == v), out["attempts"][-1])
     png = Path(out["final"])
     return {"path": str(png), "filename": png.name,
             "archetype": "DIRECT_MODEL",
+            "visual_review": {k: best.get(k) for k in ("verdict", "fix")},
             "why": "image model shown the founder-approved posters and the "
-                   "design references; own judge: SHIP after "
-                   + str(len(out["attempts"])) + " attempt(s)",
+                   "design references; own judge: " + "/".join(verdicts),
             "public_url": "/" + png.name, "renderer": "direct_model",
             "poster_brief": brief}
 
@@ -882,6 +891,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             summary["visual_path"] = visual.get("path") or visual.get("filename")
             summary["visual_archetype"] = visual.get("archetype")
             summary["visual_renderer"] = visual.get("renderer", "code_set")
+            if visual.get("visual_review"):
+                summary["visual_review"] = visual["visual_review"]
             if visual.get("poster_brief"):
                 summary["poster_brief"] = visual["poster_brief"][:2000]
             summary["visual_why"] = visual.get("why")

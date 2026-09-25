@@ -88,11 +88,18 @@ def add_exemplar(video: str | Path, *, score: float, note: str = "",
     dest = EX_DIR / (digest + ".mp4")
     if not dest.exists():
         shutil.copyfile(src, dest)
+    prior = next((r for r in _rows() if r.get("id") == digest), {})
     row = {"id": digest, "file": dest.name, "score": max(0.0, min(1.0, float(score))),
            "note": " ".join(str(note).split())[:500] or None,
            "prompt": " ".join(str(prompt).split())[:1500] or None,
            "still": str(still) if still else None,
            "at": datetime.now(timezone.utc).isoformat()}
+    # Re-rating a clip keeps a longer note already written for it: approving
+    # the run behind the benchmark replaced its detailed description with a
+    # one-line "approved", and the description is what Veo learns from.
+    if prior.get("note") and len(prior["note"]) > len(row["note"] or ""):
+        row["note"] = prior["note"]
+    row["prompt"] = row["prompt"] or prior.get("prompt")
     rows = [r for r in _rows() if r.get("id") != digest] + [row]
     INDEX.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n",
                      encoding="utf-8")

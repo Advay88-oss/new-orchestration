@@ -478,7 +478,12 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                     drew from and the beat-by-beat build Veo was given. These
                     were hand-written for the first liked video; an agent writes
                     them now, from the founder's record. */}
-                {(runData?.poster_brief || runData?.motion_plan) && (
+                {runData?.source === "studio" && (
+                  <div style={{ background: "rgba(112,58,230,0.12)", padding: "10px 14px", borderRadius: "10px", border: "1px solid rgba(112,58,230,0.35)", fontSize: "12px", color: "#CFC8E0" }}>
+                    <span style={{ fontFamily: MONO, fontWeight: 700, color: "#A98CFF" }}>STUDIO</span> — made in the creative studio, outside a full cycle: only the visual and video agents ran.
+                  </div>
+                )}
+                {(runData?.poster_brief || runData?.motion_plan || runData?.visual_review) && (
                   <div style={{ background: "#080310", padding: "16px", borderRadius: "10px", border: "1px solid rgba(112,58,230,0.35)" }}>
                     <div style={{ fontFamily: MONO, fontSize: "11px", color: "#A98CFF", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>
                       MOTION DIRECTOR
@@ -500,6 +505,14 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                           {runData.motion_plan}
                         </div>
                       </>
+                    )}
+                    {runData?.visual_review?.verdict && (
+                      <div style={{ fontSize: "12px", color: "#B8B3C6", marginTop: "10px", lineHeight: 1.5 }}>
+                        <span style={{ fontFamily: MONO, fontWeight: 700, color: runData.visual_review.verdict === "SHIP" ? "#4ADE9B" : runData.visual_review.verdict === "REVISE" ? "#F5A524" : "#F0666B" }}>
+                          POSTER {runData.visual_review.verdict}
+                        </span>
+                        {runData.visual_review.fix ? ` — ${runData.visual_review.fix}` : ""}
+                      </div>
                     )}
                     {runData?.video_review?.verdict && (
                       <div style={{ fontSize: "12px", color: "#B8B3C6", marginTop: "10px", lineHeight: 1.5 }}>

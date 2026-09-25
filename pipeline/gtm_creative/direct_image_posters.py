@@ -232,8 +232,10 @@ def make(brief: str, name: str, *, out_dir: Optional[Path] = None,
         if str(v.get("verdict")).upper() == "SHIP":
             break
         correction = str(v.get("fix") or "")
-    best = next((h for h in history if str(h.get("verdict")).upper() == "SHIP"),
-                history[-1])
+    # Best attempt: SHIP, then REVISE, then the last REJECT — never an earlier
+    # REJECT over a later REVISE.
+    order = {"SHIP": 0, "REVISE": 1}
+    best = min(reversed(history), key=lambda h: order.get(str(h.get("verdict")).upper(), 2))
     final = out_dir / f"{name}.png"
     final.write_bytes(Path(best["path"]).read_bytes())
     return {"name": name, "final": str(final), "attempts": history}

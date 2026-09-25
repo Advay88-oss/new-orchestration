@@ -73,8 +73,11 @@ export function Runs({ vm }: { vm: MissionVM }) {
   // A run that recorded no model call and no agent reasoning did not run.
   // Both conditions, not either: a deterministic-only run would have agents
   // that reasoned, and a run that died inside its first model call has calls.
+  // A run that produced a visual or a video started, whatever its journal
+  // says — studio runs made outside a cycle have assets and no call log.
   const neverStarted = (r: any) =>
-    (r.agents_that_reasoned ?? 0) === 0 && (r.spend?.calls ?? 0) === 0;
+    (r.agents_that_reasoned ?? 0) === 0 && (r.spend?.calls ?? 0) === 0
+    && !r.visual && !r.video;
 
   const targetPool = sessionScope === "SESSION"
     ? runs.filter((r) => sessionRunIds.includes(r.run_id))
