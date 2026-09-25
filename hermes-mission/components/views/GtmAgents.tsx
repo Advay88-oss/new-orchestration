@@ -19,10 +19,12 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
+import { AGENTS as AGENT_DEFS, AGENT_COUNT, LEARNING_COUNT } from '@/lib/agents';
 
 const ACCENT = '#A98CFF';
 const DIM = '#6C6C6C';
 const FAINT = '#3A3A42';
+const LEARN = '#4ADE9B';
 
 const MODEL_TONE: Record<string, string> = {
   'gemini-3.8-flash': '#A98CFF',
@@ -31,34 +33,21 @@ const MODEL_TONE: Record<string, string> = {
   'veo-3.1-generate-001': '#FF7AB6',
 };
 
-/** The four operational tracks from ARCHITECTURE.md. */
+/** The four operational tracks from ARCHITECTURE.md; members come from lib/agents. */
 const TRACKS: { name: string; blurb: string; ids: string[] }[] = [
-  {
-    name: 'Intelligence & Strategy',
-    blurb: 'Finds what is happening and decides whether Vanna has an answer',
-    ids: ['A01_intelligence_scout', 'A02_opportunity_selector', 'A03_gtm_strategist',
-          'A04_machine_library', 'A05_campaign_engine'],
-  },
-  {
-    name: 'Creative & Media',
-    blurb: 'Writes the post and renders the visual, meme and video',
-    ids: ['A06_channel_adapter', 'A07_creative_director', 'A08_visual_synthesis',
-          'A09_video_production'],
-  },
-  {
-    name: 'Governance & Distribution',
-    blurb: 'Blocks what should not ship; dispatch waits for a human',
-    ids: ['A10_reviewer_firewall', 'A11_dispatch_worker', 'A12_telegram_gateway'],
-  },
-  {
-    name: 'Learning',
-    blurb: 'Reads outcomes back into pattern weights',
-    ids: ['A13_learning_engine'],
-  },
-];
+  { key: 'intelligence', name: 'Intelligence & Strategy',
+    blurb: 'Finds what is happening and decides whether Vanna has an answer' },
+  { key: 'creative', name: 'Creative & Media',
+    blurb: 'Writes the post, directs and renders the poster and the video, and judges them' },
+  { key: 'governance', name: 'Governance & Distribution',
+    blurb: 'Blocks what should not ship; dispatch waits for a human. Fixed by design' },
+  { key: 'learning', name: 'Learning',
+    blurb: 'Turns founder decisions and run outcomes into what every agent reads next' },
+].map((t) => ({ ...t, ids: AGENT_DEFS.filter((a) => a.track === t.key).map((a) => a.id) }));
 
 interface Agent {
-  n: number; id: string; name: string; role: string;
+  n: number; id: string; code: string; name: string; role: string;
+  learns: string | null; fixed: string | null;
   model: string | null; kind: 'MODEL_BACKED' | 'DETERMINISTIC';
   status: string; detail: string; outputs: string[]; at: string | null;
   modelCalls: number; modelCallsOk: number;
@@ -111,7 +100,7 @@ export function GtmAgents() {
       <header style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0, fontSize: 20, color: '#EDEDED', fontWeight: 600 }}>
-            13 GTM Agents
+            {AGENT_COUNT} GTM Agents
           </h2>
           <span style={{ fontFamily: MONO, fontSize: 11.5, color: DIM }}>
             {data.runId ?? 'no run yet'}
@@ -126,6 +115,7 @@ export function GtmAgents() {
         <div style={{ display: 'flex', gap: 26, marginTop: 12, flexWrap: 'wrap' }}>
           <Stat v={`${data.ranThisRun}/${data.declared}`} l="ran this cycle" />
           <Stat v={String(data.modelBacked)} l="model-backed" />
+          <Stat v={`${LEARNING_COUNT}/${AGENT_COUNT}`} l="learning" tone={LEARN} />
           <Stat v={String(data.failed.length)} l="failed"
                 tone={data.failed.length ? '#F0666B' : undefined} />
         </div>
@@ -204,7 +194,7 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
         <span style={{ fontFamily: MONO, fontSize: 10.5, color: DIM }}>
-          A{String(a.n).padStart(2, '0')}
+          {a.code}
         </span>
         <span style={{ fontFamily: MONO, fontSize: 10.5, color: tone }}>{label}</span>
       </div>
@@ -232,6 +222,15 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
           )}
         </div>
       )}
+
+      <div style={{ fontSize: 11, marginTop: 7, lineHeight: 1.45,
+                    color: a.learns ? '#9FE3BF' : '#6E6E78' }}>
+        <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: 0.6, marginRight: 6,
+                       color: a.learns ? LEARN : '#5A5A66' }}>
+          {a.learns ? 'LEARNS' : 'FIXED'}
+        </span>
+        {a.learns || a.fixed}
+      </div>
 
       {a.detail && !pending && (
         <div style={{ fontSize: 11, color: '#6E6E78', marginTop: 6, lineHeight: 1.45 }}>

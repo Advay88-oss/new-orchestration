@@ -125,7 +125,7 @@ def judge(image: Path, brief: str) -> dict[str, Any]:
         "in one or two sentences." + _learned_rules()
         + "\n\nReturn JSON exactly:\n" + JUDGE_SCHEMA
     )
-    return R.brain_vision(prompt, [image, LOGO], agent="A07_creative_director",
+    return R.brain_vision(prompt, [image, LOGO], agent="A15_creative_judge",
                           system=JUDGE_SYSTEM, role="reasoning",
                           temperature=0.1, max_output_tokens=2048)
 

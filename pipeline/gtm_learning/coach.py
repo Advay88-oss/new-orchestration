@@ -30,7 +30,7 @@ import tempfile
 from pathlib import Path
 from typing import Any, Optional
 
-AGENT = "A13_learning_engine"
+AGENT = "A16_coach"
 STATE = Path(__file__).resolve().parents[2] / "pipeline" / "state"
 COACH_STATE = STATE / "coach_state.json"
 

@@ -25,7 +25,7 @@ from typing import Any, Optional
 from pipeline.gtm_os import agent_runtime as R
 from pipeline.gtm_os.vanna_knowledge import PROHIBITED_VISUAL, VISUAL_ANCHORS
 
-AGENT = "A07_creative_director"
+AGENT = "A15_creative_judge"
 
 JUDGE_SYSTEM = (
     "You are Vanna's creative director reviewing finished assets before they "
@@ -158,7 +158,17 @@ def judge_assets(summary: dict[str, Any], run_id: str) -> dict[str, Any]:
     request = str(summary.get("directive") or "").strip()
     archetype = str(summary.get("visual_archetype") or "")
 
+    # The rulebook the image agent and the Motion Director were given, with
+    # the Coach's learned rules, so the judge checks against the same bar.
+    try:
+        from pipeline.gtm_creative.creative_rules import block as _rules
+        rules = _rules(max_chars=3500)
+    except Exception:                               # noqa: BLE001 — boundary
+        rules = ""
+
     prompt = (
+        ("THE CREATIVE RULES (founder's, then learned from past runs)\n"
+         + rules + "\n\n" if rules else "") +
         ("FOUNDER REQUEST (what was actually asked for)\n  "
          + request[:900] + "\n\n" if request else "")
         + "CAMPAIGN\n"

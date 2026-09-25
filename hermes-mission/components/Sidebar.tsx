@@ -3,6 +3,7 @@
 import React from "react";
 import { HoverButton } from "./Hover";
 import type { MissionVM } from "@/lib/viewmodel";
+import { AGENT_COUNT } from "@/lib/agents";
 
 interface SidebarProps {
   vm: MissionVM;
@@ -83,7 +84,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
                   color: "var(--vn-ink-faint)",
                 }}
               >
-                13-agent GTM OS
+                {AGENT_COUNT}-agent GTM OS
               </div>
             </div>
           </div>

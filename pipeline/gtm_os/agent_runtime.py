@@ -77,6 +77,11 @@ AGENT_ROLES: dict[str, str] = {
     "A11_dispatch_worker":      "none",
     "A12_telegram_gateway":     "none",
     "A13_learning_engine":      "reasoning",
+    # Specialists that grew out of the thirteen, each with its own record.
+    "A02_market_analyst":       "reasoning",
+    "A14_motion_director":      "director",
+    "A15_creative_judge":       "reasoning",
+    "A16_coach":                "director",
 }
 
 AGENT_NAMES: dict[str, str] = {
@@ -93,6 +98,10 @@ AGENT_NAMES: dict[str, str] = {
     "A11_dispatch_worker":      "Approved Dispatch Worker",
     "A12_telegram_gateway":     "Telegram Gateway & Listener",
     "A13_learning_engine":      "Closed-Loop Learning Engine",
+    "A02_market_analyst":       "Market Analyst",
+    "A14_motion_director":      "Motion Director",
+    "A15_creative_judge":       "Creative Judge",
+    "A16_coach":                "Coach",
 }
 
 

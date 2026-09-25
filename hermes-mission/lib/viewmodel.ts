@@ -9,6 +9,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { probeRelay } from "./api";
+import { AGENT_COUNT, LEARNING_COUNT } from "./agents";
 import {
   ACCENT,
   ACCENT_DEEP,
@@ -211,11 +212,9 @@ export function useMissionControl(props: MissionControlProps) {
       { id: "ideas", label: "Ideas Panel" },
       { id: "memes", label: "Crypto Memes" },
       { id: "runs", label: "Agent History" },
-      { id: "problems", label: "Problems" },
-      { id: "agents", label: "13 GTM Agents" },
+      { id: "agents", label: "GTM Agents" },
       { id: "research", label: "Scraped Intelligence" },
       { id: "references", label: "Vanna References" },
-      { id: "posts", label: "Multi-Channel Feed" },
     ].map((n) => {
       const on = view === n.id;
       return {
@@ -225,10 +224,8 @@ export function useMissionControl(props: MissionControlProps) {
           n.id === "runs"
             ? String(runs().length)
             : n.id === "agents"
-              ? "13"
-              : n.id === "posts"
-                ? String(data?.POSTS_TOTAL ?? 0)
-                : n.id === "live"
+              ? String(AGENT_COUNT)
+              : n.id === "live"
                   ? runs().some((r) => r.outcome === "running")
                     ? "●"
                     : ""
@@ -436,7 +433,7 @@ export function useMissionControl(props: MissionControlProps) {
         "Agents",
         // There is no relay and there are no process logs. This header claimed
         // both for agents whose status now comes from the run journal.
-        "The 13 GTM agents. Status, model and token counts are read from the "
+        "The " + AGENT_COUNT + " GTM agents, " + LEARNING_COUNT + " of them learning. Status, model and token counts are read from the "
         + "last cycle's run journal; an agent that did not run says so.",
       ],
       cost: [
@@ -471,7 +468,7 @@ export function useMissionControl(props: MissionControlProps) {
         "Culturally grounded humor addressing liquidation anxiety, gas price shock, and pooled contagion without named competitor attacks.",
       ],
     };
-    const [pageTitle, pageSub] = titles[view] || ["Mission Control", "System 2: 13-Agent Autonomous GTM OS"];
+    const [pageTitle, pageSub] = titles[view] || ["Mission Control", "System 2: " + AGENT_COUNT + "-Agent Autonomous GTM OS"];
 
     const runRows = runs().map((r) => {
       const om = outcomeMeta(r),

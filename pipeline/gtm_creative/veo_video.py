@@ -250,7 +250,7 @@ def judge(mp4: Path, poster: Path, brief: str) -> dict[str, Any]:
         "not move or zoom; the motion explains the idea rather than just "
         "wobbling; no new objects, people, coins or scenes appeared. "
         "Return JSON exactly:\n" + JUDGE_SCHEMA)
-    return R.brain_vision(prompt, [poster] + frames, agent="A09_video_production",
+    return R.brain_vision(prompt, [poster] + frames, agent="A15_creative_judge",
                           system="You review a short brand video before a human sees it. "
                                  "Be strict and specific. Return strict JSON.",
                           role="reasoning", temperature=0.1, max_output_tokens=2048)
@@ -354,7 +354,7 @@ def judge_build(mp4: Path, poster: Path, brief: str) -> dict[str, Any]:
         "resolves by the end is a REVISE, not a REJECT — the founder approved "
         "a clip with exactly that fault. Name every such fault in `fix`. "
         "Return JSON exactly:\n" + JUDGE_SCHEMA)
-    return R.brain_vision(prompt, [poster] + frames, agent="A09_video_production",
+    return R.brain_vision(prompt, [poster] + frames, agent="A15_creative_judge",
                           system="You review a short brand video before a human sees it. "
                                  "Be strict and specific. Return strict JSON.",
                           role="reasoning", temperature=0.1, max_output_tokens=2048)

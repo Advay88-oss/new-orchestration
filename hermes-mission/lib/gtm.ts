@@ -20,17 +20,21 @@
 import fs from 'fs';
 import path from 'path';
 import { isDeployed, getText, getBytes, runIds as gcsRunIds } from '@/lib/gcs';
+import { AGENTS as AGENT_DEFS, type GtmAgentRole } from '@/lib/agents';
+
+export type { GtmAgentRole };
 
 const REPO_ROOT = path.resolve(process.cwd(), '..');
 const RUNS_DIR = path.join(REPO_ROOT, 'pipeline', 'state', 'gtm_runs');
 
-export type GtmAgentRole = 'reasoning' | 'image' | 'meme' | 'video' | 'none';
-
 export interface GtmAgent {
   n: number;
   id: string;
+  code: string;
   name: string;
   role: GtmAgentRole;
+  learns: string | null;
+  fixed: string | null;
   model: string | null;
   kind: 'MODEL_BACKED' | 'DETERMINISTIC';
   status: string;
@@ -60,26 +64,16 @@ function isModelCall(c: any): boolean {
 /** The routing table, mirrored from `pipeline/gtm_os/agent_runtime.py`. */
 const MODELS: Record<string, string> = {
   reasoning: 'gemini-3.8-flash',
-  image: 'gemini-3.1-flash-image',
+  director: 'gemini-3.8-flash',
+  image: 'gemini-3-pro-image',
   meme: 'gemini-3-pro-image',
   video: 'veo-3.1-generate-001',
 };
 
-const AGENTS: Array<[string, string, GtmAgentRole]> = [
-  ['A01_intelligence_scout', 'Intelligence Scout', 'none'],
-  ['A02_opportunity_selector', 'Opportunity Selector', 'reasoning'],
-  ['A03_gtm_strategist', 'GTM Strategist', 'reasoning'],
-  ['A04_machine_library', 'GTM Machine Library', 'none'],
-  ['A05_campaign_engine', 'Campaign & Series Engine', 'none'],
-  ['A06_channel_adapter', 'Content Creator & Channel Adapter', 'reasoning'],
-  ['A07_creative_director', 'Creative Director System', 'reasoning'],
-  ['A08_visual_synthesis', 'Visual Synthesis Engine', 'image'],
-  ['A09_video_production', 'Video Production Engine', 'video'],
-  ['A10_reviewer_firewall', 'Pre-Delivery Reviewer Firewall', 'none'],
-  ['A11_dispatch_worker', 'Approved Dispatch Worker', 'none'],
-  ['A12_telegram_gateway', 'Telegram Gateway & Listener', 'none'],
-  ['A13_learning_engine', 'Closed-Loop Learning Engine', 'reasoning'],
-];
+// The catalogue lives in lib/agents.ts, shared with the client views.
+const AGENTS: Array<[string, string, GtmAgentRole]> = AGENT_DEFS.map(
+  (a) => [a.id, a.name, a.role] as [string, string, GtmAgentRole]);
+const DEF = new Map(AGENT_DEFS.map((a) => [a.id, a]));
 
 /**
  * One run file, from whichever side of the seam this process is on.
@@ -163,7 +157,8 @@ export async function gtmAgents(runId?: string): Promise<{
   const rid = runId || (await listGtmRunIds(1))[0];
   const blank = (): GtmAgent[] =>
     AGENTS.map(([id, name, role], i) => ({
-      n: i + 1, id, name, role,
+      n: i + 1, id, name, role, code: DEF.get(id)!.code,
+      learns: DEF.get(id)!.learns ?? null, fixed: DEF.get(id)!.fixed ?? null,
       model: role === 'none' ? null : MODELS[role],
       kind: role === 'none' ? 'DETERMINISTIC' : 'MODEL_BACKED',
       status: 'never_ran', detail: '', outputs: [], at: null,
@@ -197,7 +192,8 @@ export async function gtmAgents(runId?: string): Promise<{
     const s = lastStage.get(id);
     const cs = byAgentCalls.get(id) || [];
     return {
-      n: i + 1, id, name, role,
+      n: i + 1, id, name, role, code: DEF.get(id)!.code,
+      learns: DEF.get(id)!.learns ?? null, fixed: DEF.get(id)!.fixed ?? null,
       model: role === 'none' ? null : MODELS[role],
       kind: role === 'none' ? 'DETERMINISTIC' : 'MODEL_BACKED',
       status: s?.status ?? 'never_ran',
@@ -784,7 +780,7 @@ export async function gtmReferences(runId?: string) {
   };
 }
 
-/** The 13 agents as a manifest, in the shape the pipeline views consume. */
+/** The agents as a manifest, in the shape the pipeline views consume. */
 export function gtmManifest() {
   return AGENTS.map(([id, name, role], i) => ({
     n: i + 1,
@@ -793,147 +789,4 @@ export function gtmManifest() {
     purpose: name,
     model: role === 'none' ? null : MODELS[role],
   }));
-}
-
-/* -------------------------------------------------------------------------
- * Problems — what has been going wrong, grouped.
- *
- * Every agent records `degraded` or `failed` with a reason, and until now
- * that reason was only legible one run at a time. Reading fifty stage
- * journals by hand is how a JSON-truncation bug that was firing in four
- * different agents got found four separate times.
- *
- * Grouping needs a signature, because the details differ per occurrence —
- * one carries a filename, another a character offset. `signature()` strips
- * the parts that vary and keeps the part that names the class of failure, so
- * "no PNG on disk: GTM-20260922-083620_visual.png" and the same failure on a
- * different run land in one row with a count of two.
- * ---------------------------------------------------------------------- */
-
-function signature(detail: string): string {
-  return String(detail || 'no reason recorded')
-    // Run ids, artifact names, offsets and quantities are what differ between
-    // two occurrences of the same fault.
-    .replace(/GTM-\d{8}-\d{6}[A-Za-z0-9_.-]*/g, '<run>')
-    .replace(/line \d+ column \d+ \(char \d+\)/g, '<position>')
-    .replace(/line \d+/g, '<position>')
-    .replace(/\b\d+(\.\d+)?\b/g, 'N')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 120);
-}
-
-// The signature groups occurrences of one fault in one agent. The family
-// groups the same *kind* of fault across agents, which is the view that
-// matters: "unparseable JSON" was firing in A02, A03, A07 and A08 and it was
-// found four separate times because nothing ever put those four next to each
-// other.
-const FAMILIES: [RegExp, string][] = [
-  [/unparseable JSON|Unterminated string|Expecting value|JSONDecode/i,
-   'Model returned unparseable JSON — usually the reply was cut at the token limit'],
-  [/RemoteDisconnected|Connection aborted|timed out|ReadTimeout|502|503/i,
-   'Model connection dropped mid-call'],
-  [/no PNG on disk|returned no|not found on disk|no such file/i,
-   'A render reported success and produced no file'],
-  [/REJECT(ED)?|show no mechanism/i,
-   'Creative judge rejected the assets'],
-  [/no Veo prompt|no prompt|missing prompt/i,
-   'A stage ran without the input the previous stage should have produced'],
-  [/CalledProcessError|ffmpeg|subprocess/i,
-   'An external command failed'],
-  [/reframed|refused|declined/i,
-   'A directive or signal was declined and substituted'],
-  [/quota|rate limit|429|RESOURCE_EXHAUSTED/i,
-   'Provider quota or rate limit'],
-  // Added after the first read of this page put fifteen occurrences in
-  // "Other". Each of these four was a real class hiding in the tail.
-  [/access token|application-default login|Vertex token|credentials not found|ADC/i,
-   'Google credentials expired — re-run gcloud auth application-default login'],
-  [/does not accept|unexpected keyword argument|missing \d+ required positional|takes \d+ positional/i,
-   'A renderer was called with arguments it does not accept'],
-  [/REVISE/i,
-   'Creative judge asked for a revision'],
-];
-
-function family(detail: string): string {
-  const d = String(detail || '');
-  for (const [re, label] of FAMILIES) if (re.test(d)) return label;
-  return 'Other';
-}
-
-export type Problem = {
-  agent: string;
-  status: 'degraded' | 'failed';
-  family: string;
-  signature: string;
-  count: number;
-  runs: string[];
-  lastSeen: string | null;
-  sample: string;
-};
-
-export async function gtmProblems(limit = 60): Promise<{
-  scanned: number;
-  problems: Problem[];
-  runsAffected: number;
-  cleanRuns: number;
-}> {
-  const ids = await listGtmRunIds(limit);
-  const byKey = new Map<string, Problem>();
-  const affected = new Set<string>();
-  let scanned = 0;
-
-  for (const id of ids) {
-    const raw = await runFile(id, 'stages.jsonl');
-    if (!raw) continue;
-    scanned += 1;
-
-    // A stage can record more than once per run (the cycle's wrapper writes a
-    // second row). Counting both would double every figure on the page.
-    const seen = new Set<string>();
-    for (const s of parseJsonl(raw)) {
-      const status = String(s.status || '');
-      if (status !== 'degraded' && status !== 'failed') continue;
-      const agent = String(s.agent || 'unknown');
-      const sig = signature(String(s.detail || ''));
-      const key = agent + '|' + status + '|' + sig;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      affected.add(id);
-
-      const prior = byKey.get(key);
-      if (prior) {
-        prior.count += 1;
-        if (prior.runs.length < 12) prior.runs.push(id);
-        if (s.at && (!prior.lastSeen || String(s.at) > prior.lastSeen)) {
-          prior.lastSeen = String(s.at);
-        }
-      } else {
-        byKey.set(key, {
-          agent,
-          status: status as 'degraded' | 'failed',
-          family: family(String(s.detail || '')),
-          signature: sig,
-          count: 1,
-          runs: [id],
-          lastSeen: s.at ? String(s.at) : null,
-          sample: String(s.detail || '').slice(0, 400),
-        });
-      }
-    }
-  }
-
-  const problems = [...byKey.values()].sort((a, b) => {
-    // A failure outranks a degradation at equal frequency: one stopped the
-    // run and the other did not.
-    if (a.status !== b.status) return a.status === 'failed' ? -1 : 1;
-    return b.count - a.count;
-  });
-
-  return {
-    scanned,
-    problems,
-    runsAffected: affected.size,
-    cleanRuns: scanned - affected.size,
-  };
 }

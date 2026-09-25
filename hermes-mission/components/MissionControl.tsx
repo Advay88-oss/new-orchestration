@@ -7,8 +7,6 @@ import { CommandConsole } from "./CommandConsole";
 import { GtmAgents } from "./views/GtmAgents";
 import { AgentReasoning } from "./views/AgentReasoning";
 import { LiveTrace } from "./views/LiveTrace";
-import { Posts } from "./views/Posts";
-import { Problems } from "./views/Problems";
 import { RunDetail } from "./views/RunDetail";
 import { Runs } from "./views/Runs";
 import { Research } from "./views/Research";
@@ -110,9 +108,7 @@ export function MissionControl({
         {(vm as any).isScheduler && <SchedulerView vm={vm} />}
         {(vm as any).isIdeas && <IdeasView vm={vm} />}
         {(vm as any).isMemes && <MemesView vm={vm} />}
-        {vm.isPosts && <Posts vm={vm} />}
         {vm.isRuns && <Runs vm={vm} />}
-        {vm.isProblems && <Problems vm={vm} />}
         {vm.isRun && <RunDetail vm={vm} />}
         {vm.isAgents && <GtmAgents />}
         {(vm as any).isResearch && <Research vm={vm} />}

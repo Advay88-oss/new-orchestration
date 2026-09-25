@@ -215,8 +215,10 @@ def _render_direct(hook: str, body: str, subject: str,
         from pipeline.gtm_creative.motion_director import poster_brief
         pb = poster_brief(subject or hook, hook, body)
         director_brief, layout = pb["brief"], pb.get("layout")
+        R.record_stage("A14_motion_director", "ok",
+                       "wrote the poster brief (layout " + str(layout) + ")")
     except Exception as exc:                        # noqa: BLE001 — boundary
-        R.record_stage("A07_creative_director", "degraded",
+        R.record_stage("A14_motion_director", "degraded",
                        "motion director brief failed: " + str(exc)[:160])
     brief = director_brief or ("Subject: " + (subject or hook) + "\nHook: " + hook
                                + "\nThe post: " + " ".join(body.split())[:1400])
@@ -425,6 +427,10 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
             plan = motion_plan(visual, s.get("poster_brief") or brief)
             s["motion_plan"] = plan["plan"][:2000]
             s["motion_style"] = plan.get("motion_style")
+            R.record_stage("A14_motion_director", "ok",
+                           "wrote the poster brief and the motion plan (layout "
+                           + str(s.get("poster_layout")) + ", motion "
+                           + str(plan.get("motion_style")) + ")")
             res = VV.make_build(visual, brief, out, total_s=10.0, attempts=2,
                                 directed=plan["prompt"])
             verdicts = [str(a.get("verdict")).upper() for a in res["attempts"]]
@@ -771,7 +777,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                             "A06_channel_adapter", "A07_creative_director",
                             "A08_visual_synthesis", "A09_video_production",
                             "A10_reviewer_firewall", "A11_dispatch_worker",
-                            "A12_telegram_gateway"):
+                            "A12_telegram_gateway", "A14_motion_director",
+                            "A15_creative_judge"):
                 R.record_stage(skipped, "skipped",
                                "directive declined by A03")
             return _finish(summary, t0, rid)
@@ -825,7 +832,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                             "A06_channel_adapter", "A07_creative_director",
                             "A08_visual_synthesis", "A09_video_production",
                             "A10_reviewer_firewall", "A11_dispatch_worker",
-                            "A12_telegram_gateway"):
+                            "A12_telegram_gateway", "A14_motion_director",
+                            "A15_creative_judge"):
                 R.record_stage(skipped, "skipped",
                                "strategy returned " + strategy.action_status)
             return _finish(summary, t0, rid)
@@ -936,12 +944,12 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             from pipeline.gtm_os.creative_judge import judge_assets
             return judge_assets(summary, rid)
 
-        creative_verdict = _stage("A07_creative_director", judge,
+        creative_verdict = _stage("A15_creative_judge", judge,
                                   required=False, self_recorded=True)
         if creative_verdict:
             summary["creative_review"] = creative_verdict
             summary["creative_verdict"] = creative_verdict.get("overall")
-            R.record_decision("A07_creative_director", "judged", {
+            R.record_decision("A15_creative_judge", "judged", {
                 "overall": creative_verdict.get("overall"),
                 "copy_verdict": creative_verdict.get("copy_verdict"),
                 "assets": [
@@ -1297,9 +1305,14 @@ def _run_learning(summary: Optional[dict] = None):
         if parts:
             coach_line = " | coach: " + ", ".join(parts)
         if new_rules:
-            R.record_decision("A13_learning_engine", "coach_rules", {"rules": new_rules})
+            R.record_decision("A16_coach", "coach_rules", {"rules": new_rules})
+        from pipeline.gtm_creative.creative_rules import learned_rules
+        R.record_stage("A16_coach", "ok",
+                       (", ".join(parts) if parts else "reviewed the run, nothing new to teach")
+                       + " | " + str(len(learned_rules())) + " learned rules active")
     except Exception as exc:                        # noqa: BLE001 — boundary
         coach_line = " | coach failed: " + str(exc)[:80]
+        R.record_stage("A16_coach", "degraded", "coach failed: " + str(exc)[:160])
 
     # The founder's decisions are the reward that exists today; post metrics
     # come later. The snapshot is what A03, A06 and A07 read on the next run.

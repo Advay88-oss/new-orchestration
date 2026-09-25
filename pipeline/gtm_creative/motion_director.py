@@ -35,8 +35,8 @@ import json
 from pathlib import Path
 from typing import Any, Optional
 
-AGENT = "A07_creative_director"          # poster brief: A07 owns creative
-MOTION_AGENT = "A09_video_production"    # motion plan: A09 owns the clip
+AGENT = "A14_motion_director"            # the poster brief and the motion plan
+MOTION_AGENT = AGENT
 
 GUARDRAILS = (
     "The FIRST frame is the empty Vanna ground; the LAST frame is the finished "
