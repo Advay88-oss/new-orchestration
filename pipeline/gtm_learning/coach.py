@@ -88,20 +88,31 @@ def _notes(s: dict) -> str:
 
 def review_run(s: dict, run_id: Optional[str] = None) -> list[str]:
     """Rules learned from one run's own assets and judge notes."""
-    from pipeline.gtm_creative.creative_rules import add_learned, block
+    from pipeline.gtm_creative.creative_rules import (add_learned, block, coach_record,
+                                                      credit, run_reward)
     from pipeline.gtm_os import agent_runtime as R
+
+    # Reinforcement first: every rule that was active while this run was made
+    # is credited with how the run came out, before any new rule is written.
+    rw = run_reward(s)
+    if rw is not None:
+        credit(rw, since=str(s.get("started_at") or ""), run_id=str(run_id or ""))
 
     imgs, labels = _assets(s)
     notes = _notes(s)
     if not imgs or not notes:
         return []
+    record = coach_record()
     prompt = (
         "THE RULES THE AGENTS ALREADY FOLLOW:\n" + block(max_chars=3500) + "\n\n----\n\n"
-        "ATTACHED: " + labels + ".\nWHAT THE JUDGES SAID:\n" + notes + "\n\n"
+        + (record + "\n\n----\n\n" if record else "")
+        + "ATTACHED: " + labels + ".\nWHAT THE JUDGES SAID:\n" + notes + "\n\n"
         "Find at most TWO faults you can SEE whose cause is in how the asset was "
         "asked for — something a rule would prevent next time — and that the "
-        "rules above do not already cover. If there are none, return an empty "
-        "list; that is a good answer.\n"
+        "rules above do not already cover. If one of YOUR active rules clearly "
+        "failed here, you may instead rewrite it more precisely. Never propose a "
+        "retired rule. If there are none, return an empty list; that is a good "
+        "answer.\n"
         'Return JSON: {"rules": [{"rule": str (one sentence, general), '
         '"because": str (what you saw)}]}')
     try:
@@ -140,6 +151,14 @@ def learn_from_decisions() -> dict[str, int]:
             s = json.loads((Path(RUNS) / r["run_id"] / "summary.json").read_text(encoding="utf-8"))
         except Exception:                           # noqa: BLE001 — boundary
             continue
+        # The founder's decision is the strongest reward a rule can get: the
+        # rules active when this run was made are credited again, weighted.
+        try:
+            from pipeline.gtm_creative.creative_rules import credit
+            credit(float(r.get("reward", 0.0)), since=str(s.get("started_at") or ""),
+                   weight=2.0, run_id=r["run_id"])
+        except Exception:                           # noqa: BLE001 — boundary
+            pass
         imgs, labels = _assets(s)
         if not imgs:
             continue
