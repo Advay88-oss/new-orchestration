@@ -56,6 +56,8 @@ def features(run_id: str) -> dict[str, Any]:
         "visual_archetype": s.get("visual_archetype"),
         "visual_renderer": s.get("visual_renderer"),
         "video_mode": s.get("video_mode"),
+        "poster_layout": s.get("poster_layout"),
+        "motion_style": s.get("motion_style"),
         "x_hook": str(x.get("hook") or "")[:200] or None,
         "x_chars": len(str(x.get("copy") or "")),
         "creative_verdict": s.get("creative_verdict"),

@@ -210,9 +210,11 @@ def _render_direct(hook: str, body: str, subject: str,
     # diagram — from the query and the post, learning from the posters the
     # founder approved. The raw post is the fallback if the agent fails.
     director_brief = None
+    layout = None
     try:
         from pipeline.gtm_creative.motion_director import poster_brief
-        director_brief = poster_brief(subject or hook, hook, body)["brief"]
+        pb = poster_brief(subject or hook, hook, body)
+        director_brief, layout = pb["brief"], pb.get("layout")
     except Exception as exc:                        # noqa: BLE001 — boundary
         R.record_stage("A07_creative_director", "degraded",
                        "motion director brief failed: " + str(exc)[:160])
@@ -243,7 +245,7 @@ def _render_direct(hook: str, body: str, subject: str,
             "why": "image model shown the founder-approved posters and the "
                    "design references; own judge: " + "/".join(verdicts),
             "public_url": "/" + png.name, "renderer": "direct_model",
-            "poster_brief": brief}
+            "poster_brief": brief, "poster_layout": layout}
 
 
 def render_visual_legacy(strategy, content_pkg, blueprint, run_id: str) -> Optional[dict]:
@@ -422,6 +424,7 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
             # clips; Veo 3.1 builds the poster out of the empty ground.
             plan = motion_plan(visual, s.get("poster_brief") or brief)
             s["motion_plan"] = plan["plan"][:2000]
+            s["motion_style"] = plan.get("motion_style")
             res = VV.make_build(visual, brief, out, total_s=10.0, attempts=2,
                                 directed=plan["prompt"])
             verdicts = [str(a.get("verdict")).upper() for a in res["attempts"]]
@@ -895,6 +898,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 summary["visual_review"] = visual["visual_review"]
             if visual.get("poster_brief"):
                 summary["poster_brief"] = visual["poster_brief"][:2000]
+            if visual.get("poster_layout"):
+                summary["poster_layout"] = visual["poster_layout"]
             summary["visual_why"] = visual.get("why")
             summary["visual_public_url"] = visual.get("public_url")
 
@@ -1024,7 +1029,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         # Self-recorded: A13 writes what it learned ("learned from N founder
         # decisions…" / "no founder decisions yet…"), and the wrapper's
         # generic line after it was what the dashboard showed instead.
-        _stage("A13_learning_engine", _run_learning, required=False,
+        _stage("A13_learning_engine", lambda: _run_learning(summary), required=False,
                self_recorded=True)
 
         summary["status"] = "completed" if passed else "review_blocked"
@@ -1261,8 +1266,8 @@ def _select_signal(signals):
     return signals[idx]
 
 
-def _run_learning():
-    """A13: adjust pattern weights, then have the model read the adjustment.
+def _run_learning(summary: Optional[dict] = None):
+    """A13: coach, then adjust pattern weights and read the adjustment.
 
     The engine on its own is a group-by and a weight nudge — it can tell that
     PAT_01 moved from 1.0 to 1.15 but not whether that is a real signal or two
@@ -1273,16 +1278,39 @@ def _run_learning():
     from pipeline.gtm_learning.learning_engine import LearningEngine
     from pipeline.gtm_learning import preferences as P
 
+    # The Coach first: it studies the founder's new decisions (writing why an
+    # approved poster or clip worked, or the rule a kill implies) and this
+    # run's own assets against the judges' notes, so the rules and examples
+    # the next run reads already include what this one taught.
+    coach_line = ""
+    try:
+        from pipeline.gtm_learning import coach as C
+        studied = C.learn_from_decisions()
+        new_rules = C.review_run(summary or {}) if summary else []
+        parts = []
+        if studied.get("studied"):
+            parts.append(str(studied["studied"]) + " founder decision(s) studied")
+        if studied.get("notes"):
+            parts.append(str(studied["notes"]) + " exemplar note(s) written")
+        if studied.get("rules") or new_rules:
+            parts.append(str(studied.get("rules", 0) + len(new_rules)) + " rule(s) learned")
+        if parts:
+            coach_line = " | coach: " + ", ".join(parts)
+        if new_rules:
+            R.record_decision("A13_learning_engine", "coach_rules", {"rules": new_rules})
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        coach_line = " | coach failed: " + str(exc)[:80]
+
     # The founder's decisions are the reward that exists today; post metrics
     # come later. The snapshot is what A03, A06 and A07 read on the next run.
     snap = P.snapshot()
     learned = None
     rend = snap.get("visual_renderers") or {}
     rated = sum(int(p.get("n", 0)) for p in rend.values())
-    rend_line = ""
+    rend_line = coach_line
     if rated:
         lead = max(rend, key=lambda k: rend[k]["mean"])
-        rend_line = (" | visuals: " + lead + " preferred ("
+        rend_line += (" | visuals: " + lead + " preferred ("
                      + ", ".join(k + " " + str(v["mean"]) for k, v in rend.items())
                      + "; " + str(rated) + " rated)")
     try:

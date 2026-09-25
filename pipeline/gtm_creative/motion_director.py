@@ -50,6 +50,64 @@ GUARDRAILS = (
 )
 
 
+# Variety. Every poster is held to the same bar and brand, but the layout
+# and the choreography change: the last few used are unavailable, the rest
+# are ordered by the founder's record, and the model picks what fits.
+LAYOUTS = {
+    "split_contrast": "two large flat glass cards side by side — the problem left, Vanna right — an arrow between",
+    "hub_spokes": "one central flat card for Vanna with three flat cards around it, joined by straight lines",
+    "step_flow": "three or four flat cards in a row joined by arrows, a numbered sequence",
+    "stack_checklist": "one tall glass card of 3-5 rows with check marks, and a call-to-action pill below",
+    "stat_hero": "one true figure set huge in a glass card, two small supporting cards under it",
+    "question_cards": "a question card with 2-4 answer cards beneath it and Vanna's short take",
+    "before_after": "the same flat diagram twice, stacked: 'today' above, 'with Vanna' below",
+    "grid_features": "a 2x2 grid of flat glass cards, one capability each with a flat icon",
+}
+MOTION_STYLES = {
+    "sequential_slide": "cards slide in one after another from below and settle",
+    "draw_on": "outlines and connectors draw themselves on, then the cards fill",
+    "scale_pop": "cards scale up from nothing with a soft settle, one at a time",
+    "reveal_wipe": "each card is revealed by a soft left-to-right wipe",
+    "pulse_flow": "cards fade in, then light pulses travel along the connectors",
+}
+_STATE = Path(__file__).resolve().parents[1] / "state"
+
+
+def _recent(name: str) -> list[str]:
+    try:
+        return json.loads((_STATE / name).read_text(encoding="utf-8"))
+    except Exception:                               # noqa: BLE001 — first run
+        return []
+
+
+def _remember(name: str, value: str, keep: int = 6) -> None:
+    hist = [value] + [v for v in _recent(name) if v != value]
+    (_STATE / name).write_text(json.dumps(hist[:keep]), encoding="utf-8")
+
+
+def _options(catalogue: dict[str, str], recent_file: str, block_last: int,
+             dim: str) -> list[tuple[str, str, str]]:
+    """Open options, freshest-first by the founder's record: (id, how, record)."""
+    blocked = set(_recent(recent_file)[:block_last])
+    open_ids = [k for k in catalogue if k not in blocked] or list(catalogue)
+    try:
+        from pipeline.gtm_learning import preferences as P
+        post = P.posteriors(dim)
+        ranked = [k for k, _ in P.thompson_order(dim, open_ids)]
+        return [(k, catalogue[k], P.record_text(post[k]) if k in post else "not yet reviewed")
+                for k in ranked]
+    except Exception:                               # noqa: BLE001 — boundary
+        return [(k, catalogue[k], "") for k in open_ids]
+
+
+def _rules_block() -> str:
+    try:
+        from pipeline.gtm_creative.creative_rules import block
+        return block()
+    except Exception:                               # noqa: BLE001 — boundary
+        return ""
+
+
 def _approved_posters(k: int = 3) -> list[dict]:
     try:
         from pipeline.gtm_learning.visual_exemplars import _rows
@@ -169,17 +227,26 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         "- Describe the diagram visually (shapes, cards, what breaks, what "
         "flows), not as a text flowchart.\n"
         "Return strict JSON.")
+    layouts = _options(LAYOUTS, "recent_layouts.json", 3, "poster_layout")
+    rules = _rules_block()
     prompt = (
         prompt_block((query or hook)[:300], excerpts=4) + "\n\n----\n\n"
+        + (rules + "\n\n----\n\n" if rules else "")
         + (record + "\n" if record else "")
+        + "LAYOUT FAMILIES open this run (the last three used are held back so "
+          "consecutive posts look different; ordered by the founder's record — "
+          "prefer higher when two fit):\n"
+        + "\n".join("  " + k + ": " + how + (" [" + rec + "]" if rec else "")
+                    for k, how, rec in layouts) + "\n\n"
         + "THE FOUNDER'S QUERY: " + " ".join(str(query).split())[:800] + "\n"
         + ("THE POST — hook: " + hook[:300] + "\nbody: " + " ".join(body.split())[:1200] + "\n"
            if hook or body else "")
         + '\nReturn JSON: {"format": "announcement"|"explainer"|"question"|"metric", '
+        '"layout": str (one id from LAYOUT FAMILIES), '
         '"idea": str, "headline": str (under 9 words), '
         '"gradient_word": str (1-2 words from the headline), "subtitle": str '
         '(under 14 words), "problem_side": str, "vanna_side": str, '
-        '"diagram": str (what is drawn and how the two sides contrast), '
+        '"diagram": str (what is drawn, laid out as the chosen layout family), '
         '"labels": [str] (every word that appears on the diagram, 1-4 words '
         'each), "footer": str (bold lead + testnet caveat), "why": str}')
     out = R.brain_json(prompt, agent=AGENT, role="director", system=system,
@@ -208,7 +275,13 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
             + "\nFooter: " + str(out.get("footer", "")))
     R.record_decision(AGENT, "poster_brief", {"brief": out, "learned_from": {
         "approved_posters": len(approved), "corrections": len(fixes)}}, run_id=run_id)
-    return {"brief": text, "raw": out}
+    open_ids = [k for k, _, _ in layouts]
+    layout = str(out.get("layout") or "")
+    if layout not in open_ids:
+        layout = open_ids[0]
+    _remember("recent_layouts.json", layout)
+    text = "Layout: " + layout + " — " + LAYOUTS[layout] + "\n" + text
+    return {"brief": text, "raw": out, "layout": layout}
 
 
 def motion_plan(poster: str | Path, brief: str, *,
@@ -234,11 +307,19 @@ def motion_plan(poster: str | Path, brief: str, *,
         "element as flat and face-on; never use the words isometric, 3D, "
         "perspective or depth, which make Veo tilt the camera. Return strict "
         "JSON.")
+    styles = _options(MOTION_STYLES, "recent_motion_styles.json", 2, "motion_style")
+    rules = _rules_block()
     prompt = (
-        (learned + "\n\n" if learned else "")
+        (rules + "\n\n----\n\n" if rules else "")
+        + (learned + "\n\n" if learned else "")
+        + "MOTION STYLES open this run (the last two used are held back; "
+          "ordered by the founder's record):\n"
+        + "\n".join("  " + k + ": " + how + (" [" + rec + "]" if rec else "")
+                    for k, how, rec in styles) + "\n\n"
         + "THE POSTER'S BRIEF:\n" + brief[:1500] + "\n\n"
         "The attached image is the finished poster (the clip's last frame).\n"
-        'Return JSON: {"beats": [{"t": str (e.g. "0-1.5s"), "action": str}] '
+        'Return JSON: {"motion_style": str (one id from MOTION STYLES), '
+        '"beats": [{"t": str (e.g. "0-1.5s"), "action": str}] '
         '(5-7 beats covering 0-8s, naming this poster\'s actual elements), '
         '"text_rule": str (how text enters without morphing), '
         '"why": str (how the motion explains the idea, under 30 words)}')
@@ -252,5 +333,11 @@ def motion_plan(poster: str | Path, brief: str, *,
     R.record_decision(MOTION_AGENT, "motion_plan", {"beats": beats,
         "text_rule": out.get("text_rule"), "why": out.get("why"),
         "learned_from_clips": bool(learned)}, run_id=run_id)
-    return {"plan": plan, "raw": out,
+    open_styles = [k for k, _, _ in styles]
+    style = str(out.get("motion_style") or "")
+    if style not in open_styles:
+        style = open_styles[0]
+    _remember("recent_motion_styles.json", style)
+    plan = "MOTION STYLE: " + style + " — " + MOTION_STYLES[style] + "\n" + plan
+    return {"plan": plan, "raw": out, "motion_style": style,
             "prompt": GUARDRAILS + "\n\n" + plan + ("\n\n" + learned if learned else "")}

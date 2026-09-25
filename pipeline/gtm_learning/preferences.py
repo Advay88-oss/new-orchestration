@@ -35,7 +35,7 @@ from pipeline.gtm_learning import feedback as _fb
 STATE = Path(__file__).resolve().parents[2] / "pipeline" / "state"
 SNAPSHOT = STATE / "learned_preferences.json"
 
-DIMENSIONS = ("visual_archetype", "pillar", "machine")
+DIMENSIONS = ("visual_archetype", "pillar", "machine", "poster_layout", "motion_style")
 
 # An option is retired only on real evidence: at least this many decisions,
 # and an approval mean below the floor. Three straight kills under the

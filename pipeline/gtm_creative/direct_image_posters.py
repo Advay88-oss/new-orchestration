@@ -36,6 +36,17 @@ def references() -> list[Path]:
     return refs + ([extra] if extra.exists() else [])
 
 
+def _learned_rules() -> str:
+    """Rules the Coach learned from past runs, for the image model and judge."""
+    try:
+        from pipeline.gtm_creative.creative_rules import learned_rules
+        rules = learned_rules()
+    except Exception:                               # noqa: BLE001 — boundary
+        rules = []
+    return ("\n\nLEARNED FROM PAST RUNS — follow these too:\n"
+            + "\n".join("- " + r for r in rules[-12:])) if rules else ""
+
+
 def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
     return (
         "You are designing ONE finished square (1:1) image for an X post by "
@@ -74,6 +85,7 @@ def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
         "protocols (Blend, Aquarius, Soroswap) appear as plain text names — "
         "never draw a logo or icon for them. Keep to Vanna's violet and "
         "magenta; avoid cyan and teal. " + FACTS
+        + _learned_rules()
         + "\n\nTHE POST THIS IMAGE IS FOR:\n" + " ".join(brief.split())
         + ("\n\nFIX FROM THE PREVIOUS ATTEMPT (it was rejected): " + correction
            if correction else "")
@@ -110,7 +122,8 @@ def judge(image: Path, brief: str) -> dict[str, Any]:
         "protocol's logo, markdown characters or overlap. Cyan or teal is "
         "NOT a reason to reject — the founder approved a poster with it — "
         "but name it in `fix` if present. `fix` says exactly what to change, "
-        "in one or two sentences.\n\nReturn JSON exactly:\n" + JUDGE_SCHEMA
+        "in one or two sentences." + _learned_rules()
+        + "\n\nReturn JSON exactly:\n" + JUDGE_SCHEMA
     )
     return R.brain_vision(prompt, [image, LOGO], agent="A07_creative_director",
                           system=JUDGE_SYSTEM, role="reasoning",

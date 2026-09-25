@@ -61,11 +61,21 @@ def add(image: str | Path, *, renderer: str, score: float, note: str = "",
     dest = EX_DIR / (digest + src.suffix.lower())
     if not dest.exists():
         shutil.copyfile(src, dest)
+    prior = next((r for r in _rows() if r.get("id") == digest), {})
     rows = [r for r in _rows() if r.get("id") != digest]      # re-rating replaces
+    # A re-rating adds to the note instead of replacing it: the founder's own
+    # words on a benchmark are what the agents learn from, and a later note
+    # (the Coach's, or a one-line approval) must not wipe them out.
+    new_note = " ".join(str(note).split())
+    old_note = str(prior.get("note") or "")
+    if old_note and new_note and new_note not in old_note:
+        new_note = old_note + " | " + new_note
+    elif old_note and not new_note:
+        new_note = old_note
     row = {"id": digest, "file": dest.name, "renderer": renderer,
            "score": max(0.0, min(1.0, float(score))),
-           "note": " ".join(str(note).split())[:500] or None,
-           "brief": " ".join(str(brief).split())[:600] or None,
+           "note": new_note[:900] or None,
+           "brief": " ".join(str(brief).split())[:600] or prior.get("brief") or None,
            "source": source, "from": str(src.name),
            "at": datetime.now(timezone.utc).isoformat()}
     rows.append(row)
