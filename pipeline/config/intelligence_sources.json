@@ -135,5 +135,40 @@
     "enabled": true,
     "days": 30,
     "limit": 5
+  },
+  "x_accounts": [
+    {
+      "handle": "StellarOrg",
+      "name": "Stellar Foundation"
+    },
+    {
+      "handle": "MorphoLabs",
+      "name": "Morpho"
+    },
+    {
+      "handle": "GearboxProtocol",
+      "name": "Gearbox Protocol"
+    },
+    {
+      "handle": "aave",
+      "name": "Aave"
+    },
+    {
+      "handle": "eulerfinance",
+      "name": "Euler Finance"
+    },
+    {
+      "handle": "gauntlet_xyz",
+      "name": "Gauntlet"
+    }
+  ],
+  "x_scraper": {
+    "enabled": true,
+    "actor": "apidojo~tweet-scraper",
+    "per_account": 3,
+    "max_items": 36,
+    "max_age_days": 7,
+    "timeout_s": 80,
+    "_note": "Needs APIFY_TOKEN in pipeline/.env. apidojo/tweet-scraper charges per tweet returned; max_items caps the cost of one run."
   }
 }

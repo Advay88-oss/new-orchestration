@@ -19,10 +19,12 @@ scrape runs the same on a laptop, on another machine and in a container:
                    page's content actually changed since the last scrape
   defillama        TVL movers from the DefiLlama API, no key
   defillama_hacks  recent exploits from the DefiLlama hacks API, no key
+  twitter          the protocols' X accounts through an Apify actor, with
+                   engagement counts; needs APIFY_TOKEN (paid per tweet,
+                   inside Apify's free monthly credit at this volume)
 
-The X/Twitter collector (OpenCLI driving the founder's logged-in Chrome) is
-gone: it could not run anywhere but one laptop, and reading X at volume is
-not free by any route. Two rules carried over from the previous version:
+The old X collector (OpenCLI driving the founder's logged-in Chrome) is gone:
+it could not run anywhere but one laptop. Two rules carried over:
 
   * A source that fails contributes nothing. No placeholder signal is ever
     made up — the Telegram and Blend "fallbacks" this replaces were fixed
@@ -449,6 +451,77 @@ class SocialAndDocsCollector:
                 DOCS_WATCH.write_text(json.dumps(watch, indent=1), encoding="utf-8")
             except Exception:                       # noqa: BLE001 — boundary
                 pass
+        return signals
+
+    # --------------------------------------------------------------------- X
+
+    def collect_x_signals(self) -> List[Dict[str, Any]]:
+        """Recent posts from the protocols' X accounts, through an Apify actor.
+
+        Needs APIFY_TOKEN (Apify's free plan carries monthly credit; the
+        default actor charges per tweet returned). Without the token the
+        source is simply empty — nothing is invented. One synchronous actor
+        run a scrape, capped at `max_items`, with the per-account cap applied
+        here so one busy account cannot take every slot.
+        """
+        token = _env("APIFY_TOKEN")
+        cfg = dict(self._CFG.get("x_scraper") or {})
+        accounts = self._CFG.get("x_accounts") or []
+        if not token or not accounts or not cfg.get("enabled", True):
+            return []
+        per = int(cfg.get("per_account", 3))
+        days = int(cfg.get("max_age_days", 7))
+        since = (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%d")
+        handles = [a["handle"] for a in accounts]
+        body = {
+            "searchTerms": ["from:" + h + " since:" + since + " -filter:replies" for h in handles],
+            "maxItems": int(cfg.get("max_items", per * len(handles) * 2)),
+            "sort": "Latest",
+            "tweetLanguage": "en",
+        }
+        actor = str(cfg.get("actor", "apidojo~tweet-scraper"))
+        url = ("https://api.apify.com/v2/acts/" + actor
+               + "/run-sync-get-dataset-items?timeout=" + str(int(cfg.get("timeout_s", 80))))
+        try:
+            items = json.loads(self._get(url, timeout=float(cfg.get("timeout_s", 80)) + 5,
+                                         headers={"Authorization": "Bearer " + token,
+                                                  "Content-Type": "application/json",
+                                                  "User-Agent": "brand-gtm-research/1.0"},
+                                         data=json.dumps(body).encode()))
+        except Exception:                           # noqa: BLE001 — no posts this run
+            return []
+        names = {a["handle"].lower(): a.get("name") or a["handle"] for a in accounts}
+        per_count: Dict[str, int] = {}
+        signals = []
+        for it in items if isinstance(items, list) else []:
+            author = (it.get("author") or {}).get("userName") or it.get("username") or ""
+            handle = str(author).lstrip("@").lower()
+            text = " ".join(str(it.get("text") or it.get("fullText") or "").split())
+            if handle not in names or not text or it.get("isRetweet"):
+                continue
+            if per_count.get(handle, 0) >= per:
+                continue
+            per_count[handle] = per_count.get(handle, 0) + 1
+            when = str(it.get("createdAt") or "")
+            try:
+                when = datetime.strptime(when, "%a %b %d %H:%M:%S %z %Y").astimezone(timezone.utc).isoformat()
+            except ValueError:
+                pass
+            link = it.get("url") or it.get("twitterUrl") or ("https://x.com/" + handle)
+            signals.append({
+                "signal_id": _sid("SIG-TWITTER-" + handle.upper(), text[:140]),
+                "headline": "[" + names[handle] + " on X] " + text[:200],
+                "description": text[:900],
+                "source": link,
+                "source_type": "X_POST_OBSERVED",
+                "derivation_provenance": "APIFY:" + actor,
+                "timestamp": when or datetime.now(timezone.utc).isoformat(),
+                "confidence": "HIGH",
+                "data": {"platform": "x", "handle": handle, "name": names[handle], "url": link,
+                         "likes": it.get("likeCount"), "reposts": it.get("retweetCount"),
+                         "replies": it.get("replyCount"), "quotes": it.get("quoteCount"),
+                         "views": it.get("viewCount")},
+            })
         return signals
 
     # -------------------------------------------------------------- defillama

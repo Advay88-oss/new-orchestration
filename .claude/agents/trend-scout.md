@@ -32,9 +32,9 @@ Run these **in parallel** where possible. Each source is blind to what the other
 | DefiLlama | `curl -s https://api.llama.fi/protocols` and `curl -s https://api.llama.fi/hacks` | TVL movement and recent exploits |
 | Semantic web | WebSearch | anything the above miss, including X posts that surface in search |
 
-Crypto Twitter is not scraped: reading X at volume is not free by any route, and
-the browser-bridge scraper that did it only ran on one laptop. When a trend on X
-matters, find it through WebSearch and the newsrooms that report it.
+Protocol accounts on X are read by the pipeline itself (A01, through Apify, when
+APIFY_TOKEN is set) — see the latest run's harvest.json for their posts and
+engagement. For wider X trends, use WebSearch and the newsrooms that report them.
 
 Two search axes, always both:
 

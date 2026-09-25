@@ -220,6 +220,7 @@ def collect_live(limit_per_source: int = 5) -> tuple[list[MarketSignal], dict[st
         "reddit": lambda: c.collect_reddit_signals(limit=limit_per_source),
         "telegram": lambda: c.collect_telegram_signals(),
         "news_feeds": lambda: c.collect_news_feed_signals(),
+        "twitter": lambda: c.collect_x_signals(),
         "gdelt": lambda: c.collect_gdelt_signals(queries),
         # Measured rather than editorial: TVL moves every day, so this source
         # produces genuinely new signals even in a week when nobody publishes.

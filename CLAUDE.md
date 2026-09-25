@@ -17,7 +17,8 @@ and `OKF-PACKS.md` before adding a company.
 ## Architecture — hybrid cloud/local
 
 Scraping uses only free public feeds and APIs (news RSS, Google News, GDELT,
-Reddit, Telegram channel previews, DefiLlama), so it runs anywhere. The
+Reddit, Telegram channel previews, DefiLlama) plus X via Apify (APIFY_TOKEN),
+so it runs anywhere. The
 dashboard is public on Cloud Run; the pipeline executes locally;
 **GCS is the seam between them**.
 
