@@ -152,11 +152,15 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
       }
 
       setRunResult({ run_id: runId, pid: data.pid, queued: true });
+      // Open the run straight away: its copy, poster and video appear there
+      // as each one is made. A run with a Veo video takes 10-15 minutes, and
+      // waiting for the end before showing anything looked like a dead run.
+      vm.openRun(runId);
 
       // Now follow it to completion. A cycle is 2-5 minutes (Veo dominates),
       // so this deadline is generous; the stage ticker above updates from
       // /api/progress while it runs.
-      const finishBy = Date.now() + 8 * 60_000;
+      const finishBy = Date.now() + 25 * 60_000;
       let finished = false;
       while (Date.now() < finishBy && !finished) {
         await new Promise((r) => setTimeout(r, 3000));
@@ -187,11 +191,8 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
       } catch {}
 
       if (!finished) {
-        setErrorMessage(
-          `${runId} is still running after 8 minutes — opening it anyway so you can watch the agents.`,
-        );
+        setErrorMessage(`${runId} is still running after 25 minutes. Check the run's stages for where it stopped.`);
       }
-      vm.openRun(runId);
     } catch (err: any) {
       setErrorMessage(err.message || "Network error while connecting to swarm.");
     } finally {

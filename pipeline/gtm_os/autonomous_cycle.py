@@ -241,6 +241,12 @@ def _render_direct(hook: str, body: str, subject: str,
     best = next((a for v in ("SHIP", "REVISE", "REJECT") for a in out["attempts"]
                  if str(a.get("verdict")).upper() == v), out["attempts"][-1])
     png = Path(out["final"])
+    # The poster's own stage row. Without it A08's only row on a run was
+    # "meme not requested", and a run that made a poster showed A08 skipped.
+    R.record_stage("A08_visual_synthesis", "ok",
+                   "poster by " + MODEL + " from the approved posters and the "
+                   "design references; own judge " + "/".join(verdicts),
+                   outputs=[str(png)])
     return {"path": str(png), "filename": png.name,
             "archetype": "DIRECT_MODEL",
             "visual_review": {k: best.get(k) for k in ("verdict", "fix")},
@@ -874,6 +880,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 "copy": str(getattr(v, "copy", ""))[:4000]}
             for k, v in (content_pkg.channel_posts or {}).items()
         }
+        _checkpoint(summary, rid)
 
         # A07 — Creative Director System
         blueprint = _stage(
@@ -910,6 +917,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 summary["poster_layout"] = visual["poster_layout"]
             summary["visual_why"] = visual.get("why")
             summary["visual_public_url"] = visual.get("public_url")
+            _checkpoint(summary, rid)
 
         # Meme — same agent, nano banana pro
         if not wanted["meme"]:
@@ -932,6 +940,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                            required=False, self_recorded=True)
             if video:
                 summary["video_path"] = video
+                _checkpoint(summary, rid)
         else:
             R.record_stage("A09_video_production", "skipped",
                            "video disabled for this run (--no-video)")
@@ -1382,6 +1391,27 @@ def _run_learning(summary: Optional[dict] = None):
                 "when the sample is too small to support the adjustment."),
         temperature=0.2, max_output_tokens=1024)
     return {"adjustments": len(rows), "verdict": verdict, "preferences": learned}
+
+
+def _checkpoint(summary: dict, rid: str) -> None:
+    """What the run has made so far, for the dashboard while it runs.
+
+    `summary.json` is written once, at the end, and several routes read its
+    absence as "still running" — so the run in flight writes `partial.json`
+    instead, each time the copy, the poster or the video lands. A run with a
+    Veo clip takes 10-15 minutes, and until this the dashboard showed nothing
+    at all for that whole time. Never raises.
+    """
+    try:
+        d = RUNS_DIR / rid
+        d.mkdir(parents=True, exist_ok=True)
+        tmp = d / "partial.json.tmp"
+        tmp.write_text(json.dumps({**summary, "status": "running",
+                                   "checkpoint_at": datetime.now(timezone.utc).isoformat()},
+                                  indent=2, default=str), encoding="utf-8")
+        tmp.replace(d / "partial.json")
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
 
 
 def _finish(summary: dict, t0: float, rid: str) -> dict:

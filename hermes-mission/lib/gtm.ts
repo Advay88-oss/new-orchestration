@@ -143,6 +143,23 @@ export async function gtmRunSummary(runId: string): Promise<any | null> {
 }
 
 /**
+ * What a run in flight has produced so far.
+ *
+ * The cycle writes `partial.json` each time the copy, the poster or the video
+ * is ready. `summary.json` stays the "finished" marker other routes rely on,
+ * so this is a separate file, always read as status "running".
+ */
+async function gtmRunPartial(runId: string): Promise<any | null> {
+  const raw = await runFile(runId, 'partial.json');
+  if (!raw) return null;
+  try {
+    return { ...JSON.parse(raw), status: 'running' };
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Per-agent status for one run, or for the latest run when none is given.
  *
  * `status` comes from stages.jsonl; the token and call counts come from
@@ -219,7 +236,9 @@ export async function gtmRunDetail(runId?: string) {
   // A run in flight has a journal but no summary.json yet — it is written when
   // the cycle finishes. Returning null 404'd the whole view for the two-to-four
   // minutes a cycle takes, which is exactly when someone is watching it.
-  const s = (await gtmRunSummary(rid)) ?? { status: 'running' };
+  // A run in flight shows what it has made so far — the copy, the poster,
+  // the video — as each one lands, not only once the cycle closes.
+  const s = (await gtmRunSummary(rid)) ?? (await gtmRunPartial(rid)) ?? { status: 'running' };
   const { agents } = await gtmAgents(rid);
 
   return {
@@ -320,7 +339,7 @@ export async function gtmArtifact(
     return got ? { body: Buffer.from(got.body), contentType: type } : null;
   }
 
-  const s = await gtmRunSummary(runId);
+  const s = (await gtmRunSummary(runId)) ?? (await gtmRunPartial(runId));
   if (!s) return null;
   const raw = kind === 'visual' ? s.visual_path : kind === 'meme' ? s.meme_path : s.video_path;
   if (!raw) return null;
