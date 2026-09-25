@@ -1,0 +1,114 @@
+{
+  "tenant": "vanna",
+  "company": "Vanna",
+  "profile_seed": "pipeline/brand_brain/seeds/vanna.profile.json",
+  "knowledge": [
+    {
+      "kind": "markdown_dir",
+      "path": "pipeline/brain/docs",
+      "source": "docs",
+      "authority": 2,
+      "label": "docs",
+      "url_template": "https://docs.vanna.finance/{path}",
+      "path_sep": "__"
+    },
+    {
+      "kind": "markdown_file",
+      "path": "pipeline/brain/knowledge/notion-ground-truth.md",
+      "source": "notion",
+      "authority": 1,
+      "label": "Notion ground truth"
+    },
+    {
+      "kind": "markdown_file",
+      "path": "pipeline/brain/knowledge/creative-rules.md",
+      "source": "rulebook",
+      "authority": 1,
+      "label": "creative rulebook",
+      "content_type": "rule"
+    },
+    {
+      "kind": "markdown_file",
+      "path": "pipeline/brain/knowledge/motion-direction.md",
+      "source": "rulebook",
+      "authority": 1,
+      "label": "motion direction",
+      "content_type": "rule"
+    },
+    {
+      "kind": "markdown_glob",
+      "path": "pipeline/brain/knowledge",
+      "glob": "*.md",
+      "source": "knowledge-pack",
+      "authority": 3,
+      "label": "internal knowledge pack",
+      "exclude": [
+        "notion-ground-truth.md",
+        "creative-rules.md",
+        "motion-direction.md",
+        "learned-rules.md"
+      ]
+    },
+    {
+      "kind": "git_markdown",
+      "path": "files",
+      "source": "archive",
+      "authority": 4,
+      "label": "archived knowledge base (Aug 2026)"
+    }
+  ],
+  "images": [
+    {
+      "kind": "exemplar_index",
+      "path": "pipeline/brain/visual_exemplars/exemplars.jsonl",
+      "dir": "pipeline/brain/visual_exemplars",
+      "image_kind": "approved_poster"
+    },
+    {
+      "kind": "video_index",
+      "path": "pipeline/brain/video_exemplars/exemplars.jsonl",
+      "dir": "pipeline/brain/video_exemplars",
+      "image_kind": "video_still"
+    },
+    {
+      "kind": "image_glob",
+      "path": "design references",
+      "glob": "*.png",
+      "image_kind": "reference"
+    },
+    {
+      "kind": "image_file",
+      "path": "pipeline/state/logo.png",
+      "image_kind": "logo"
+    }
+  ],
+  "competitor_handles": {
+    "morpholabs": "Morpho",
+    "gearboxprotocol": "Gearbox Protocol",
+    "aave": "Aave",
+    "eulerfinance": "Euler"
+  },
+  "sync": [
+    {
+      "name": "docs",
+      "kind": "llms_txt",
+      "index_url": "https://docs.vanna.finance/llms.txt",
+      "host": "docs.vanna.finance",
+      "forbidden_hosts": [
+        "vanna.finance",
+        "www.vanna.finance"
+      ],
+      "cache_dir": "pipeline/brain/docs",
+      "max_pages": 40,
+      "max_age_s": 86400,
+      "prefixes": [
+        "/learn/",
+        "/developers/",
+        "/guides/margin/",
+        "/guides/how-vanna-works",
+        "/guides/earn/",
+        "/guides/for-"
+      ]
+    }
+  ]
+}

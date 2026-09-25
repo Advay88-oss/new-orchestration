@@ -61,9 +61,9 @@ class ChannelReviewer:
         distinctness_score = int(100 - (overlap_x_li * 35 + overlap_li_rd * 35))
 
         # 2. Check for Prohibited Strings Across All Channels
-        prohibited_terms = [
-            "aave of stellar", "mainnet live", "uncontested first-mover", "zero competitors exist", "pivotal moment"
-        ]
+        from pipeline.brand_brain import context as C
+        prohibited_terms = [s.lower() for s in (C.profile().get("claims", {}).get("blocked_phrases") or [])]
+        disclosure = C.disclosure().lower()
         for ch_name, p in posts.items():
             ch_issues: List[str] = []
             text_lower = p.copy.lower()
@@ -86,8 +86,8 @@ class ChannelReviewer:
                 if len(p.hook or "") > 280:
                     ch_issues.append(f"X hook exceeds one tweet ({len(p.hook)} chars)")
             elif ch_name == "reddit":
-                if "disclosure" not in text_lower and "testnet" not in text_lower:
-                    ch_issues.append("Reddit post lacks required builder testnet disclosure")
+                if disclosure and "disclosure" not in text_lower and disclosure not in text_lower:
+                    ch_issues.append("Reddit post lacks the required '" + disclosure + "' disclosure")
                 if not p.discussion_question:
                     ch_issues.append("Reddit post missing community discussion question")
             elif ch_name == "linkedin":

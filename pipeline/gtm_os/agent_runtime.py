@@ -73,7 +73,7 @@ AGENT_ROLES: dict[str, str] = {
     "A07_creative_director":    "reasoning",
     "A08_visual_synthesis":     "image",
     "A09_video_production":     "video",
-    "A10_reviewer_firewall":    "none",
+    "A10_reviewer_firewall":    "reasoning",
     "A11_dispatch_worker":      "none",
     "A12_telegram_gateway":     "none",
     "A13_learning_engine":      "reasoning",

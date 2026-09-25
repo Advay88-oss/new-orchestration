@@ -31,27 +31,25 @@ from typing import Any, Iterable, Optional
 MAX_PROPOSALS = 4
 
 SYSTEM = (
-    "You turn raw market signals into concrete content proposals for Vanna, "
-    "composable credit infrastructure on Stellar Soroban TESTNET.\n\n"
-    "For each signal, propose one piece of content Vanna could credibly make. "
+    "You turn raw market signals into concrete content proposals for "
+    "{company_line}\n\n"
+    "For each signal, propose one piece of content {company} could credibly make. "
     "Rules:\n"
-    "- Vanna's angle must be architectural and specific: isolated SmartAccount "
-    "sandboxes, per-borrower collateral, composable credit lines, deterministic "
-    "liquidation. Never a generic take.\n"
-    "- If Vanna has nothing genuine to say about a signal, set "
+    "- {company}'s angle must be architectural and specific, from what it "
+    "concretely is ({anchors}). Never a generic take.\n"
+    "- If {company} has nothing genuine to say about a signal, set "
     '"worth_making": false and say why. A thin proposal is worse than none.\n'
     "- Cite only figures that appear in the signal text. Invent no numbers, no "
     "TVL, no percentages, no dates.\n"
-    "- Never imply mainnet. Never name a competitor as inferior.\n"
+    "- Never contradict the deployment ({deployment}). Never name a competitor as inferior.\n"
     "- format is one of: THREAD, LINKEDIN_POST, REDDIT_DEEPDIVE, MEME, VIDEO.\n\n"
     "Also give the creative direction, because a proposal the founder cannot "
     "picture is not actionable:\n"
-    "- visual_direction: what the still should show. Vanna's house style is a "
-    "deep obsidian ground with restrained violet and pink, flat and "
-    "diagrammatic — isolated enclosures, conduits, sealed chambers. Never "
-    "photorealism, 3D renders, charts, candlesticks, coins, rockets or logos.\n"
+    "- visual_direction: what the still should show, in the house style "
+    "({house_style}). Never photorealism, 3D renders, charts, candlesticks, "
+    "coins, rockets or logos.\n"
     "- video_direction: the motion treatment in one or two sentences — a "
-    "locked-off camera on Vanna-coloured ground with simple transitions and "
+    "locked-off camera on {company}-coloured ground with simple transitions and "
     "basic motion graphics. No cinematic camera moves.\n"
     "- gtm_play: the distribution move in one sentence — which channel leads, "
     "what the follow-up is, and who it is aimed at.\n\n"
@@ -94,7 +92,7 @@ def propose(signals: Iterable[Any], run_id: Optional[str] = None,
             "visual_direction, video_direction and gtm_play are ONE sentence "
             "each, under 25 words. Keep angle under 30 words. "
             "skip_reason only when worth_making is false.",
-            agent="A02_opportunity_selector", role="reasoning", system=SYSTEM,
+            agent="A02_opportunity_selector", role="reasoning", system=__import__('pipeline.brand_brain.context', fromlist=['fill']).fill(SYSTEM),
             temperature=0.8, max_output_tokens=8192, run_id=run_id)
     except Exception:                               # noqa: BLE001 — boundary
         # A failed proposal step must not fail a cycle; the run's own work is

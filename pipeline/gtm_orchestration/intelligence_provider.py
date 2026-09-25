@@ -53,7 +53,7 @@ class IntelligenceProvider:
                 headline=op.get("title", op.get("marketing_angle", "DeFi Lending Opportunity")),
                 description=f"{op.get('whitespace_inference', '')} {op.get('vanna_fact', '')}".strip(),
                 market_category="LENDING",
-                entities_involved=["soroban", "blend", "aquarius", "aave", "morpho"],
+                entities_involved=list(__import__("pipeline.brand_brain.context", fromlist=["profile"]).profile().get("known_entities") or [])[:5],
                 observed_metric_change="P0/P1 Priority Gap",
                 source=str(self.brain_dir / "opportunities.jsonl"),
                 source_root=source_root_str,
@@ -217,59 +217,24 @@ class IntelligenceProvider:
         )
 
     def get_vanna_capabilities(self) -> Dict[str, Any]:
-        """Load verified claims, positioning pillars, and invariants."""
-        claims_path = self.knowledge_dir / "approved-claims.md"
-        pos_path = self.knowledge_dir / "positioning.md"
-        claims_text = claims_path.read_text(encoding="utf-8") if claims_path.exists() else ""
-        pos_text = pos_path.read_text(encoding="utf-8") if pos_path.exists() else ""
+        """The tenant's claims, pillars and positioning — from its brand brain.
 
+        The name is kept for the callers; the content is no longer Vanna's
+        by construction. It used to be six approved claims, five prohibited
+        ones and three pillars typed into this method.
+        """
+        from pipeline.brand_brain import context as C
         return {
-            "approved_claims": [
-                "Dedicated on-chain SmartAccount sandboxes isolate borrowing risk",
-                "Up to 10x leverage deployed composably into external DeFi (Blend b-tokens, Aquarius LPs)",
-                "Sub-second liquidation defense via Mercury event streaming (~320ms)",
-                "Fixed micro-gas transactions at 0.00014 XLM (< $0.0001 USD)",
-                "Dual-sided protocol: LPs deposit XLM/USDC into LendingPools for vToken yield",
-                "Strict testnet deployment at test.stellar.vanna.finance (No live mainnet token claims)"
-            ],
-            "prohibited_claims": [
-                "Calling Vanna 'The Aave of Stellar'",
-                "Claiming mainnet live or advertising fake mainnet TVL",
-                "Guaranteeing zero liquidation risk or fully hedged returns without risk parameters",
-                "Claiming custody or unrestricted autonomous fund withdrawal",
-                "Claiming uncontested first mover advantage or zero competitors without market census"
-            ],
-            "positioning_pillars": [
-                "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
-                "Pillar 2: Isolated SmartAccount Sandboxes (Contagion Elimination)",
-                "Pillar 3: Sub-Second Defensive Rebalancing"
-            ],
-            "raw_claims_doc": claims_text,
-            "raw_positioning_doc": pos_text
+            "approved_claims": C.approved_claims(),
+            "prohibited_claims": C.prohibited_claims(),
+            "positioning_pillars": C.pillars(),
+            "true_figures": C.true_figures(),
+            "company": C.company_line(),
+            "raw_claims_doc": "",
+            "raw_positioning_doc": "",
         }
 
     def get_audience_segments(self) -> List[Dict[str, Any]]:
-        """Query verified audience segmentation from knowledge/internal/audience.md."""
-        return [
-            {
-                "segment_id": "A1",
-                "name": "Stellar & Soroban DeFi Farmers",
-                "core_pain": "Capital drag from idle deposits; high friction jumping between DEX and lending tabs",
-                "objections": ["Liquidation fear", "Smart contract security", "Complexity of looping"],
-                "value_prop": "1-click composable leverage deployed directly into Blend BLUSDC and Aquarius pools"
-            },
-            {
-                "segment_id": "A2",
-                "name": "EVM Migrants & Quantitative Traders",
-                "core_pain": "Mempool front-running, $40 gas spikes during volatility, 10% liquidation penalties",
-                "objections": ["Stellar liquidity depth", "Execution reliability"],
-                "value_prop": "Sub-second rebalancing (~320ms) at $0.00014 gas with zero mempool bidding wars"
-            },
-            {
-                "segment_id": "A3",
-                "name": "Institutional Liquidity Providers",
-                "core_pain": "Socialized bad debt and pool contamination from volatile collateral assets",
-                "objections": ["Smart contract isolation", "Oracle manipulation vulnerability"],
-                "value_prop": "Core LendingPool protected by isolated borrower sandboxes and 1.10x Health Factor floor"
-            }
-        ]
+        """The tenant's audience segments, from its brand profile."""
+        from pipeline.brand_brain import context as C
+        return C.audiences()

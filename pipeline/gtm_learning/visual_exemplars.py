@@ -83,6 +83,12 @@ def add(image: str | Path, *, renderer: str, score: float, note: str = "",
     tmp.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n",
                    encoding="utf-8")
     tmp.replace(INDEX)
+    # Into the brand brain's visual memory, where the image agent looks.
+    try:
+        from pipeline.brand_brain.onboard import remember_image
+        remember_image(dest, kind="approved_poster", score=row["score"], note=row["note"] or "")
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
     return row
 
 

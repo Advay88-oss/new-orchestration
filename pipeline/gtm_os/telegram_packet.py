@@ -91,8 +91,7 @@ class TelegramPacketBuilder:
             reviewer_score=getattr(review_result, "score", 95),
             confidence_dimensions=conf_dict,
             known_limitations=[
-                "Deployments live on Stellar Testnet only (no live mainnet claims permitted)",
-                "Sub-second event monitoring relies on active Mercury indexer ledger sync"
+                "Deployment: " + str(__import__('pipeline.brand_brain.context', fromlist=['profile']).profile().get("company", {}).get("deployment", "")),
             ],
             expected_cta=strategy.cta,
             exact_action_requested="Approve distribution of X thread lead, LinkedIn executive brief, and Reddit technical discussion."
@@ -103,7 +102,7 @@ class TelegramPacketBuilder:
     def render_telegram_markdown(packet: FullHumanApprovalPacket) -> str:
         """Render the packet into Telegram MarkdownV2 compatible text."""
         lines = [
-            f"🔔 *VANNA GTM ORCHESTRATION APPROVAL GATE* `{packet.packet_id}`\n",
+            f"🔔 *{__import__('pipeline.brand_brain.context', fromlist=['company_name']).company_name().upper()} GTM APPROVAL GATE* `{packet.packet_id}`\n",
             f"🎯 *Strategic Objective:* {packet.strategic_objective}",
             f"👥 *Target Audience:* {packet.why_this_audience}",
             f"⚙️ *GTM Machine:* `{packet.selected_machine.get('name')}` ({packet.selected_machine.get('status')})\n",

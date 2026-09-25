@@ -1,0 +1,413 @@
+{
+  "schema": "brand-profile/1",
+  "company": {
+    "name": "Vanna",
+    "legal_name": "Vanna Protocol",
+    "one_liner": "Composable credit for DeFi",
+    "what_it_is": "A composable credit / unified margin protocol for DeFi: users deposit collateral into a per-borrower smart-contract margin account (SmartAccount) and borrow credit against it, deployable across integrated venues rather than trapped in one protocol.",
+    "category": "DeFi credit infrastructure",
+    "deployment": "Stellar Soroban TESTNET. Not mainnet. All EVM-chain references are roadmap, not current state.",
+    "stage": "testnet",
+    "website": "https://vanna.finance",
+    "docs_url": "https://docs.vanna.finance",
+    "app_url": "https://test.stellar.vanna.finance",
+    "claim_sources": [
+      "docs.vanna.finance",
+      "notion ground truth"
+    ],
+    "not_claim_sources": [
+      "vanna.finance (marketing / vision site)"
+    ]
+  },
+  "voice": {
+    "tone": [
+      "professional",
+      "educational",
+      "confident",
+      "plain language, mechanism first",
+      "never hype"
+    ],
+    "do": [
+      "State the mechanism, not an adjective",
+      "Compare jobs-to-be-done ('X vs Vanna'), never superiority",
+      "Say testnet wherever capability is described",
+      "Label any worked example as illustrative"
+    ],
+    "dont": [
+      "Crypto hype register (moon, wen, WAGMI, LFG, gm, ape, degen)",
+      "Exclamation marks",
+      "FOMO or scarcity pressure",
+      "'leverage' as a verb meaning 'use'",
+      "Calling any competitor inferior",
+      "Implying mainnet, TVL, a token, points or an audit"
+    ],
+    "banned_words": [
+      "revolutionary",
+      "game-changer",
+      "game-changing",
+      "next-gen",
+      "seamlessly",
+      "moon",
+      "WAGMI",
+      "LFG",
+      "degen"
+    ],
+    "cta_style": "One plain, specific action; no urgency",
+    "cta": "Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+    "required_disclosure": "testnet"
+  },
+  "audiences": [
+    {
+      "segment_id": "A1",
+      "name": "Stellar & Soroban DeFi Farmers",
+      "core_pain": "Capital drag from idle deposits; high friction jumping between DEX and lending tabs",
+      "objections": [
+        "Liquidation fear",
+        "Smart contract security",
+        "Complexity of looping"
+      ],
+      "value_prop": "1-click composable leverage deployed directly into Blend BLUSDC and Aquarius pools"
+    },
+    {
+      "segment_id": "A2",
+      "name": "EVM Migrants & Quantitative Traders",
+      "core_pain": "Mempool front-running, $40 gas spikes during volatility, 10% liquidation penalties",
+      "objections": [
+        "Stellar liquidity depth",
+        "Execution reliability"
+      ],
+      "value_prop": "Sub-second rebalancing (~320ms) at $0.00014 gas with zero mempool bidding wars"
+    },
+    {
+      "segment_id": "A3",
+      "name": "Institutional Liquidity Providers",
+      "core_pain": "Socialized bad debt and pool contamination from volatile collateral assets",
+      "objections": [
+        "Smart contract isolation",
+        "Oracle manipulation vulnerability"
+      ],
+      "value_prop": "Core LendingPool protected by isolated borrower sandboxes and 1.10x Health Factor floor"
+    }
+  ],
+  "pillars": [
+    "Pillar 1: Composable Credit Infrastructure on Stellar Soroban",
+    "Pillar 2: Isolated SmartAccount Sandboxes (Contagion Elimination)",
+    "Pillar 3: Sub-Second Defensive Rebalancing"
+  ],
+  "claims": {
+    "approved": [
+      "Dedicated on-chain SmartAccount sandboxes isolate borrowing risk",
+      "Up to 10x leverage deployed composably into external DeFi (Blend b-tokens, Aquarius LPs)",
+      "Sub-second liquidation defense via Mercury event streaming (~320ms)",
+      "Fixed micro-gas transactions at 0.00014 XLM (< $0.0001 USD)",
+      "Dual-sided protocol: LPs deposit XLM/USDC into LendingPools for vToken yield",
+      "Strict testnet deployment at test.stellar.vanna.finance (No live mainnet token claims)"
+    ],
+    "prohibited": [
+      "Calling Vanna 'The Aave of Stellar'",
+      "Claiming mainnet live or advertising fake mainnet TVL",
+      "Guaranteeing zero liquidation risk or fully hedged returns without risk parameters",
+      "Claiming custody or unrestricted autonomous fund withdrawal",
+      "Claiming uncontested first mover advantage or zero competitors without market census"
+    ],
+    "true_figures": [
+      {
+        "value": "1.10x",
+        "meaning": "health factor liquidation floor"
+      },
+      {
+        "value": "1.25x",
+        "meaning": "defensive rebalance trigger"
+      },
+      {
+        "value": "0.00014 XLM",
+        "meaning": "fixed micro-gas per transaction"
+      },
+      {
+        "value": "~320ms",
+        "meaning": "Mercury event indexing"
+      },
+      {
+        "value": "up to 10x",
+        "meaning": "leverage from a SmartAccount (testnet)"
+      }
+    ],
+    "never_state": [
+      "user counts",
+      "TVL",
+      "APY",
+      "percentages",
+      "token prices"
+    ],
+    "blocked_phrases": [
+      "aave of stellar",
+      "mainnet live",
+      "uncontested first-mover",
+      "zero competitors exist",
+      "pivotal moment"
+    ]
+  },
+  "partners": {
+    "Stellar": "chain — current deployment",
+    "Soroswap": "spot / AMM (Stellar)",
+    "Aquarius": "spot / AMM (Stellar)",
+    "Blend": "lending (Stellar)",
+    "Hyperliquid": "perps",
+    "Aster": "perps",
+    "Avantis": "perps",
+    "Derive": "options (via Optimism)",
+    "Optimism": "chain — accessed via Derive",
+    "Uniswap": "spot / AMM",
+    "Aerodrome": "spot / AMM",
+    "Morpho": "lending",
+    "Katana": "yield",
+    "Privy": "wallet / auth infrastructure",
+    "ZeroDev": "account abstraction infrastructure",
+    "Draper University": "backer",
+    "Pivot Ventures": "backer",
+    "Gitcoin": "backer / ecosystem"
+  },
+  "partner_rule": "This is the whole list. A relationship with anything not on it is fabricated.",
+  "competitors": [
+    {
+      "name": "Morpho",
+      "handle": "Morpho",
+      "focus": "Peer-to-peer lending optimization on EVM"
+    },
+    {
+      "name": "Gearbox Protocol",
+      "handle": "GearboxProtocol",
+      "focus": "Credit accounts for leverage on EVM"
+    },
+    {
+      "name": "Aave",
+      "handle": "aave",
+      "focus": "Monolithic pooled liquidity market"
+    },
+    {
+      "name": "Compound",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Euler",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Maker",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Sky Protocol",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Spark",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Kamino",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Solend",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Venus",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Radiant",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Fluid",
+      "focus": "pooled lending"
+    },
+    {
+      "name": "Silo",
+      "focus": "pooled lending"
+    }
+  ],
+  "competitor_rule": "Never name a competitor in content; say 'pooled lending'. Competitor patterns are studied, never copied.",
+  "visual": {
+    "palette": {
+      "ground": "#07020D",
+      "glow_low_left": "#471485",
+      "glow_high_right": "#5E0D46",
+      "accent": "#A387FF",
+      "risk": "#FC5457",
+      "text": "#FFFFFF",
+      "muted": "#A9A9A9",
+      "gradient_word": "pink-to-violet"
+    },
+    "palette_usage": {
+      "ground": 0.8,
+      "glows": 0.1,
+      "accent": 0.05,
+      "risk": 0.02,
+      "text": 0.03,
+      "_basis": "estimate from the approved posters; the website analyzer measures it"
+    },
+    "palette_needs_review": true,
+    "palette_candidates": [
+      {
+        "name": "gtm tokens (used by the creative director)",
+        "source": "pipeline/gtm_orchestration/creative_director.py",
+        "colors": {
+          "obsidian_void": "#07020D",
+          "royal_violet_bloom": "#471485",
+          "fuchsia_magenta_bloom": "#5E0D46",
+          "lavender_accent": "#A387FF",
+          "coral_risk": "#FC5457",
+          "cyan_telemetry": "#22D3C4",
+          "neutral_white": "#FFFFFF"
+        }
+      },
+      {
+        "name": "OKF social-card palette",
+        "source": "pipeline/system1_extracted/okf/brand/palette.md",
+        "colors": {
+          "background": "#0D0616",
+          "violet": "#703AE6",
+          "violet_light": "#9F7BEE",
+          "rose": "#FF007A",
+          "red": "#FC5457",
+          "blue": "#32EEE2"
+        }
+      },
+      {
+        "name": "visual concept templates",
+        "source": "pipeline/gtm_creative/visual_creative_director.py",
+        "colors": {
+          "ground": "#080310",
+          "magenta": "#C73770",
+          "violet": "#7430CC"
+        }
+      }
+    ],
+    "avoid_colors": [
+      "cyan",
+      "teal"
+    ],
+    "fonts": {
+      "display": "Plus Jakarta Sans",
+      "mono": "JetBrains Mono"
+    },
+    "logo": {
+      "path": "pipeline/state/logo.png",
+      "description": "the ribbon mark and the lowercase wordmark 'vanna', centred at the top; never the old cube logo, never an invented mark"
+    },
+    "house_style": "very dark ground with a soft violet glow low-left and a magenta glow high-right; the logo centred at the top; a heavy bold sans-serif headline, centred, sentence case, under 9 words, with ONE key word or short phrase in a pink-to-violet gradient italic; one short grey subtitle line; a clean centrepiece of flat glass UI elements (cards, chips, rows with checkmarks, pills, arrows, stat tiles or a simple diagram) that explains the idea; a footer of a few bold white words then a short grey caveat that says testnet",
+    "anchors": {
+      "chain": "Stellar Soroban (TESTNET — never depict or imply mainnet)",
+      "account": "SmartAccount — a per-borrower contract instance with its own isolated storage, drawn as a discrete sealed unit, never a shared pool",
+      "venues": "Blend (b-tokens) and Aquarius (LP shares) — the external DeFi venues Vanna deploys credit into",
+      "risk": "Health factor with a 1.10x liquidation floor and a 1.25x defensive-rebalance trigger",
+      "telemetry": "Mercury event streaming, sub-second (~320ms)",
+      "fees": "Fixed micro-gas at 0.00014 XLM, no priority-fee auction"
+    },
+    "prohibited": "ANY cryptocurrency glyph, symbol or coin — no Bitcoin B, no Ethereum diamond, no XLM or Stellar logo, no generic coin or token prop of any metal or colour, no vaults or safes holding coins. Vanna is credit infrastructure, not a currency, and a coin in frame advertises the wrong product. Also never: mainnet or live-trading cues, token price, ticker symbols, candlestick charts, price arrows, lambos, rockets, moons, bulls or bears, neon cyberpunk grids, hooded hackers, stock-photo handshakes, any competitor logo",
+    "disclosure_footer": "Stellar Soroban · testnet"
+  },
+  "open_questions": [
+    "Morpho is on the confirmed partner list (lending) and also on the competitor list — which is it?",
+    "Three brand palettes are in use (see visual.palette_candidates); confirm the canonical one."
+  ],
+  "relevance_terms": [
+    "liquidat",
+    "margin",
+    "leverage",
+    "collateral",
+    "credit",
+    "lending",
+    "borrow",
+    "bad debt",
+    "contagion",
+    "solvency",
+    "insolven",
+    "risk",
+    "vault",
+    "money market",
+    "loan",
+    "ltv",
+    "health factor",
+    "oracle",
+    "soroban",
+    "stellar",
+    "smart account",
+    "account abstraction",
+    "yield",
+    "stablecoin",
+    "restaking",
+    "rwa",
+    "tokeniz"
+  ],
+  "known_entities": [
+    "Aave",
+    "Morpho",
+    "Compound",
+    "Euler",
+    "Gearbox",
+    "Maker",
+    "Sky",
+    "Spark",
+    "Curve",
+    "Convex",
+    "Blend",
+    "Stellar",
+    "Soroban",
+    "Solana",
+    "Ethereum",
+    "Uniswap",
+    "Lido",
+    "EigenLayer",
+    "Pendle",
+    "Ethena",
+    "Hyperliquid",
+    "Ripple",
+    "Circle",
+    "Tether",
+    "Coinbase",
+    "Binance",
+    "Visa",
+    "Mastercard",
+    "Gauntlet",
+    "Chainlink",
+    "Arbitrum",
+    "Base",
+    "Optimism",
+    "Avalanche",
+    "Benqi",
+    "Suilend",
+    "Kamino",
+    "MarginFi",
+    "Radiant",
+    "Silo"
+  ],
+  "arguments": [
+    {
+      "name": "capital efficiency",
+      "claim": "composable credit: borrowed credit stays usable across venues instead of being trapped in one protocol, so the same collateral does more work",
+      "subjects": "liquidity, fragmented capital, idle collateral, margin across venues and composability"
+    },
+    {
+      "name": "risk isolation",
+      "claim": "per-borrower SmartAccount sandboxes versus pooled debt, a 1.10x liquidation floor, deterministic liquidation",
+      "subjects": "liquidation, bad debt, contagion and insolvency"
+    }
+  ],
+  "arguments_note": "Both apply to stories on any chain. A pooled-lending failure on Ethereum is a strong signal precisely because it demonstrates the problem Vanna solves; rejecting it for being 'EVM-centric' or 'not directly about Soroban' is a misreading.",
+  "machine_adaptations": {
+    "MACH_01_PHASED_TECHNICAL_LAUNCH": "Release Vanna 14-smart contract Soroban formal audit breakdown prior to opening testnet SmartAccount sandboxes.",
+    "MACH_02_B2B_PARTNER_ONBOARDING": "Coordinated integration announcements with Blend Protocol (BLUSDC borrowing) and Aquarius AMM (liquidity routing).",
+    "MACH_03_COMPETITOR_DISPLACEMENT": "Contrast EVM $40 mempool liquidation spikes against Soroban $0.00014 sub-second rebalancing.",
+    "MACH_04_TECHNICAL_TELEMETRY_SERIES": "Weekly breakdown of Mercury indexer sub-second event logs and simulated rebalance execution.",
+    "MACH_05_MARKET_DATA_BENCHMARK": "Publish Vanna's exact RateModel polynomial equation: R(U) = R0 + alpha*U + beta*U^2 with verified coordinate charts.",
+    "MACH_06_INSTITUTIONAL_CREDIBILITY": "Explain Soroban scoped session keys: keepers can only rebalance collateral within bounds, never withdraw funds.",
+    "MACH_07_ECOSYSTEM_EXPANSION": "Walk through 1-click execution: Deposit XLM -> 10x Margin Account -> Deploy Blend BLUSDC + Aquarius AMM LP.",
+    "MACH_08_INCENTIVE_POINTS_CAMPAIGN": "Unapproved for autonomous execution until Vanna launches an official Sybil-resistant points engine.",
+    "MACH_09_DEVELOPER_SDK_ADOPTION": "Release npm and rust SDK for Soroban contract integration.",
+    "MACH_10_VIRAL_MEME_BOUNTY": "Strictly prohibited by Vanna positioning rules (never use meme hype)."
+  }
+}

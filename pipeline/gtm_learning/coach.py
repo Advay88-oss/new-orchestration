@@ -35,7 +35,7 @@ STATE = Path(__file__).resolve().parents[2] / "pipeline" / "state"
 COACH_STATE = STATE / "coach_state.json"
 
 SYSTEM = (
-    "You are the Coach for Vanna's creative agents. You look at what they "
+    "You are the Coach for {company}'s creative agents. You look at what they "
     "made and turn what went wrong, or right, into guidance they follow next "
     "time. Rules must be GENERAL — about how posters and clips are asked for "
     "and checked — never about one topic. Be concrete: 'keep every element "
@@ -116,7 +116,7 @@ def review_run(s: dict, run_id: Optional[str] = None) -> list[str]:
         'Return JSON: {"rules": [{"rule": str (one sentence, general), '
         '"because": str (what you saw)}]}')
     try:
-        out = R.brain_vision(prompt, imgs, agent=AGENT, system=SYSTEM, role="director",
+        out = R.brain_vision(prompt, imgs, agent=AGENT, system=__import__('pipeline.brand_brain.context', fromlist=['fill']).fill(SYSTEM), role="director",
                              temperature=0.2, max_output_tokens=4096, run_id=run_id)
     except Exception:                               # noqa: BLE001 — boundary
         return []
@@ -175,7 +175,7 @@ def learn_from_decisions() -> dict[str, int]:
         try:
             out = R.brain_vision("ATTACHED: " + labels + ".\nTHE BRIEF: "
                                  + str(s.get("poster_brief") or s.get("directive") or "")[:900]
-                                 + "\n\n" + ask, imgs, agent=AGENT, system=SYSTEM,
+                                 + "\n\n" + ask, imgs, agent=AGENT, system=__import__('pipeline.brand_brain.context', fromlist=['fill']).fill(SYSTEM),
                                  role="director", temperature=0.2, max_output_tokens=4096)
         except Exception:                           # noqa: BLE001 — boundary
             continue

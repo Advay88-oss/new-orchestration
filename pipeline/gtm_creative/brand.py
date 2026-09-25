@@ -18,8 +18,10 @@ from typing import Optional
 
 from PIL import Image
 
-STATE = Path(__file__).resolve().parents[1] / "state"
-LOGO_FILE = STATE / "logo.png"
+def _logo_file() -> Path:
+    """The tenant's logo, from its brand profile."""
+    from pipeline.brand_brain import context as C
+    return C.logo_path()
 
 # Below this luminance a pixel is background; above it, logo. The ramp
 # between keeps the mark's antialiased edges from going jagged.
@@ -31,7 +33,7 @@ _KEY_HIGH = 64
 def _keyed() -> Optional[Image.Image]:
     """The lockup with its background removed, or None if the file is absent."""
     try:
-        src = Image.open(LOGO_FILE).convert("RGBA")
+        src = Image.open(_logo_file()).convert("RGBA")
     except Exception:                               # noqa: BLE001 — boundary
         return None
 

@@ -8,10 +8,8 @@ Compiles format-specific specifications for Vector Schematics, Static Images, an
 
 from __future__ import annotations
 
-from pipeline.gtm_os.vanna_knowledge import (
-    prompt_block as _prompt_block, VISUAL_ANCHORS as _ANCHORS,
-    PROHIBITED_VISUAL as _PROHIBITED_VISUAL,
-)
+from pipeline.brand_brain import context as _C
+from pipeline.brand_brain.context import facts_block as _prompt_block
 from pipeline.gtm_os.agent_runtime import (
     brain_json as _brain_json, BrainError as _BrainError, record_stage as _record_stage,
 )
@@ -40,16 +38,9 @@ FORBIDDEN_CRYPTO_SLOP = [
     "text heavy infographic layouts"
 ]
 
-VANNA_CANONICAL_BRAND_TOKENS = {
-    "obsidian_canvas": "#07020D",
-    "electric_violet_bloom": "#471485",
-    "fuchsia_magenta_bloom": "#5E0D46",
-    "vanna_lavender": "#A387FF",
-    "coral_risk_accent": "#FC5457",
-    "cyan_telemetry": "#22D3C4",
-    "film_grain": "35mm analog grain, zero digital banding",
-    "negative_space_ratio": "Minimum 75% uninterrupted obsidian void"
-}
+def _brand_tokens() -> dict:
+    """The tenant's palette, from its brand profile."""
+    return _C.palette()
 
 
 _AGENT = "A07_creative_director"
@@ -96,39 +87,36 @@ class CreativeDirectorSystem:
         knowledge = _prompt_block(
             " ".join([str(strategy.narrative_pillar), str(strategy.problem)])[:400],
             excerpts=6)
-        anchors = "\n".join("  - " + k + ": " + v for k, v in _ANCHORS.items())
+        anchors = "\n".join("  - " + k + ": " + v for k, v in _C.anchors().items())
+        name = _C.company_name()
+        pal = _C.palette()
+        deployment = str(_C.profile().get("company", {}).get("deployment", ""))
 
         art_system = (
-            "You are Vanna's creative director. Vanna is composable credit "
-            "infrastructure on Stellar Soroban TESTNET. You art-direct one still "
-            "image, one meme and one motion piece per campaign.\n\n"
+            "You are " + name + "'s creative director. " + _C.company_line() + " "
+            "You art-direct one still image, one meme and one motion piece per "
+            "campaign.\n\n"
 
             "THE SUBJECT IS THE MECHANISM.\n"
-            "Every asset must depict Vanna's actual architecture using these "
+            "Every asset must depict " + name + "'s actual architecture using these "
             "concrete anchors. An abstract composition of glass and light that "
             "does not show the mechanism is a failed brief, however beautiful:\n"
             + anchors + "\n\n"
 
-            "Build the image from real, identifiable things: discrete sealed "
-            "SmartAccount units versus one shared pool; a collateral-to-debt "
-            "ratio approaching a floor; a position routed out into Blend or "
-            "Aquarius and back; an event stream arriving before a threshold is "
-            "crossed. A viewer who knows Soroban should recognise what is being "
-            "described. A viewer who does not should still see structure, not "
-            "decoration.\n\n"
+            "Build the image from real, identifiable things taken from those "
+            "anchors: the units, ratios, flows and thresholds they name. A viewer "
+            "who knows the domain should recognise what is being described. A "
+            "viewer who does not should still see structure, not decoration.\n\n"
 
-            "HOUSE STYLE (unchanged): expansive obsidian void (#07020D), 70%+ "
-            "negative space, disciplined studio lighting, matte and optical "
-            "materials, 35mm film grain, photorealistic architectural polish, "
-            "quiet institutional confidence. Muted accents only: royal violet "
-            "#471485, fuchsia #5E0D46.\n\n"
+            "HOUSE STYLE: " + _C.house_style() + ". Palette: "
+            + ", ".join(k + " " + v for k, v in pal.items()) + ".\n\n"
 
-            "NEVER DEPICT: " + _PROHIBITED_VISUAL + ".\n"
+            "NEVER DEPICT: " + _C.prohibited_visual() + ".\n"
             "Never render text, letterforms, numerals, logos or UI chrome "
             "inside a generated image — the models cannot spell, and a "
             "misspelt figure is a false claim. Express quantity through "
             "physical proportion instead.\n"
-            "Never depict or imply mainnet. Vanna is on testnet.\n\n"
+            "Never contradict the deployment: " + deployment + "\n\n"
 
             "Return strict JSON."
         )
@@ -147,7 +135,7 @@ class CreativeDirectorSystem:
             '"composition": str, "lighting": str, "materials": str, '
             '"mechanism_shown": str, "anchors_used": [str], '
             '"veo_prompt": str, "vector_spec": str, "meme_prompt": str}\n\n'
-            "mechanism_shown: name the Vanna mechanism the image depicts, in "
+            "mechanism_shown: name the " + _C.company_name() + " mechanism the image depicts, in "
             "one sentence. If you cannot name one, the concept is decoration "
             "and you must redo it.\n"
             "anchors_used: which of the product anchors appear in frame. At "
@@ -159,8 +147,8 @@ class CreativeDirectorSystem:
             "and light behaviour. No text in frame. Not an ambient mood piece.\n"
             "vector_spec: a 1200x675 schematic for the deterministic renderer, "
             "which MAY carry labels since it is drawn rather than generated.\n"
-            "meme_prompt: one square image, dry and knowing — the joke a "
-            "Soroban engineer would make about this problem. Still grounded in "
+            "meme_prompt: one square image, dry and knowing — the joke an "
+            "engineer in this domain would make about this problem. Still grounded in "
             "the mechanism, still no text in frame."
         )
 
@@ -218,9 +206,9 @@ class CreativeDirectorSystem:
                 format_type="STATIC_IMAGE",
                 dimensions="1200x675",
                 compiled_prompt=(
-                    f"Developer-grade clean DeFi visual metaphor for Vanna Protocol. {concept} "
-                    f"Background: Deep obsidian base (#07020D) with soft ambient electric violet glow (#471485) and fuchsia (#5E0D46). "
-                    f"35mm film grain, high negative space, zero text, zero generic floating spheres, zero neon grids."
+                    f"Developer-grade clean visual metaphor for {name}. {concept} "
+                    f"Palette: {', '.join(k + ' ' + v for k, v in pal.items())}. "
+                    f"High negative space, zero text, zero generic floating spheres, zero neon grids."
                 )
             ),
             "MEME_IMAGE": CreativeFormatSpec(
@@ -233,7 +221,7 @@ class CreativeDirectorSystem:
                 dimensions="1280x720",
                 framerate=24,
                 duration_seconds=8,
-                conditioning_asset="vanna_logo_hero_canvas.png",
+                conditioning_asset=str(_C.logo_path().name if _C.logo_path() else ""),
                 compiled_prompt=veo_prompt
             )
         }
@@ -243,10 +231,10 @@ class CreativeDirectorSystem:
             strategy_id=strategy.strategy_id,
             communication_objective=strategy.objective,
             visual_metaphor=metaphor_spec,
-            brand_tokens=VANNA_CANONICAL_BRAND_TOKENS,
+            brand_tokens=_brand_tokens(),
             typography_hierarchy={
-                "headline": "Plus Jakarta Sans Bold 48px",
-                "telemetry": "JetBrains Mono SemiBold 12px"
+                "headline": _C.fonts().get("display", "") + " Bold 48px",
+                "telemetry": _C.fonts().get("mono", "") + " SemiBold 12px"
             },
             format_specs=formats,
             negative_constraints=FORBIDDEN_CRYPTO_SLOP,

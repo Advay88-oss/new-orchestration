@@ -75,7 +75,7 @@ class GTMStrategist:
                 strategy_id=strat_id,
                 action_status="KILL",
                 decision_reason_class="PROHIBITED_CLAIM_VIOLATION",
-                kill_rationale="Signal asserts mainnet live or live token trading, which strictly violates Vanna testnet boundaries.",
+                kill_rationale="Signal asserts mainnet live or live token trading, which contradicts the deployment in the brand profile.",
                 objective="NONE",
                 audience_segment="NONE",
                 problem="NONE",
@@ -138,38 +138,26 @@ class GTMStrategist:
             machines_for_prompt = rank_machines(machines_for_prompt)
         except Exception:                           # noqa: BLE001 — boundary
             pass
-        strategy_system = (
-            "You are Vanna's GTM strategist. Vanna is composable credit "
-            "infrastructure on Stellar Soroban TESTNET.\n\n"
+        strategy_system = _fill_strategy(
+            "You are {company}'s GTM strategist. {company_line}\n\n"
             "Decide whether a market signal is worth publishing about, and if "
             "so, formulate the strategy. Return strict JSON only.\n\n"
             "Rules:\n"
-            "- Vanna is on TESTNET. Never assert mainnet, live token trading, "
-            "or first-mover status.\n"
-            "- `proof_claims` must be claims you believe are true of Vanna and "
+            "- Never contradict the deployment ({deployment}). Never assert "
+            "live token trading or first-mover status.\n"
+            "- `proof_claims` must be claims you believe are true of {company} and "
             "checkable. Do not invent metrics. If you are unsure of a number, "
             "state the mechanism without the number.\n"
-            "- `relevant` is false when the signal gives Vanna no differentiated "
+            "- `relevant` is false when the signal gives {company} no differentiated "
             "architectural wedge. Saying no is a valid and common answer; a "
             "weak post costs more than no post.\n"
-            "- But the wedge does NOT have to be Soroban-native. Vanna has "
-            "two arguments, and a subject usually belongs to one of them:\n"
-            "    (a) capital efficiency — composable credit: borrowed credit "
-            "stays usable across venues instead of being trapped in one "
-            "protocol, so the same collateral does more work. This is the "
-            "argument for LIQUIDITY, fragmented capital, idle collateral, "
-            "margin across venues and composability.\n"
-            "    (b) risk isolation — per-borrower SmartAccount sandboxes "
-            "versus pooled debt, a 1.10x liquidation floor, deterministic "
-            "liquidation. This is the argument for LIQUIDATION, bad debt, "
-            "contagion and insolvency.\n"
-            "  Both apply to stories on any chain. A pooled-lending failure on Ethereum is a "
-            "strong signal precisely because it demonstrates the problem Vanna "
-            "solves. Rejecting such a signal for being 'EVM-centric' or "
-            "'not directly about Soroban' is a misreading of this rule.\n"
+            "- But the wedge does NOT have to be native to {company}'s own "
+            "platform. {company} has {n_arguments} arguments, and a subject "
+            "usually belongs to one of them:\n{arguments}\n"
+            "  {arguments_note}\n"
             "  Reject instead when the signal is token-price movement, a "
             "listicle or buyer's guide, a partnership with no mechanism, or a "
-            "topic where Vanna would have to invent an opinion.\n"
+            "topic where {company} would have to invent an opinion.\n"
             "- A signal marked FOUNDER DIRECTIVE is an instruction, not a "
             "candidate. The founder has already decided it is worth posting, "
             "so do NOT reject it for being unnewsworthy, generic, or lacking "
@@ -177,7 +165,7 @@ class GTMStrategist:
             "relationship, what the two systems actually do together at the "
             "contract level. Reject a directive ONLY if honouring it would "
             "require asserting mainnet, inventing a figure, or claiming "
-            "something untrue of Vanna.\n"
+            "something untrue of {company}.\n"
             "- A directive's SUBJECT is fixed. `problem`, `positioning` and "
             "`strategic_opportunity` must be about the subject the founder "
             "named, in its own words. Never substitute a neighbouring "
@@ -185,7 +173,7 @@ class GTMStrategist:
             "fee story, health factor is not gas. A 'possibly related market "
             "signal' in the description is context and never the subject.\n"
             "- If the directive asks for a structure (e.g. problem, how it "
-            "works, why it matters, where Vanna fits) or a quality (simple "
+            "works, why it matters, where {company} fits) or a quality (simple "
             "language, saveable, shareable), carry it into `content_type` and "
             "`objective` so the copywriter receives it.\n"
             "- `reframed_from` is for the rare case where the literal request "
@@ -212,7 +200,8 @@ class GTMStrategist:
             "  category: " + str(signal.market_category) + "\n"
             "  source: " + str(signal.source_type) + " / " + str(signal.source) + "\n"
             "  confidence: " + str(signal.confidence) + "\n\n"
-            "VANNA CAPABILITIES\n" + json.dumps(vanna_kb, default=str)[:4000] + "\n\n"
+            + _research(signal)
+            + "CAPABILITIES\n" + json.dumps(vanna_kb, default=str)[:4000] + "\n\n"
             "AUDIENCE SEGMENTS\n" + json.dumps(audiences, default=str)[:2000] + "\n\n"
             "AVAILABLE GTM MACHINES\n" + json.dumps(machines_for_prompt, default=str)[:2000] + "\n\n"
             + _learned_preferences()
@@ -273,7 +262,7 @@ class GTMStrategist:
             _record_stage(_AGENT, "degraded",
                           "directive reframed to stay truthful; literal "
                           "reading refused: " + reframed[:180])
-        chosen_audience = str(decision.get("audience_segment") or "A1: Stellar & Soroban DeFi Farmers")
+        chosen_audience = str(decision.get("audience_segment") or _default_audience())
         problem_statement = str(decision.get("problem") or "")
         opportunity_statement = str(decision.get("strategic_opportunity") or "")
         chosen_pillar = str(decision.get("narrative_pillar") or "")
@@ -356,10 +345,10 @@ class GTMStrategist:
                 market_context=signal.description,
                 strategic_opportunity=opportunity_statement,
                 narrative_pillar=chosen_pillar,
-                positioning=model_positioning or "Vanna is the composable credit layer for Stellar Soroban.",
+                positioning=model_positioning or _default_positioning(),
                 proof=[c.text for c in claim_records if c.action in ["USE", "USE_AS_INFERENCE"]],
                 claims=claim_records,
-                cta=model_cta or "Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+                cta=model_cta or _default_cta(),
                 channel=channel,
                 content_type=content_type,
                 gtm_machine_id=candidate_machine_id,
@@ -387,10 +376,10 @@ class GTMStrategist:
                 market_context=signal.description,
                 strategic_opportunity=opportunity_statement,
                 narrative_pillar=chosen_pillar,
-                positioning="Vanna is the composable credit layer for Stellar Soroban, providing isolated SmartAccount sandboxes and sub-second defense.",
+                positioning=model_positioning or _default_positioning(),
                 proof=[c.text for c in claim_records if c.action in ["USE", "USE_AS_INFERENCE"]],
                 claims=claim_records,
-                cta="Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+                cta=model_cta or _default_cta(),
                 channel=channel,
                 content_type=content_type,
                 gtm_machine_id=candidate_machine_id,
@@ -410,10 +399,10 @@ class GTMStrategist:
             market_context=signal.description,
             strategic_opportunity=opportunity_statement,
             narrative_pillar=chosen_pillar,
-            positioning="Vanna is the composable credit layer for Stellar Soroban, providing isolated SmartAccount sandboxes and sub-second defense.",
+            positioning=model_positioning or _default_positioning(),
             proof=[c.text for c in claim_records if c.action in ["USE", "USE_AS_INFERENCE"]],
             claims=claim_records,
-            cta="Deploy your testnet SmartAccount sandbox at test.stellar.vanna.finance",
+            cta=model_cta or _default_cta(),
             channel=channel,
             content_type=content_type,
             gtm_machine_id=candidate_machine_id,
@@ -454,17 +443,11 @@ class GTMStrategist:
             category="PRODUCT_ARCHITECTURE",
             format=strategy.content_type,
             narrative=strategy.positioning,
-            hook_strategy="Lead directly with EVM mempool liquidation pain and gas friction before introducing Soroban sub-second clearance.",
+            hook_strategy="Lead with the audience's concrete pain, then the mechanism that answers it.",
             proof_points=strategy.proof,
             call_to_action=strategy.cta,
             claims_to_enforce=valid_claims,
-            claims_prohibited=[
-                "Mainnet live",
-                "The Aave of Stellar",
-                "Uncontested first-mover",
-                "Zero competitors exist",
-                "Guaranteed profit without risk"
-            ]
+            claims_prohibited=_prohibited_claims()
         )
 
     def generate_strategic_decision_report(
@@ -549,3 +532,49 @@ class GTMStrategist:
             final_decision=final_dec
         )
 
+
+def _fill_strategy(text: str) -> str:
+    """The strategist's brief for the tenant this run serves."""
+    from pipeline.brand_brain import context as C
+    prof = C.profile()
+    args = prof.get("arguments") or []
+    block = "\n".join("    (" + chr(97 + i) + ") " + a["name"] + " — " + a["claim"]
+                      + ". This is the argument for " + a.get("subjects", "") + "."
+                      for i, a in enumerate(args))
+    return (text.replace("{company_line}", C.company_line())
+            .replace("{company}", C.company_name())
+            .replace("{deployment}", str(prof.get("company", {}).get("deployment", "")))
+            .replace("{n_arguments}", str(len(args)))
+            .replace("{arguments}", block)
+            .replace("{arguments_note}", str(prof.get("arguments_note", ""))))
+
+
+def _default_positioning() -> str:
+    from pipeline.brand_brain import context as C
+    return C.company_line()
+
+
+def _default_cta() -> str:
+    from pipeline.brand_brain import context as C
+    return C.cta()
+
+
+def _default_audience() -> str:
+    from pipeline.brand_brain import context as C
+    a = C.audiences()
+    return (str(a[0].get("segment_id", "")) + ": " + str(a[0].get("name", ""))) if a else "general"
+
+
+def _prohibited_claims() -> list:
+    from pipeline.brand_brain import context as C
+    return C.prohibited_claims()
+
+
+def _research(signal) -> str:
+    """The research step: the brand brain's knowledge on this signal, with
+    sources, and what is new since the last runs."""
+    from pipeline.brand_brain import context as C
+    try:
+        return C.facts_block(str(signal.headline)[:300], k=6) + "\n\n"
+    except Exception:                               # noqa: BLE001 — boundary
+        return ""

@@ -112,9 +112,16 @@ class AudienceFitGate:
 
 
 class ProductStageFitGate:
-    """Evaluates whether an empirically eligible machine is strategically appropriate for Vanna's current stage."""
+    """Evaluates whether an empirically eligible machine is strategically appropriate for the company's current stage."""
 
-    CURRENT_STAGE = "STELLAR_TESTNET"
+    # Stages at which there is no live capital to move: displacement plays
+    # need a production product. The stage itself comes from the brand profile.
+    PRE_PRODUCTION = ("testnet", "devnet", "beta", "pre-launch", "prelaunch", "alpha")
+
+    @property
+    def CURRENT_STAGE(self) -> str:
+        from pipeline.brand_brain import context as C
+        return (C.stage() or "unknown").upper()
 
     def evaluate(self, machine_id: str, strategic_objective: str) -> GateEvaluationResult:
         mid_norm = machine_id.upper()
@@ -122,19 +129,19 @@ class ProductStageFitGate:
 
         # Regression case: Competitor displacement on testnet
         if "DISPLACEMENT" in mid_norm or "MACHINE_03" in mid_norm or "MACH_03" in mid_norm:
-            if self.CURRENT_STAGE == "STELLAR_TESTNET" or "migrate" in obj_lower:
+            if self.CURRENT_STAGE.lower() in self.PRE_PRODUCTION or "migrate" in obj_lower:
                 return GateEvaluationResult(
                     status="REJECT",
                     reason=(
                         f"Machine '{machine_id}' is strategically inappropriate for product stage '{self.CURRENT_STAGE}'. "
-                        f"Competitor displacement requires live mainnet TVL to execute capital migration from incumbents (Aave/Compound). "
-                        f"Testnet users cannot migrate production capital. Strategic fit requires technical education or testnet trial."
+                        f"Competitor displacement requires a live product with capital to migrate from incumbents. "
+                        f"Pre-production users cannot migrate production capital. Strategic fit requires technical education or a trial."
                     ),
                     evidence=[
-                        "vanna_knowledge: Vanna is deployed on Stellar Testnet (14 Soroban contracts).",
-                        "Competitor displacement precedent requires TVL liquidity parity (Morpho displaced Compound on Ethereum mainnet)."
+                        "brand profile: " + _deployment(),
+                        "Competitor displacement precedent requires liquidity parity with the incumbent."
                     ],
-                    assumptions=["Testnet users cannot migrate live mainnet deposits."],
+                    assumptions=["Pre-production users cannot migrate live deposits."],
                     confidence=0.98
                 )
 
@@ -144,11 +151,11 @@ class ProductStageFitGate:
                 status="PASS",
                 reason=(
                     f"Machine '{machine_id}' is strategically aligned with product stage '{self.CURRENT_STAGE}'. "
-                    f"Educational mechanism breakdown and sandbox deployment drive testnet developer and trader trial."
+                    f"Educational mechanism breakdowns drive developer and user trial."
                 ),
                 evidence=[
-                    "docs.vanna.finance: Testnet sandbox deployment is live.",
-                    "Precedent: Morpho Blue and Gearbox technical breakdowns preceded mainnet launch."
+                    "brand profile: " + _deployment(),
+                    "Precedent: technical breakdowns commonly precede a production launch."
                 ],
                 assumptions=[],
                 confidence=0.95
@@ -263,3 +270,8 @@ class ClaimConsistencyGate:
             assumptions=[],
             confidence=0.95
         )
+
+
+def _deployment() -> str:
+    from pipeline.brand_brain import context as C
+    return str(C.profile().get("company", {}).get("deployment", ""))

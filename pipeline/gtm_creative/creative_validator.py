@@ -54,13 +54,15 @@ class CreativeValidator:
                 slop_violations.append(f"Blueprint contains forbidden visual pattern: '{slop}'")
 
         # 3. Brand Compliance Check
-        tokens = blueprint.brand_tokens
-        has_obsidian = tokens.get("obsidian_canvas") == "#07020D"
-        has_blooms = tokens.get("electric_violet_bloom") == "#471485" and tokens.get("fuchsia_magenta_bloom") == "#5E0D46"
-        brand_compliant = has_obsidian and has_blooms
+        # The blueprint must carry the tenant's own palette, exactly — the
+        # brand profile is the one place colours come from.
+        from pipeline.brand_brain import context as C
+        tokens = dict(blueprint.brand_tokens or {})
+        canon = C.palette()
+        brand_compliant = bool(canon) and all(tokens.get(k) == v for k, v in canon.items())
 
         if not brand_compliant:
-            brand_issues.append("Brand tokens missing canonical Vanna obsidian or dual-bloom coordinates.")
+            brand_issues.append("Brand tokens do not match the brand profile's palette.")
 
         approved = len(slop_violations) == 0 and brand_compliant and bypass_prevented
         score = 96 if approved else max(0, 96 - len(slop_violations) * 25 - (30 if not bypass_prevented else 0))

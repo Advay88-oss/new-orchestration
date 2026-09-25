@@ -39,14 +39,14 @@ AGENT = "A14_motion_director"            # the poster brief and the motion plan
 MOTION_AGENT = AGENT
 
 GUARDRAILS = (
-    "The FIRST frame is the empty Vanna ground; the LAST frame is the finished "
+    "The FIRST frame is the empty {company} ground; the LAST frame is the finished "
     "poster. The clip is that poster building itself.\n"
     "CAMERA: completely locked off — no pan, tilt, zoom, dolly, orbit, drift, "
     "shake, parallax or depth of field. Everything moves in the flat plane.\n"
     "TEXT: every word, when it appears, is sharp, correctly spelled and "
     "identical to the last frame; never scramble, melt or morph letters. Add "
     "no text, icons, objects, people, coins or scenes that are not in the last "
-    "frame. The ground stays Vanna's dark violet-and-magenta throughout."
+    "frame. The ground stays the brand's ground colours throughout."
 )
 
 
@@ -54,13 +54,13 @@ GUARDRAILS = (
 # and the choreography change: the last few used are unavailable, the rest
 # are ordered by the founder's record, and the model picks what fits.
 LAYOUTS = {
-    "split_contrast": "two large flat glass cards side by side — the problem left, Vanna right — an arrow between",
-    "hub_spokes": "one central flat card for Vanna with three flat cards around it, joined by straight lines",
+    "split_contrast": "two large flat glass cards side by side — the problem left, {company} right — an arrow between",
+    "hub_spokes": "one central flat card for {company} with three flat cards around it, joined by straight lines",
     "step_flow": "three or four flat cards in a row joined by arrows, a numbered sequence",
     "stack_checklist": "one tall glass card of 3-5 rows with check marks, and a call-to-action pill below",
     "stat_hero": "one true figure set huge in a glass card, two small supporting cards under it",
-    "question_cards": "a question card with 2-4 answer cards beneath it and Vanna's short take",
-    "before_after": "the same flat diagram twice, stacked: 'today' above, 'with Vanna' below",
+    "question_cards": "a question card with 2-4 answer cards beneath it and {company}'s short take",
+    "before_after": "the same flat diagram twice, stacked: 'today' above, 'with {company}' below",
     "grid_features": "a 2x2 grid of flat glass cards, one capability each with a flat icon",
 }
 MOTION_STYLES = {
@@ -94,10 +94,10 @@ def _options(catalogue: dict[str, str], recent_file: str, block_last: int,
         from pipeline.gtm_learning import preferences as P
         post = P.posteriors(dim)
         ranked = [k for k, _ in P.thompson_order(dim, open_ids)]
-        return [(k, catalogue[k], P.record_text(post[k]) if k in post else "not yet reviewed")
+        return [(k, _fill(catalogue[k]), P.record_text(post[k]) if k in post else "not yet reviewed")
                 for k in ranked]
     except Exception:                               # noqa: BLE001 — boundary
-        return [(k, catalogue[k], "") for k in open_ids]
+        return [(k, _fill(catalogue[k]), "") for k in open_ids]
 
 
 def _rules_block() -> str:
@@ -126,8 +126,30 @@ def _corrections() -> list[str]:
         return []
 
 
-COMPETITORS = ("aave", "compound", "euler", "maker", "sky protocol", "spark",
-               "kamino", "solend", "venus", "radiant", "fluid", "silo")
+def _competitors() -> list[str]:
+    """The tenant's competitors (never its partners), lowercased."""
+    from pipeline.brand_brain import context as C
+    partners = {p.lower() for p in C.partners()}
+    return [c.lower() for c in C.competitors() if c.lower() not in partners]
+
+
+def _fill(text: str) -> str:
+    """Company facts into a prompt written without them."""
+    from pipeline.brand_brain import context as C
+    figs = ", ".join(f["value"] + " " + f.get("meaning", "") for f in C.true_figures())
+    skip = ("chain", "backer", "infrastructure")
+    venues = ", ".join([n for n, r in C.partners().items()
+                        if not any(s in r.lower() for s in skip)][:5])
+    comps = ", ".join(c.title() for c in _competitors()[:3])
+    avoid = C.avoid_colors()
+    return (text.replace("{company_line}", C.company_line())
+            .replace("{company}", C.company_name())
+            .replace("{figures}", figs)
+            .replace("{venues}", venues or "partner protocols")
+            .replace("{competitor_examples}", comps or "any competitor")
+            .replace("{competitor_rule}", str(C.profile().get("competitor_rule", "")))
+            .replace("{palette_rule}", "Keep to the brand palette"
+                     + ("; no " + " or ".join(avoid) if avoid else "") + "."))
 
 
 def _brief_faults(out: dict) -> list[str]:
@@ -146,9 +168,10 @@ def _brief_faults(out: dict) -> list[str]:
     if len(labels) > 6:
         faults.append(str(len(labels)) + " labels; at most 6")
     blob = " ".join(str(v) for v in out.values()).lower()
-    named = [c for c in COMPETITORS if re.search(r"\b" + re.escape(c) + r"\b", blob)]
+    named = [c for c in _competitors() if re.search(r"\b" + re.escape(c) + r"\b", blob)]
     if named:
-        faults.append("names a competitor (" + ", ".join(named) + "); say 'pooled lending'")
+        faults.append("names a competitor (" + ", ".join(named) + "); "
+                      + _fill("{competitor_rule}"))
     # The image model draws markdown literally: a "**" in the footer became
     # two printed asterisks on a poster.
     if any(m in str(v) for v in out.values() for m in ("**", "__", "`")):
@@ -157,11 +180,12 @@ def _brief_faults(out: dict) -> list[str]:
     if any(w in diag for w in ("isometric", " 3d", "3-d", "perspective")):
         faults.append("diagram is isometric/3D; keep every element flat and face-on so Veo "
                       "does not tilt the camera")
-    drawn = [w for w in ("coin", "token logo", "bitcoin", "ethereum", "currency", "cyan", "teal")
+    from pipeline.brand_brain import context as C
+    drawn = [w for w in ("coin", "token logo", "bitcoin", "ethereum", "currency", *C.avoid_colors())
              if w in diag]
     if drawn:
         faults.append("diagram asks for " + ", ".join(drawn) + "; never draw coins, token "
-                      "logos or currency, and keep to violet and magenta")
+                      "logos or currency, and keep to the brand palette")
     if "─" in str(out.get("diagram") or "") or "-->" in str(out.get("diagram") or ""):
         faults.append("diagram is a text flowchart; describe it visually")
     return faults
@@ -171,7 +195,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
                  run_id: Optional[str] = None) -> dict[str, Any]:
     """The brief the image model draws from. Raises on model failure."""
     from pipeline.gtm_os import agent_runtime as R
-    from pipeline.gtm_os.vanna_knowledge import prompt_block
+    from pipeline.brand_brain.context import facts_block as prompt_block
 
     approved = _approved_posters()
     fixes = _corrections()
@@ -186,23 +210,22 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
             record += "Corrections from revisions and kills:\n"
             record += "\n".join("  - " + f for f in fixes) + "\n"
 
-    system = (
-        "You are Vanna's Motion Director, briefing the poster that will be "
-        "drawn and then animated. Vanna is composable credit infrastructure "
-        "on Stellar Soroban TESTNET. Write a brief an image model can draw "
+    system = _fill(
+        "You are {company}'s Motion Director, briefing the poster that will be "
+        "drawn and then animated. {company_line} Write a brief an image model can draw "
         "from: ONE idea, as a diagram of glass cards, icons and arrows.\n"
         "First choose the FORMAT the query is asking for — do not force every "
         "poster into the same shape:\n"
         "  announcement — something is live, launched or open to try (e.g. "
         "'testnet is live', 'check it now'): one bold message, 2-4 glass "
         "cards of what the reader can do or test right now, and a clear call "
-        "to action. No problem-versus-Vanna comparison.\n"
+        "to action. No problem-versus-{company} comparison.\n"
         "  explainer / hot take — how something works or a belief to "
-        "challenge: the problem side against Vanna's answer.\n"
+        "challenge: the problem side against {company}'s answer.\n"
         "  question — a discussion prompt: the question and 2-4 answer cards.\n"
         "  metric — one true figure is the whole point.\n"
         "Never draw coins, token logos, currency symbols or any protocol's "
-        "logo. Keep to Vanna's violet and magenta; no cyan or teal.\n"
+        "logo. {palette_rule}\n"
         "The poster will be ANIMATED by Veo, building itself element by "
         "element, so design it to build cleanly: headline and subtitle on "
         "top, then 2-4 large, clearly separated glass cards, each holding one "
@@ -212,16 +235,15 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         "face-on: 2D glass cards, flat icons, straight arrows. No isometric "
         "or 3D objects (chips, cubes, platforms seen at an angle) — Veo turns "
         "them into a moving 3D scene and the camera tilts. "
-        "Every figure must be true of Vanna (1.10x liquidation floor, "
-        "0.00014 XLM gas, ~320ms indexing) — invent none. Other protocols "
-        "(Blend, Aquarius, Soroswap) appear as plain text names.\n"
+        "Every figure must be true of {company} ({figures}) — invent none. "
+        "Other protocols ({venues}) appear as plain text names.\n"
         "Rules:\n"
         "- Cover EVERY subject the founder's query names. If it asks about "
         "two things (e.g. health factor AND liquidity), the idea, both sides "
         "and the diagram show both.\n"
         "- Headline in sentence case, under 9 words. Subtitle under 14 words.\n"
-        "- Never name a competitor (Aave, Compound, Euler and the like); say "
-        "'pooled lending' instead.\n"
+        "- Never name a competitor ({competitor_examples} and the like). "
+        "{competitor_rule}\n"
         "- At most 6 diagram labels, each 1-4 words; fewer is better — every "
         "word is drawn, and every word is a chance to misspell.\n"
         "- Describe the diagram visually (shapes, cards, what breaks, what "
@@ -245,7 +267,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         '"layout": str (one id from LAYOUT FAMILIES), '
         '"idea": str, "headline": str (under 9 words), '
         '"gradient_word": str (1-2 words from the headline), "subtitle": str '
-        '(under 14 words), "problem_side": str, "vanna_side": str, '
+        '(under 14 words), "problem_side": str, "brand_side": str, '
         '"diagram": str (what is drawn, laid out as the chosen layout family), '
         '"labels": [str] (every word that appears on the diagram, 1-4 words '
         'each), "footer": str (bold lead + testnet caveat), "why": str}')
@@ -263,7 +285,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
                            temperature=0.3, max_output_tokens=8192, run_id=run_id)
     sides = "".join(
         "\n" + label + ": " + str(out.get(k)) for k, label in
-        (("problem_side", "Problem side"), ("vanna_side", "Vanna side"))
+        (("problem_side", "Problem side"), ("brand_side", _fill("{company} side")))
         if str(out.get(k) or "").strip() and str(out.get(k)).strip().lower() not in ("n/a", "none"))
     text = ("Format: " + str(out.get("format") or "explainer")
             + "\nHeadline: " + str(out.get("headline", "")) + " (gradient word: "
@@ -280,7 +302,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
     if layout not in open_ids:
         layout = open_ids[0]
     _remember("recent_layouts.json", layout)
-    text = "Layout: " + layout + " — " + LAYOUTS[layout] + "\n" + text
+    text = "Layout: " + layout + " — " + _fill(LAYOUTS[layout]) + "\n" + text
     return {"brief": text, "raw": out, "layout": layout}
 
 
@@ -294,12 +316,12 @@ def motion_plan(poster: str | Path, brief: str, *,
         learned = learned_block()
     except Exception:                               # noqa: BLE001 — boundary
         learned = ""
-    system = (
-        "You are Vanna's Motion Director. You direct Veo 3.1, which animates "
+    system = _fill(
+        "You are {company}'s Motion Director. You direct Veo 3.1, which animates "
         "a poster building itself from an empty ground in 8 seconds with a "
         "locked camera. You look at the finished poster and write the build "
         "for ITS elements — not a template. Motion must explain the idea: the "
-        "problem side should visibly fail or strain, Vanna's side should "
+        "problem side should visibly fail or strain, {company}'s side should "
         "settle calmly. Keep beats few and clear; big simultaneous changes "
         "make Veo garble text, so text should arrive in its own beat and "
         "never change after. Every text element appears in its FINAL "
@@ -340,4 +362,4 @@ def motion_plan(poster: str | Path, brief: str, *,
     _remember("recent_motion_styles.json", style)
     plan = "MOTION STYLE: " + style + " — " + MOTION_STYLES[style] + "\n" + plan
     return {"plan": plan, "raw": out, "motion_style": style,
-            "prompt": GUARDRAILS + "\n\n" + plan + ("\n\n" + learned if learned else "")}
+            "prompt": _fill(GUARDRAILS) + "\n\n" + plan + ("\n\n" + learned if learned else "")}

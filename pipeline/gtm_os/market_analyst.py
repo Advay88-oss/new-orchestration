@@ -48,12 +48,8 @@ AGENT = "A02_market_analyst"
 # ranking them and reading the top five reproduces the problem this replaces.
 MAX_SIGNALS = 40
 
-SYSTEM = (
-    "You are Vanna's market analyst. Vanna is composable credit / unified "
-    "margin infrastructure on Stellar Soroban TESTNET: per-borrower "
-    "SmartAccount sandboxes, credit that stays composable across venues, a "
-    "health factor with a 1.10x liquidation floor, deterministic "
-    "liquidation.\n\n"
+_SYSTEM = (
+    "You are {company}'s market analyst. {company_line}\n\n"
 
     "You are given everything one scrape brought back. Your job is to READ "
     "it, not to summarise it and not to write copy. Two outputs.\n\n"
@@ -63,14 +59,12 @@ SYSTEM = (
     "the piece actually argues. If the headline is a listicle, an SEO "
     "buyer's guide or a price-prediction piece, say so plainly; that IS the "
     "reading.\n"
-    "   relevance    — DIRECT (touches Vanna's own mechanism: margin, "
-    "liquidation, collateral, credit, isolation, oracles, account "
-    "abstraction, Soroban/Stellar), ADJACENT (same market, different layer — "
-    "Vanna has context but no mechanism claim), NONE (nothing Vanna can say "
+    "   relevance    — DIRECT (touches {company}'s own mechanism: {mechanisms}), ADJACENT (same market, different layer — "
+    "{company} has context but no mechanism claim), NONE (nothing {company} can say "
     "that would not be a generic take).\n"
     "   why          — one sentence defending that grade. For NONE, say what "
     "would have had to be true for it to matter.\n"
-    "   vanna_move   — for DIRECT and ADJACENT only: ONE concrete thing Vanna "
+    "   vanna_move   — for DIRECT and ADJACENT only: ONE concrete thing {company} "
     "can do in response, in one sentence starting with a verb (explain, "
     "position against, watch, benchmark, open a conversation with...). Empty "
     "string for NONE.\n\n"
@@ -85,14 +79,14 @@ SYSTEM = (
     "   themes       — 2-5 things that several signals point at together. "
     "Each names the signals that evidence it. A theme supported by one "
     "signal is not a theme; leave it out.\n"
-    "   quiet_on     — what is conspicuously ABSENT given what Vanna does: "
+    "   quiet_on     — what is conspicuously ABSENT given what {company} does: "
     "subjects you would expect this market to be discussing and it is not. "
     "This is often the most useful line on the page.\n"
-    "   for_vanna    — what this landscape means for Vanna specifically, in "
+    "   for_vanna    — what this landscape means for {company} specifically, in "
     "2-3 sentences. If the honest answer is 'nothing this cycle', write "
     "that; it is a legitimate reading and far more useful than a "
     "manufactured implication.\n"
-    "   strategies   — 2-4 moves Vanna can make given THIS harvest. Each: "
+    "   strategies   — 2-4 moves {company} can make given THIS harvest. Each: "
     "title (under 8 words), move (what to do, 1-2 sentences), rationale (why "
     "now, 1 sentence, from the signals), signal_ids (the signals that "
     "evidence it — at least one; a strategy with no evidence is an opinion), "
@@ -107,10 +101,11 @@ SYSTEM = (
     "no hooks, no formats. Another agent writes content and you will "
     "contaminate it.\n"
     "- Name a partner relationship only if it is on the CONFIRMED PARTNERS "
-    "list given with the signals. Any other protocol is something Vanna can "
+    "list given with the signals. Any other protocol is something {company} can "
     "watch, compare against or explain — never something it 'integrates "
     "with' or 'partners with'.\n"
-    "- Never imply Vanna is on mainnet. Never call a competitor inferior.\n"
+    "- Never contradict the deployment ({deployment}). Never call a "
+    "competitor inferior.\n"
     "- Plain language. No hype vocabulary.\n"
     "- Every theme makes a CALL you will be scored on: `outlook` is where "
     "this theme goes over the next few days (rising, steady or fading), and "
@@ -120,6 +115,15 @@ SYSTEM = (
     "whether anyone likes it. Say steady when you do not know.\n\n"
     "Return strict JSON."
 )
+
+
+def _system() -> str:
+    """The analyst's brief, for the tenant this run serves."""
+    from pipeline.brand_brain import context as C
+    return (_SYSTEM.replace("{company_line}", C.company_line())
+            .replace("{company}", C.company_name())
+            .replace("{mechanisms}", ", ".join(C.relevance_terms()[:16]))
+            .replace("{deployment}", str(C.profile().get("company", {}).get("deployment", ""))))
 
 SCHEMA_HINT = (
     '{"signals": [{"signal_id": str, "what_it_is": str, '
@@ -137,12 +141,8 @@ SCHEMA_HINT = (
 
 def _partners_block() -> str:
     """The confirmed partner list, so a strategy cannot invent a relationship."""
-    try:
-        from pipeline.gtm_os.vanna_knowledge import PARTNERS
-    except Exception:                               # noqa: BLE001 — boundary
-        return ""
-    return ("CONFIRMED PARTNERS (the whole list):\n"
-            + "\n".join("  - " + n + " (" + r + ")" for n, r in PARTNERS.items()))
+    from pipeline.brand_brain import context as C
+    return C.partners_block()
 
 
 def _rows(signals: Iterable[Any]) -> list[dict[str, str]]:
@@ -203,7 +203,7 @@ def analyse(signals: Iterable[Any], run_id: Optional[str] = None) -> dict[str, A
     # token budget, so it was a slip, not truncation, and worth asking again.
     try:
         try:
-            out = R.brain_json(prompt, agent=AGENT, system=SYSTEM,
+            out = R.brain_json(prompt, agent=AGENT, system=_system(),
                                role="reasoning", temperature=0.25,
                                max_output_tokens=12288)
         except R.BrainError as first:
@@ -214,7 +214,7 @@ def analyse(signals: Iterable[Any], run_id: Optional[str] = None) -> dict[str, A
                 prompt + "\n\nReturn ONLY the JSON object. No prose, no "
                          "comments, no trailing commas. Escape every double "
                          "quote inside a string.",
-                agent=AGENT, system=SYSTEM, role="reasoning",
+                agent=AGENT, system=_system(), role="reasoning",
                 temperature=0.1, max_output_tokens=12288)
     except Exception as exc:                        # noqa: BLE001 — boundary
         R.record_stage(AGENT, "degraded",

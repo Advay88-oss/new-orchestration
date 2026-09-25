@@ -490,7 +490,7 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
         # back to the isolation grid entirely.
         element_prompt=element_prompt_for(
             archetype, hook or str(s.get("signal") or "")),
-        eyebrow="Stellar Soroban · testnet",
+        eyebrow=_C().disclosure_footer(),
         headline=(hook or str(s.get("signal") or ""))[:120],
         deck=deck[:150],
         # Only the isolation archetype has a figure that means anything here.
@@ -499,7 +499,8 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
         stat_value="0" if archetype == "A4_isolation" else "",
         stat_label=("accounts exposed to a neighbour's deficit"
                     if archetype == "A4_isolation" else ""),
-        footnote="Stellar Soroban testnet · docs.vanna.finance",
+        footnote=(_C().disclosure_footer() + " · "
+                  + str(_C().profile().get("company", {}).get("docs_url", "")).replace("https://", "")),
         out=out,
     )
     R.record_stage("A09_video_production", "ok",
@@ -680,6 +681,27 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
 
     try:
         ip = IntelligenceProvider()
+
+        # Run start, from the architecture: a small freshness check (the
+        # tenant's live sources re-sync only when stale), then what is new in
+        # the brand brain since the last run. Agents read the brain, never
+        # the raw sources.
+        try:
+            from pipeline.brand_brain import context as _BC
+            from pipeline.brand_brain.sync import sync_if_stale
+            fresh = sync_if_stale()
+            _b = _BC.brain()
+            since = _b.meta("last_run_started") or ""
+            news = _b.get_whats_new(since or None, 10)
+            _b.meta("last_run_started", summary.get("started_at") or datetime.now(timezone.utc).isoformat())
+            summary["brain"] = {"tenant": _b.tenant,
+                                "profile_version": _BC.profile().get("_version"),
+                                "profile_status": _BC.profile().get("_status"),
+                                "fresh": bool(fresh.get("fresh")), "whats_new_since": since,
+                                "whats_new": [{"at": e["at"], "title": e["title"]} for e in news]}
+            R.record_decision("A01_intelligence_scout", "brain_context", summary["brain"])
+        except Exception as exc:                    # noqa: BLE001 — a run without the brain still runs
+            summary["brain"] = {"error": str(exc)[:200]}
 
         # A01 — Intelligence Scout
         from pipeline.gtm_os.live_scout import scout
@@ -974,15 +996,24 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             channel_verdict = ChannelReviewer().review_channel_adaptation(content_pkg)
             slop_verdict = CreativeValidator().validate_blueprint(
                 blueprint, raw_post_copy=content_pkg.channel_posts["x"].copy)
-            return channel_verdict, slop_verdict
+            # Every claim in the post against the brand brain's knowledge,
+            # plus the deterministic claim-safety gate.
+            from pipeline.gtm_os.fact_check import check_copy
+            x = content_pkg.channel_posts["x"]
+            facts = check_copy(str(getattr(x, "hook", "") or ""), str(getattr(x, "copy", "") or ""),
+                               run_id=rid)
+            return channel_verdict, slop_verdict, facts
         verdicts = _stage("A10_reviewer_firewall", review,
-                          detail="ran the pre-delivery firewalls")
-        channel_verdict, creative_verdict = verdicts
+                          detail="ran the pre-delivery firewalls and the fact check")
+        channel_verdict, creative_verdict, facts = verdicts
+        summary["fact_check"] = facts
         # A judge whose rejection changes nothing is decoration. A creative
-        # REJECT blocks the run the same way a channel or slop failure does.
+        # REJECT blocks the run the same way a channel or slop failure does,
+        # and so does a claim the brand brain does not support.
         creative_rejected = str(summary.get("creative_verdict") or "").upper() == "REJECT"
+        facts_blocked = bool(facts.get("blocked"))
         passed = bool(channel_verdict.approved and creative_verdict.approved
-                      and not creative_rejected)
+                      and not creative_rejected and not facts_blocked)
         summary["review_passed"] = passed
         # Every reason the gate can block for, not two of them. A run was
         # recorded review_blocked with blocked_claims and slop both empty and
@@ -998,6 +1029,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             "validator": (None if getattr(creative_verdict, "approved", True)
                           else str(getattr(creative_verdict, "reasoning", ""))[:300]),
             "creative": summary.get("creative_verdict"),
+            "facts": list(facts.get("blocked") or []),
+            "facts_supported": facts.get("supported"),
         }
         R.record_decision("A10_reviewer_firewall",
                           "reviewed" if passed else "declined", {
@@ -1100,7 +1133,8 @@ def _directive_signal(directive: str, signals):
     # unconditionally turned "vanna with partnership with stellar" into the
     # fragment "with partnership with stellar", which A03 then read as a
     # generic partnership shout-out and correctly declined.
-    text = re.sub(r"^(?:vanna(?:'s)?|for vanna)\s+(?:of|on|about)\s+", "",
+    _co = re.escape(_C().company_name().lower())
+    text = re.sub(r"^(?:" + _co + r"(?:'s)?|for " + _co + r")\s+(?:of|on|about)\s+", "",
                   text, flags=re.I).strip()
     # Any preposition left stranded at the front is an artefact of stripping,
     # never part of the subject.
@@ -1123,13 +1157,15 @@ def _directive_signal(directive: str, signals):
         "educational", "explain", "explaining", "explains", "simple", "language",
         "audience", "understand", "understands", "understanding", "concept",
         "technical", "problem", "works", "work", "matters", "matter", "fits",
-        "picture", "highly", "saveable", "shareable", "vanna", "vannas",
+        "picture", "highly", "saveable", "shareable",
         "crypto", "defi", "users", "user", "people", "that", "this", "with",
         "into", "about", "their", "them", "they", "what", "your", "have",
         "should", "could", "would", "also", "more", "most", "very", "just",
         "like", "want", "need", "show", "shows", "does", "make", "made",
     }
-    words = {w for w in re.findall(r"[a-z]{4,}", text.lower())} - _NOT_SUBJECT
+    _name = _C().company_name().lower()
+    words = ({w for w in re.findall(r"[a-z]{4,}", text.lower())} - _NOT_SUBJECT
+             - {_name, _name + "s"})
 
     def overlap(s) -> int:
         head = set(re.findall(r"[a-z]{4,}", str(getattr(s, "headline", "")).lower()))
@@ -1154,14 +1190,14 @@ def _directive_signal(directive: str, signals):
         description=(
             "FOUNDER DIRECTIVE. The founder has asked for a post on this "
             "subject; it is an instruction, not a news signal to be judged "
-            "for newsworthiness. Find Vanna's architectural angle on it. "
+            "for newsworthiness. Find " + _C().company_name() + "'s architectural angle on it. "
             "Subject: " + text
             + (" — possibly related market signal (context only; it does "
                "not change the subject): " + str(support.headline)[:200]
                if support is not None else "")
         )[:1400],
         market_category="LENDING",
-        entities_involved=["Vanna"],
+        entities_involved=[_C().company_name()],
         observed_metric_change="FOUNDER_DIRECTIVE",
         source="founder-directive",
         source_root="founder",
@@ -1223,14 +1259,15 @@ def _select_signal(signals):
         "- [" + str(i) + "] " + str(s.headline)[:140]
         + "  (source: " + str(s.source_type) + ")"
         for i, s in enumerate(signals))
+    _n = _C().company_name()
     system = (
-        "You select which market signal Vanna should build a campaign on. "
-        "Vanna is composable credit infrastructure on Stellar Soroban testnet. "
-        "Prefer a signal where Vanna has a specific architectural answer over "
+        "You select which market signal " + _n + " should build a campaign on. "
+        + _C().company_line() + " "
+        "Prefer a signal where " + _n + " has a specific architectural answer over "
         "one that is merely popular.\n"
         "Never choose a signal that is primarily token-price movement, price "
-        "targets, market-cap or trading speculation. Vanna is on testnet and "
-        "cannot assert live TVL or price, so A03 rejects those outright and "
+        "targets, market-cap or trading speculation. " + _n + " cannot assert "
+        "anything its deployment does not support, so A03 rejects those outright and "
         "the cycle produces nothing — pick a mechanism, risk, architecture or "
         "incident story instead.\n"
         "Return strict JSON and keep every rationale under 30 words.")
@@ -1391,6 +1428,12 @@ def _run_learning(summary: Optional[dict] = None):
                 "when the sample is too small to support the adjustment."),
         temperature=0.2, max_output_tokens=1024)
     return {"adjustments": len(rows), "verdict": verdict, "preferences": learned}
+
+
+def _C():
+    """The brand brain's prompt helpers, for the tenant this run serves."""
+    from pipeline.brand_brain import context as C
+    return C
 
 
 def _checkpoint(summary: dict, rid: str) -> None:

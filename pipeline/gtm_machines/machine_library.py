@@ -40,11 +40,11 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "HIGH",
         "observed_behavior": "Morpho and Aave published formal verification audit reports 14 days prior to opening deposits, establishing institutional trust before capital commitment.",
         "inferred_mechanism": "Risk-averse capital requires cryptographic proof of containment before deploying large collateral books.",
-        "proposed_vanna_adaptation": "Release Vanna 14-smart contract Soroban formal audit breakdown prior to opening testnet SmartAccount sandboxes.",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [
             {"stage_number": 1, "stage_name": "Audit & Formal Verification Transparency", "purpose": "Publish smart contract invariants", "expected_content_type": "technical_report", "required_evidence_status": "OBSERVED", "source_url_ref": "https://morpho.org/blog"},
-            {"stage_number": 2, "stage_name": "Architecture Deep-Dive", "purpose": "Explain SmartAccount isolation", "expected_content_type": "deep_dive_thread", "required_evidence_status": "OBSERVED", "source_url_ref": "https://docs.vanna.finance"},
-            {"stage_number": 3, "stage_name": "Testnet Launch Broadcast", "purpose": "Direct users to testnet sandbox", "expected_content_type": "announcement_post", "required_evidence_status": "OBSERVED", "source_url_ref": "https://test.stellar.vanna.finance"},
+            {"stage_number": 2, "stage_name": "Architecture Deep-Dive", "purpose": "Explain SmartAccount isolation", "expected_content_type": "deep_dive_thread", "required_evidence_status": "OBSERVED", "source_url_ref": "{docs_url}"},
+            {"stage_number": 3, "stage_name": "Testnet Launch Broadcast", "purpose": "Direct users to testnet sandbox", "expected_content_type": "announcement_post", "required_evidence_status": "OBSERVED", "source_url_ref": "{app_url}"},
             {"stage_number": 4, "stage_name": "Traction & Solvency Recap", "purpose": "Report verified testnet rebalance volume", "expected_content_type": "metrics_update", "required_evidence_status": "DERIVED", "source_url_ref": None}
         ],
         "supported_channels": ["X", "LinkedIn", "Docs"],
@@ -70,10 +70,10 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "HIGH",
         "observed_behavior": "Morpho co-announced integration with Robinhood and Curv via synchronized hero announcements and technical custody breakdowns.",
         "inferred_mechanism": "Co-marketing with established infrastructure anchors borrowing demand and lowers depositor customer acquisition cost.",
-        "proposed_vanna_adaptation": "Coordinated integration announcements with Blend Protocol (BLUSDC borrowing) and Aquarius AMM (liquidity routing).",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [
             {"stage_number": 1, "stage_name": "Coordinated Partner Hero Launch", "purpose": "Joint announcement with partner protocol", "expected_content_type": "joint_tweet", "required_evidence_status": "OBSERVED", "source_url_ref": "https://x.com"},
-            {"stage_number": 2, "stage_name": "Composable Routing Mechanics", "purpose": "Explain how margin account executes across partner pools", "expected_content_type": "technical_diagram", "required_evidence_status": "OBSERVED", "source_url_ref": "https://docs.vanna.finance"},
+            {"stage_number": 2, "stage_name": "Composable Routing Mechanics", "purpose": "Explain how margin account executes across partner pools", "expected_content_type": "technical_diagram", "required_evidence_status": "OBSERVED", "source_url_ref": "{docs_url}"},
             {"stage_number": 3, "stage_name": "Harvest & Yield Velocity Update", "purpose": "Share real liquidity depth and swap execution", "expected_content_type": "metrics_post", "required_evidence_status": "DERIVED", "source_url_ref": None}
         ],
         "supported_channels": ["X", "LinkedIn"],
@@ -96,11 +96,11 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "HIGH",
         "observed_behavior": "Morpho published head-to-head capital efficiency comparisons directly highlighting Compound v2 reserve drag.",
         "inferred_mechanism": "Showing mathematical proof of capital waste prompts sophisticated capital to migrate for margin efficiency.",
-        "proposed_vanna_adaptation": "Contrast EVM $40 mempool liquidation spikes against Soroban $0.00014 sub-second rebalancing.",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [
             {"stage_number": 1, "stage_name": "The Friction Thesis", "purpose": "Expose mempool congestion and socialized pool haircuts", "expected_content_type": "problem_lead", "required_evidence_status": "OBSERVED", "source_url_ref": "https://aave.com/blog"},
-            {"stage_number": 2, "stage_name": "Comparative State Architecture", "purpose": "Diagram shared pool vs isolated sandboxes", "expected_content_type": "architectural_schematic", "required_evidence_status": "DERIVED", "source_url_ref": "https://docs.vanna.finance"},
-            {"stage_number": 3, "stage_name": "On-Chain Cost Invariant", "purpose": "Prove sub-second clearance at 0.00014 XLM", "expected_content_type": "benchmark_data", "required_evidence_status": "OBSERVED", "source_url_ref": "https://test.stellar.vanna.finance"}
+            {"stage_number": 2, "stage_name": "Comparative State Architecture", "purpose": "Diagram shared pool vs isolated sandboxes", "expected_content_type": "architectural_schematic", "required_evidence_status": "DERIVED", "source_url_ref": "{docs_url}"},
+            {"stage_number": 3, "stage_name": "On-Chain Cost Invariant", "purpose": "Prove sub-second clearance at 0.00014 XLM", "expected_content_type": "benchmark_data", "required_evidence_status": "OBSERVED", "source_url_ref": "{app_url}"}
         ],
         "supported_channels": ["X", "Reddit"],
         "expected_cta_types": ["TEST_SANDBOX", "READ_COMPARISON"],
@@ -122,10 +122,10 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "HIGH",
         "observed_behavior": "Gearbox regularly published automated risk engine telemetry logs detailing active health factors across borrower accounts.",
         "inferred_mechanism": "Transparent real-time telemetry transforms risk management from an anxiety into a marketing moat.",
-        "proposed_vanna_adaptation": "Weekly breakdown of Mercury indexer sub-second event logs and simulated rebalance execution.",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [
-            {"stage_number": 1, "stage_name": "Weekly Telemetry Broadcast", "purpose": "Share real-time health factor rail", "expected_content_type": "telemetry_card", "required_evidence_status": "OBSERVED", "source_url_ref": "https://test.stellar.vanna.finance"},
-            {"stage_number": 2, "stage_name": "Keeper Latency Benchmark", "purpose": "Highlight ~320ms execution velocity", "expected_content_type": "benchmark_table", "required_evidence_status": "OBSERVED", "source_url_ref": "https://docs.vanna.finance"}
+            {"stage_number": 1, "stage_name": "Weekly Telemetry Broadcast", "purpose": "Share real-time health factor rail", "expected_content_type": "telemetry_card", "required_evidence_status": "OBSERVED", "source_url_ref": "{app_url}"},
+            {"stage_number": 2, "stage_name": "Keeper Latency Benchmark", "purpose": "Highlight ~320ms execution velocity", "expected_content_type": "benchmark_table", "required_evidence_status": "OBSERVED", "source_url_ref": "{docs_url}"}
         ],
         "supported_channels": ["X", "LinkedIn"],
         "expected_cta_types": ["MONITOR_HEALTH_FACTOR", "VIEW_DOCS"],
@@ -147,9 +147,9 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "HIGH",
         "observed_behavior": "Chaos Labs and Gauntlet published mathematical curves contrasting linear kink volatility against smooth continuous equations.",
         "inferred_mechanism": "Mathematical rigor attracts high-capital algorithmic traders who model borrow costs programmatically.",
-        "proposed_vanna_adaptation": "Publish Vanna's exact RateModel polynomial equation: R(U) = R0 + alpha*U + beta*U^2 with verified coordinate charts.",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [
-            {"stage_number": 1, "stage_name": "Governing Equation Breakdown", "purpose": "State exact mathematical formula", "expected_content_type": "math_coordinate_card", "required_evidence_status": "OBSERVED", "source_url_ref": "https://docs.vanna.finance"},
+            {"stage_number": 1, "stage_name": "Governing Equation Breakdown", "purpose": "State exact mathematical formula", "expected_content_type": "math_coordinate_card", "required_evidence_status": "OBSERVED", "source_url_ref": "{docs_url}"},
             {"stage_number": 2, "stage_name": "Liquidity Drain Mitigation Proof", "purpose": "Demonstrate smooth rate acceleration at 80% utilization", "expected_content_type": "comparative_chart", "required_evidence_status": "DERIVED", "source_url_ref": None}
         ],
         "supported_channels": ["X", "LinkedIn"],
@@ -172,9 +172,9 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "HIGH",
         "observed_behavior": "Aave established institutional trust by isolating risk layers and publishing dedicated permission structures.",
         "inferred_mechanism": "Regulated institutions require cryptographic proof that automated bots hold zero withdrawal rights.",
-        "proposed_vanna_adaptation": "Explain Soroban scoped session keys: keepers can only rebalance collateral within bounds, never withdraw funds.",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [
-            {"stage_number": 1, "stage_name": "Cryptographic Privilege Separation", "purpose": "Diagram Master Keypair vs Scoped Session Key", "expected_content_type": "security_architecture_flow", "required_evidence_status": "OBSERVED", "source_url_ref": "https://docs.vanna.finance"},
+            {"stage_number": 1, "stage_name": "Cryptographic Privilege Separation", "purpose": "Diagram Master Keypair vs Scoped Session Key", "expected_content_type": "security_architecture_flow", "required_evidence_status": "OBSERVED", "source_url_ref": "{docs_url}"},
             {"stage_number": 2, "stage_name": "Non-Custodial Audit Attestation", "purpose": "Link formal smart contract invariants", "expected_content_type": "audit_summary", "required_evidence_status": "DERIVED", "source_url_ref": None}
         ],
         "supported_channels": ["LinkedIn", "X"],
@@ -197,10 +197,10 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "HIGH",
         "observed_behavior": "Aquarius and Blend promoted atomic yield loops across DEX pools and lending markets.",
         "inferred_mechanism": "Yield farmers respond directly to capital multiplier math (e.g. 3% base -> 24% leveraged net APR).",
-        "proposed_vanna_adaptation": "Walk through 1-click execution: Deposit XLM -> 10x Margin Account -> Deploy Blend BLUSDC + Aquarius AMM LP.",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [
-            {"stage_number": 1, "stage_name": "The Capital Drag Problem", "purpose": "Contrast idle collateral with composable leverage", "expected_content_type": "yield_comparison_card", "required_evidence_status": "OBSERVED", "source_url_ref": "https://docs.vanna.finance"},
-            {"stage_number": 2, "stage_name": "Atomic Execution Flow", "purpose": "Step-by-step 3-stage yield pipeline", "expected_content_type": "pipeline_diagram", "required_evidence_status": "DERIVED", "source_url_ref": "https://test.stellar.vanna.finance"}
+            {"stage_number": 1, "stage_name": "The Capital Drag Problem", "purpose": "Contrast idle collateral with composable leverage", "expected_content_type": "yield_comparison_card", "required_evidence_status": "OBSERVED", "source_url_ref": "{docs_url}"},
+            {"stage_number": 2, "stage_name": "Atomic Execution Flow", "purpose": "Step-by-step 3-stage yield pipeline", "expected_content_type": "pipeline_diagram", "required_evidence_status": "DERIVED", "source_url_ref": "{app_url}"}
         ],
         "supported_channels": ["X"],
         "expected_cta_types": ["STACK_YIELD", "TEST_LOOP"],
@@ -222,7 +222,7 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "LOW",
         "observed_behavior": "No verified points campaigns currently observed on Vanna's testnet deployment.",
         "inferred_mechanism": "Points programs drive short-term signups but often attract mercenary Sybil volume.",
-        "proposed_vanna_adaptation": "Unapproved for autonomous execution until Vanna launches an official Sybil-resistant points engine.",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [
             {"stage_number": 1, "stage_name": "Points Announcement", "purpose": "Announce points rules", "expected_content_type": "campaign_post", "required_evidence_status": "NOT_OBSERVED", "source_url_ref": None}
         ],
@@ -246,7 +246,7 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "LOW",
         "observed_behavior": "Ecosystem documentation exists, but formal developer SDK campaign has not been executed.",
         "inferred_mechanism": "Developer hackathons seed autonomous keeper networks.",
-        "proposed_vanna_adaptation": "Release npm and rust SDK for Soroban contract integration.",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [
             {"stage_number": 1, "stage_name": "SDK Alpha Announcement", "purpose": "Open GitHub repo", "expected_content_type": "dev_announcement", "required_evidence_status": "NOT_OBSERVED", "source_url_ref": None}
         ],
@@ -270,7 +270,7 @@ RAW_MACHINE_CATALOG: List[Dict[str, Any]] = [
         "confidence": "LOW",
         "observed_behavior": "Unused by institutional protocols.",
         "inferred_mechanism": "Generates low-intent vanity impressions that do not convert into institutional credit deposits.",
-        "proposed_vanna_adaptation": "Strictly prohibited by Vanna positioning rules (never use meme hype).",
+        "proposed_vanna_adaptation": "",  # from the tenant's brand profile
         "required_stages": [],
         "supported_channels": ["X"],
         "expected_cta_types": ["RETWEET"],
@@ -290,7 +290,20 @@ class GTMMachineLibrary:
 
     def _load_and_validate_catalog(self) -> None:
         """Load catalog and evaluate eligibility status based on empirical evidence thresholds."""
-        for m_data in RAW_MACHINE_CATALOG:
+        from pipeline.brand_brain import context as C
+        prof = C.profile()
+        adaptations = prof.get("machine_adaptations") or {}
+        urls = {"{docs_url}": str(prof.get("company", {}).get("docs_url", "")),
+                "{app_url}": str(prof.get("company", {}).get("app_url", ""))}
+        for m_data in [json.loads(json.dumps(m)) for m in RAW_MACHINE_CATALOG]:
+            # The observed playbook is shared; how this company applies it is
+            # the tenant's own, from its brand profile.
+            m_data["proposed_vanna_adaptation"] = (
+                adaptations.get(m_data["machine_id"])
+                or ("Apply this machine to " + C.company_name() + ": " + m_data.get("purpose", "")))
+            for st in m_data.get("required_stages") or []:
+                if st.get("source_url_ref") in urls:
+                    st["source_url_ref"] = urls[st["source_url_ref"]] or None
             observed_count = m_data.get("observed_campaign_count", 0)
             threshold = m_data.get("minimum_evidence_threshold", 1)
             if m_data.get("category") == "COMMUNITY_ENGAGEMENT":

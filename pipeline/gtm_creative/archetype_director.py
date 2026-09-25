@@ -31,7 +31,7 @@ from typing import Any, Callable, Optional
 from pipeline.gtm_creative import archetypes as A
 from pipeline.gtm_creative import premium_archetypes as P
 from pipeline.gtm_os import agent_runtime as R
-from pipeline.gtm_os.vanna_knowledge import prompt_block as _prompt_block
+from pipeline.brand_brain.context import facts_block as _prompt_block
 
 AGENT = "A07_creative_director"
 STATE = Path(__file__).resolve().parents[2] / "pipeline" / "state"

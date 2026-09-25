@@ -58,3 +58,8 @@ open-design/
 vanna_deploy_source.tar.gz
 *.tar.gz
 pipeline/gtm_engine/registry/cache/
+
+# Brand brain: per-tenant databases are built from the seeds
+# (python -m pipeline.brand_brain init <tenant>); never commit them.
+pipeline/brain/tenants/*/brain.db*
+pipeline/brain/tenants/*/stills/

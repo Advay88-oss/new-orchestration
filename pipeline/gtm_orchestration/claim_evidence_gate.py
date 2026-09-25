@@ -15,6 +15,7 @@ Absence of observed evidence is NEVER converted into evidence of absence.
 
 from __future__ import annotations
 
+import json
 import re
 from typing import Any, Dict, List, Optional
 from pathlib import Path
@@ -28,7 +29,7 @@ FIRST_MOVER_PATTERNS = [
     r"\bzero existing\b",
     r"\buncontested first-mover\b",
     r"\bno competitor(?:s)? (?:exist|does|has|provides)\b",
-    r"\bnobody on stellar\b",
+    r"\bnobody (?:else )?(?:on|in) (?:the )?\w+\b",
     r"\bthe only protocol (?:that|to)\b",
     r"\bzero competition\b",
     r"\bfirst and only\b"
@@ -38,20 +39,35 @@ COMPARATIVE_TRIGGER_PATTERNS = [
     r"\bvs\b|\bversus\b",
     r"\bunlike\b",
     r"\bcompetitor(?:s)?\b",
-    r"\baave\b|\bmorpho\b|\bcompound\b|\bgearbox\b",
     r"\btraditional (?:lending|defi|pools)\b",
     r"\bshared pools? (?:while|whereas|vs)\b"
 ]
 
-VANNA_FACT_TRIGGERS = [
-    r"\bsmartaccount sandbox(?:es)?\b",
-    r"\b0\.00014 xlm\b",
-    r"\b320\s*ms\b",
-    r"\b1\.10x\b|\b1\.25x\b",
-    r"\bblend\b|\baquarius\b|\bsoroswap\b",
-    r"\btest\.stellar\.vanna\.finance\b",
-    r"\bmercury indexer\b"
-]
+def _brand():
+    from pipeline.brand_brain import context as C
+    return C
+
+
+def _fact_triggers() -> list[str]:
+    """What marks a claim as a claim about the company itself: its name, its
+    product anchors, its partners, its true figures and its app host — all
+    from the brand profile."""
+    import re as _re
+    C = _brand()
+    words = [C.company_name()]
+    words += [v.split(" — ")[0].split(" (")[0] for v in C.anchors().values()]
+    words += list(C.partners())
+    words += [f["value"] for f in C.true_figures()]
+    host = str(C.profile().get("company", {}).get("app_url", "")).replace("https://", "")
+    if host:
+        words.append(host)
+    return [r"\b" + _re.escape(w.lower()) + r"\b" for w in words if len(w) > 2]
+
+
+def _competitor_names() -> list[str]:
+    C = _brand()
+    partners = {p.lower() for p in C.partners()}
+    return [c.lower() for c in C.competitors() if c.lower() not in partners]
 
 
 class ClaimEvidenceGate:
@@ -84,17 +100,14 @@ class ClaimEvidenceGate:
             return "MARKETING_OPPORTUNITY"
 
         # 4. Check for competitor-specific facts or claims about external protocols
-        if any(comp in t_lower for comp in ["aave", "morpho", "compound", "gearbox", "curve", "ethena"]) \
+        if any(re.search(r"\b" + re.escape(comp) + r"\b", t_lower) for comp in _competitor_names()) \
            or any(k in t_lower for k in ["competitor", "market share", "protocol has", "protocol provides", "ghostprotocol"]):
             return "COMPETITOR_FACT"
 
         # 5. Check for Vanna facts
-        for pat in VANNA_FACT_TRIGGERS:
+        for pat in _fact_triggers():
             if re.search(pat, t_lower):
                 return "VANNA_FACT"
-
-        if "vanna" in t_lower:
-            return "VANNA_FACT"
 
         return "MARKETING_OPPORTUNITY"
 
@@ -125,8 +138,9 @@ class ClaimEvidenceGate:
 
         # ── RULE 2: COMPARATIVE CLAIMS REQUIRE TWO-SIDED EVIDENCE ─────────────
         if ctype == "COMPARATIVE_CLAIM":
-            has_vanna_side = any(re.search(pat, t_lower) for pat in VANNA_FACT_TRIGGERS) or "vanna" in t_lower
-            has_competitor_side = any(k in t_lower for k in ["evm", "shared pool", "aave", "morpho", "traditional"])
+            has_vanna_side = any(re.search(pat, t_lower) for pat in _fact_triggers())
+            has_competitor_side = (any(k in t_lower for k in ["shared pool", "pooled", "traditional", "legacy"])
+                                   or any(c in t_lower for c in _competitor_names()))
 
             if not (has_vanna_side and has_competitor_side):
                 return ClaimRecord(
@@ -153,44 +167,68 @@ class ClaimEvidenceGate:
                 ],
                 confidence="HIGH",
                 source_records=["DOCS_VANNA_FINANCE", "PLAYERS_DB_AAVE_MORPHO"],
-                calculation_method="Comparative contrast: Soroban isolated SmartAccount sandbox vs EVM monolithic shared liquidity pool storage.",
+                calculation_method="Comparative contrast between the company's mechanism and the pooled alternative.",
                 action="USE",
-                rationale="Both sides of comparison are supported: Vanna isolated instance docs and observed EVM shared pool mechanics."
+                rationale="Both sides of the comparison are named; the reviewer's fact check verifies each against the brand brain."
             )
 
-        # ── RULE 3: VANNA FACTS REQUIRE DIRECT GROUND TRUTH EVIDENCE ──────────
+        # ── RULE 3: COMPANY FACTS REQUIRE GROUND TRUTH IN THE BRAND BRAIN ─────
+        # The evidence is the brain's best matching sections, with their
+        # sources. A claim whose words the brain does not carry is kept as an
+        # inference, not asserted; A10's fact check judges every claim that
+        # reaches the copy against the same brain.
         if ctype == "VANNA_FACT":
-            # Check against approved testnet claims
-            claims_doc = (self.knowledge_root / "approved-claims.md")
-            claims_text = claims_doc.read_text(encoding="utf-8") if claims_doc.exists() else ""
-
-            # Check if text contains prohibited mainnet assertions
             if any(p in t_lower for p in ["mainnet live", "live mainnet", "real tvl", "token trading"]):
                 return ClaimRecord(
                     claim_id=cid,
                     text=text,
                     claim_type=ctype,
                     evidence_status="NOT_OBSERVED",
-                    evidence_refs=[str(self.knowledge_root / "approved-claims.md")],
+                    evidence_refs=[],
                     confidence="LOW",
-                    source_records=["PROHIBITED_CLAIMS_REGISTRY"],
+                    source_records=["BRAND_PROFILE_DEPLOYMENT"],
                     action="DO_NOT_USE",
-                    rationale="REJECTED: Asserts mainnet live or active token trading, violating Vanna testnet claim boundaries."
-                )
-
-            # Valid Vanna fact
+                    rationale="REJECTED: contradicts the deployment in the brand profile.")
+            hits = _brand().knowledge_hits(text, k=3, max_authority=3)
+            terms = set(re.findall(r"[a-z0-9.]{4,}", t_lower))
+            best, overlap = None, 0.0
+            for h in hits:
+                ht = set(re.findall(r"[a-z0-9.]{4,}", (h["text"] + " " + h["section"]).lower()))
+                o = len(terms & ht) / max(1, len(terms))
+                if o > overlap:
+                    best, overlap = h, o
+            refs = [h["source"] + ":" + h["section"][:80] + (" " + h["url"] if h.get("url") else "")
+                    for h in hits]
+            # A number in the claim must appear, exactly, in its evidence: an
+            # invented figure shares every other word with a real section.
+            nums = re.findall(r"\d[\d,.]*\d|\d", t_lower)
+            if best and nums:
+                ev = " ".join(h["text"].lower() for h in hits)
+                if not all(n in ev for n in nums):
+                    best, overlap = None, overlap
+            if best and overlap >= 0.4:
+                return ClaimRecord(
+                    claim_id=cid,
+                    text=text,
+                    claim_type=ctype,
+                    evidence_status="OBSERVED",
+                    evidence_refs=refs,
+                    confidence="HIGH" if best["authority"] <= 2 else "MEDIUM",
+                    source_records=[best["id"]],
+                    calculation_method="Brand brain hybrid search; term overlap " + str(round(overlap, 2)),
+                    action="USE",
+                    rationale="Supported by " + best["source"] + " · " + best["section"][:80])
             return ClaimRecord(
                 claim_id=cid,
                 text=text,
                 claim_type=ctype,
-                evidence_status="OBSERVED",
-                evidence_refs=[str(self.knowledge_root / "approved-claims.md")],
-                confidence="HIGH",
-                source_records=["APPROVED_CLAIMS_INTERNAL_V1"],
-                calculation_method="Direct documentation invariant verification.",
-                action="USE",
-                rationale="Verified against approved Vanna testnet architecture documentation."
-            )
+                evidence_status="INSUFFICIENT",
+                evidence_refs=refs,
+                confidence="LOW",
+                source_records=[],
+                calculation_method="Brand brain hybrid search; best term overlap " + str(round(overlap, 2)),
+                action="USE_AS_INFERENCE",
+                rationale="The brand brain does not state this directly; keep it as framing, not fact.")
 
         # ── RULE 4: WHITESPACE INFERENCES MUST REMAIN INFERENCES ──────────────
         if ctype == "WHITESPACE_INFERENCE":

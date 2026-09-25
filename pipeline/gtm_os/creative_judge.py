@@ -23,65 +23,57 @@ from pathlib import Path
 from typing import Any, Optional
 
 from pipeline.gtm_os import agent_runtime as R
-from pipeline.gtm_os.vanna_knowledge import PROHIBITED_VISUAL, VISUAL_ANCHORS
 
 AGENT = "A15_creative_judge"
 
-JUDGE_SYSTEM = (
-    "You are Vanna's creative director reviewing finished assets before they "
-    "go to the founder. Vanna is composable credit infrastructure on Stellar "
-    "Soroban TESTNET.\n\n"
+_JUDGE_SYSTEM = (
+    "You are {company}'s creative director reviewing finished assets before "
+    "they go to the founder. {company_line}\n\n"
 
     "You are the last person who sees these before a human does, and your "
     "default posture is scepticism. A beautiful image that does not show "
-    "Vanna's mechanism is a failure — it is stock art, and shipping it teaches "
-    "the audience that Vanna posts are decoration.\n\n"
+    "{company}'s mechanism is a failure: it is stock art, and shipping it "
+    "teaches the audience that {company} posts are decoration.\n\n"
 
-    "Vanna's mechanism means these concrete things:\n"
-    + "\n".join("  - " + k + ": " + v for k, v in VISUAL_ANCHORS.items()) + "\n\n"
+    "{company}'s mechanism means these concrete things:\n{anchors}\n\n"
 
     "Judge each asset on:\n"
-    "  on_brand      house style — obsidian void, negative space, matte and "
-    "optical materials, restraint. No neon, no crypto slop.\n"
-    "  shows_mechanism  can you name the Vanna mechanism depicted? If the "
+    "  on_brand      the house style: {house_style}. No neon, no crypto slop.\n"
+    "  shows_mechanism  can you name the {company} mechanism depicted? If the "
     "honest answer is 'abstract shapes', that is a NO regardless of beauty.\n"
     "  matches_copy  does the asset argue the same thing the post argues?\n"
-    "  no_text       Vanna assets are built in two passes: an image model "
-    "draws SHAPES ONLY, then every word is typeset over it deterministically "
-    "with the exact strings we supplied. So all legible, correctly spelt, "
-    "well-set text — headline, deck, labels, callouts, figures, footnote — is "
-    "CORRECT BY CONSTRUCTION. Do not fault it and do not count it against the "
-    "asset. What IS a defect: text that is misspelt, garbled, nonsensical, "
-    "duplicated, clipped, overlapping another element, or embedded inside the "
-    "drawn shapes themselves (axis ticks, gradations, labels on objects) — "
-    "those come from the model and it cannot spell. Report has_text true only "
-    "for text of that second kind.\n"
-    "  prohibited    " + PROHIBITED_VISUAL + "\n\n"
+    "  no_text       posters carry words by design (headline, subtitle, a "
+    "few labels, footer) and the image model draws every one of them, so "
+    "every word must be checked. What IS a defect: text that is misspelt, "
+    "garbled, nonsensical, duplicated, clipped, overlapping another element, "
+    "or scribbled inside drawn objects. Report has_text true only for text "
+    "of that kind.\n"
+    "  prohibited    {prohibited}\n\n"
 
     "  matches_request  do the post AND the asset answer what the founder "
     "asked for? Compare against FOUNDER REQUEST when one is given. A post "
-    "about a neighbouring concept — liquidation when liquidity was asked "
-    "for — is a REJECT of the copy however well written, and so is a post "
+    "about a neighbouring concept (liquidation when liquidity was asked "
+    "for) is a REJECT of the copy however well written, and so is a post "
     "that ignores a structure the founder asked for.\n\n"
-
-    "POSTERS AND TYPESET LAYOUTS. When the archetype is a P-series poster "
-    "(P1 hero metric, P2 announcement, P3 product card) or a code-set layout "
-    "(A2 product panel, A6 ledger, A7 composition bar, A9 lockup), there is "
-    "deliberately NO drawn figure: the background is light only and the "
-    "argument is carried by the typeset words and figures. Do not ask for a "
-    "drawing and do not mark shows_mechanism false for its absence. Judge "
-    "instead: does the typeset claim state Vanna's mechanism correctly and "
-    "match the post; is it legible, aligned, and free of overlap; is the "
-    "figure true; is it on-brand (Vanna's violet-to-magenta bloom on a dark "
-    "ground, one idea set large).\n\n"
 
     "Verdicts: SHIP (good as is), REVISE (usable but name what is wrong), "
     "REJECT (do not publish). Use REJECT when the asset shows no mechanism, "
-    "carries text, contradicts the copy, misses the founder's request, or "
-    "breaks the prohibited list.\n\n"
+    "carries defective text, contradicts the copy, misses the founder's "
+    "request, or breaks the prohibited list.\n\n"
     "Return strict JSON. Be specific: 'the three chambers read as decorative "
     "vases, not as isolated accounts' is useful, 'could be stronger' is not."
 )
+
+
+def judge_system() -> str:
+    """The judge's brief for the tenant this run serves, from its profile."""
+    from pipeline.brand_brain import context as C
+    return (_JUDGE_SYSTEM.replace("{company_line}", C.company_line())
+            .replace("{company}", C.company_name())
+            .replace("{anchors}", "\n".join("  - " + k + ": " + v for k, v in C.anchors().items()))
+            .replace("{house_style}", C.house_style())
+            .replace("{prohibited}", C.prohibited_visual()))
+
 
 SCHEMA_HINT = (
     '{"assets": [{"asset": "visual"|"meme"|"video_still", '
@@ -188,7 +180,7 @@ def judge_assets(summary: dict[str, Any], run_id: str) -> dict[str, Any]:
     # asking for brevity, before giving up.
     try:
         verdict = R.brain_vision(prompt, images, agent=AGENT,
-                                 system=JUDGE_SYSTEM, role="reasoning",
+                                 system=judge_system(), role="reasoning",
                                  temperature=0.15, max_output_tokens=12288)
     except R.BrainError as first:
         R.record_stage(AGENT, "degraded",
@@ -197,7 +189,7 @@ def judge_assets(summary: dict[str, Any], run_id: str) -> dict[str, Any]:
         verdict = R.brain_vision(
             prompt + "\n\nKeep every critique under 25 words and every fix "
             "under 15. Return ONLY the JSON object.",
-            images, agent=AGENT, system=JUDGE_SYSTEM, role="reasoning",
+            images, agent=AGENT, system=judge_system(), role="reasoning",
             temperature=0.1, max_output_tokens=12288)
 
     assets = verdict.get("assets") or []

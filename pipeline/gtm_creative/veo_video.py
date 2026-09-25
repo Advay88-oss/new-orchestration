@@ -103,6 +103,19 @@ def add_exemplar(video: str | Path, *, score: float, note: str = "",
     rows = [r for r in _rows() if r.get("id") != digest] + [row]
     INDEX.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n",
                      encoding="utf-8")
+    # Into the brand brain's visual memory, as the clip's last frame.
+    try:
+        from pipeline.brand_brain.client import current_tenant
+        from pipeline.brand_brain.onboard import _still, remember_image
+        from pipeline.brand_brain.store import tenant_dir
+        d = tenant_dir(current_tenant()) / "stills"
+        d.mkdir(parents=True, exist_ok=True)
+        st = _still(dest, d / (digest + "_last.png"))
+        if st:
+            remember_image(st, kind="video_still", score=row["score"], note=row["note"] or "",
+                           source=str(dest))
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
     return row
 
 
@@ -289,17 +302,17 @@ def make(poster: str | Path, brief: str, out: str | Path, *,
 # --------------------------------------------------------------------------
 
 BUILD_BRIEF = (
-    "The FIRST frame is the empty Vanna ground. The LAST frame is the finished "
+    "The FIRST frame is the empty {company} ground. The LAST frame is the finished "
     "poster. Animate the poster BUILDING ITSELF out of that empty ground, as a "
     "premium product-explainer motion graphic:\n"
-    "  1. the soft violet and magenta glows breathe in on the empty ground;\n"
-    "  2. the Vanna logo fades up at the top;\n"
+    "  1. the soft glows of the brand ground breathe in on the empty ground;\n"
+    "  2. the {company} logo fades up at the top;\n"
     "  3. the headline arrives line by line, the gradient word sweeping in last;\n"
     "  4. the glass cards and panels slide and scale in from nothing, one "
     "after another;\n"
     "  5. inside them the diagram assembles: icons pop in, connectors and "
     "arrows draw along their paths, gauges and bars fill to their values, the "
-    "problem side strains while Vanna's side settles;\n"
+    "problem side strains while {company}'s side settles;\n"
     "  6. labels and the footer resolve, and everything settles exactly into "
     "the last frame and holds.\n"
     "CAMERA: completely locked off — no pan, tilt, zoom, dolly, orbit, drift, "
@@ -307,7 +320,7 @@ BUILD_BRIEF = (
     "TEXT: every word, when it appears, is sharp, correctly spelled and "
     "identical to the last frame; never scramble, melt or morph letters. Add "
     "no text, objects, people, coins or scenes that are not in the last frame. "
-    "The ground stays Vanna's dark violet-and-magenta throughout."
+    "The ground stays {company}'s dark violet-and-magenta throughout."
 )
 
 
@@ -375,7 +388,7 @@ def make_build(poster: str | Path, brief: str, out: str | Path, *,
     learned = learned_block()
     history, correction = [], ""
     for n in range(1, attempts + 1):
-        head = directed or (BUILD_BRIEF + ("\n\n" + learned if learned else ""))
+        head = directed or (__import__('pipeline.brand_brain.context', fromlist=['fill']).fill(BUILD_BRIEF) + ("\n\n" + learned if learned else ""))
         prompt = (head
                   + "\n\nWHAT THIS POST SAYS (the build should tell it): "
                   + " ".join(brief.split())[:700]

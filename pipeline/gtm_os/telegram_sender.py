@@ -140,7 +140,7 @@ def send_review(summary: dict[str, Any], run_id: str, *,
     review = summary.get("review_notes") or {}
 
     text = markdown or "\n".join(filter(None, [
-        "*Vanna — review needed*",
+        "*" + _esc(__import__('pipeline.brand_brain.context', fromlist=['company_name']).company_name()) + " — review needed*",
         "`" + run_id + "`",
         "",
         "*" + _esc(str(summary.get("pillar") or "")) + "*",

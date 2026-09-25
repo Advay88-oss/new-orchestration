@@ -98,10 +98,14 @@ class TestGTMCreativeSystem(unittest.TestCase):
         self.assertTrue(any("tron neon grids" in v for v in res_slop.slop_violations))
 
     def test_04_brand_tokens_compliance(self):
+        # The blueprint carries the tenant's palette exactly as the brand
+        # profile states it (Vanna's ground and two glows).
+        from pipeline.brand_brain import context as C
         blueprint = self.director.compile_master_blueprint(self.sample_strategy, self.sample_package)
-        self.assertEqual(blueprint.brand_tokens["obsidian_canvas"], "#07020D")
-        self.assertEqual(blueprint.brand_tokens["electric_violet_bloom"], "#471485")
-        self.assertEqual(blueprint.brand_tokens["fuchsia_magenta_bloom"], "#5E0D46")
+        self.assertEqual(blueprint.brand_tokens, C.palette())
+        self.assertEqual(blueprint.brand_tokens["ground"], "#07020D")
+        self.assertEqual(blueprint.brand_tokens["glow_low_left"], "#471485")
+        self.assertEqual(blueprint.brand_tokens["glow_high_right"], "#5E0D46")
 
     def test_05_strategy_mandatory_no_action_blocked(self):
         no_action_strat = self.sample_strategy.model_copy()

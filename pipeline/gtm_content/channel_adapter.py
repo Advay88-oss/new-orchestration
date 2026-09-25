@@ -108,10 +108,18 @@ class ChannelAdapter:
 
         # Determine Topic & Tone from Strategy
         title = getattr(strategy, "title", None) or strategy.strategy_id
-        context = strategy.market_context or strategy.problem or "Stellar Soroban credit layer"
-        audience = strategy.audience_segment or "Quantitative Traders & Stellar Ecosystem"
-        objective = strategy.objective or "Educate and drive testnet SmartAccount deployments"
-        cta = strategy.cta or "Deploy your testnet sandbox at test.stellar.vanna.finance"
+        from pipeline.brand_brain import context as C
+        name = C.company_name()
+        auds = C.audiences()
+        context = strategy.market_context or strategy.problem or C.company_line()
+        audience = strategy.audience_segment or (auds[0].get("name") if auds else "the audience")
+        objective = strategy.objective or "Educate the audience and drive the call to action"
+        cta = strategy.cta or C.cta()
+        figures = ", ".join(f["value"] + " " + f.get("meaning", "") for f in C.true_figures())
+        # The research step of the architecture: the brand brain's knowledge on
+        # this subject, with sources. Only what is here may be stated as fact;
+        # the reviewer checks every claim against the same brain.
+        ground_truth = C.facts_block(" ".join([str(context), str(strategy.problem or "")])[:400], k=6)
 
         # -------------------------------------------------------------
         # Call Gemini 3.8 Flash for Bespoke Copy Generation
@@ -134,24 +142,28 @@ class ChannelAdapter:
             learned = ""
         learned_section = ("\n" + learned + "\n") if learned else ""
 
-        llm_prompt = f"""You are the senior technical copywriter for Vanna Protocol (composable credit infrastructure on Stellar Soroban TESTNET).
+        llm_prompt = f"""You are the senior technical copywriter for {C.company_line()}
+{ground_truth}
+
+State as fact ONLY what the ground truth above says. Every factual claim you make is checked against it by the reviewer, and an unsupported claim blocks the post. Describe mechanisms exactly as the sources do; do not embellish them.
+
 Write native social copy for the following strategy:
 - Subject and Founder Request (the post MUST be about this): "{context}"
 - Problem to explain: "{problem}"
-- Vanna's position on it: "{positioning}"
+- {name}'s position on it: "{positioning}"
 - Format asked for: "{content_type}"
 - Target Audience: "{audience}"
 - Core Objective: "{objective}"
 - Call to Action: "{cta}"
 
-Stay on the subject. If the founder asked for a concept, explain THAT concept; never swap it for a neighbouring one (liquidity is not liquidation). If the request names a structure (problem, how it works, why it matters, where Vanna fits) or a quality (simple language, saveable, shareable), the X post follows that structure in that order.
+Stay on the subject. If the founder asked for a concept, explain THAT concept; never swap it for a neighbouring one (liquidity is not liquidation). If the request names a structure (problem, how it works, why it matters, where {name} fits) or a quality (simple language, saveable, shareable), the X post follows that structure in that order.
 {learned_section}
 Editorial & Algorithmic Rules to Follow Strictly (HERMES HUMANIZER SKILL):
 1. Voice: Speak as an authentic engineer/builder. Write with real opinions, natural sentence variation, and zero marketing fluff.
 2. Ban AI Clichés: Never use "introduces", "features include", "revolutionary", "game-changing", "seamlessly", "stands as", "is a testament to", "in today's evolving landscape".
 3. Ban Structural Slop: Never use em dashes (—), exclamation marks (!), or negative parallelisms ("Not only X, but Y").
 4. Ban Robotic Lists: Never write "- **Feature:** description" bullet lists. Write natural prose.
-5. Specifics Over Adjectives: Vanna's real figures are 0.00014 XLM fixed gas, ~320ms Mercury indexer latency and a 1.10x Health Factor floor. Use a figure ONLY when it is about the subject; a figure bolted on to look technical is filler. These are VANNA's figures: never attribute them to other protocols or to "standard" DeFi.
+5. Specifics Over Adjectives: {name}'s real figures are {figures}. Use a figure ONLY when it is about the subject; a figure bolted on to look technical is filler. These are {name}'s figures: never attribute them to other protocols or to the category as a whole.
 6. X/Twitter: First 7 words must hook the target audience. Never put links in Tweet 1. Put the CTA link only at the end.
 7. LinkedIn: Thought leadership focusing on architecture and execution latency over pooled risk.
 8. Reddit: Honest technical forum breakdown with personal disclosure.
@@ -228,7 +240,7 @@ Return STRICT JSON matching this schema:
             proof_block = "\n".join("- " + c for c in proof)
 
             body_parts = [p for p in (problem, opportunity) if p]
-            body = "\n\n".join(body_parts) or ("Vanna's position on " + subject + ".")
+            body = "\n\n".join(body_parts) or (name + "'s position on " + subject + ".")
 
             parsed_data = {
                 "x_hook": (opportunity.split(".")[0].strip() or subject)[:120],
@@ -240,8 +252,7 @@ Return STRICT JSON matching this schema:
                 "reddit_hook": subject,
                 "reddit_copy": (body + ("\n\n" + proof_block if proof_block else "")
                                 + "\n\n" + cta
-                                + "\n\n*(Disclosure: I am a core contributor at "
-                                  "Vanna Protocol. Testing on Stellar Testnet.)*"),
+                                + "\n\n*(" + _disclosure() + ")*"),
                 # Carried through so the reviewer and the dashboard can see the
                 # model did not write this.
                 "_synthesised": True,
@@ -286,7 +297,7 @@ Return STRICT JSON matching this schema:
         linkedin_hook = parsed_data.get("linkedin_hook", f"Strategic Update: {title}")
         linkedin_copy = parsed_data.get("linkedin_copy", f"{title}\n\n{cta}")
         if "architecture" not in linkedin_copy.lower():
-            linkedin_copy += "\n\nInstitutional architecture is documented at test.stellar.vanna.finance"
+            linkedin_copy += "\n\n" + cta
         post_linkedin = ChannelPostPayload(
             content_id=f"POST-LI-{pkg_id}",
             channel="LinkedIn",
@@ -310,7 +321,7 @@ Return STRICT JSON matching this schema:
         reddit_hook = parsed_data.get("reddit_hook", f"Technical analysis: {title}")
         reddit_copy = parsed_data.get("reddit_copy", f"**Title:** {reddit_hook}\n\n{title}\n\n{cta}")
         if "disclosure" not in reddit_copy.lower():
-            reddit_copy += "\n\n*(Disclosure: Core builder at Vanna Protocol. Testing on Stellar Testnet only.)*"
+            reddit_copy += "\n\n*(" + _disclosure() + ")*"
 
         post_reddit = ChannelPostPayload(
             content_id=f"POST-RD-{pkg_id}",
@@ -327,7 +338,7 @@ Return STRICT JSON matching this schema:
             risk_flags=["Requires testnet disclosure"],
             confidence="HIGH",
             provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id},
-            media_direction="Detailed code walkthrough of Soroban contract invocation and liquidation thresholds."
+            media_direction="Detailed code walkthrough of the mechanism the post explains."
         )
 
         return ChannelAdaptationPackage(
@@ -341,3 +352,11 @@ Return STRICT JSON matching this schema:
                 "reddit": post_reddit
             }
         )
+
+
+def _disclosure() -> str:
+    """The contributor disclosure a community post ends with."""
+    from pipeline.brand_brain import context as C
+    stage = C.disclosure()
+    return ("Disclosure: I am a core contributor at " + C.company_name() + "."
+            + (" This is on " + stage + "." if stage else ""))

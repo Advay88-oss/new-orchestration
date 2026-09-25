@@ -663,7 +663,7 @@ SCHEMA = (
 
 def direct(brief: str) -> dict[str, Any]:
     from pipeline.gtm_os import agent_runtime as R
-    from pipeline.gtm_os.vanna_knowledge import prompt_block
+    from pipeline.brand_brain.context import facts_block as prompt_block
 
     prompt = (
         prompt_block(brief[:300], excerpts=5) + "\n\n----\n\n"

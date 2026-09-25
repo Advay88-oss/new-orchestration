@@ -17,23 +17,64 @@ from pathlib import Path
 from typing import Any, Optional
 
 REPO = Path(__file__).resolve().parents[2]
-REF_DIR = REPO / "design references"
-LOGO = REPO / "pipeline" / "state" / "logo.png"
 OUT_DIR = REPO / "pipeline" / "state" / "direct_posters"
 MODEL = "gemini-3-pro-image"
 
-FACTS = """VANNA — the only facts you may use:
-- Vanna is composable credit / unified margin infrastructure, live on Stellar Soroban TESTNET (not mainnet).
-- Each user gets a SmartAccount: an isolated margin-account contract. Risk stays inside that account; it is not pooled with other users.
-- Users borrow credit against collateral and deploy it across venues (Blend lending, Aquarius and Soroswap AMMs on Stellar).
-- Health-factor liquidation floor: 1.10x. Fixed gas: 0.00014 XLM. Indexing latency: ~320ms.
-- Never state any other number: no user counts, no TVL, no APY, no percentages, no price."""
+# Everything company-specific here (the facts, the logo, the references, the
+# approved posters, the house style) comes from the tenant's brand brain.
 
 
-def references() -> list[Path]:
-    refs = sorted(REF_DIR.glob("cl-*.png"))
-    extra = REF_DIR / "image.png"
-    return refs + ([extra] if extra.exists() else [])
+def _c():
+    from pipeline.brand_brain import context as C
+    return C
+
+
+def _logo() -> Path:
+    return _c().logo_path()
+
+
+def _facts() -> str:
+    """The only facts an image may carry: the profile's anchors and figures."""
+    C = _c()
+    lines = [C.company_name().upper() + " — the only facts you may use:", "- " + C.company_line()]
+    lines += ["- " + k + ": " + v for k, v in C.anchors().items()]
+    lines += ["- " + f["value"] + ": " + f.get("meaning", "") for f in C.true_figures()]
+    ns = C.never_state()
+    if ns:
+        lines.append("- Never state any other number: no " + ", no ".join(ns) + ".")
+    return "\n".join(lines)
+
+
+def _venues() -> str:
+    """Partner names that may appear as plain text (never as a drawn logo)."""
+    # Venues and protocols, not the chain, backers or infrastructure vendors.
+    skip = ("chain", "backer", "infrastructure")
+    names = [n for n, role in _c().partners().items()
+             if not any(s in role.lower() for s in skip)][:6]
+    return ", ".join(names) if names else "partner protocols"
+
+
+def _refs(topic: str, kinds: list[str], n: int, min_score: float = 0.0) -> list[Path]:
+    """The brain's images for a topic: `get_visual_refs`, the architecture's
+    call for the visual agent."""
+    try:
+        rows = _c().brain().get_visual_refs(topic or "brand poster", n=n * 3 if min_score else n,
+                                            kinds=kinds)
+    except Exception:                               # noqa: BLE001 — boundary
+        return []
+    out = []
+    for r in rows:
+        if min_score and float(r.get("score") or 0) < min_score:
+            continue
+        f = REPO / r["path"]
+        if f.exists():
+            out.append(f)
+    return out[:n]
+
+
+def references(topic: str = "") -> list[Path]:
+    """The tenant's design references, closest to the topic first."""
+    return _refs(topic, ["reference"], 8)
 
 
 def _learned_rules() -> str:
@@ -62,42 +103,35 @@ FLAT_RULE = (
 def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
     return (
         "You are designing ONE finished square (1:1) image for an X post by "
-        "Vanna Finance.\n\n"
+        + _c().company_name() + ".\n\n"
         + ("ATTACHED IMAGES: the FIRST " + str(approved) + " are posters the "
            "founder APPROVED — the quality bar, and the way to compose one: an "
            "explanatory diagram built from glass UI elements, icons and "
-           "arrows, clearly contrasting the problem with Vanna's answer. Match "
+           "arrows, clearly contrasting the problem with " + _c().company_name() + "'s answer. Match "
            "that level and that approach; do NOT copy their text or their "
            "exact layout. The images after them, except the last, are further "
-           "STYLE REFERENCES. The LAST image is the official Vanna logo.\n\n"
+           "STYLE REFERENCES. The LAST image is the official logo.\n\n"
            if approved else
            "ATTACHED IMAGES: all images except the last are STYLE REFERENCES. "
-           "The LAST image is the official Vanna logo.\n\n")
+           "The LAST image is the official logo.\n\n")
         + "FORMAT: one full-bleed square, the dark ground running edge to "
         "edge — no white or light borders, no bands, no frame around it.\n\n"
-        + "Match the references' house style exactly: very dark ground with a "
-        "soft violet glow low-left and a magenta glow high-right; the logo "
-        "centred at the top; a heavy bold sans-serif headline, centred, with "
-        "ONE key word or short phrase in a pink-to-violet gradient italic; "
-        "one short grey subtitle line; a clean centrepiece made of UI "
-        "elements (glass cards, chips, rows with checkmarks, pills, arrows, "
-        "stat tiles or a simple diagram) that explains the idea; and a footer "
-        "line at the bottom: a few bold white words then a short grey "
-        "caveat that says testnet. Generous spacing, nothing overlapping, "
-        "everything aligned.\n\n"
+        + "Match the references' house style exactly: " + _c().house_style()
+        + ". Generous spacing, nothing overlapping, everything aligned.\n\n"
         + FLAT_RULE + "\n\n"
-        "LOGO: use the logo from the LAST attached image, exactly as it is — "
-        "same mark, same lowercase wordmark 'vanna', same colours, drawn "
-        "once. Do NOT invent a mark and do NOT use the cube icon in the "
-        "style references; that is an old logo.\n\n"
+        "LOGO: use the logo from the LAST attached image, exactly as it is: "
+        + _c().logo_description() + ". Same mark, same wordmark, same colours, "
+        "drawn once. Do NOT invent a mark and do NOT copy any logo or icon "
+        "from the style references.\n\n"
         "No markdown: never render asterisks, underscores or hashes as "
         "characters; emphasis is the gradient word.\n\n"
         "TEXT RULES: every word must be spelled correctly. Keep all text "
         "short — headline under 9 words, subtitle under 14, labels 1-4 "
         "words. Use no text other than what explains the idea. Other "
-        "protocols (Blend, Aquarius, Soroswap) appear as plain text names — "
-        "never draw a logo or icon for them. Keep to Vanna's violet and "
-        "magenta; avoid cyan and teal. " + FACTS
+        "protocols (" + _venues() + ") appear as plain text names — "
+        "never draw a logo or icon for them. Keep to the brand palette"
+        + ("; avoid " + " and ".join(_c().avoid_colors()) if _c().avoid_colors() else "")
+        + ". " + _facts()
         + _learned_rules()
         + "\n\nTHE POST THIS IMAGE IS FOR:\n" + " ".join(brief.split())
         + ("\n\nFIX FROM THE PREVIOUS ATTEMPT (it was rejected): " + correction
@@ -106,8 +140,8 @@ def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
 
 
 JUDGE_SYSTEM = (
-    "You review a finished social image for Vanna Finance before a human "
-    "sees it. Be strict and specific. Return strict JSON."
+    "You review a finished social image for a brand before a human sees it. "
+    "Be strict and specific. Return strict JSON."
 )
 
 JUDGE_SCHEMA = (
@@ -123,23 +157,22 @@ def judge(image: Path, brief: str) -> dict[str, Any]:
 
     prompt = (
         "The FIRST image is the poster to review. The SECOND is the official "
-        "Vanna logo.\n\n" + FACTS + "\n\nThe brief was:\n" + brief + "\n\n"
+        + _c().company_name() + " logo.\n\n" + _facts() + "\n\nThe brief was:\n" + brief + "\n\n"
         "Check: every word spelled correctly and not garbled; no figure that "
         "is not in the facts list; the logo matches the official one (not a "
         "cube); nothing overlaps or is cut off; the image is about the brief; "
-        "no logo or brand mark of ANY other protocol (Blend, Aquarius, "
-        "Soroswap and others appear as plain text names only — an invented "
+        "no logo or brand mark of ANY other protocol (" + _venues() + " and "
+        "others appear as plain text names only — an invented "
         "icon for them is a fake brand mark); no markdown characters "
         "(asterisks, underscores, hashes) rendered as text; " + FLAT_RULE + " "
         "REJECT on any spelling error, invented figure, wrong logo, another "
         "protocol's logo, markdown characters, overlap, or any isometric/3D "
-        "object, safe, vault, box or coin. Cyan or teal is "
-        "NOT a reason to reject — the founder approved a poster with it — "
-        "but name it in `fix` if present. `fix` says exactly what to change, "
+        "object, safe, vault, box or coin. A colour outside the palette is "
+        "NOT a reason to reject on its own, but name it in `fix` if present. `fix` says exactly what to change, "
         "in one or two sentences." + _learned_rules()
         + "\n\nReturn JSON exactly:\n" + JUDGE_SCHEMA
     )
-    return R.brain_vision(prompt, [image, LOGO], agent="A15_creative_judge",
+    return R.brain_vision(prompt, [image, _logo()], agent="A15_creative_judge",
                           system=JUDGE_SYSTEM, role="reasoning",
                           temperature=0.1, max_output_tokens=2048)
 
@@ -233,13 +266,12 @@ def make(brief: str, name: str, *, out_dir: Optional[Path] = None,
     # model still wrote "Vanna" there (so the pasted lockup doubled it) or
     # returned a letterboxed frame. Shown the logo, it reproduced it in most
     # attempts, and the judge rejects the ones where it did not.
-    try:
-        from pipeline.gtm_learning.visual_exemplars import top
-        approved = top(3, renderer="direct_model")
-    except Exception:                               # noqa: BLE001 — boundary
-        approved = []
-    imgs = (approved + references()
-            + [Path(p) for p in (extra_refs or []) if Path(p).exists()] + [LOGO])
+    # Both come from the brain's visual memory, ranked for this brief: the
+    # founder-approved posters closest to the topic (rated 0.7 or better),
+    # then the design references.
+    approved = _refs(brief, ["approved_poster"], 3, min_score=0.7)
+    imgs = (approved + references(brief)
+            + [Path(p) for p in (extra_refs or []) if Path(p).exists()] + [_logo()])
     history = []
     correction = ""
     for n in range(1, attempts + 1):

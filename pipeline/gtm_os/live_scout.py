@@ -80,16 +80,12 @@ def _clean_headline(text: str) -> str:
     return cleaned
 
 
-# Protocols and firms worth recognising by name in a headline. Matched
-# case-insensitively on word boundaries so "Aave" does not fire on "have".
-_KNOWN = [
-    "Aave", "Morpho", "Compound", "Euler", "Gearbox", "Maker", "Sky", "Spark",
-    "Curve", "Convex", "Blend", "Stellar", "Soroban", "Solana", "Ethereum",
-    "Uniswap", "Lido", "EigenLayer", "Pendle", "Ethena", "Hyperliquid",
-    "Ripple", "Circle", "Tether", "Coinbase", "Binance", "Visa", "Mastercard",
-    "Gauntlet", "Chainlink", "Arbitrum", "Base", "Optimism", "Avalanche",
-    "Benqi", "Suilend", "Kamino", "MarginFi", "Radiant", "Silo", "Fluid",
-]
+# Protocols and firms worth recognising by name in a headline — the tenant's
+# `known_entities`, from its brand profile. Matched case-insensitively on
+# word boundaries so "Aave" does not fire on "have".
+def _known() -> list[str]:
+    from pipeline.brand_brain import context as C
+    return list(C.profile().get("known_entities") or [])
 
 
 def _entities(raw: dict[str, Any], headline: str) -> list[str]:
@@ -110,7 +106,7 @@ def _entities(raw: dict[str, Any], headline: str) -> list[str]:
             named.append(str(v))
 
     low = str(headline).lower()
-    for k in _KNOWN:
+    for k in _known():
         if re.search(r"\b" + re.escape(k.lower()) + r"\b", low):
             named.append(k)
 
@@ -342,15 +338,12 @@ def scout(limit: int = 12, *, include_archive: bool = True) -> list[MarketSignal
         return rank_for_relevance(out)[:limit]
 
 
-# Vanna's domain. A signal touching these is one it can say something
+# The tenant's domain. A signal touching these is one it can say something
 # architectural about; a signal touching none of them is not.
-_RELEVANT = (
-    "liquidat", "margin", "leverage", "collateral", "credit", "lending",
-    "borrow", "bad debt", "contagion", "solvency", "insolven", "risk",
-    "vault", "money market", "loan", "ltv", "health factor", "oracle",
-    "soroban", "stellar", "smart account", "account abstraction",
-    "yield", "stablecoin", "restaking", "rwa", "tokeniz",
-)
+def _relevant() -> list[str]:
+    """The tenant's domain terms (its profile's `relevance_terms`)."""
+    from pipeline.brand_brain import context as C
+    return C.relevance_terms()
 
 # SEO listicles and buyer-guide content. These rank well in news search and
 # are worthless to a B2B infrastructure protocol: A03 declined three in a row
@@ -376,7 +369,7 @@ def rank_for_relevance(signals: list[MarketSignal]) -> list[MarketSignal]:
 
 def _relevance(s: MarketSignal) -> float:
     text = (str(s.headline) + " " + str(getattr(s, "description", ""))).lower()
-    hits = sum(1 for k in _RELEVANT if k in text)
+    hits = sum(1 for k in _relevant() if k in text)
     penalty = sum(3 for k in _LISTICLE if k in text)
     # A measured on-chain move beats an opinion piece about the same topic.
     measured = 2 if str(s.source_type) == "PRIMARY_ONCHAIN_OBSERVED" else 0

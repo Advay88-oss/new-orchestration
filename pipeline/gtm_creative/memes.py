@@ -181,20 +181,20 @@ def render_meme(panel_left: str, panel_right: str, caption: str,
 # --------------------------------------------------------------------------
 
 MEME_SYSTEM = (
-    "You write memes for Vanna, composable credit infrastructure on Stellar "
-    "Soroban testnet. A meme is a situation a user recognises, not a product "
-    "description.\n\n"
+    "You write memes for {company_line} A meme is a situation a user "
+    "recognises, not a product description.\n\n"
     "Rules that make the difference between a meme and an advert:\n"
     "- The caption is FIRST PERSON, from the user's side: \"My assets, "
-    "chilling on…\", \"When my strategies are safe within…\", \"Using Vanna's "
-    "margin accounts to…\". Never \"Vanna provides\" or \"Vanna enables\".\n"
+    "chilling on…\", \"When my strategies are safe within…\", \"Using {company}'s "
+    "margin accounts to…\". Never \"{company} provides\" or \"{company} enables\".\n"
     "- The left panel is a felt problem — stress, storm, a mess of "
     "spreadsheets, a sinking boat. The right panel is relief: the same person, "
     "calm, because of the mechanism. The gap between them is the joke.\n"
     "- Describe a SCENE with a person in it, not a diagram and not a metaphor "
     "made of shapes.\n"
     "- Labels are 1-2 words, on objects, and they carry the argument.\n"
-    "- Never imply mainnet, never name a competitor, never invent a figure.\n\n"
+    "- Never contradict the deployment ({deployment}), never name a "
+    "competitor, never invent a figure.\n\n"
     "Return strict JSON."
 )
 
@@ -218,5 +218,5 @@ def brief_meme(strategy: Any, hook: str, body: str,
         "strings. caption is under 14 words, first person."
     )
     return R.brain_json(prompt, agent="A07_creative_director", role="reasoning",
-                        system=MEME_SYSTEM, temperature=0.9,
+                        system=__import__('pipeline.brand_brain.context', fromlist=['fill']).fill(MEME_SYSTEM), temperature=0.9,
                         max_output_tokens=2048, run_id=run_id)
