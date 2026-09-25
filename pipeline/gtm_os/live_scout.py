@@ -33,6 +33,11 @@ from pipeline.gtm_os import agent_runtime as R
 AGENT = "A01_intelligence_scout"
 SOURCE_TIMEOUT_S = 45.0
 
+# Which news query produced each Google News signal, for this process's last
+# scrape. The query is an arm A01 learns on (`gtm_learning.source_learning`)
+# and the signal id does not carry it.
+QUERY_OF: dict[str, str] = {}
+
 
 LIVE_TYPES = {
     "PRIMARY_NEWS_OBSERVED", "REDDIT_COMMUNITY_OBSERVED", "DOCS_BLOG_OBSERVED",
@@ -187,14 +192,27 @@ def collect_live(limit_per_source: int = 5) -> tuple[list[MarketSignal], dict[st
     # hardcoded query ("stellar soroban defi") returned near-identical
     # headlines every cycle and was the largest single cause of the engine
     # re-selecting the same topic 32 runs out of 41.
-    queries = source_config.news_queries(4)
+    #
+    # Which slice is learned: three queries by their record (A02's grades of
+    # what each one brought back, and the founder's decisions), one always at
+    # random so a query with a poor record still gets looked at.
+    try:
+        from pipeline.gtm_learning.source_learning import pick_queries
+        queries = pick_queries(list(source_config.load().get("news_queries") or []), 4)
+    except Exception:                               # noqa: BLE001 — boundary
+        queries = []
+    queries = queries or source_config.news_queries(4)
+    QUERY_OF.clear()
 
     def _news() -> list[dict]:
         out: list[dict] = []
         for q in queries:
             try:
-                out.extend(c.collect_google_news_signals(
-                    query=q, limit=max(2, limit_per_source // 2)))
+                for row in c.collect_google_news_signals(
+                        query=q, limit=max(2, limit_per_source // 2)) or []:
+                    if isinstance(row, dict):
+                        row["_query"] = q
+                    out.append(row)
             except Exception:                       # noqa: BLE001 — boundary
                 continue
         return out
@@ -238,6 +256,8 @@ def collect_live(limit_per_source: int = 5) -> tuple[list[MarketSignal], dict[st
                 if key in seen:
                     continue
                 seen.add(key)
+                if isinstance(raw, dict) and raw.get("_query"):
+                    QUERY_OF[sig.signal_id] = raw["_query"]
                 signals.append(sig)
                 kept += 1
             report[name] = {"ok": True, "signals": kept}
@@ -276,6 +296,11 @@ def scout(limit: int = 12, *, include_archive: bool = True) -> list[MarketSignal
               + (", ".join(sorted(ok_sources)) or "no source"))
     if failed:
         detail += " | quiet/failed: " + ", ".join(sorted(failed))
+    try:
+        from pipeline.gtm_learning.source_learning import record_text
+        detail += " | " + record_text(3)
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
 
     out = list(live)
 
@@ -303,8 +328,18 @@ def scout(limit: int = 12, *, include_archive: bool = True) -> list[MarketSignal
 
     _write_harvest(out, report, scraped_at)
     # The full harvest is recorded above; what goes forward to A02 is ranked,
-    # so the strongest candidates are the ones it actually sees.
-    return rank_for_relevance(out)[:limit]
+    # so the strongest candidates are the ones it actually sees. The ranking
+    # is learned — the keyword score plus each source's record — with ~30% of
+    # the slots reserved outside it, so no source can be learned out of view.
+    try:
+        from pipeline.gtm_learning.source_learning import forward, record_text
+        chosen = forward(out, limit, _relevance, QUERY_OF)
+        R.record_decision(AGENT, "source_learning", {
+            "record": record_text(), "queries": sorted(set(QUERY_OF.values())),
+            "forwarded": [s.signal_id for s in chosen]})
+        return chosen
+    except Exception:                               # noqa: BLE001 — boundary
+        return rank_for_relevance(out)[:limit]
 
 
 # Vanna's domain. A signal touching these is one it can say something
@@ -336,16 +371,17 @@ def rank_for_relevance(signals: list[MarketSignal]) -> list[MarketSignal]:
     still chooses, and still sees a mixed list. It only changes which
     candidates reach it first.
     """
-    def score(s: MarketSignal) -> float:
-        text = (str(s.headline) + " " + str(getattr(s, "description", ""))).lower()
-        hits = sum(1 for k in _RELEVANT if k in text)
-        penalty = sum(3 for k in _LISTICLE if k in text)
-        # A measured on-chain move beats an opinion piece about the same topic.
-        measured = 2 if str(s.source_type) == "PRIMARY_ONCHAIN_OBSERVED" else 0
-        archive = -4 if str(s.source_type).startswith("ARCHIVE") else 0
-        return hits + measured + archive - penalty
+    return sorted(signals, key=_relevance, reverse=True)
 
-    return sorted(signals, key=score, reverse=True)
+
+def _relevance(s: MarketSignal) -> float:
+    text = (str(s.headline) + " " + str(getattr(s, "description", ""))).lower()
+    hits = sum(1 for k in _RELEVANT if k in text)
+    penalty = sum(3 for k in _LISTICLE if k in text)
+    # A measured on-chain move beats an opinion piece about the same topic.
+    measured = 2 if str(s.source_type) == "PRIMARY_ONCHAIN_OBSERVED" else 0
+    archive = -4 if str(s.source_type).startswith("ARCHIVE") else 0
+    return hits + measured + archive - penalty
 
 
 def _write_harvest(signals: list[MarketSignal], report: dict, scraped_at: str) -> None:
@@ -384,6 +420,8 @@ def _write_harvest(signals: list[MarketSignal], report: dict, scraped_at: str) -
                 # things, and the view shows both.
                 "observed_at": str(getattr(s, "observed_at", "")),
                 "scraped_at": scraped_at,
+                # The news query that found it — an arm A01 learns on.
+                "query": QUERY_OF.get(s.signal_id),
             })
 
         d = R.RUNS_DIR / rid

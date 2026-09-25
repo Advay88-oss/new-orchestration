@@ -111,7 +111,13 @@ SYSTEM = (
     "watch, compare against or explain — never something it 'integrates "
     "with' or 'partners with'.\n"
     "- Never imply Vanna is on mainnet. Never call a competitor inferior.\n"
-    "- Plain language. No hype vocabulary.\n\n"
+    "- Plain language. No hype vocabulary.\n"
+    "- Every theme makes a CALL you will be scored on: `outlook` is where "
+    "this theme goes over the next few days (rising, steady or fading), and "
+    "`watch_terms` are 2-4 short words or phrases, each copied from a headline "
+    "the theme cites, that the next scrapes will be searched for. You are "
+    "scored on whether the call comes true against later scrapes, never on "
+    "whether anyone likes it. Say steady when you do not know.\n\n"
     "Return strict JSON."
 )
 
@@ -121,7 +127,8 @@ SCHEMA_HINT = (
     '"vanna_move": str}], '
     '"landscape": {"summary": str, '
     '"themes": [{"theme": str, "what_is_happening": str, '
-    '"signal_ids": [str], "matters_to_vanna": bool}], '
+    '"signal_ids": [str], "matters_to_vanna": bool, '
+    '"outlook": "rising"|"steady"|"fading", "watch_terms": [str]}], '
     '"quiet_on": [str], "for_vanna": str, '
     '"strategies": [{"title": str, "move": str, "rationale": str, '
     '"signal_ids": [str], "horizon": "this week"|"this month"}]}}'
@@ -178,8 +185,14 @@ def analyse(signals: Iterable[Any], run_id: Optional[str] = None) -> dict[str, A
         + (" | dated: " + r["observed_at"] if r["observed_at"] else "")
         for r in rows)
 
+    try:
+        from pipeline.gtm_learning.analyst_accuracy import prompt_block as _record
+        track = _record() + "\n\n"
+    except Exception:                               # noqa: BLE001 — boundary
+        track = ""
+
     prompt = (
-        _partners_block() + "\n\n"
+        _partners_block() + "\n\n" + track +
         "ONE SCRAPE, " + str(len(rows)) + " SIGNALS\n\n" + listing + "\n\n"
         "Return a reading for every signal_id above, plus one landscape. "
         "JSON exactly:\n" + SCHEMA_HINT
@@ -239,6 +252,11 @@ def analyse(signals: Iterable[Any], run_id: Optional[str] = None) -> dict[str, A
             if ids and str(st.get("move") or "").strip():
                 kept.append({**st, "signal_ids": ids})
         land["strategies"] = kept[:4]
+        # A theme's call must be grounded in the headlines it cites.
+        from pipeline.gtm_learning.analyst_accuracy import clean_call
+        heads = {r["signal_id"]: r["headline"] for r in rows}
+        land["themes"] = [clean_call(th, heads) for th in land.get("themes") or []
+                          if isinstance(th, dict)]
 
     result = {
         "signals": read,
@@ -253,6 +271,11 @@ def analyse(signals: Iterable[Any], run_id: Optional[str] = None) -> dict[str, A
               + (" | " + ", ".join(k + ":" + str(v) for k, v in graded.items())
                  if graded else "")
               + (" | landscape written" if land else " | NO landscape"))
+    try:
+        from pipeline.gtm_learning.analyst_accuracy import record_text as _acc
+        detail += " | " + _acc()
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
     R.record_stage(AGENT, "ok" if (read and land) else "degraded", detail,
                    run_id=run_id)
     if land:
