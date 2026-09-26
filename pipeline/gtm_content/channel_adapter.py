@@ -141,6 +141,13 @@ class ChannelAdapter:
         except Exception:                           # noqa: BLE001 — boundary
             learned = ""
         learned_section = ("\n" + learned + "\n") if learned else ""
+        try:
+            from pipeline.gtm_learning import bandit as _BD
+            _bb = _BD.prompt_block(_BD.CURRENT, for_agent="A06")
+            if _bb:
+                learned_section += "\n" + _bb + "\n"
+        except Exception:                           # noqa: BLE001 — boundary
+            pass
 
         llm_prompt = f"""You are the senior technical copywriter for {C.company_line()}
 {ground_truth}

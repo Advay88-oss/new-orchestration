@@ -215,6 +215,7 @@ export function useMissionControl(props: MissionControlProps) {
       { id: "agents", label: "GTM Agents" },
       { id: "research", label: "Scraped Intelligence" },
       { id: "brain", label: "Brand Brain" },
+      { id: "learning", label: "Learning" },
       { id: "references", label: "Vanna References" },
     ].map((n) => {
       const on = view === n.id;
@@ -302,6 +303,7 @@ export function useMissionControl(props: MissionControlProps) {
       isResearch: view === "research",
       isReferences: view === "references",
       isBrain: view === "brain",
+      isLearning: view === "learning",
       isScheduler: view === "scheduler",
       isIdeas: view === "ideas",
       isMemes: view === "memes",
@@ -447,6 +449,10 @@ export function useMissionControl(props: MissionControlProps) {
       notes: [
         "Backend note",
         "The endpoints this needs, what the sources cannot answer, and the run-id decision.",
+      ],
+      learning: [
+        "Learning",
+        "Which strategy choices are winning, every run's reward, your locks, and the edits the agents learn from.",
       ],
       brain: [
         "Brand Brain",

@@ -70,7 +70,7 @@ def posteriors(dim: str, rows: Optional[list[dict]] = None) -> dict[str, dict[st
             continue
         p = out.setdefault(str(opt), {"alpha": 1.0, "beta": 1.0, "n": 0,
                                       "approved": 0, "killed": 0})
-        p["approved"] += r.get("verdict") == "approve"
+        p["approved"] += r.get("verdict") in ("approve", "edit")
         p["killed"] += r.get("verdict") == "kill"
         reward = float(r.get("reward", 0.0))
         p["alpha"] += reward
@@ -123,7 +123,7 @@ def approved_examples(k: int = 3, rows: Optional[list[dict]] = None) -> list[dic
     """The most recent approved X posts, hook and opening, as examples."""
     out = []
     for r in sorted(latest_per_run(rows), key=lambda r: str(r.get("at")), reverse=True):
-        if r.get("verdict") != "approve":
+        if r.get("verdict") not in ("approve", "edit"):
             continue
         x = (_summary(r["run_id"]).get("posts") or {}).get("x") or {}
         hook = str(x.get("hook") or (r.get("features") or {}).get("x_hook") or "").strip()
@@ -208,7 +208,7 @@ def prompt_block(*, for_agent: str) -> str:
     if for_agent == "A02":
         return _a02_block(rows)
     counts = {v: sum(1 for r in rows if r.get("verdict") == v)
-              for v in ("approve", "revise", "kill")}
+              for v in ("approve", "edit", "revise", "kill")}
     lines = ["FOUNDER PREFERENCES — learned from " + str(len(rows))
              + " reviewed runs (" + ", ".join(k + " " + str(v) for k, v in counts.items())
              + "). These are the founder's own decisions; follow them."]
@@ -272,7 +272,7 @@ def snapshot(write: bool = True) -> dict[str, Any]:
         "at": datetime.now(timezone.utc).isoformat(),
         "reviewed_runs": len(rows),
         "verdicts": {v: sum(1 for r in rows if r.get("verdict") == v)
-                     for v in ("approve", "revise", "kill")},
+                     for v in ("approve", "edit", "revise", "kill")},
         "dimensions": {d: posteriors(d, rows) for d in DIMENSIONS},
         "retired": {d: sorted(retired(d, rows)) for d in DIMENSIONS},
         "visual_renderers": _renderers(),

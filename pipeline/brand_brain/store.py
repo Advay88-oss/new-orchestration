@@ -119,6 +119,33 @@ CREATE TABLE IF NOT EXISTS outcomes (
   at        TEXT NOT NULL
 );
 
+-- The learning loop (Phase 4). One reward event per run, recomputed as its
+-- signals arrive (reviewer at once, the founder's decision, engagement days
+-- later); the arms it credits are the choices that run actually shipped.
+CREATE TABLE IF NOT EXISTS reward_events (
+  run_id      TEXT PRIMARY KEY,
+  human       REAL,                            -- approve 1, edit 0.8, revise 0.3, kill 0
+  reviewer_ok INTEGER,                         -- the hard gate: 0 makes the total 0
+  engagement  REAL,                            -- normalised against this tenant's baseline
+  total       REAL,
+  arms        TEXT NOT NULL,                   -- JSON {dimension: option}
+  context     TEXT NOT NULL,                   -- JSON {platform, day_type, whats_new, ...}
+  at          TEXT NOT NULL
+);
+
+-- Draft vs the founder's edit: the preference dataset a later DPO step
+-- would train on. Collected only; nothing trains on it yet.
+CREATE TABLE IF NOT EXISTS preference_pairs (
+  id        INTEGER PRIMARY KEY AUTOINCREMENT,
+  run_id    TEXT NOT NULL,
+  platform  TEXT NOT NULL,
+  context   TEXT,                              -- the brief the draft was written from
+  rejected  TEXT NOT NULL,                     -- the draft
+  chosen    TEXT NOT NULL,                     -- the founder's final
+  source    TEXT,
+  at        TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS meta (
   key   TEXT PRIMARY KEY,
   value TEXT

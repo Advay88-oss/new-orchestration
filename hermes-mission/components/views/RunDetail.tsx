@@ -239,7 +239,10 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       )}
 
       {/* The founder's decision: the reward the learning loop records. */}
-      {runData?.run_id && <FeedbackBar runId={runData.run_id} />}
+      {runData?.run_id && (
+        <FeedbackBar runId={runData.run_id}
+                     draft={xCopy ? ((xHook ? xHook + "\n\n" : "") + xCopy) : undefined} />
+      )}
 
       {/* Tab Controls */}
       <div style={{ display: "flex", gap: "10px", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "12px", flexWrap: "wrap" }}>

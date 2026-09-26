@@ -12,12 +12,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
 
 const DIM = "#7B7590";
-const TONE: Record<string, string> = { approve: "#4ADE9B", revise: "#F5A524", kill: "#F0666B" };
-const LABEL: Record<string, string> = { approve: "Approved", revise: "Revise", kill: "Killed" };
+const TONE: Record<string, string> = { approve: "#4ADE9B", edit: "#7FD4A8", revise: "#F5A524", kill: "#F0666B" };
+const LABEL: Record<string, string> = { approve: "Approved", edit: "Approved with edits", revise: "Revise", kill: "Killed" };
 
-export function FeedbackBar({ runId }: { runId: string }) {
+export function FeedbackBar({ runId, draft }: { runId: string; draft?: string }) {
   const [fb, setFb] = useState<any>(null);
   const [note, setNote] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [edited, setEdited] = useState(draft ?? "");
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
 
@@ -40,11 +42,12 @@ export function FeedbackBar({ runId }: { runId: string }) {
       const r = await fetch("/api/gtm/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ runId, verdict, note }),
+        body: JSON.stringify({ runId, verdict, note, ...(verdict === "edit" ? { edited } : {}) }),
       });
       const j = await r.json();
       if (!j.success) throw new Error(j.error || `HTTP ${r.status}`);
       setNote("");
+      setEditing(false);
       load();
     } catch (e: any) {
       setErr(String(e.message || e));
@@ -88,7 +91,37 @@ export function FeedbackBar({ runId }: { runId: string }) {
             {busy === v ? "…" : v === "approve" ? "✓ Approve" : v === "revise" ? "✎ Revise" : "✕ Kill"}
           </button>
         ))}
+        {draft && (
+          <button
+            disabled={busy !== null}
+            onClick={() => { setEdited(draft); setEditing((x) => !x); }}
+            style={{ background: "transparent", border: `1px solid ${TONE.edit}88`, color: TONE.edit, borderRadius: 8, padding: "8px 14px", fontFamily: MONO, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+          >
+            {editing ? "Close editor" : "Edit & approve"}
+          </button>
+        )}
       </div>
+      {editing && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <textarea
+            value={edited}
+            onChange={(e) => setEdited(e.target.value)}
+            style={{ minHeight: 180, background: "#080310", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 10, fontSize: 13, lineHeight: 1.5, fontFamily: "inherit" }}
+          />
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button
+              disabled={busy !== null || !edited.trim() || edited.trim() === (draft ?? "").trim()}
+              onClick={() => send("edit")}
+              style={{ background: `${TONE.edit}1A`, border: `1px solid ${TONE.edit}`, color: TONE.edit, borderRadius: 8, padding: "8px 14px", fontFamily: MONO, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+            >
+              {busy === "edit" ? "…" : "✓ Approve my edit"}
+            </button>
+            <span style={{ fontSize: 11, color: DIM }}>
+              Your version is recorded as the approved one, and draft vs edit is kept as a preference example.
+            </span>
+          </div>
+        </div>
+      )}
       <div style={{ fontSize: 11, color: DIM }}>
         Recording a decision never publishes. {fb?.history?.length > 1 && `${fb.history.length} decisions recorded on this run.`}
       </div>

@@ -575,6 +575,14 @@ def _research(signal) -> str:
     sources, and what is new since the last runs."""
     from pipeline.brand_brain import context as C
     try:
-        return C.facts_block(str(signal.headline)[:300], k=6) + "\n\n"
+        out = C.facts_block(str(signal.headline)[:300], k=6) + "\n\n"
     except Exception:                               # noqa: BLE001 — boundary
-        return ""
+        out = ""
+    try:
+        from pipeline.gtm_learning import bandit as B
+        block = B.prompt_block(B.CURRENT, for_agent="A03")
+        if block:
+            out += block + "\n\n"
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
+    return out

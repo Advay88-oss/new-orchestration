@@ -763,6 +763,18 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         if SELECTION:
             summary["selection"] = dict(SELECTION)
 
+        # The strategist's contextual bandit: pillar, hook type and length
+        # for this run's context, from the reward record (guidance to A03
+        # and A06; the reviewer and the founder remain the hard gates).
+        try:
+            from pipeline.gtm_learning import bandit as _BD, rewards as _RW
+            _BD.CURRENT.clear()
+            _BD.CURRENT.update(_BD.recommend(_RW.context_of(summary)))
+            summary["bandit"] = dict(_BD.CURRENT)
+            R.record_decision("A03_gtm_strategist", "bandit", summary["bandit"])
+        except Exception as exc:                    # noqa: BLE001 — no guidance this run
+            summary["bandit"] = {"error": str(exc)[:160]}
+
         # A03 — GTM Strategist
         strategist = GTMStrategist(intelligence_provider=ip)
         strategy = _stage("A03_gtm_strategist",
@@ -1548,6 +1560,13 @@ def _finish(summary: dict, t0: float, rid: str) -> dict:
 
     (d / "summary.json").write_text(json.dumps(summary, indent=2, default=str),
                                     encoding="utf-8")
+    # The run's reward event (the reviewer's verdict now; the founder's
+    # decision and engagement update it when they arrive).
+    try:
+        from pipeline.gtm_learning import rewards as _RW
+        _RW.record_run(rid)
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
 
     try:
         publish_panels(summary, rid)

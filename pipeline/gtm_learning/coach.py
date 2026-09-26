@@ -163,7 +163,7 @@ def learn_from_decisions() -> dict[str, int]:
         if not imgs:
             continue
         verdict, note = r.get("verdict"), r.get("note") or ""
-        if verdict == "approve":
+        if verdict in ("approve", "edit"):
             ask = ("The founder APPROVED this. Say concretely what makes it work — "
                    "layout, hierarchy, how the idea is shown, and (for a clip) how it "
                    "builds — so the agents can do it again on a different topic. "
@@ -180,7 +180,7 @@ def learn_from_decisions() -> dict[str, int]:
         except Exception:                           # noqa: BLE001 — boundary
             continue
         counts["studied"] += 1
-        if verdict == "approve" and out.get("why_it_works"):
+        if verdict in ("approve", "edit") and out.get("why_it_works"):
             why = "Founder approved" + (" ('" + note + "')" if note else "") + ". Coach: " \
                   + str(out["why_it_works"])
             try:

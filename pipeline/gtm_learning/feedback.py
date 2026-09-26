@@ -36,7 +36,9 @@ LEDGER = STATE / "feedback.jsonl"
 
 # Reward per decision. Revise is not a failure — the founder thought it was
 # worth fixing — so it sits between the two, closer to kill than approve.
-REWARD = {"approve": 1.0, "revise": 0.3, "kill": 0.0}
+# "edit" is an approval of the founder's edited version: the draft was not
+# right as written, the edit was — the pair is kept as a preference example.
+REWARD = {"approve": 1.0, "edit": 0.8, "revise": 0.3, "kill": 0.0}
 VERDICTS = tuple(REWARD)
 
 
@@ -67,7 +69,8 @@ def features(run_id: str) -> dict[str, Any]:
 
 
 def record(run_id: str, verdict: str, note: str = "", *,
-           source: str = "cli", by: Optional[str] = None) -> dict[str, Any]:
+           source: str = "cli", by: Optional[str] = None,
+           edited: Optional[str] = None) -> dict[str, Any]:
     verdict = verdict.strip().lower()
     if verdict not in REWARD:
         raise ValueError("verdict must be one of " + ", ".join(VERDICTS))
@@ -124,6 +127,24 @@ def record(run_id: str, verdict: str, note: str = "", *,
     except Exception:                               # noqa: BLE001 — boundary
         pass
 
+    # The founder's edit: draft vs final, the preference dataset.
+    if edited:
+        try:
+            from pipeline.gtm_learning import rewards as _RW
+            s = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+            x = (s.get("posts") or {}).get("x") or {}
+            draft = (str(x.get("hook") or "") + "\n\n" + str(x.get("copy") or "")).strip()
+            _RW.add_pair(run_id, platform="x", rejected=draft, chosen=edited,
+                         context=str(s.get("signal") or s.get("directive") or ""), source=source)
+        except Exception:                           # noqa: BLE001 — boundary
+            pass
+    # The run's reward event, with the founder's decision in it.
+    try:
+        from pipeline.gtm_learning import rewards as _RW
+        _RW.record_run(run_id)
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
+
     # Push to GCS so the deployed dashboard shows the decision too. Best
     # effort: a missing client or expired ADC must not lose the local record.
     try:
@@ -159,13 +180,15 @@ def main(argv: Optional[list[str]] = None) -> int:
     r.add_argument("--note", default="")
     r.add_argument("--source", default="cli")
     r.add_argument("--by", default=None)
+    r.add_argument("--edited-file", default=None, help="the founder's edited post (verdict edit)")
     s = sub.add_parser("show")
     s.add_argument("run_id", nargs="?")
     a = ap.parse_args(argv)
 
     if a.cmd == "record":
         try:
-            row = record(a.run_id, a.verdict, a.note, source=a.source, by=a.by)
+            edited = (Path(a.edited_file).read_text(encoding="utf-8") if a.edited_file else None)
+            row = record(a.run_id, a.verdict, a.note, source=a.source, by=a.by, edited=edited)
         except (ValueError, FileNotFoundError) as exc:
             print(json.dumps({"success": False, "error": str(exc)}))
             return 2
