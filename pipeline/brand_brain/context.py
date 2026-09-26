@@ -18,15 +18,25 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
-from pipeline.brand_brain.client import Brain, current_tenant
+from pipeline.brand_brain.client import current_tenant
+from pipeline.brand_brain.mcp_client import AgentBrain
 
 SEEDS = Path(__file__).resolve().parent / "seeds"
 _lock = threading.Lock()
 _cache: dict[str, tuple[float, dict]] = {}
+# Set by the cycle at run start: what is new in the brain since the last run.
+_run: dict[str, Any] = {}
 
 
-def brain(tenant: Optional[str] = None) -> Brain:
-    return Brain(tenant or current_tenant())
+def brain(tenant: Optional[str] = None) -> AgentBrain:
+    """The agent's handle on the brain: the six tools, over the Brain MCP server."""
+    return AgentBrain(tenant or current_tenant())
+
+
+def set_run_context(*, whats_new: Optional[list[dict]] = None, since: Optional[str] = None) -> None:
+    """The run's start-of-run brain context, for the agents' prompts."""
+    _run.clear()
+    _run.update({"whats_new": list(whats_new or []), "since": since})
 
 
 def profile(tenant: Optional[str] = None) -> dict[str, Any]:
@@ -38,7 +48,7 @@ def profile(tenant: Optional[str] = None) -> dict[str, Any]:
         if hit and time.time() - hit[0] < 60:
             return hit[1]
     try:
-        p = Brain(t).get_brand_profile()
+        p = AgentBrain(t).get_brand_profile()
     except Exception:                               # noqa: BLE001 — brain not onboarded
         p = {}
     if not p:
@@ -202,14 +212,21 @@ def voice_block(tenant: Optional[str] = None) -> str:
 
 
 def whats_new_block(days: int = 21, tenant: Optional[str] = None) -> str:
-    since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
-    try:
-        ev = brain(tenant).get_whats_new(since, 8)
-    except Exception:                               # noqa: BLE001 — boundary
-        ev = []
+    """What changed in the brain since the last run (the cycle sets it at run
+    start from get_whats_new(since=last_run)); outside a run, the last `days`."""
+    if "whats_new" in _run:
+        ev = _run["whats_new"][:8]
+        head = "WHAT'S NEW since the last run" + (" (" + str(_run["since"])[:10] + ")" if _run.get("since") else "")
+    else:
+        since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+        try:
+            ev = brain(tenant).get_whats_new(since, 8)
+        except Exception:                           # noqa: BLE001 — boundary
+            ev = []
+        head = "WHAT'S NEW (last " + str(days) + " days)"
     if not ev:
         return ""
-    return ("WHAT'S NEW (dated):\n"
+    return (head + " — lead with it when the topic fits; never invent beyond it:\n"
             + "\n".join("  - " + e["at"][:10] + " " + e["title"]
                         + (": " + e["detail"][:200] if e.get("detail") else "") for e in ev))
 
@@ -281,3 +298,18 @@ def fill(text: str, tenant: Optional[str] = None) -> str:
             .replace("{anchors}", anc)
             .replace("{house_style}", house_style(tenant))
             .replace("{cta}", cta(tenant)))
+
+
+def competitor_block(topic: str, n: int = 5, tenant: Optional[str] = None) -> str:
+    """How competitors post on this topic: patterns to learn the shape from,
+    never text to copy (the brain stores no competitor copy)."""
+    try:
+        rows = brain(tenant).get_competitor_patterns(topic, n)
+    except Exception:                               # noqa: BLE001 — boundary
+        rows = []
+    if not rows:
+        return ""
+    return ("COMPETITOR PATTERNS (how others post on this; learn the format and hook, "
+            "never reuse their wording, never name or bash them):\n"
+            + "\n".join("  - " + r["competitor"] + (" [" + r["topic"] + "]" if r.get("topic") else "")
+                        + ": " + str(r["pattern"])[:280] for r in rows))

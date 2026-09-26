@@ -578,6 +578,11 @@ def _research(signal) -> str:
         out = C.facts_block(str(signal.headline)[:300], k=6) + "\n\n"
     except Exception:                               # noqa: BLE001 — boundary
         out = ""
+    # The architecture's strategist inputs: what is new since the last run,
+    # and how competitors post on this topic (patterns, never their text).
+    for block in (C.whats_new_block(), C.competitor_block(str(signal.headline)[:200])):
+        if block:
+            out += block + "\n\n"
     try:
         from pipeline.gtm_learning import bandit as B
         block = B.prompt_block(B.CURRENT, for_agent="A03")

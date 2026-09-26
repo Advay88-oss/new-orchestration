@@ -31,6 +31,27 @@ from pipeline.brand_brain.chunking import Chunk, digest
 AUTHORITY_WEIGHT = {1: 1.0, 2: 0.95, 3: 0.85, 4: 0.6}
 _WORD = re.compile(r"[A-Za-z0-9][A-Za-z0-9.\-]{1,}")
 _vec_cache: dict[str, tuple[float, list[str], np.ndarray]] = {}
+
+# BM25 on Postgres. Its built-in ts_rank has no inverse document frequency,
+# so a rare product term ("Soroban") counts no more than a common word, and
+# short authoritative chunks (the profile's "TESTNET, not mainnet") lost to
+# long docs pages. This is Okapi BM25 over the tsvector (k1 1.2, b 0.75),
+# title/section occurrences counted twice as the SQLite FTS5 weights did.
+# Row-level security scopes every CTE to the bound tenant.
+_PG_BM25 = """
+WITH ql AS (SELECT DISTINCT unnest(tsvector_to_array(to_tsvector('english', ?))) AS lex),
+docs AS (SELECT id, tsv, length(tsv) AS dl FROM chunks WHERE deleted=0 AND content_type!='section'),
+stats AS (SELECT count(*)::float AS n, avg(dl)::float AS avgdl FROM docs),
+tf AS (SELECT d.id, d.dl, u.lexeme,
+              (SELECT count(*) FROM unnest(u.weights) w WHERE w = 'A') * 2.0
+            + (SELECT count(*) FROM unnest(u.weights) w WHERE w <> 'A') AS tf
+       FROM docs d, unnest(d.tsv) u WHERE u.lexeme IN (SELECT lex FROM ql)),
+df AS (SELECT lexeme, count(DISTINCT id)::float AS df FROM tf GROUP BY lexeme)
+SELECT tf.id, sum(ln((s.n - df.df + 0.5) / (df.df + 0.5) + 1)
+                  * tf.tf * 2.2 / (tf.tf + 1.2 * (0.25 + 0.75 * tf.dl / s.avgdl))) AS score
+FROM tf JOIN df USING (lexeme), stats s
+GROUP BY tf.id ORDER BY score DESC LIMIT ?
+"""
 _vec_lock = threading.Lock()
 
 
@@ -191,10 +212,17 @@ class Brain:
     # --------------------------------------------------------------- internals
 
     @staticmethod
-    def _bm25(con: sqlite3.Connection, query: str, n: int) -> list[str]:
+    def _bm25(con, query: str, n: int) -> list[str]:
         terms = [t for t in _WORD.findall(query) if len(t) > 1][:24]
         if not terms:
             return []
+        if isinstance(con, S.PgConnection):
+            try:
+                rows = con.execute(_PG_BM25, (" ".join(terms), n)).fetchall()
+            except Exception:                           # noqa: BLE001 — degrade to vector only
+                con.rollback()
+                return []
+            return [r["id"] for r in rows]
         match = " OR ".join('"' + t.replace('"', "") + '"' for t in terms)
         try:
             rows = con.execute(
@@ -205,7 +233,14 @@ class Brain:
             return []
         return [r["id"] for r in rows]
 
-    def _vector(self, con: sqlite3.Connection, q: np.ndarray, n: int) -> list[str]:
+    def _vector(self, con, q: np.ndarray, n: int) -> list[str]:
+        if isinstance(con, S.PgConnection):
+            # pgvector: cosine distance over the HNSW index.
+            rows = con.execute(
+                "SELECT id FROM chunks WHERE deleted=0 AND content_type!='section' "
+                "AND embedding IS NOT NULL ORDER BY embedding <=> ?::vector LIMIT ?",
+                (E.to_blob(q), n)).fetchall()
+            return [r["id"] for r in rows]
         db = str(S.tenant_dir(self.tenant) / "brain.db")
         stamp = con.execute("SELECT COALESCE(MAX(updated_at),'') || COUNT(*) FROM chunks").fetchone()[0]
         with _vec_lock:
@@ -233,12 +268,14 @@ class Brain:
         with self._db() as con:
             if status == "approved":
                 con.execute("UPDATE profile_versions SET status='superseded' WHERE status='approved'")
-            cur = con.execute(
-                "INSERT INTO profile_versions(profile, status, source, note, created_at, approved_at) "
-                "VALUES (?,?,?,?,?,?)",
+            # Versions count per tenant (v1, v2, ...) on either backend.
+            row = con.execute(
+                "INSERT INTO profile_versions(version, profile, status, source, note, created_at, approved_at) "
+                "VALUES ((SELECT COALESCE(MAX(version), 0) + 1 FROM profile_versions),?,?,?,?,?,?) "
+                "RETURNING version",
                 (json.dumps(clean, ensure_ascii=False), status, source, note, _now(),
-                 _now() if status == "approved" else None))
-            return int(cur.lastrowid)
+                 _now() if status == "approved" else None)).fetchone()
+            return int(row[0])
 
     def approve_profile(self, version: int, *, note: str = "") -> None:
         with self._db() as con:
@@ -310,8 +347,11 @@ class Brain:
     def add_event(self, event_id: str, *, at: str, kind: str, title: str, detail: str = "",
                   source: str = "", url: str = "") -> None:
         with self._db() as con:
-            con.execute("INSERT OR REPLACE INTO whats_new(id, at, kind, title, detail, source, url, created_at) "
-                        "VALUES (?,?,?,?,?,?,?,?)", (event_id, at, kind, title, detail, source, url, _now()))
+            con.execute("INSERT INTO whats_new(id, at, kind, title, detail, source, url, created_at) "
+                        "VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET at=excluded.at, "
+                        "kind=excluded.kind, title=excluded.title, detail=excluded.detail, "
+                        "source=excluded.source, url=excluded.url",
+                        (event_id, at, kind, title, detail, source, url, _now()))
 
     def set_competitor_pattern(self, pid: str, *, competitor: str, pattern: str, topic: str = "",
                                evidence_n: int = 0) -> None:
@@ -320,17 +360,36 @@ class Brain:
         except Exception:                               # noqa: BLE001 — stored unranked
             v = None
         with self._db() as con:
-            con.execute("INSERT OR REPLACE INTO competitor_patterns(id, competitor, topic, pattern, "
-                        "evidence_n, updated_at, embedding) VALUES (?,?,?,?,?,?,?)",
+            con.execute("INSERT INTO competitor_patterns(id, competitor, topic, pattern, "
+                        "evidence_n, updated_at, embedding) VALUES (?,?,?,?,?,?,?) "
+                        "ON CONFLICT(id) DO UPDATE SET competitor=excluded.competitor, topic=excluded.topic, "
+                        "pattern=excluded.pattern, evidence_n=excluded.evidence_n, "
+                        "updated_at=excluded.updated_at, embedding=excluded.embedding",
                         (pid, competitor, topic, pattern, evidence_n, _now(), E.to_blob(v)))
 
     def meta(self, key: str, value: Optional[str] = None) -> Optional[str]:
         with self._db() as con:
             if value is not None:
-                con.execute("INSERT OR REPLACE INTO meta(key, value) VALUES (?,?)", (key, value))
+                con.execute("INSERT INTO meta(key, value) VALUES (?,?) "
+                            "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (key, value))
                 return value
             r = con.execute("SELECT value FROM meta WHERE key=?", (key,)).fetchone()
             return r["value"] if r else None
+
+    def set_secret(self, name: str, ciphertext: Optional[str]) -> None:
+        """Store (or with None, delete) one encrypted per-tenant secret."""
+        with self._db() as con:
+            if ciphertext is None:
+                con.execute("DELETE FROM tenant_secrets WHERE name=?", (name,))
+            else:
+                con.execute("INSERT INTO tenant_secrets(name, ciphertext, updated_at) VALUES (?,?,?) "
+                            "ON CONFLICT(name) DO UPDATE SET ciphertext=excluded.ciphertext, "
+                            "updated_at=excluded.updated_at", (name, ciphertext, _now()))
+
+    def get_secret(self, name: str) -> Optional[str]:
+        with self._db() as con:
+            r = con.execute("SELECT ciphertext FROM tenant_secrets WHERE name=?", (name,)).fetchone()
+        return r["ciphertext"] if r else None
 
     def stats(self) -> dict[str, Any]:
         with self._db() as con:
@@ -340,6 +399,7 @@ class Brain:
                 "GROUP BY source").fetchall()}
             return {
                 "tenant": self.tenant,
+                "backend": S.backend(),
                 "profile_version": q("SELECT MAX(version) FROM profile_versions"),
                 "profile_status": (con.execute("SELECT status FROM profile_versions ORDER BY "
                                                "version DESC LIMIT 1").fetchone() or [None])[0],

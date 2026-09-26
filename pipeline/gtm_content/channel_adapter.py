@@ -120,6 +120,11 @@ class ChannelAdapter:
         # this subject, with sources. Only what is here may be stated as fact;
         # the reviewer checks every claim against the same brain.
         ground_truth = C.facts_block(" ".join([str(context), str(strategy.problem or "")])[:400], k=6)
+        # How competitors post on this subject: the shape to learn from, never
+        # wording to reuse (the brain keeps only pattern summaries).
+        patterns = C.competitor_block(str(title) + " " + str(strategy.problem or ""))
+        if patterns:
+            ground_truth = ground_truth + "\n\n" + patterns
 
         # -------------------------------------------------------------
         # Call Gemini 3.8 Flash for Bespoke Copy Generation

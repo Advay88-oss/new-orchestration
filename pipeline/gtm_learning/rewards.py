@@ -32,8 +32,10 @@ BASELINE_MIN = 3
 
 
 def _brain():
-    from pipeline.brand_brain.context import brain
-    return brain()
+    # The learning loop is a pipeline, not an agent: it keeps its own tables
+    # and reads the brain directly. Agents go through the Brain MCP server.
+    from pipeline.brand_brain.client import Brain
+    return Brain()
 
 
 def _json(p: Path) -> Optional[dict]:
@@ -145,8 +147,10 @@ def record_run(run_id: str) -> Optional[dict[str, Any]]:
             return None
         with _brain()._db() as con:
             con.execute(
-                "INSERT OR REPLACE INTO reward_events(run_id, human, reviewer_ok, engagement, total, arms, context, at) "
-                "VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT INTO reward_events(run_id, human, reviewer_ok, engagement, total, arms, context, at) "
+                "VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(run_id) DO UPDATE SET human=excluded.human, "
+                "reviewer_ok=excluded.reviewer_ok, engagement=excluded.engagement, total=excluded.total, "
+                "arms=excluded.arms, context=excluded.context, at=excluded.at",
                 (ev["run_id"], ev["human"], ev["reviewer_ok"], ev["engagement"], ev["total"],
                  json.dumps(ev["arms"]), json.dumps(ev["context"]), datetime.now(timezone.utc).isoformat()))
         return ev

@@ -87,5 +87,12 @@ def to_blob(v: Optional[np.ndarray]) -> Optional[bytes]:
     return None if v is None else np.asarray(v, dtype=np.float32).tobytes()
 
 
-def from_blob(b: Optional[bytes]) -> Optional[np.ndarray]:
-    return None if not b else np.frombuffer(b, dtype=np.float32)
+def from_blob(b) -> Optional[np.ndarray]:
+    """An embedding as stored: SQLite bytes, or a pgvector value ('[...]' text)."""
+    if b is None or (hasattr(b, "__len__") and len(b) == 0):
+        return None
+    if isinstance(b, str):
+        return np.asarray([float(x) for x in b.strip("[]").split(",")], dtype=np.float32)
+    if isinstance(b, (bytes, bytearray, memoryview)):
+        return np.frombuffer(b, dtype=np.float32)
+    return np.asarray(b, dtype=np.float32)

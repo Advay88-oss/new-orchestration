@@ -6,4 +6,5 @@ pillow>=10.0.0
 pyyaml>=6.0
 numpy>=1.26
 mcp>=2.2
+psycopg[binary]>=3.2
 telethon>=1.36  # optional: Telegram via the official API when TELEGRAM_* keys are set

@@ -38,8 +38,10 @@ LENGTHS = ("short", "medium", "long")
 
 
 def _brain():
-    from pipeline.brand_brain.context import brain
-    return brain()
+    # The learning loop is a pipeline, not an agent: it keeps its own tables
+    # and reads the brain directly. Agents go through the Brain MCP server.
+    from pipeline.brand_brain.client import Brain
+    return Brain()
 
 
 def options() -> dict[str, list[str]]:

@@ -1,29 +1,38 @@
-"""Per-tenant storage: one SQLite file per company.
+"""Per-tenant storage: Postgres + pgvector, or one SQLite file per company.
 
-Five stores and the feedback table, each in the format its data needs
+Five stores and the feedback tables, each in the format its data needs
 rather than everything in a vector index — a brand colour retrieved by
 similarity search is a colour that will sometimes be wrong:
 
   profile_versions   the brand profile, structured JSON, versioned
-  chunks + chunks_fts knowledge base: text, metadata, embedding, and an FTS5
-                     index (BM25) so product terms like "Soroban" are found
-                     by keyword even where a vector search would miss them
+  chunks             knowledge base: text, metadata, embedding, and a keyword
+                     index (Postgres full-text / SQLite FTS5 BM25) so product
+                     terms like "Soroban" are found by keyword even where a
+                     vector search would miss them
   images             visual memory: caption, style tags, embedding, source
   whats_new          dated events, time-sorted
   competitor_patterns summaries of how competitors post — never their text
   outcomes           post metrics logged back (performance memory)
+  reward_events, preference_pairs   the learning loop
+  tenant_secrets     encrypted per-tenant credentials (the Notion OAuth token)
 
-Isolation: `connect(tenant)` validates the id and opens only that tenant's
-file. There is no query path that can reach another tenant's rows, because
-they are in another database.
+Backend: Postgres when BRAIN_DATABASE_URL is set (pipeline/.env), which is
+the architecture's store — one database, tenant_id on every row, isolation
+enforced by row-level security. Otherwise one SQLite file per tenant, where
+isolation is the file boundary. `python -m pipeline.brand_brain.pg` sets up
+the database and migrates the SQLite brains into it.
 """
 from __future__ import annotations
 
+import os
 import re
 import sqlite3
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Optional
 
-ROOT = Path(__file__).resolve().parents[1] / "brain" / "tenants"
+# BRAIN_ROOT moves the tenant files (tests point a child MCP server at theirs).
+ROOT = Path(os.environ.get("BRAIN_ROOT") or Path(__file__).resolve().parents[1] / "brain" / "tenants")
 _TENANT = re.compile(r"^[a-z0-9][a-z0-9_-]{1,40}$")
 
 SCHEMA = """
@@ -150,7 +159,220 @@ CREATE TABLE IF NOT EXISTS meta (
   key   TEXT PRIMARY KEY,
   value TEXT
 );
+
+CREATE TABLE IF NOT EXISTS tenant_secrets (
+  name        TEXT PRIMARY KEY,
+  ciphertext  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL
+);
 """
+
+# ------------------------------------------------------------------ Postgres
+#
+# The architecture's store: one Postgres with pgvector. Every table carries
+# tenant_id, and row-level security enforces the isolation rule in the
+# database itself, not only in this code: the app connects as `brain_app`,
+# a role that owns nothing and cannot bypass RLS, and every connection is
+# bound to one tenant (`app.tenant`) before its first query. A query that
+# forgets a WHERE clause still sees one company's rows.
+#
+# tenant_id defaults to the bound tenant, so the application's INSERTs are
+# the same SQL on both backends.
+
+TENANT_COL = "tenant_id TEXT NOT NULL DEFAULT current_setting('app.tenant')"
+PG_TABLES = ("profile_versions", "chunks", "images", "whats_new", "competitor_patterns",
+             "outcomes", "reward_events", "preference_pairs", "meta", "tenant_secrets")
+
+PG_SCHEMA = f"""
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE IF NOT EXISTS tenants (
+  id          TEXT PRIMARY KEY,
+  created_at  TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS profile_versions (
+  {TENANT_COL},
+  version     INTEGER NOT NULL,
+  profile     TEXT NOT NULL,
+  status      TEXT NOT NULL DEFAULT 'draft',
+  source      TEXT,
+  note        TEXT,
+  created_at  TEXT NOT NULL,
+  approved_at TEXT,
+  PRIMARY KEY (tenant_id, version)
+);
+
+CREATE TABLE IF NOT EXISTS chunks (
+  {TENANT_COL},
+  id           TEXT NOT NULL,
+  source       TEXT NOT NULL,
+  authority    INTEGER NOT NULL,
+  url          TEXT,
+  page_id      TEXT,
+  title        TEXT,
+  section      TEXT,
+  parent_id    TEXT,
+  content_type TEXT NOT NULL,
+  prefix       TEXT NOT NULL,
+  text         TEXT NOT NULL,
+  hash         TEXT NOT NULL,
+  updated_at   TEXT,
+  deleted      INTEGER NOT NULL DEFAULT 0,
+  embedding    vector({768}),
+  -- Postgres full-text: title and section weigh more than the body, the way
+  -- the SQLite FTS5 bm25() weights did.
+  tsv          tsvector GENERATED ALWAYS AS (
+                 setweight(to_tsvector('english', coalesce(title, '') || ' ' || coalesce(section, '')), 'A') ||
+                 setweight(to_tsvector('english', coalesce(prefix, '') || ' ' || text), 'B')) STORED,
+  PRIMARY KEY (tenant_id, id)
+);
+CREATE INDEX IF NOT EXISTS chunks_page ON chunks (tenant_id, page_id);
+CREATE INDEX IF NOT EXISTS chunks_tsv ON chunks USING gin (tsv);
+CREATE INDEX IF NOT EXISTS chunks_vec ON chunks USING hnsw (embedding vector_cosine_ops);
+
+CREATE TABLE IF NOT EXISTS images (
+  {TENANT_COL},
+  id          TEXT NOT NULL,
+  path        TEXT NOT NULL,
+  kind        TEXT NOT NULL,
+  caption     TEXT,
+  style_tags  TEXT,
+  score       REAL,
+  note        TEXT,
+  source      TEXT,
+  embedding   vector({768}),
+  created_at  TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, id)
+);
+
+CREATE TABLE IF NOT EXISTS whats_new (
+  {TENANT_COL},
+  id         TEXT NOT NULL,
+  at         TEXT NOT NULL,
+  kind       TEXT NOT NULL,
+  title      TEXT NOT NULL,
+  detail     TEXT,
+  source     TEXT,
+  url        TEXT,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, id)
+);
+CREATE INDEX IF NOT EXISTS whats_new_at ON whats_new (tenant_id, at);
+
+CREATE TABLE IF NOT EXISTS competitor_patterns (
+  {TENANT_COL},
+  id          TEXT NOT NULL,
+  competitor  TEXT NOT NULL,
+  topic       TEXT,
+  pattern     TEXT NOT NULL,
+  evidence_n  INTEGER NOT NULL DEFAULT 0,
+  updated_at  TEXT NOT NULL,
+  embedding   vector({768}),
+  PRIMARY KEY (tenant_id, id)
+);
+
+CREATE TABLE IF NOT EXISTS outcomes (
+  {TENANT_COL},
+  id        BIGINT GENERATED BY DEFAULT AS IDENTITY,
+  post_id   TEXT NOT NULL,
+  run_id    TEXT,
+  metrics   TEXT NOT NULL,
+  source    TEXT,
+  at        TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, id)
+);
+
+CREATE TABLE IF NOT EXISTS reward_events (
+  {TENANT_COL},
+  run_id      TEXT NOT NULL,
+  human       REAL,
+  reviewer_ok INTEGER,
+  engagement  REAL,
+  total       REAL,
+  arms        TEXT NOT NULL,
+  context     TEXT NOT NULL,
+  at          TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, run_id)
+);
+
+CREATE TABLE IF NOT EXISTS preference_pairs (
+  {TENANT_COL},
+  id        BIGINT GENERATED BY DEFAULT AS IDENTITY,
+  run_id    TEXT NOT NULL,
+  platform  TEXT NOT NULL,
+  context   TEXT,
+  rejected  TEXT NOT NULL,
+  chosen    TEXT NOT NULL,
+  source    TEXT,
+  at        TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, id)
+);
+
+CREATE TABLE IF NOT EXISTS meta (
+  {TENANT_COL},
+  key   TEXT NOT NULL,
+  value TEXT,
+  PRIMARY KEY (tenant_id, key)
+);
+
+-- Per-tenant secrets (the Notion OAuth token), encrypted by the app before
+-- they reach the database. Revoking deletes the row.
+CREATE TABLE IF NOT EXISTS tenant_secrets (
+  {TENANT_COL},
+  name        TEXT NOT NULL,
+  ciphertext  TEXT NOT NULL,
+  updated_at  TEXT NOT NULL,
+  PRIMARY KEY (tenant_id, name)
+);
+"""
+
+
+def pg_policies_sql(app_role: str) -> str:
+    """RLS on every tenant table, and the app role's grants."""
+    out = []
+    for t in PG_TABLES:
+        out += [f"ALTER TABLE {t} ENABLE ROW LEVEL SECURITY;",
+                f"ALTER TABLE {t} FORCE ROW LEVEL SECURITY;",
+                f"DROP POLICY IF EXISTS tenant_isolation ON {t};",
+                f"CREATE POLICY tenant_isolation ON {t} "
+                f"USING (tenant_id = current_setting('app.tenant', true)) "
+                f"WITH CHECK (tenant_id = current_setting('app.tenant', true));",
+                f"GRANT SELECT, INSERT, UPDATE, DELETE ON {t} TO {app_role};"]
+    out += ["GRANT SELECT, INSERT ON tenants TO " + app_role + ";",
+            "GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO " + app_role + ";"]
+    return "\n".join(out)
+
+
+# ------------------------------------------------------------------ backends
+
+OVERRIDE: Optional[str] = None       # tests set "sqlite"
+
+
+def _env_file(key: str) -> Optional[str]:
+    """A key from pipeline/.env (last definition wins), without printing it."""
+    f = Path(__file__).resolve().parents[1] / ".env"
+    val = None
+    try:
+        for line in f.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line.startswith(key + "="):
+                val = line.split("=", 1)[1].strip().strip('"').strip("'") or None
+    except OSError:
+        pass
+    return val
+
+
+def database_url() -> Optional[str]:
+    # BRAIN_BACKEND=sqlite pins the file backend (tests, and their child
+    # MCP servers, which cannot see an in-process OVERRIDE).
+    if OVERRIDE == "sqlite" or os.environ.get("BRAIN_BACKEND") == "sqlite":
+        return None
+    return os.environ.get("BRAIN_DATABASE_URL") or _env_file("BRAIN_DATABASE_URL")
+
+
+def backend() -> str:
+    return "pg" if database_url() else "sqlite"
 
 
 class TenantError(ValueError):
@@ -158,22 +380,134 @@ class TenantError(ValueError):
 
 
 def tenant_dir(tenant: str) -> Path:
+    """The tenant's files (images, caches). The rows live in the database."""
     if not _TENANT.match(str(tenant or "")):
         raise TenantError("invalid tenant id: " + repr(tenant))
     return ROOT / tenant
 
 
+def _pg_raw():
+    import psycopg
+    return psycopg.connect(database_url(), connect_timeout=10)
+
+
 def exists(tenant: str) -> bool:
+    tenant_dir(tenant)
+    if backend() == "pg":
+        with _pg_raw() as con:
+            return con.execute("SELECT 1 FROM tenants WHERE id=%s", (tenant,)).fetchone() is not None
     return (tenant_dir(tenant) / "brain.db").exists()
 
 
 def tenants() -> list[str]:
+    if backend() == "pg":
+        with _pg_raw() as con:
+            return [r[0] for r in con.execute("SELECT id FROM tenants ORDER BY id").fetchall()]
     return sorted(p.name for p in ROOT.glob("*") if (p / "brain.db").exists()) if ROOT.exists() else []
 
 
-def connect(tenant: str, *, create: bool = False) -> sqlite3.Connection:
+class Row(dict):
+    """A result row readable by column name or position, like sqlite3.Row."""
+
+    def __init__(self, cols: list[str], values):
+        super().__init__(zip(cols, values))
+        self._values = list(values)
+
+    def __getitem__(self, k):
+        return self._values[k] if isinstance(k, int) else super().__getitem__(k)
+
+    def keys(self):
+        return list(super().keys())
+
+
+class _PgCursor:
+    def __init__(self, cur):
+        self._cur = cur
+
+    def _cols(self) -> list[str]:
+        return [d.name for d in (self._cur.description or [])]
+
+    def fetchone(self):
+        r = self._cur.fetchone()
+        return None if r is None else Row(self._cols(), r)
+
+    def fetchall(self):
+        cols = self._cols()
+        return [Row(cols, r) for r in self._cur.fetchall()]
+
+    def __iter__(self):
+        return iter(self.fetchall())
+
+
+_QMARK = re.compile(r"\?")
+_CONFLICT = re.compile(r"ON CONFLICT\s*\(\s*(?!tenant_id)([^)]*)\)", re.I)
+
+
+def _vec_literal(b: bytes) -> str:
+    import numpy as np
+    return "[" + ",".join(f"{x:.7g}" for x in np.frombuffer(b, dtype=np.float32)) + "]"
+
+
+class PgConnection:
+    """The subset of sqlite3.Connection the brain uses, on Postgres.
+
+    SQL is written once, in SQLite style: `?` placeholders become `%s`, an
+    upsert's conflict target gains tenant_id, and an embedding (bytes) becomes
+    a pgvector literal. Rows read by name or position.
+    """
+
+    def __init__(self, tenant: str):
+        self._con = _pg_raw()
+        self._con.execute("SELECT set_config('app.tenant', %s, false)", (tenant,))
+        self.tenant = tenant
+
+    @staticmethod
+    def translate(sql: str) -> str:
+        sql = sql.replace("%", "%%")
+        sql = _QMARK.sub("%s", sql)
+        return _CONFLICT.sub(lambda m: "ON CONFLICT (tenant_id, " + m.group(1) + ")", sql)
+
+    def execute(self, sql: str, params=()):
+        args = [(_vec_literal(p) if isinstance(p, (bytes, bytearray, memoryview)) else p)
+                for p in (params or ())]
+        return _PgCursor(self._con.execute(self.translate(sql), args))
+
+    def commit(self) -> None:
+        self._con.commit()
+
+    def rollback(self) -> None:
+        self._con.rollback()
+
+    def close(self) -> None:
+        self._con.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        if exc_type is None:
+            self._con.commit()
+        else:
+            self._con.rollback()
+        return False
+
+
+def connect(tenant: str, *, create: bool = False):
     """Open exactly one tenant's brain. Never another's."""
     d = tenant_dir(tenant)
+    if backend() == "pg":
+        con = PgConnection(tenant)
+        known = con.execute("SELECT 1 FROM tenants WHERE id=?", (tenant,)).fetchone()
+        if not known:
+            if not create:
+                con.close()
+                raise TenantError("no brain for tenant " + repr(tenant)
+                                  + " — onboard it first (python -m pipeline.brand_brain init)")
+            # tenants has no tenant_id column, so this skips the translator.
+            con._con.execute("INSERT INTO tenants(id, created_at) VALUES (%s, %s) ON CONFLICT (id) DO NOTHING",
+                             (tenant, datetime.now(timezone.utc).isoformat()))
+            con.commit()
+        return con
     db = d / "brain.db"
     if not db.exists() and not create:
         raise TenantError("no brain for tenant " + repr(tenant)

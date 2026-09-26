@@ -101,6 +101,11 @@ python -m pipeline.brand_brain init vanna
 python -m pipeline.brand_brain search vanna "health factor"
 python -m pipeline.brand_brain.mcp_server --tenant vanna            # stdio (.mcp.json)
 python -m pipeline.brand_brain.mcp_server --tenant vanna --http 8765  # local HTTP; other hosts need BRAIN_MCP_TOKEN
+
+# brain database: Postgres + pgvector (Docker, 127.0.0.1:5433), row-level security per tenant
+python -m pipeline.brand_brain.pg setup             # container, role, schema; URLs go to pipeline/.env
+python -m pipeline.brand_brain.pg migrate           # SQLite brains -> Postgres, then switch over
+python -m pipeline.brand_brain.pg status | check-isolation | use-sqlite
 ```
 
 Requires `google-cloud-storage` and valid ADC (`gcloud auth application-default login`).

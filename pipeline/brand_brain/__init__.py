@@ -14,9 +14,13 @@ things (the contract in "Pluggable Brand Brain — Architecture", 2026-09-25):
 Vanna is tenant #1, not a hardcoded brain. A new company is onboarded by
 filling its brain, never by changing an agent.
 
-Storage: one SQLite file per tenant at pipeline/brain/tenants/<id>/brain.db.
-A tenant's queries can only ever open its own file, which is the isolation
-rule enforced below the application code rather than inside it.
+Agents reach these calls over the Brain MCP server (mcp_client.py), never
+by reading files, Notion or the database themselves.
+
+Storage: Postgres + pgvector when BRAIN_DATABASE_URL is set — one database,
+tenant_id on every row, isolation enforced by row-level security below the
+application code. Without it, one SQLite file per tenant at
+pipeline/brain/tenants/<id>/brain.db. See store.py and pg.py.
 """
 from pipeline.brand_brain.client import Brain, current_tenant
 

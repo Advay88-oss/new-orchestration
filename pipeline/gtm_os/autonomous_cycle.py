@@ -689,16 +689,21 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         try:
             from pipeline.brand_brain import context as _BC
             from pipeline.brand_brain.sync import sync_if_stale
+            from pipeline.brand_brain.client import Brain as _Brain
+            from pipeline.brand_brain import mcp_client as _MC
             fresh = sync_if_stale()
-            _b = _BC.brain()
+            _b = _Brain()                            # run bookkeeping: the pipeline's own
             since = _b.meta("last_run_started") or ""
-            news = _b.get_whats_new(since or None, 10)
+            # The agents' read: get_whats_new(since=last_run), over the Brain MCP server.
+            news = _BC.brain().get_whats_new(since or None, 10)
             _b.meta("last_run_started", summary.get("started_at") or datetime.now(timezone.utc).isoformat())
+            _BC.set_run_context(whats_new=news, since=since or None)
             summary["brain"] = {"tenant": _b.tenant,
                                 "profile_version": _BC.profile().get("_version"),
                                 "profile_status": _BC.profile().get("_status"),
                                 "fresh": bool(fresh.get("fresh")), "whats_new_since": since,
-                                "whats_new": [{"at": e["at"], "title": e["title"]} for e in news]}
+                                "whats_new": [{"at": e["at"], "title": e["title"]} for e in news],
+                                **_MC.transport(_b.tenant)}
             R.record_decision("A01_intelligence_scout", "brain_context", summary["brain"])
         except Exception as exc:                    # noqa: BLE001 — a run without the brain still runs
             summary["brain"] = {"error": str(exc)[:200]}

@@ -182,9 +182,18 @@ STATE_DIRS = (
 
 
 def _brain_snapshot(tenant_dir: Path) -> Optional[Path]:
-    """A consistent copy of a live SQLite brain (WAL-safe), for upload."""
+    """A consistent SQLite copy of a tenant's brain, for upload.
+
+    On Postgres the tenant is exported to a SQLite file of the same schema,
+    so the bucket holds one portable format whichever backend wrote it."""
     import sqlite3
     import tempfile
+    from pipeline.brand_brain import store as S
+    if S.backend() == "pg":
+        if tenant_dir.name not in S.tenants():
+            return None
+        from pipeline.brand_brain.pg import export
+        return export(tenant_dir.name, Path(tempfile.mkdtemp()) / "brain.db")
     db = tenant_dir / "brain.db"
     if not db.exists():
         return None
@@ -210,7 +219,11 @@ def _state_jobs() -> list[tuple[Path, str]]:
             if p.is_file():
                 jobs.append((p, PREFIX_STATE + p.relative_to(REPO_ROOT).as_posix()))
     tenants = REPO_ROOT / "pipeline" / "brain" / "tenants"
-    for td in sorted(tenants.glob("*")) if tenants.exists() else []:
+    from pipeline.brand_brain import store as S
+    names = {p.name for p in tenants.glob("*") if p.is_dir()} if tenants.exists() else set()
+    if S.backend() == "pg":
+        names |= set(S.tenants())
+    for td in (tenants / n for n in sorted(names)):
         snap = _brain_snapshot(td)
         if snap:
             jobs.append((snap, PREFIX_STATE + "pipeline/brain/tenants/" + td.name + "/brain.db"))
@@ -272,7 +285,22 @@ def pull_state(*, overwrite: bool = False) -> dict[str, Any]:
             n += 1
         except Exception:                           # noqa: BLE001 — this file fails alone
             continue
-    return {"pulled": True, "objects": n, "kept_local": skipped, "bucket": BUCKET}
+    # On Postgres, a snapshot for a tenant the database does not have yet is
+    # imported (a fresh machine); a tenant it has is left alone.
+    imported = []
+    try:
+        from pipeline.brand_brain import store as S
+        if S.backend() == "pg":
+            from pipeline.brand_brain.pg import migrate_tenant
+            have = set(S.tenants())
+            for db in sorted((REPO_ROOT / "pipeline" / "brain" / "tenants").glob("*/brain.db")):
+                if db.parent.name not in have:
+                    migrate_tenant(db.parent.name, db, S.database_url())
+                    imported.append(db.parent.name)
+    except Exception as exc:                        # noqa: BLE001 — the files are still on disk
+        imported.append("failed: " + str(exc)[:120])
+    return {"pulled": True, "objects": n, "kept_local": skipped, "bucket": BUCKET,
+            "imported_to_postgres": imported}
 
 
 def _cli() -> None:
