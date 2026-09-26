@@ -72,10 +72,10 @@ export function Learning() {
   if (!d) return <div className="vanna-section" style={{ fontFamily: MONO, color: "var(--vn-ink-muted)" }}>Loading the learning loop…</div>;
 
   const input: React.CSSProperties = { background: "var(--vn-sunken)", border: "1px solid var(--vn-line)",
-    borderRadius: 8, padding: "7px 10px", color: "var(--vn-ink)", fontSize: 13, width: 110 };
+    borderRadius: 8, padding: "8px 10px", color: "var(--vn-ink)", fontSize: 13, width: 110 };
 
   return (
-    <div className="vanna-section" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="vanna-section">
       <div style={card}>
         <div style={{ fontSize: 13, color: "var(--vn-ink-body)", lineHeight: 1.6 }}>
           Every run earns one reward: <b>0 if the reviewer blocked it</b> (the hard gate), otherwise the founder's
@@ -92,7 +92,7 @@ export function Learning() {
             {rows.map((r) => {
               const locked = d.locks?.[dim] === r.option;
               return (
-                <div key={r.option} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0",
+                <div key={r.option} style={{ display: "flex", alignItems: "center", gap: 12, padding: "7px 0",
                                              borderTop: "1px solid var(--vn-line)" }}>
                   <div style={{ flex: 1, fontSize: 12.5, color: "var(--vn-ink)" }}>{r.option}</div>
                   <Bar v={r.mean} />
@@ -101,7 +101,7 @@ export function Learning() {
                   </div>
                   <button disabled={busy}
                           onClick={() => post(locked ? { action: "unlock", dim } : { action: "lock", dim, option: r.option })}
-                          style={{ fontFamily: MONO, fontSize: 10.5, padding: "3px 8px", borderRadius: 5, cursor: "pointer",
+                          style={{ fontFamily: MONO, fontSize: 10.5, padding: "2px 8px", borderRadius: 6, cursor: "pointer",
                                    border: "1px solid " + (locked ? "var(--vn-warn)" : "var(--vn-line)"),
                                    color: locked ? "var(--vn-warn)" : "var(--vn-ink-muted)", background: "transparent" }}>
                     {locked ? "locked" : "lock"}

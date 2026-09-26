@@ -129,7 +129,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       {/* Banner */}
       <div className="vanna-banner">
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "var(--vn-accent-ink)", boxShadow: "0 0 0 3px var(--vn-hover)" }} />
             <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "var(--vn-accent-ink)", letterSpacing: "0.1em" }}>
               STRATEGIC GTM IDEAS OBSERVATORY
@@ -161,7 +161,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       </div>
 
       {actionFeedback && (
-        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ok)", background: "var(--vn-ok-soft)", padding: "12px 18px", borderRadius: "10px", border: "1px solid var(--vn-ok-line)" }}>
+        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ok)", background: "var(--vn-ok-soft)", padding: "12px 18px", borderRadius: "8px", border: "1px solid var(--vn-ok-line)" }}>
           {actionFeedback}
         </div>
       )}
@@ -237,18 +237,18 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
               style={{
                 background: "var(--vn-surface)",
                 border: `1px solid ${idea.runnable_today ? "var(--vn-line)" : "var(--vn-bad-line)"}`,
-                borderRadius: "16px",
-                padding: "22px 26px",
+                borderRadius: "12px",
+                padding: "var(--vn-card-pad)",
                 display: "flex",
                 flexDirection: "column",
-                gap: "14px",
+                gap: "16px",
                 boxShadow: "0 2px 8px rgba(17,17,17,0.04)"
               }}
             >
               {/* Header & Hook */}
               <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "10px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <span
                       style={{
                         fontFamily: MONO,
@@ -257,8 +257,8 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                         color: typeColor,
                         background: `${typeColor}18`,
                         border: `1px solid ${typeColor}40`,
-                        padding: "3px 8px",
-                        borderRadius: "5px"
+                        padding: "2px 8px",
+                        borderRadius: "6px"
                       }}
                     >
                       {idea.type}
@@ -341,14 +341,14 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                   Present on PROPOSED entries; a finished run has the real
                   asset above instead. */}
               {(idea.visual_direction || idea.video_direction || idea.gtm_play) && (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "10px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "12px" }}>
                   {[
                     ["VISUAL", idea.visual_direction, "var(--vn-accent-ink)"],
                     ["VIDEO", idea.video_direction, "var(--vn-accent-ink)"],
                     ["GTM PLAY", idea.gtm_play, "var(--vn-ok)"],
                   ].map(([label, text, tone]) =>
                     text ? (
-                      <div key={label as string} style={{ background: "var(--vn-sunken)", border: `1px solid ${tone}26`, borderRadius: "10px", padding: "12px 14px" }}>
+                      <div key={label as string} style={{ background: "var(--vn-sunken)", border: `1px solid ${tone}26`, borderRadius: "8px", padding: "12px 14px" }}>
                         <div style={{ fontFamily: MONO, fontSize: "10px", color: tone as string, fontWeight: 700, letterSpacing: "0.06em" }}>
                           {label}
                         </div>
@@ -363,7 +363,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
 
               {/* Rendered Visual Preview */}
               {(renderedImg || idea.visual_url) && (
-                <div style={{ borderRadius: "10px", overflow: "hidden", border: "1px solid var(--vn-line-strong)", maxWidth: "560px", background: "var(--vn-sunken)" }}>
+                <div style={{ borderRadius: "8px", overflow: "hidden", border: "1px solid var(--vn-line-strong)", maxWidth: "560px", background: "var(--vn-sunken)" }}>
                   <img
                     src={resolveMediaUrl(renderedImg || idea.visual_url)}
                     alt={idea.hook}
@@ -388,7 +388,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
               )}
 
               {/* Provenance & Claims Footer */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px", background: "var(--vn-hover)", padding: "12px 14px", borderRadius: "8px", fontSize: "11px", fontFamily: MONO, color: "var(--vn-ink-muted)" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", background: "var(--vn-hover)", padding: "12px 14px", borderRadius: "8px", fontSize: "11px", fontFamily: MONO, color: "var(--vn-ink-muted)" }}>
                 {idea.pattern_ref && (
                   <div>
                     <span style={{ color: "var(--vn-ink-body)" }}>PATTERN:</span> {idea.pattern_ref}

@@ -95,7 +95,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
       {/* Banner */}
       <div className="vanna-banner">
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "var(--vn-ok)", boxShadow: "0 0 0 3px var(--vn-hover)" }} />
             <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "var(--vn-ok)", letterSpacing: "0.1em" }}>
               24/7 AUTONOMOUS SCHEDULER & RESTART RESILIENCE
@@ -111,13 +111,13 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
 
         {/* Global Daemon Health Pill */}
         <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-          <div style={{ background: "var(--vn-ok-soft)", border: "1px solid var(--vn-ok-line)", borderRadius: "10px", padding: "10px 16px" }}>
+          <div style={{ background: "var(--vn-ok-soft)", border: "1px solid var(--vn-ok-line)", borderRadius: "8px", padding: "10px 16px" }}>
             <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>DAEMON SERVICE</div>
             <div style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: "var(--vn-ok)", marginTop: "2px" }}>
               ● ACTIVE (SURVIVES BOOT)
             </div>
           </div>
-          <div style={{ background: "var(--vn-accent-soft)", border: "1px solid var(--vn-accent-line)", borderRadius: "10px", padding: "10px 16px" }}>
+          <div style={{ background: "var(--vn-accent-soft)", border: "1px solid var(--vn-accent-line)", borderRadius: "8px", padding: "10px 16px" }}>
             <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>JOBS CONFIGURED</div>
             <div style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: "var(--vn-accent-ink)", marginTop: "2px" }}>
               {jobs.length} SCHEDULED
@@ -134,13 +134,13 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
             color: actionFeedback.startsWith("Failed") ? "var(--vn-bad)" : actionFeedback.startsWith("Note") ? "var(--vn-warn)" : "var(--vn-ok)",
             background: actionFeedback.startsWith("Failed") ? "var(--vn-bad-soft)" : "var(--vn-ok-soft)",
             padding: "12px 18px",
-            borderRadius: "10px",
+            borderRadius: "8px",
             border: `1px solid ${actionFeedback.startsWith("Failed") ? "var(--vn-bad-line)" : "var(--vn-ok-line)"}`,
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: "10px"
+            gap: "12px"
           }}
         >
           <span>{actionFeedback}</span>
@@ -184,18 +184,18 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
               style={{
                 background: "var(--vn-surface)",
                 border: `1px solid ${j.status === "RUNNING" ? "var(--vn-accent-line)" : "var(--vn-line)"}`,
-                borderRadius: "16px",
-                padding: "20px 24px",
+                borderRadius: "12px",
+                padding: "var(--vn-card-pad)",
                 display: "flex",
                 flexDirection: "column",
-                gap: "14px",
+                gap: "16px",
                 boxShadow: "0 2px 8px rgba(17,17,17,0.04)"
               }}
             >
               {/* Row 1: Header & Status */}
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                     <span style={{ fontSize: "16px", fontWeight: 800, color: "var(--vn-ink)" }}>{j.job}</span>
                     <span
                       style={{
@@ -205,8 +205,8 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                         color: statusColor,
                         background: `${statusColor}18`,
                         border: `1px solid ${statusColor}40`,
-                        padding: "3px 8px",
-                        borderRadius: "5px"
+                        padding: "2px 8px",
+                        borderRadius: "6px"
                       }}
                     >
                       ● {j.status}
@@ -299,7 +299,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
               </div>
 
               {/* Row 2: Metrics Strip */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", background: "var(--vn-hover)", padding: "12px 16px", borderRadius: "10px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", background: "var(--vn-hover)", padding: "12px 16px", borderRadius: "8px" }}>
                 <div>
                   <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>CURRENT INTERVAL</div>
                   <div style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "var(--vn-accent-ink)", marginTop: "2px" }}>
@@ -343,7 +343,7 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                         background: isSelected ? "var(--vn-accent-soft)" : "var(--vn-hover)",
                         border: `1px solid ${isSelected ? "var(--vn-accent)" : isDangerous ? "var(--vn-bad-line)" : "var(--vn-line-strong)"}`,
                         color: isSelected ? "var(--vn-ink)" : isDangerous ? "var(--vn-ink-muted)" : "var(--vn-ink-body)",
-                        padding: "5px 12px",
+                        padding: "6px 12px",
                         borderRadius: "6px",
                         fontFamily: MONO,
                         fontSize: "11px",

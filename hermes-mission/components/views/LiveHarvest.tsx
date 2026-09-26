@@ -46,7 +46,7 @@ export function LiveHarvest() {
 
   if (err) {
     return (
-      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16, padding: "20px 24px", fontFamily: MONO, fontSize: 13, color: DIM }}>
+      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "var(--vn-card-pad)", fontFamily: MONO, fontSize: 13, color: DIM }}>
         No scrape recorded yet — run a cycle and A01 will write one. ({err})
       </div>
     );
@@ -62,7 +62,7 @@ export function LiveHarvest() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 18, padding: "22px 26px" }}>
+      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "var(--vn-card-pad)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 12 }}>
           <div>
             <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
@@ -80,12 +80,12 @@ export function LiveHarvest() {
         </div>
 
         {/* Per source: what answered, what was quiet, and what errored. */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 10, marginTop: 18 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 12, marginTop: 18 }}>
           {sourceRows.map(([name, v]) => {
             const ok = v?.ok && v?.signals > 0;
             const tone = ok ? "var(--vn-ok)" : v?.ok ? "var(--vn-warn)" : "var(--vn-bad)";
             return (
-              <div key={name} style={{ background: "var(--vn-sunken)", border: `1px solid ${tone}33`, borderRadius: 10, padding: "12px 14px" }}>
+              <div key={name} style={{ background: "var(--vn-sunken)", border: `1px solid ${tone}33`, borderRadius: 8, padding: "12px 14px" }}>
                 <div style={{ fontFamily: MONO, fontSize: 10, color: DIM, textTransform: "uppercase" }}>{name}</div>
                 <div style={{ fontSize: 17, fontWeight: 700, color: tone, marginTop: 2 }}>
                   {v?.signals ?? 0} signals
@@ -104,7 +104,7 @@ export function LiveHarvest() {
 
       {/* Companies, as a filter rather than a decoration. */}
       {data.byCompany?.length > 0 && (
-        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16, padding: "16px 20px" }}>
+        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "16px 20px" }}>
           <div style={{ fontFamily: MONO, fontSize: 11, color: DIM, marginBottom: 10 }}>
             COMPANIES &amp; PROTOCOLS SCRAPED — click to filter
           </div>
@@ -122,7 +122,7 @@ export function LiveHarvest() {
                     background: on ? "var(--vn-accent-soft)" : "var(--vn-hover)",
                     border: `1px solid ${on ? "var(--vn-accent)" : "var(--vn-line-strong)"}`,
                     color: on ? "var(--vn-ink)" : "var(--vn-ink-muted)",
-                    padding: "5px 11px", borderRadius: 7, cursor: "pointer",
+                    padding: "5px 11px", borderRadius: 6, cursor: "pointer",
                     fontFamily: MONO, fontSize: 11, fontWeight: 600,
                   }}
                 >
@@ -135,7 +135,7 @@ export function LiveHarvest() {
       )}
 
       {/* The signals themselves, with full provenance. */}
-      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16, overflow: "hidden" }}>
+      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, overflow: "hidden" }}>
         <div className="responsive-table-container">
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
@@ -159,7 +159,7 @@ export function LiveHarvest() {
                   <td style={{ padding: "12px 16px" }}>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                       {(s.entities ?? []).map((e: string) => (
-                        <span key={e} style={{ fontFamily: MONO, fontSize: 10, background: "var(--vn-accent-soft)", color: e === "(unattributed)" ? DIM : "var(--vn-accent-ink)", padding: "2px 7px", borderRadius: 5 }}>
+                        <span key={e} style={{ fontFamily: MONO, fontSize: 10, background: "var(--vn-accent-soft)", color: e === "(unattributed)" ? DIM : "var(--vn-accent-ink)", padding: "2px 7px", borderRadius: 6 }}>
                           {e}
                         </span>
                       ))}

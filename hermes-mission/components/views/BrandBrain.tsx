@@ -83,7 +83,7 @@ function ProfileActions({ tenant, version, status, onChanged }: { tenant: string
   };
 
   const btn: React.CSSProperties = { border: "1px solid var(--vn-line-strong)", background: "transparent",
-    color: "var(--vn-ink)", borderRadius: 8, padding: "7px 14px", fontSize: 13, cursor: "pointer" };
+    color: "var(--vn-ink)", borderRadius: 8, padding: "8px 14px", fontSize: 13, cursor: "pointer" };
   return (
     <div style={{ marginTop: 12 }}>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -106,7 +106,7 @@ function ProfileActions({ tenant, version, status, onChanged }: { tenant: string
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
             <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="What changed (optional)"
                    style={{ flex: 1, background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: 8,
-                            padding: "7px 10px", color: "var(--vn-ink)", fontSize: 13 }} />
+                            padding: "8px 10px", color: "var(--vn-ink)", fontSize: 13 }} />
             <button disabled={busy} onClick={save} style={btn}>Save as new draft</button>
           </div>
           <div style={{ fontSize: 11.5, color: "var(--vn-ink-muted)", marginTop: 6 }}>
@@ -225,13 +225,13 @@ export function BrandBrain() {
   for (const im of data.images) (kinds[im.kind] ||= []).push(im);
 
   return (
-    <div className="vanna-section" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+    <div className="vanna-section">
       {(data.tenants || []).length > 1 && (
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           <span style={{ fontSize: 12, color: "var(--vn-ink-muted)" }}>Tenant</span>
           {(data.tenants as string[]).map((t) => (
             <button key={t} onClick={() => { setHits(null); setTenant(t); }}
-                    style={{ fontFamily: MONO, fontSize: 12, padding: "5px 12px", borderRadius: 6, cursor: "pointer",
+                    style={{ fontFamily: MONO, fontSize: 12, padding: "6px 12px", borderRadius: 6, cursor: "pointer",
                              border: "1px solid " + (t === data.tenant ? "var(--vn-accent)" : "var(--vn-line)"),
                              background: t === data.tenant ? "var(--vn-accent-soft)" : "transparent", color: "var(--vn-ink)" }}>
               {t}
@@ -257,7 +257,7 @@ export function BrandBrain() {
             profile v{p.version} · {p.status}
           </span>
         </div>
-        <div style={{ display: "flex", gap: 28, marginTop: 18, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 24, marginTop: 18, flexWrap: "wrap" }}>
           <Stat v={st.chunks} l="knowledge chunks" />
           <Stat v={st.images} l="images" />
           <Stat v={st.competitor_patterns} l="competitor patterns" />
@@ -268,7 +268,7 @@ export function BrandBrain() {
         <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
           {Object.entries(st.chunks_by_source || {}).map(([k, v]) => (
             <span key={k} style={{ fontFamily: MONO, fontSize: 10.5, color: "var(--vn-ink-muted)",
-                                   border: "1px solid var(--vn-line)", borderRadius: 5, padding: "2px 8px" }}>
+                                   border: "1px solid var(--vn-line)", borderRadius: 6, padding: "2px 8px" }}>
               {k} {String(v)}
             </span>
           ))}
@@ -288,7 +288,7 @@ export function BrandBrain() {
             <div key={qq} style={{ fontSize: 13, color: "var(--vn-ink)", padding: "6px 0", borderTop: "1px solid var(--vn-line)" }}>{qq}</div>
           ))}
           {(p.palette_candidates || []).length > 0 && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 10, marginTop: 12 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 12, marginTop: 12 }}>
               {[{ name: "In use (profile)", colors: p.palette }, ...p.palette_candidates].map((c: any) => (
                 <div key={c.name} style={{ border: "1px solid var(--vn-line)", borderRadius: 8, padding: 10 }}>
                   <div style={{ fontSize: 12, color: "var(--vn-ink-body)", marginBottom: 8 }}>{c.name}</div>
@@ -364,7 +364,7 @@ export function BrandBrain() {
         </div>
         <div style={card}>
           <div style={label}>Market analyst accuracy</div>
-          <div style={{ display: "flex", gap: 28 }}>
+          <div style={{ display: "flex", gap: 24 }}>
             <Stat v={acc.scored ? acc.right + "/" + acc.scored : "—"} l="calls right" />
             <Stat v={acc.pending ?? 0} l="pending" />
           </div>
@@ -380,7 +380,7 @@ export function BrandBrain() {
         {Object.entries(kinds).map(([k, ims]) => (
           <div key={k} style={{ marginBottom: 14 }}>
             <div style={{ fontSize: 12, color: "var(--vn-ink-body)", marginBottom: 8 }}>{k.replace("_", " ")} · {ims.length}</div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 10 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: 12 }}>
               {ims.map((im: any) => (
                 <figure key={im.id} style={{ margin: 0 }} title={im.caption || ""}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -18,7 +18,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MONO } from "@/lib/colors";
 
 const DIM = "var(--vn-ink-muted)";
-const CARD = { background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16 } as const;
+const CARD = { background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12 } as const;
 
 type Kind = "post" | "docs" | "news" | "data";
 const KINDS: { id: "all" | Kind; label: string }[] = [
@@ -48,7 +48,7 @@ function Cite({ c }: { c: { id: string; headline: string; url: string | null; ch
     display: "inline-block", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis",
     whiteSpace: "nowrap", verticalAlign: "top",
     background: "var(--vn-hover)", border: "1px solid var(--vn-line-strong)",
-    borderRadius: 7, padding: "4px 9px", fontSize: 12, color: "var(--vn-ink-body)", textDecoration: "none",
+    borderRadius: 6, padding: "4px 9px", fontSize: 12, color: "var(--vn-ink-body)", textDecoration: "none",
   };
   return c.url
     ? <a href={c.url} target="_blank" rel="noopener noreferrer" style={style}>{text} ↗</a>
@@ -90,7 +90,7 @@ export function VannaReferences() {
 
   if (err) {
     return (
-      <div style={{ ...CARD, padding: "20px 24px", fontFamily: MONO, fontSize: 13, color: DIM }}>
+      <div style={{ ...CARD, padding: "var(--vn-card-pad)", fontFamily: MONO, fontSize: 13, color: DIM }}>
         No references yet — run a cycle and A01 will scrape some. ({err})
       </div>
     );
@@ -103,7 +103,7 @@ export function VannaReferences() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
       {/* Header: which run, when, and a selector for the recent ones. */}
-      <div style={{ ...CARD, borderRadius: 18, padding: "22px 26px" }}>
+      <div style={{ ...CARD, borderRadius: 12, padding: "var(--vn-card-pad)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
           <div style={{ minWidth: 0 }}>
             <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
@@ -134,7 +134,7 @@ export function VannaReferences() {
         </div>
 
         {data.analysisNote && (
-          <div style={{ marginTop: 14, background: "var(--vn-warn-soft)", border: "1px solid var(--vn-warn-line)", borderRadius: 10, padding: "10px 14px", fontSize: 13, color: "var(--vn-warn)" }}>
+          <div style={{ marginTop: 14, background: "var(--vn-warn-soft)", border: "1px solid var(--vn-warn-line)", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "var(--vn-warn)" }}>
             This run's references were not read, so there are no strategies for it. {data.analysisNote}
             {(data.recent ?? []).some((r: any) => r.hasAnalysis) && " Pick a run without \"(unread)\" above."}
           </div>
@@ -143,7 +143,7 @@ export function VannaReferences() {
 
       {/* What Vanna can do — the strategies, each with its evidence. */}
       {land && (
-        <div style={{ ...CARD, padding: "20px 24px" }}>
+        <div style={{ ...CARD, padding: "var(--vn-card-pad)" }}>
           <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
             WHAT VANNA CAN DO
           </div>
@@ -155,7 +155,7 @@ export function VannaReferences() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 12, marginTop: 16 }}>
               {strategies.map((st, i) => (
                 <div key={i} style={{ background: "var(--vn-sunken)", border: "1px solid var(--vn-accent-line)", borderRadius: 12, padding: "16px 18px", minWidth: 0 }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "baseline" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "baseline" }}>
                     <div style={{ fontSize: 15, fontWeight: 700, color: "var(--vn-ink)" }}>{st.title}</div>
                     {st.horizon && (
                       <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vn-accent-ink)", whiteSpace: "nowrap" }}>
@@ -230,16 +230,16 @@ export function VannaReferences() {
       </div>
 
       {/* The references. */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {shown.length === 0 && (
-          <div style={{ ...CARD, padding: "18px 22px", fontSize: 13, color: DIM }}>
+          <div style={{ ...CARD, padding: "20px 24px", fontSize: 13, color: DIM }}>
             Nothing in this filter. {relevantOnly && read && "Untick \"relevant to Vanna only\" to see every item."}
           </div>
         )}
         {shown.map((i) => {
           const g = i.relevance ? GRADE[i.relevance] : null;
           return (
-            <div key={i.id} style={{ ...CARD, borderRadius: 14, padding: "16px 20px", minWidth: 0 }}>
+            <div key={i.id} style={{ ...CARD, borderRadius: 12, padding: "16px 20px", minWidth: 0 }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", fontFamily: MONO, fontSize: 11 }}>
                 <span style={{ color: "var(--vn-accent-ink)", fontWeight: 700 }}>{i.channel.toUpperCase()}</span>
                 {i.publisher && <span style={{ color: DIM }}>· {i.publisher}</span>}

@@ -148,7 +148,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
           )}
           <div>
             <div style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>Autonomous daemon</div>
-            <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
               <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: daemonRunning ? "var(--vn-ok)" : "var(--vn-ink-muted)" }} />
               <span style={{ fontFamily: MONO, fontSize: "22px", fontWeight: 600, color: daemonRunning ? "var(--vn-ok)" : "var(--vn-ink-muted)", letterSpacing: "-0.02em" }}>
                 {daemonRunning ? "Active" : "Standby"}
@@ -170,7 +170,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
               flex: 1,
               background: "var(--vn-surface)",
               border: "1px solid var(--vn-line-strong)",
-              borderRadius: "10px",
+              borderRadius: "8px",
               padding: "10px 18px",
               color: "var(--vn-ink)",
               fontSize: "13px",
@@ -183,16 +183,16 @@ export function Runs({ vm }: { vm: MissionVM }) {
               twice. The header's is the one that stays. */}
         </div>
 
-        <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap" }}>
           {/* Scope Toggle: Fresh Session vs Global History */}
-          <div style={{ display: "flex", gap: "4px", background: "var(--vn-hover)", padding: "4px", borderRadius: "10px", border: "1px solid var(--vn-line)" }}>
+          <div style={{ display: "flex", gap: "4px", background: "var(--vn-hover)", padding: "4px", borderRadius: "8px", border: "1px solid var(--vn-line)" }}>
             <button
               onClick={() => setSessionScope("SESSION")}
               style={{
                 background: sessionScope === "SESSION" ? "var(--vn-hover)" : "transparent",
                 border: `1px solid ${sessionScope === "SESSION" ? "var(--vn-line-strong)" : "transparent"}`,
                 color: sessionScope === "SESSION" ? "var(--vn-ink)" : "var(--vn-ink-muted)",
-                padding: "7px 14px",
+                padding: "8px 14px",
                 borderRadius: "8px",
                 fontSize: "12px",
                 fontWeight: 500,
@@ -207,7 +207,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                 background: sessionScope === "GLOBAL" ? "var(--vn-hover)" : "transparent",
                 border: `1px solid ${sessionScope === "GLOBAL" ? "var(--vn-line-strong)" : "transparent"}`,
                 color: sessionScope === "GLOBAL" ? "var(--vn-ink)" : "var(--vn-ink-muted)",
-                padding: "7px 14px",
+                padding: "8px 14px",
                 borderRadius: "8px",
                 fontSize: "12px",
                 fontWeight: 500,
@@ -252,7 +252,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                 background: statusFilter === t.id ? "var(--vn-hover)" : "transparent",
                 border: `1px solid ${statusFilter === t.id ? "var(--vn-line-strong)" : "transparent"}`,
                 color: statusFilter === t.id ? "var(--vn-ink)" : "var(--vn-ink-muted)",
-                padding: "7px 14px",
+                padding: "8px 14px",
                 borderRadius: "8px",
                 cursor: "pointer",
                 fontSize: "12px",
@@ -270,7 +270,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
         style={{
           background: "var(--vn-surface)",
           border: "1px solid var(--vn-line)",
-          borderRadius: "18px",
+          borderRadius: "12px",
           overflow: "hidden",
           boxShadow: "0 2px 8px rgba(17,17,17,0.04)"
         }}
@@ -279,12 +279,12 @@ export function Runs({ vm }: { vm: MissionVM }) {
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
               <tr style={{ background: "var(--vn-sunken)", borderBottom: "1px solid var(--vn-line)" }}>
-                <th style={{ padding: "14px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Run</th>
-                <th style={{ padding: "14px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Audience</th>
-                <th style={{ padding: "14px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Gate</th>
-                <th style={{ padding: "14px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Artifacts</th>
-                <th style={{ padding: "14px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Duration & cost</th>
-                <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", textTransform: "uppercase", textAlign: "right" }}>&nbsp;</th>
+                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Run</th>
+                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Audience</th>
+                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Gate</th>
+                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Artifacts</th>
+                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Duration & cost</th>
+                <th style={{ padding: "16px 20px", fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", textTransform: "uppercase", textAlign: "right" }}>&nbsp;</th>
               </tr>
             </thead>
             <tbody>
@@ -352,21 +352,21 @@ export function Runs({ vm }: { vm: MissionVM }) {
                                     lineHeight: 1.35 }}>
                         {neverStarted(r) ? "Never started" : title}
                       </div>
-                      <div style={{ display: "flex", gap: "10px", marginTop: "5px", alignItems: "center" }}>
+                      <div style={{ display: "flex", gap: "12px", marginTop: "5px", alignItems: "center" }}>
                         <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-faint)" }}>{r.run_id}</span>
                         <span style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>{dateStr}</span>
                       </div>
                     </td>
 
                     {/* Column 2: Audience & Machine */}
-                    <td style={{ padding: "18px 22px" }}>
+                    <td style={{ padding: "20px 24px" }}>
                       <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--vn-accent-ink)" }}>{aud}</div>
                       <div style={{ fontSize: "11px", color: "var(--vn-ink-muted)", marginTop: "3px" }}>{mach}</div>
                     </td>
 
                     {/* Column 3: gate outcome — there is no reviewer score in
                         this pipeline; publication is decided by the claim gate. */}
-                    <td style={{ padding: "18px 22px" }}>
+                    <td style={{ padding: "20px 24px" }}>
                       <span
                         style={{
                           fontFamily: MONO, fontSize: "11.5px", fontWeight: 700,
@@ -386,7 +386,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                     </td>
 
                     {/* Column 4: Dynamic Media Badges */}
-                    <td style={{ padding: "18px 22px" }}>
+                    <td style={{ padding: "20px 24px" }}>
                       {/* Render what the run produced, rather than badges
                           describing it. A badge reading "41s Video" was shown
                           for any run with a video key, whatever its length. */}
@@ -424,7 +424,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                         wall-clock time, which is not what anything costs. No
                         rate table is wired for Model Garden or the API key, so
                         this shows what is actually measured: tokens. */}
-                    <td style={{ padding: "18px 22px" }}>
+                    <td style={{ padding: "20px 24px" }}>
                       <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ink)" }}>{dur}</div>
                       <div style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", marginTop: "2px" }}>
                         {(r.spend?.input_tokens || r.spend?.output_tokens)
@@ -450,7 +450,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                     </td>
 
                     {/* Column 6: Action */}
-                    <td style={{ padding: "18px 22px", textAlign: "right" }}>
+                    <td style={{ padding: "20px 24px", textAlign: "right" }}>
                       <button
                         onClick={() => {
                           if (r.run_id) vm.openRun(r.run_id);

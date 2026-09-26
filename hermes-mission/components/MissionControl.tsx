@@ -71,16 +71,25 @@ export function MissionControl({
             zIndex: 40,
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div
               style={{
-                width: "24px",
-                height: "24px",
-                borderRadius: "8px",
-                background: "var(--vn-accent)",
+                width: "26px",
+                height: "26px",
+                borderRadius: "6px",
+                background: "var(--vn-ink)",
+                color: "var(--vn-on-accent)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "var(--font-display)",
+                fontSize: "17px",
+                lineHeight: 1,
               }}
-            />
-            <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--vn-ink)" }}>
+            >
+              V
+            </div>
+            <span style={{ fontSize: "15px", fontWeight: 600, color: "var(--vn-ink)" }}>
               Vanna Mission Control
             </span>
           </div>
@@ -90,11 +99,11 @@ export function MissionControl({
             style={{
               background: "var(--vn-raised)",
               border: "1px solid var(--vn-line-strong)",
-              color: "var(--vn-accent-ink)",
-              padding: "6px 14px",
-              borderRadius: "8px",
+              color: "var(--vn-ink)",
+              padding: "6px 12px",
+              borderRadius: "6px",
               fontSize: "13px",
-              fontWeight: 700,
+              fontWeight: 500,
               cursor: "pointer",
             }}
           >

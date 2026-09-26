@@ -124,7 +124,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
       {/* Banner */}
       <div className="vanna-banner">
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "var(--vn-bad)", boxShadow: "0 0 0 3px var(--vn-hover)" }} />
             <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "var(--vn-bad)", letterSpacing: "0.1em" }}>
               CULTURALLY GROUNDED CRYPTO & DEFI MEMES
@@ -139,7 +139,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
         </div>
 
         {/* Global Risk Distribution & View Toggle */}
-        <div style={{ display: "flex", gap: "14px", alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap" }}>
           <div>
             <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>LOW RISK</div>
             <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "var(--vn-ok)" }}>
@@ -191,13 +191,13 @@ export function MemesView({ vm }: { vm: MissionVM }) {
       </div>
 
       {actionFeedback && (
-        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ok)", background: "var(--vn-ok-soft)", padding: "12px 18px", borderRadius: "10px", border: "1px solid var(--vn-ok-line)" }}>
+        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ok)", background: "var(--vn-ok-soft)", padding: "12px 18px", borderRadius: "8px", border: "1px solid var(--vn-ok-line)" }}>
           {actionFeedback}
         </div>
       )}
 
       {/* Memes Cards Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 540px), 1fr))", gap: "18px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 540px), 1fr))", gap: "16px" }}>
         {memes.map((m) => {
           const riskColor = m.risk === "LOW" ? "var(--vn-ok)" : m.risk === "MEDIUM" ? "var(--vn-warn)" : "var(--vn-bad)";
           const renderedImg = renderedVisuals[m.id];
@@ -208,18 +208,18 @@ export function MemesView({ vm }: { vm: MissionVM }) {
               style={{
                 background: "var(--vn-surface)",
                 border: "1px solid var(--vn-line)",
-                borderRadius: "16px",
+                borderRadius: "12px",
                 padding: "22px 24px",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
-                gap: "14px",
+                gap: "16px",
                 boxShadow: "0 2px 8px rgba(17,17,17,0.04)"
               }}
             >
               <div>
                 {/* Header Strip */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "10px", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: "12px", flexWrap: "wrap" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                     <span style={{ fontFamily: MONO, fontSize: "10px", fontWeight: 800, color: "var(--vn-accent-ink)", background: "var(--vn-accent-soft)", padding: "2px 8px", borderRadius: "4px" }}>
                       {m.format}
@@ -243,7 +243,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                 </h3>
 
                 {/* Copy / Dialogue */}
-                <div style={{ background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: "10px", padding: "12px 14px", marginTop: "10px", fontSize: "13px", color: "var(--vn-ink-body)", whiteSpace: "pre-line", lineHeight: 1.55 }}>
+                <div style={{ background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: "8px", padding: "12px 14px", marginTop: "10px", fontSize: "13px", color: "var(--vn-ink-body)", whiteSpace: "pre-line", lineHeight: 1.55 }}>
                   {m.copy}
                 </div>
 

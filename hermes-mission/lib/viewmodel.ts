@@ -220,6 +220,7 @@ export function useMissionControl(props: MissionControlProps) {
     ].map((n) => {
       const on = view === n.id;
       return {
+        on,
         id: n.id,
         label: n.label,
         count:

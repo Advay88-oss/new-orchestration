@@ -206,9 +206,8 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
       style={{
         background: "var(--vn-surface)",
         border: "1px solid var(--vn-line)",
-        borderRadius: "14px",
-        padding: "clamp(18px, 2.2vw, 26px) clamp(20px, 2.8vw, 32px)",
-        margin: "clamp(12px, 2vw, 20px) clamp(14px, 2.5vw, 32px) 0",
+        borderRadius: "12px",
+        padding: "var(--vn-card-pad)",
         display: "flex",
         flexDirection: "column",
         gap: "16px",
@@ -219,13 +218,13 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
         {/* A glowing dot, a letter-spaced green title, and a violet "13
             AGENTS ACTIVE" badge, all naming the same box. The heading says
             what it is; the count belongs next to the agents, not here. */}
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <span style={{ fontSize: "13px", fontWeight: 600, color: "var(--vn-ink)" }}>
             Run a directive
           </span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
           <button
             onClick={handleToggleDaemon}
             disabled={daemonToggling}
@@ -234,7 +233,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
               border: `1px solid ${daemonState.running ? "var(--vn-ok)" : "var(--vn-line-strong)"}`,
               color: daemonState.running ? "var(--vn-ok)" : "var(--vn-ink-body)",
               borderRadius: "8px",
-              padding: "5px 12px",
+              padding: "6px 12px",
               fontSize: "12px",
               fontWeight: 500,
               cursor: daemonToggling ? "not-allowed" : "pointer",
@@ -261,11 +260,11 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
         className="console-input-row"
         style={{
           display: "flex",
-          gap: "10px",
+          gap: "12px",
           alignItems: "center",
           background: "var(--vn-sunken)",
           border: `1px solid ${isFocused ? "var(--vn-accent)" : "var(--vn-line-strong)"}`,
-          borderRadius: "10px",
+          borderRadius: "8px",
           padding: "6px 8px 6px 14px",
           transition: "all 0.2s ease",
           width: "100%",
@@ -326,7 +325,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
             color: executing || !query.trim() ? "var(--vn-ink-faint)" : "var(--vn-ink)",
             border: "none",
             borderRadius: "8px",
-            padding: "9px 18px",
+            padding: "8px 16px",
             fontSize: "13px",
             fontWeight: 600,
             cursor: executing || !query.trim() ? "not-allowed" : "pointer",
@@ -358,7 +357,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
               border: "1px solid var(--vn-line)",
               color: "var(--vn-ink-body)",
               borderRadius: "8px",
-              padding: "5px 12px",
+              padding: "6px 12px",
               fontSize: "11px",
               cursor: executing ? "not-allowed" : "pointer",
               display: "flex",
@@ -381,7 +380,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
             background: "var(--vn-sunken)",
             border: "1px solid var(--vn-line)",
             borderRadius: "12px",
-            padding: "18px 22px",
+            padding: "20px 24px",
             display: "flex",
             alignItems: "center",
             gap: "20px"
@@ -420,7 +419,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
 
       {/* Error Message Display */}
       {errorMessage && (
-        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-bad)", background: "var(--vn-bad-soft)", padding: "12px 18px", borderRadius: "10px", border: "1px solid var(--vn-bad-line)" }}>
+        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-bad)", background: "var(--vn-bad-soft)", padding: "12px 18px", borderRadius: "8px", border: "1px solid var(--vn-bad-line)" }}>
           {errorMessage}
         </div>
       )}
@@ -437,7 +436,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
           style={{
             background: "var(--vn-sunken)",
             border: "1px solid var(--vn-ok-line)",
-            borderRadius: "16px",
+            borderRadius: "12px",
             padding: "16px 20px",
             display: "flex",
             justifyContent: "space-between",
@@ -446,7 +445,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
             gap: "12px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "var(--vn-ok)" }} />
             <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "var(--vn-ok)" }}>
               {runResult.run_id}
@@ -463,7 +462,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
               background: "var(--vn-accent-soft)",
               border: "1px solid var(--vn-accent)",
               color: "var(--vn-ink)",
-              padding: "7px 14px",
+              padding: "8px 14px",
               borderRadius: "8px",
               fontFamily: MONO,
               fontSize: "11px",

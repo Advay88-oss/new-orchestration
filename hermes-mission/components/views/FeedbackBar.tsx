@@ -58,8 +58,8 @@ export function FeedbackBar({ runId, draft }: { runId: string; draft?: string })
 
   const latest = fb?.latest;
   return (
-    <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 14, padding: "14px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+    <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "14px 18px", display: "flex", flexDirection: "column", gap: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
         <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
           YOUR DECISION · TEACHES THE AGENTS
         </span>

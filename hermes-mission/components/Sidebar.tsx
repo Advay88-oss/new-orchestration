@@ -55,7 +55,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
               style={{
                 width: "30px",
                 height: "30px",
-                borderRadius: "7px",
+                borderRadius: "6px",
                 background: "var(--vn-ink)",
                 color: "var(--vn-on-accent)",
                 flex: "0 0 30px",
@@ -128,9 +128,9 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
                 if (onCloseMobile) onCloseMobile();
               }}
               style={n.style}
-              hoverStyle={{ background: "var(--vn-hover)", color: "var(--vn-ink)" }}
+              hoverStyle={n.on ? undefined : { background: "var(--vn-hover)", color: "var(--vn-ink)" }}
             >
-              <span style={{ display: "flex", alignItems: "center", gap: "10px", whiteSpace: "nowrap" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "12px", whiteSpace: "nowrap" }}>
                 <span style={n.dot} />
                 {n.label}
               </span>
@@ -150,7 +150,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
       </div>
 
       {/* Footer Info Cards */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto", paddingTop: "20px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "auto", paddingTop: "20px" }}>
         <div style={{ background: "var(--vn-raised)", borderRadius: "12px", padding: "14px", border: "1px solid var(--vn-line)" }}>
           <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "10px", fontWeight: 700, color: "var(--vn-ink-muted)", textTransform: "uppercase" }}>
             AUTONOMOUS DAEMON

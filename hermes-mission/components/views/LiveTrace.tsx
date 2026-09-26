@@ -91,7 +91,7 @@ export function LiveTrace({ runId }: { runId?: string }) {
     <section className="vanna-section">
       <div className="vanna-banner">
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span
               style={{
                 width: 9,
@@ -116,7 +116,7 @@ export function LiveTrace({ runId }: { runId?: string }) {
       </div>
 
       {events.length === 0 && (
-        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16, padding: "22px 26px", fontFamily: MONO, fontSize: 13, color: DIM }}>
+        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "var(--vn-card-pad)", fontFamily: MONO, fontSize: 13, color: DIM }}>
           Nothing running. Launch a directive and the agents appear here as they report.
         </div>
       )}
@@ -231,11 +231,11 @@ function Row({ at, tone, strong, children }: {
         background: "var(--vn-surface)",
         border: `1px solid ${strong ? `${tone}33` : "var(--vn-line)"}`,
         borderLeft: `3px solid ${tone}`,
-        borderRadius: 10,
+        borderRadius: 8,
         padding: strong ? "14px 16px" : "10px 14px",
         display: "flex",
         alignItems: "center",
-        gap: 10,
+        gap: 12,
         flexWrap: "wrap",
       }}
     >

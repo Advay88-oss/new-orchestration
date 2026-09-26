@@ -46,7 +46,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
   if (!runData && !loading) {
     return (
       <section style={{ padding: "40px 32px", maxWidth: "1200px" }}>
-        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "18px", padding: "40px 32px", textAlign: "center" }}>
+        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "40px 32px", textAlign: "center" }}>
           
           <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--vn-ink)" }}>No System 2 Run Selected</h3>
           <p style={{ color: "var(--vn-ink-muted)", fontSize: "14px", marginTop: "8px", maxWidth: "56ch", margin: "8px auto 0" }}>
@@ -201,7 +201,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           >
             ← Back to Runs Observatory
           </button>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <span style={{ width: "10px", height: "10px", borderRadius: "999px", background: "var(--vn-ok)" }} />
             <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "var(--vn-ok)", letterSpacing: "0.08em" }}>
               {runId} // IMMUTABLE TELEMETRY RECORD
@@ -233,7 +233,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       </div>
 
       {actionFeedback && (
-        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ok)", background: "var(--vn-ok-soft)", padding: "10px 18px", borderRadius: "10px", border: "1px solid var(--vn-ok-line)" }}>
+        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ok)", background: "var(--vn-ok-soft)", padding: "10px 18px", borderRadius: "8px", border: "1px solid var(--vn-ok-line)" }}>
           {actionFeedback}
         </div>
       )}
@@ -245,7 +245,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       )}
 
       {/* Tab Controls */}
-      <div style={{ display: "flex", gap: "10px", borderBottom: "1px solid var(--vn-line)", paddingBottom: "12px", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "12px", borderBottom: "1px solid var(--vn-line)", paddingBottom: "12px", flexWrap: "wrap" }}>
         {[
           { id: "OVERVIEW", label: "Executive Overview" },
           { id: "MEDIA", label: `Video & visuals (${runId})` },
@@ -276,7 +276,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       {activeTab === "MEDIA" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           {/* Section: Art-Directed Video Dossier & Live Player */}
-          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "18px", padding: "26px" }}>
+          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "var(--vn-card-pad)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px", flexWrap: "wrap", gap: "12px" }}>
               <div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", marginBottom: "6px" }}>
@@ -326,7 +326,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             </div>
 
             {/* Embedded Live Video Player */}
-            <div style={{ borderRadius: "14px", overflow: "hidden", background: "#000000", border: "1px solid var(--vn-line-strong)", boxShadow: "0 2px 8px rgba(17,17,17,0.04)" }}>
+            <div style={{ borderRadius: "12px", overflow: "hidden", background: "#000000", border: "1px solid var(--vn-line-strong)", boxShadow: "0 2px 8px rgba(17,17,17,0.04)" }}>
               {videoUrl ? (
                 <video
                   key={videoUrl}
@@ -352,8 +352,8 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             {/* Art Direction & Creative Language Dossier */}
             {creativeConcept && (
               <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "12px" }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "10px" }}>
-                  <div style={{ background: "var(--vn-sunken)", padding: "14px 16px", borderRadius: "10px", border: "1px solid var(--vn-line)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "12px" }}>
+                  <div style={{ background: "var(--vn-sunken)", padding: "14px 16px", borderRadius: "8px", border: "1px solid var(--vn-line)" }}>
                     <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-accent-ink)", textTransform: "uppercase", fontWeight: 700 }}>
                       VISUAL METAPHOR & LANGUAGE
                     </div>
@@ -365,7 +365,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                     </div>
                   </div>
 
-                  <div style={{ background: "var(--vn-sunken)", padding: "14px 16px", borderRadius: "10px", border: "1px solid var(--vn-line)" }}>
+                  <div style={{ background: "var(--vn-sunken)", padding: "14px 16px", borderRadius: "8px", border: "1px solid var(--vn-line)" }}>
                     <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-accent-ink)", textTransform: "uppercase", fontWeight: 700 }}>
                       CAMERA & MOTION CHOREOGRAPHY
                     </div>
@@ -377,7 +377,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                     </div>
                   </div>
 
-                  <div style={{ background: "var(--vn-sunken)", padding: "14px 16px", borderRadius: "10px", border: "1px solid var(--vn-line)" }}>
+                  <div style={{ background: "var(--vn-sunken)", padding: "14px 16px", borderRadius: "8px", border: "1px solid var(--vn-line)" }}>
                     <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-bad)", textTransform: "uppercase", fontWeight: 700 }}>
                       PRODUCT INTEGRATION
                     </div>
@@ -391,7 +391,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                 </div>
 
                 {reasonSelected && (
-                  <div style={{ background: "var(--vn-accent-soft)", border: "1px solid var(--vn-accent-line)", borderRadius: "10px", padding: "12px 16px", fontSize: "12px", color: "var(--vn-ink-body)" }}>
+                  <div style={{ background: "var(--vn-accent-soft)", border: "1px solid var(--vn-accent-line)", borderRadius: "8px", padding: "12px 16px", fontSize: "12px", color: "var(--vn-ink-body)" }}>
                     <strong style={{ color: "var(--vn-accent-ink)" }}>Creative Judge Selection Rationale:</strong> {reasonSelected}
                   </div>
                 )}
@@ -402,9 +402,9 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                     <div style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", textTransform: "uppercase", marginBottom: "8px" }}>
                       ART-DIRECTED SCENE CHOREOGRAPHY PLAN ({scenePlan.length} SCENES)
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "10px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "12px" }}>
                       {scenePlan.map((s: any, idx: number) => (
-                        <div key={idx} style={{ background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: "10px", padding: "14px" }}>
+                        <div key={idx} style={{ background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: "8px", padding: "14px" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
                             <span style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ok)", fontWeight: 700 }}>
                               SCENE 0{s.scene_id || idx+1} ({s.duration_seconds}s)
@@ -429,7 +429,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           </div>
 
           {/* Section: Run-Specific Visual Render */}
-          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "18px", padding: "26px" }}>
+          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "var(--vn-card-pad)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px", flexWrap: "wrap", gap: "8px" }}>
               <div>
                 <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-accent-ink)", fontWeight: 700 }}>
@@ -482,12 +482,12 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                     were hand-written for the first liked video; an agent writes
                     them now, from the founder's record. */}
                 {runData?.source === "studio" && (
-                  <div style={{ background: "var(--vn-accent-soft)", padding: "10px 14px", borderRadius: "10px", border: "1px solid var(--vn-accent-line)", fontSize: "12px", color: "var(--vn-ink-body)" }}>
+                  <div style={{ background: "var(--vn-accent-soft)", padding: "10px 14px", borderRadius: "8px", border: "1px solid var(--vn-accent-line)", fontSize: "12px", color: "var(--vn-ink-body)" }}>
                     <span style={{ fontFamily: MONO, fontWeight: 700, color: "var(--vn-accent-ink)" }}>STUDIO</span> — made in the creative studio, outside a full cycle: only the visual and video agents ran.
                   </div>
                 )}
                 {(runData?.poster_brief || runData?.motion_plan || runData?.visual_review) && (
-                  <div style={{ background: "var(--vn-sunken)", padding: "16px", borderRadius: "10px", border: "1px solid var(--vn-accent-line)" }}>
+                  <div style={{ background: "var(--vn-sunken)", padding: "16px", borderRadius: "8px", border: "1px solid var(--vn-accent-line)" }}>
                     <div style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-accent-ink)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700 }}>
                       MOTION DIRECTOR
                     </div>
@@ -528,7 +528,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                   </div>
                 )}
 
-                <div style={{ background: "var(--vn-sunken)", padding: "16px", borderRadius: "10px", border: "1px solid var(--vn-line)" }}>
+                <div style={{ background: "var(--vn-sunken)", padding: "16px", borderRadius: "8px", border: "1px solid var(--vn-line)" }}>
                   <div style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     VISUAL CONCEPT
                   </div>
@@ -543,7 +543,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                   )}
                 </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                   <div style={{ background: "var(--vn-sunken)", padding: "12px", borderRadius: "8px", border: "1px solid var(--vn-line)" }}>
                     <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)", textTransform: "uppercase" }}>RENDERED BY</div>
                     <div style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "var(--vn-accent-ink)", marginTop: "3px" }}>
@@ -601,9 +601,9 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       {activeTab === "COPY" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
           {/* Structured X Post (Twitter Frame) */}
-          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "18px", padding: "26px" }}>
+          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "var(--vn-card-pad)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                 <span style={{ fontSize: "18px" }}>𝕏</span>
                 <span style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-accent-ink)", fontWeight: 700 }}>
                   X (FORMERLY TWITTER) // {xThreads.length}-PART DEVELOPER THREAD
@@ -615,9 +615,9 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             </div>
 
             {/* Dynamic X Thread Cards with Connector Lines */}
-            <div style={{ background: "var(--vn-sunken)", borderRadius: "14px", border: "1px solid var(--vn-line-strong)", padding: "20px" }}>
+            <div style={{ background: "var(--vn-sunken)", borderRadius: "12px", border: "1px solid var(--vn-line-strong)", padding: "20px" }}>
               {xThreads.map((chunk, i) => (
-                <div key={i} style={{ display: "flex", gap: "14px", marginTop: i > 0 ? "14px" : "0" }}>
+                <div key={i} style={{ display: "flex", gap: "16px", marginTop: i > 0 ? "14px" : "0" }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
                     <div style={{ width: "40px", height: "40px", borderRadius: "999px", background: "var(--vn-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, color: "#FFF", fontSize: "13px" }}>
                       V
@@ -644,7 +644,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           </div>
 
           {/* Structured LinkedIn Card */}
-          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "18px", padding: "26px" }}>
+          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "var(--vn-card-pad)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
               <span style={{ fontFamily: MONO, fontSize: "12px", color: "#0A66C2", fontWeight: 700 }}>LINKEDIN // INSTITUTIONAL THOUGHT LEADERSHIP</span>
               <span style={{ fontFamily: MONO, fontSize: "11px", color: channelState.color }}>
@@ -652,7 +652,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
               </span>
             </div>
 
-            <div style={{ background: "var(--vn-sunken)", borderRadius: "14px", border: "1px solid var(--vn-line-strong)", padding: "22px" }}>
+            <div style={{ background: "var(--vn-sunken)", borderRadius: "12px", border: "1px solid var(--vn-line-strong)", padding: "var(--vn-card-pad)" }}>
               <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "14px" }}>
                 <div style={{ width: "44px", height: "44px", borderRadius: "999px", background: "var(--vn-accent)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, color: "#FFF" }}>
                   AA
@@ -670,7 +670,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           </div>
 
           {/* Structured Reddit Card */}
-          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "18px", padding: "26px" }}>
+          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "var(--vn-card-pad)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
               <span style={{ fontFamily: MONO, fontSize: "12px", color: "#FF4500", fontWeight: 700 }}>REDDIT // r/defi & r/Stellar DEEP DIVE</span>
               <span style={{ fontFamily: MONO, fontSize: "11px", color: channelState.color }}>
@@ -678,7 +678,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
               </span>
             </div>
 
-            <div style={{ background: "var(--vn-sunken)", borderRadius: "14px", border: "1px solid var(--vn-line-strong)", padding: "22px", display: "flex", gap: "16px" }}>
+            <div style={{ background: "var(--vn-sunken)", borderRadius: "12px", border: "1px solid var(--vn-line-strong)", padding: "var(--vn-card-pad)", display: "flex", gap: "16px" }}>
               <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "4px" }}>
                 <span style={{ color: "var(--vn-ok)", fontSize: "16px" }}>▲</span>
                 <span style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "var(--vn-ink-faint)" }}>
@@ -701,7 +701,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
 
           {/* Published Receipts */}
           {receipts.length > 0 && (
-            <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "16px", padding: "20px 24px" }}>
+            <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "var(--vn-card-pad)" }}>
               <div style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", textTransform: "uppercase", marginBottom: "8px" }}>
                 LIVE SOCIAL PUBLICATION RECEIPTS
               </div>
@@ -731,7 +731,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
         scores, so no score is shown.
       */}
       {activeTab === "GATES" && (
-        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "18px", padding: "26px" }}>
+        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "var(--vn-card-pad)" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "20px", flexWrap: "wrap", gap: "12px" }}>
             <div>
               <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-accent-ink)", fontWeight: 700 }}>PRE-DELIVERY REVIEW FIREWALL</span>
@@ -752,9 +752,9 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           )}
 
           {assetVerdicts.length > 0 && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "14px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
               {assetVerdicts.map((a: any) => (
-                <div key={a.asset} style={{ background: "var(--vn-sunken)", padding: "18px", borderRadius: "12px", border: `1px solid ${verdictTone(a.verdict)}33` }}>
+                <div key={a.asset} style={{ background: "var(--vn-sunken)", padding: "20px", borderRadius: "12px", border: `1px solid ${verdictTone(a.verdict)}33` }}>
                   <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)", textTransform: "uppercase" }}>{a.asset}</div>
                   <div style={{ fontSize: "18px", fontWeight: 700, color: verdictTone(a.verdict), marginTop: "4px" }}>{a.verdict}</div>
                   {a.critique && (
@@ -771,7 +771,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           )}
 
           {/* A10's claim firewall, which is a separate check from the creative judge. */}
-          <div style={{ marginTop: "18px", background: "var(--vn-sunken)", padding: "18px", borderRadius: "12px", border: "1px solid var(--vn-line)" }}>
+          <div style={{ marginTop: "18px", background: "var(--vn-sunken)", padding: "20px", borderRadius: "12px", border: "1px solid var(--vn-line)" }}>
             <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>CLAIM FIREWALL (A10)</div>
             <div style={{ fontSize: "18px", fontWeight: 700, marginTop: "4px", color: blockedClaims.length ? "var(--vn-bad)" : runData?.review_notes ? "var(--vn-ok)" : "var(--vn-ink-muted)" }}>
               {blockedClaims.length
@@ -796,7 +796,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           </div>
 
           {copyVerdict && (
-            <div style={{ marginTop: "14px", background: "var(--vn-sunken)", padding: "18px", borderRadius: "12px", border: `1px solid ${verdictTone(copyVerdict)}33` }}>
+            <div style={{ marginTop: "14px", background: "var(--vn-sunken)", padding: "20px", borderRadius: "12px", border: `1px solid ${verdictTone(copyVerdict)}33` }}>
               <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>COPY</div>
               <div style={{ fontSize: "18px", fontWeight: 700, color: verdictTone(copyVerdict), marginTop: "4px" }}>{copyVerdict}</div>
               {copyCritique && (
@@ -817,7 +817,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       {/* ------------------------------------------------------------- TAB: OVERVIEW */}
       {activeTab === "OVERVIEW" && (
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))", gap: "20px" }}>
-          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "16px", padding: "26px" }}>
+          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "var(--vn-card-pad)" }}>
             <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-accent-ink)", fontWeight: 700 }}>STRATEGIC ANCHOR & NARRATIVE</span>
             <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--vn-ink)", marginTop: "4px" }}>{title}</h3>
             <p style={{ fontSize: "14px", color: "var(--vn-ink-body)", lineHeight: 1.75, marginTop: "10px" }}>
@@ -825,7 +825,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             </p>
           </div>
 
-          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "16px", padding: "26px" }}>
+          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "var(--vn-card-pad)" }}>
             <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ok)", fontWeight: 700 }}>RUN INVARIANTS & TELEMETRY</span>
             <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "14px" }}>
               <div style={{ display: "flex", justifyContent: "space-between", borderBottom: "1px solid var(--vn-line)", paddingBottom: "8px" }}>

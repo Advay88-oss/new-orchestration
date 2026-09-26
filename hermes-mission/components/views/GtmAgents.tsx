@@ -113,7 +113,7 @@ export function GtmAgents() {
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: 26, marginTop: 12, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 24, marginTop: 12, flexWrap: 'wrap' }}>
           <Stat v={`${data.ranThisRun}/${data.declared}`} l="ran this cycle" />
           <Stat v={String(data.modelBacked)} l="model-backed" />
           <Stat v={`${LEARNING_COUNT}/${AGENT_COUNT}`} l="learning" tone={LEARN} />
@@ -122,7 +122,7 @@ export function GtmAgents() {
         </div>
 
         {data.modelsUsed.length > 0 && (
-          <div style={{ display: 'flex', gap: 7, marginTop: 14, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 8, marginTop: 14, flexWrap: 'wrap' }}>
             {data.modelsUsed.map((m) => (
               <span key={m} style={{
                 fontFamily: MONO, fontSize: 10.5, padding: '3px 9px', borderRadius: 4,
@@ -137,7 +137,7 @@ export function GtmAgents() {
 
       {TRACKS.map((track) => (
         <section key={track.name} style={{ marginBottom: 26 }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 10 }}>
             <h3 style={{
               margin: 0, fontFamily: MONO, fontSize: 11, color: 'var(--vn-ink-body)',
               textTransform: 'uppercase', letterSpacing: 1,
@@ -148,7 +148,7 @@ export function GtmAgents() {
           <div style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fill, minmax(268px, 1fr))',
-            gap: 10,
+            gap: 12,
           }}>
             {track.ids.map((id) => {
               const a = byId.get(id);

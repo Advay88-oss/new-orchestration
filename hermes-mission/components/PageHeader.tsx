@@ -46,10 +46,11 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
 
   return (
     <header
+      className="app-header"
       style={{
         borderBottom: "1px solid var(--vn-line)",
         background: "rgba(251, 251, 250, 0.86)",
-        padding: "22px clamp(16px, 3vw, 48px)",
+        padding: "24px 0 20px",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -92,7 +93,7 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
           flex: "0 0 auto",
           display: "flex",
           alignItems: "center",
-          gap: "14px",
+          gap: "16px",
           marginLeft: "auto",
         }}
       >
@@ -105,7 +106,7 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
             color: "var(--vn-on-accent)",
             border: "none",
             borderRadius: "6px",
-            padding: "9px 18px",
+            padding: "8px 16px",
             fontFamily: MONO,
             fontSize: "12px",
             fontWeight: 800,

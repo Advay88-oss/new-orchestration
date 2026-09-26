@@ -38,6 +38,14 @@
 
   --font-display: var(--font-serif), "Newsreader", Georgia, serif;
   --vn-radius: 10px;
+
+  /* One grid for the whole page: the header, the console and every view sit
+     on the same left and right edges at any width. */
+  --vn-max: 1440px;
+  --vn-gutter: clamp(16px, 3vw, 48px);
+  --vn-inline: max(var(--vn-gutter), calc((100% - var(--vn-max)) / 2 + var(--vn-gutter)));
+  --vn-space: 24px;        /* between blocks */
+  --vn-card-pad: 24px;     /* inside cards */
 }
 
 
@@ -196,13 +204,20 @@ table, .num {
 /* ── RESPONSIVE CONTAINER & GRID UTILITIES ────────────────────────────────── */
 
 .vanna-section {
-  padding: clamp(20px, 3vw, 40px) clamp(16px, 3vw, 48px) 96px;
-  max-width: 1440px;
+  padding: var(--vn-space) var(--vn-inline) 96px;
   width: 100%;
-  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: clamp(14px, 2vw, 24px);
+  gap: var(--vn-space);
+}
+
+.console-container {
+  margin: var(--vn-space) var(--vn-inline) 0 !important;
+}
+
+.app-header {
+  padding-left: var(--vn-inline) !important;
+  padding-right: var(--vn-inline) !important;
 }
 
 /* Cards are a hairline, not a shadow. */
@@ -211,7 +226,7 @@ table, .num {
   border: 1px solid var(--vn-line);
   box-shadow: none;
   border-radius: 12px;
-  padding: clamp(16px, 2vw, 22px) clamp(18px, 2.5vw, 26px);
+  padding: var(--vn-card-pad);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -225,7 +240,7 @@ table, .num {
   border: 1px solid var(--vn-line);
   box-shadow: none;
   border-radius: 12px;
-  padding: clamp(16px, 2vw, 22px) clamp(18px, 2.2vw, 26px);
+  padding: var(--vn-card-pad);
 }
 
 .vanna-card:hover {
@@ -246,9 +261,13 @@ table, .num {
 /* ── BREAKPOINT RULES ─────────────────────────────────────────────────────── */
 
 @media (max-width: 1279px) {
+  :root {
+    --vn-space: 16px;
+    --vn-card-pad: 18px;
+  }
+
   .vanna-section {
-    padding: 12px 12px 60px !important;
-    gap: 12px !important;
+    padding-bottom: 64px !important;
   }
 
   .vanna-banner {
@@ -273,8 +292,7 @@ table, .num {
   }
 
   .console-container {
-    margin: 12px 10px 0 !important;
-    padding: 16px 14px !important;
+    padding: 16px !important;
   }
 
   .console-input-row {

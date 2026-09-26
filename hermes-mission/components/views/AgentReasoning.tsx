@@ -213,7 +213,7 @@ function Section({
         background: 'var(--vn-surface)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 10 }}>
         <span style={{ fontFamily: MONO, fontSize: 11, color: DIM }}>{n}</span>
         <h3 style={{ margin: 0, fontSize: 14.5, color: 'var(--vn-ink)', fontWeight: 600 }}>{title}</h3>
         <span style={{ fontFamily: MONO, fontSize: 10.5, color: ACCENT }}>{model}</span>
