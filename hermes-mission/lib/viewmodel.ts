@@ -9,7 +9,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { probeRelay } from "./api";
-import { AGENT_COUNT, LEARNING_COUNT } from "./agents";
+import { AGENT_COUNT, JUDGE_COUNT, LEARNING_COUNT, SPECIALIST_COUNT } from "./agents";
 import {
   ACCENT,
   ACCENT_DEEP,
@@ -214,6 +214,7 @@ export function useMissionControl(props: MissionControlProps) {
       { id: "runs", label: "Agent History" },
       { id: "agents", label: "GTM Agents" },
       { id: "research", label: "Scraped Intelligence" },
+      { id: "brain", label: "Brand Brain" },
       { id: "references", label: "Vanna References" },
     ].map((n) => {
       const on = view === n.id;
@@ -300,6 +301,7 @@ export function useMissionControl(props: MissionControlProps) {
       isAgents: view === "agents",
       isResearch: view === "research",
       isReferences: view === "references",
+      isBrain: view === "brain",
       isScheduler: view === "scheduler",
       isIdeas: view === "ideas",
       isMemes: view === "memes",
@@ -433,7 +435,7 @@ export function useMissionControl(props: MissionControlProps) {
         "Agents",
         // There is no relay and there are no process logs. This header claimed
         // both for agents whose status now comes from the run journal.
-        "The " + AGENT_COUNT + " GTM agents, " + LEARNING_COUNT + " of them learning. Status, model and token counts are read from the "
+        SPECIALIST_COUNT + " specialists and " + JUDGE_COUNT + " independent judges, " + LEARNING_COUNT + " of them learning. Status, model and token counts are read from the "
         + "last cycle's run journal; an agent that did not run says so.",
       ],
       cost: [
@@ -445,6 +447,10 @@ export function useMissionControl(props: MissionControlProps) {
       notes: [
         "Backend note",
         "The endpoints this needs, what the sources cannot answer, and the run-id decision.",
+      ],
+      brain: [
+        "Brand Brain",
+        "What the agents know about the brand, and how fresh it is: profile, knowledge, visual memory, sources.",
       ],
       references: [
         "Vanna References",

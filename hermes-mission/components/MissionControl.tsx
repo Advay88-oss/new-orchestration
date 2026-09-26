@@ -11,6 +11,7 @@ import { RunDetail } from "./views/RunDetail";
 import { Runs } from "./views/Runs";
 import { Research } from "./views/Research";
 import { VannaReferences } from "./views/VannaReferences";
+import { BrandBrain } from "./views/BrandBrain";
 import { SchedulerView } from "./views/SchedulerView";
 import { IdeasView } from "./views/IdeasView";
 import { MemesView } from "./views/MemesView";
@@ -113,6 +114,7 @@ export function MissionControl({
         {vm.isAgents && <GtmAgents />}
         {(vm as any).isResearch && <Research vm={vm} />}
         {(vm as any).isReferences && <VannaReferences />}
+        {(vm as any).isBrain && <BrandBrain />}
       </main>
     </div>
   );

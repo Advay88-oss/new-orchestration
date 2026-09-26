@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
 
-const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : 'D:/new orchestration');
+const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
 const MEMES_FILE_1 = path.join(REPO_ROOT, 'state/panels/memes.json');
 const MEMES_FILE_2 = path.join(REPO_ROOT, 'pipeline/state/panels/memes.json');
 const OUTCOMES_FILE = path.join(REPO_ROOT, 'pipeline/state/outcomes.jsonl');

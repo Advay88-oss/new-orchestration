@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import { localOnly } from '@/lib/local-only';
 
-const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : 'D:/new orchestration');
+const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
 const SCHEDULER_SCRIPT = path.join(REPO_ROOT, 'pipeline/scheduler/configurable_scheduler_daemon.py');
 const SCHEDULER_STATE_FILE = path.join(REPO_ROOT, 'pipeline/state/scheduler_state.json');
 const CONFIG_FILE = path.join(REPO_ROOT, 'config/scheduler.yaml');

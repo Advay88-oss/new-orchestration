@@ -801,11 +801,11 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 "rationale": summary["reason"][:400],
                 "note": "directive honoured; no scraped topic substituted",
             })
-            for skipped in ("A04_machine_library", "A05_campaign_engine",
-                            "A06_channel_adapter", "A07_creative_director",
+            # A03 ran (and declined); its planning steps are part of it, so
+            # they are not recorded as skipped over its own row.
+            for skipped in ("A06_channel_adapter", "A07_creative_director",
                             "A08_visual_synthesis", "A09_video_production",
-                            "A10_reviewer_firewall", "A11_dispatch_worker",
-                            "A12_telegram_gateway", "A14_motion_director",
+                            "A10_reviewer_firewall", "A11_delivery",
                             "A15_creative_judge"):
                 R.record_stage(skipped, "skipped",
                                "directive declined by A03")
@@ -856,11 +856,11 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             summary["status"] = strategy.action_status
             summary["reason"] = (strategy.no_action_rationale
                                  or strategy.kill_rationale or "")
-            for skipped in ("A04_machine_library", "A05_campaign_engine",
-                            "A06_channel_adapter", "A07_creative_director",
+            # A03 ran (and declined); its planning steps are part of it, so
+            # they are not recorded as skipped over its own row.
+            for skipped in ("A06_channel_adapter", "A07_creative_director",
                             "A08_visual_synthesis", "A09_video_production",
-                            "A10_reviewer_firewall", "A11_dispatch_worker",
-                            "A12_telegram_gateway", "A14_motion_director",
+                            "A10_reviewer_firewall", "A11_delivery",
                             "A15_creative_judge"):
                 R.record_stage(skipped, "skipped",
                                "strategy returned " + strategy.action_status)
@@ -1573,7 +1573,7 @@ def _finish(summary: dict, t0: float, rid: str) -> dict:
         print("  [warn] state sync failed: " + str(exc)[:160])
     print("-" * 70)
     print("status          : " + str(summary["status"]))
-    print("agents ran      : " + str(summary["agents_ran"]) + "/13")
+    print("agents ran      : " + str(summary["agents_ran"]) + "/" + str(len(R.AGENT_ROLES)))
     print("model calls     : " + str(summary["model_calls_ok"]) + "/"
           + str(summary["model_calls"]) + " ok")
     print("models used     : " + ", ".join(summary["models_used"]))

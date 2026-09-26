@@ -3,7 +3,7 @@ import { isDeployed, assetKey, getBytes } from '@/lib/gcs';
 import fs from 'fs';
 import path from 'path';
 
-const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : 'D:/new orchestration');
+const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
 
 export const dynamic = 'force-dynamic';
 

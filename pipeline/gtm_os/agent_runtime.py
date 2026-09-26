@@ -61,48 +61,69 @@ MODELS: dict[str, str] = {
     "director":  os.environ.get("VANNA_GTM_MODEL_DIRECTOR", "gemini-3.8-flash"),
 }
 
-# Which agent uses which role. Declared here so `--manifest` can print the
-# routing and the dashboard cannot invent one.
+# The roster: ten specialists and two independent judges, in the order a run
+# reaches them. Declared here so `--manifest` can print the routing and the
+# dashboard cannot invent one.
+#
+# On 2026-09-26 seventeen agent ids became twelve. Four pairs were one job
+# split across two names, and merging them changes no behaviour: each module
+# still runs exactly as before; its journal rows are written under the agent
+# that owns the job, with the sub-step named in the detail.
+#   A04 machine library + A05 campaign engine  -> A03 strategist (planning;
+#       both only verify and select, with no model call, after A03 decides)
+#   A14 Motion Director                        -> A07 Creative Director
+#   A11 dispatch + A12 Telegram gateway        -> A11 Delivery
+#   A16 Coach                                  -> A13 Learning
+# The judges stay separate from what they judge: the maker never grades itself.
 AGENT_ROLES: dict[str, str] = {
     "A01_intelligence_scout":   "none",
+    "A02_market_analyst":       "reasoning",
     "A02_opportunity_selector": "reasoning",
     "A03_gtm_strategist":       "reasoning",
-    "A04_machine_library":      "none",
-    "A05_campaign_engine":      "none",
     "A06_channel_adapter":      "reasoning",
-    "A07_creative_director":    "reasoning",
+    "A07_creative_director":    "director",
     "A08_visual_synthesis":     "image",
     "A09_video_production":     "video",
+    "A11_delivery":             "none",
+    "A13_learning_engine":      "director",
+    # independent judges
     "A10_reviewer_firewall":    "reasoning",
-    "A11_dispatch_worker":      "none",
-    "A12_telegram_gateway":     "none",
-    "A13_learning_engine":      "reasoning",
-    # Specialists that grew out of the thirteen, each with its own record.
-    "A02_market_analyst":       "reasoning",
-    "A14_motion_director":      "director",
     "A15_creative_judge":       "reasoning",
-    "A16_coach":                "director",
 }
 
 AGENT_NAMES: dict[str, str] = {
     "A01_intelligence_scout":   "Intelligence Scout",
-    "A02_opportunity_selector": "Opportunity Selector",
-    "A03_gtm_strategist":       "GTM Strategist",
-    "A04_machine_library":      "GTM Machine Library",
-    "A05_campaign_engine":      "Campaign & Series Engine",
-    "A06_channel_adapter":      "Content Creator & Channel Adapter",
-    "A07_creative_director":    "Creative Director System",
-    "A08_visual_synthesis":     "Visual Synthesis Engine",
-    "A09_video_production":     "Video Production Engine",
-    "A10_reviewer_firewall":    "Pre-Delivery Reviewer Firewall",
-    "A11_dispatch_worker":      "Approved Dispatch Worker",
-    "A12_telegram_gateway":     "Telegram Gateway & Listener",
-    "A13_learning_engine":      "Closed-Loop Learning Engine",
     "A02_market_analyst":       "Market Analyst",
-    "A14_motion_director":      "Motion Director",
+    "A02_opportunity_selector": "Opportunity Selector",
+    "A03_gtm_strategist":       "GTM Strategist & Planner",
+    "A06_channel_adapter":      "Copywriter",
+    "A07_creative_director":    "Creative Director",
+    "A08_visual_synthesis":     "Poster Designer",
+    "A09_video_production":     "Video Producer",
+    "A11_delivery":             "Delivery",
+    "A13_learning_engine":      "Learning & Coach",
+    "A10_reviewer_firewall":    "Reviewer & Fact Checker",
     "A15_creative_judge":       "Creative Judge",
-    "A16_coach":                "Coach",
 }
+
+JUDGES = ("A10_reviewer_firewall", "A15_creative_judge")
+
+# Former ids -> the agent that owns the job now, and the sub-step label its
+# journal rows carry. Old run journals keep the old ids; the dashboard maps
+# them the same way.
+MERGED: dict[str, tuple[str, str]] = {
+    "A04_machine_library":  ("A03_gtm_strategist", "planning: machine"),
+    "A05_campaign_engine":  ("A03_gtm_strategist", "planning: campaign"),
+    "A14_motion_director":  ("A07_creative_director", "motion director"),
+    "A11_dispatch_worker":  ("A11_delivery", "dispatch"),
+    "A12_telegram_gateway": ("A11_delivery", "telegram"),
+    "A16_coach":            ("A13_learning_engine", "coach"),
+}
+
+
+def canonical(agent: str) -> tuple[str, str]:
+    """(agent id, sub-step label) for any id, current or former."""
+    return MERGED.get(agent, (agent, ""))
 
 
 class BrainError(RuntimeError):
@@ -374,8 +395,12 @@ def record(call: AgentCall, run_id: Optional[str] = None) -> None:
         return
     d = RUNS_DIR / rid
     d.mkdir(parents=True, exist_ok=True)
+    row = asdict(call)
+    row["agent"], step = canonical(row["agent"])
+    if step:
+        row["note"] = ("[" + step + "] " + str(row.get("note") or "")).strip()
     with (d / "calls.jsonl").open("a", encoding="utf-8") as f:
-        f.write(json.dumps(asdict(call)) + "\n")
+        f.write(json.dumps(row) + "\n")
 
 
 def record_stage(agent: str, status: str, detail: str = "",
@@ -390,6 +415,9 @@ def record_stage(agent: str, status: str, detail: str = "",
     rid = run_id or current_run()
     if not rid:
         return
+    agent, step = canonical(agent)
+    if step:
+        detail = "[" + step + "] " + detail
     d = RUNS_DIR / rid
     d.mkdir(parents=True, exist_ok=True)
     with (d / "stages.jsonl").open("a", encoding="utf-8") as f:
@@ -421,6 +449,7 @@ def record_decision(agent: str, kind: str, payload: dict[str, Any],
     rid = run_id or current_run()
     if not rid:
         return
+    agent, _step = canonical(agent)
     try:
         d = RUNS_DIR / rid
         d.mkdir(parents=True, exist_ok=True)

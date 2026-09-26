@@ -5,7 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import { localOnly } from '@/lib/local-only';
 
-const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : 'D:/new orchestration');
+const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
 const SCRIPT_PATH = path.join(REPO_ROOT, 'pipeline/scripts/daemon_manager.py');
 const PID_FILE = path.join(REPO_ROOT, 'pipeline/state/daemon.pid');
 const STATUS_FILE = path.join(REPO_ROOT, 'pipeline/state/daemon_status.json');

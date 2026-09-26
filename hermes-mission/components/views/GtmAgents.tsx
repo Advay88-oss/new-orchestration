@@ -19,7 +19,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
-import { AGENTS as AGENT_DEFS, AGENT_COUNT, LEARNING_COUNT } from '@/lib/agents';
+import { AGENTS as AGENT_DEFS, AGENT_COUNT, JUDGE_COUNT, LEARNING_COUNT, SPECIALIST_COUNT } from '@/lib/agents';
 
 const ACCENT = '#A98CFF';
 const DIM = '#6C6C6C';
@@ -33,20 +33,21 @@ const MODEL_TONE: Record<string, string> = {
   'veo-3.1-generate-001': '#FF7AB6',
 };
 
-/** The four operational tracks from ARCHITECTURE.md; members come from lib/agents. */
+/** Ten specialists in three tracks, then the two independent judges. */
 const TRACKS: { name: string; blurb: string; ids: string[] }[] = [
   { key: 'intelligence', name: 'Intelligence & Strategy',
-    blurb: 'Finds what is happening and decides whether Vanna has an answer' },
+    blurb: 'Finds what is happening and decides whether the brand has an answer' },
   { key: 'creative', name: 'Creative & Media',
-    blurb: 'Writes the post, directs and renders the poster and the video, and judges them' },
-  { key: 'governance', name: 'Governance & Distribution',
-    blurb: 'Blocks what should not ship; dispatch waits for a human. Fixed by design' },
-  { key: 'learning', name: 'Learning',
-    blurb: 'Turns founder decisions and run outcomes into what every agent reads next' },
+    blurb: 'Writes the post, directs it, and renders the poster and the video' },
+  { key: 'delivery', name: 'Delivery & Learning',
+    blurb: 'Hands the run to a human, never publishes, and learns from the decision' },
+  { key: 'judges', name: 'Independent Judges',
+    blurb: 'Separate from what they judge: the maker never grades its own work' },
 ].map((t) => ({ ...t, ids: AGENT_DEFS.filter((a) => a.track === t.key).map((a) => a.id) }));
 
 interface Agent {
   n: number; id: string; code: string; name: string; role: string;
+  judge: boolean; absorbs: string | null;
   learns: string | null; fixed: string | null;
   model: string | null; kind: 'MODEL_BACKED' | 'DETERMINISTIC';
   status: string; detail: string; outputs: string[]; at: string | null;
@@ -100,7 +101,7 @@ export function GtmAgents() {
       <header style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
           <h2 style={{ margin: 0, fontSize: 20, color: '#EDEDED', fontWeight: 600 }}>
-            {AGENT_COUNT} GTM Agents
+            {SPECIALIST_COUNT} specialists · {JUDGE_COUNT} judges
           </h2>
           <span style={{ fontFamily: MONO, fontSize: 11.5, color: DIM }}>
             {data.runId ?? 'no run yet'}
@@ -201,6 +202,12 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
 
       <h4 style={{ margin: '5px 0 7px', fontSize: 13.5, color: '#E8E8ED', fontWeight: 600, lineHeight: 1.3 }}>
         {a.name}
+        {a.absorbs && (
+          <span style={{ display: 'block', fontFamily: MONO, fontSize: 9.5, fontWeight: 400,
+                         color: '#6E6E78', marginTop: 3 }}>
+            includes {a.absorbs}
+          </span>
+        )}
       </h4>
 
       {a.kind === 'DETERMINISTIC' ? (

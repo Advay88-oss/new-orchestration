@@ -20,7 +20,7 @@
 import fs from 'fs';
 import path from 'path';
 import { isDeployed, getText, getBytes, runIds as gcsRunIds } from '@/lib/gcs';
-import { AGENTS as AGENT_DEFS, type GtmAgentRole } from '@/lib/agents';
+import { AGENTS as AGENT_DEFS, ALIAS, type GtmAgentRole } from '@/lib/agents';
 
 export type { GtmAgentRole };
 
@@ -35,6 +35,8 @@ export interface GtmAgent {
   role: GtmAgentRole;
   learns: string | null;
   fixed: string | null;
+  judge: boolean;
+  absorbs: string | null;
   model: string | null;
   kind: 'MODEL_BACKED' | 'DETERMINISTIC';
   status: string;
@@ -176,6 +178,7 @@ export async function gtmAgents(runId?: string): Promise<{
     AGENTS.map(([id, name, role], i) => ({
       n: i + 1, id, name, role, code: DEF.get(id)!.code,
       learns: DEF.get(id)!.learns ?? null, fixed: DEF.get(id)!.fixed ?? null,
+      judge: Boolean(DEF.get(id)!.judge), absorbs: DEF.get(id)!.absorbs ?? null,
       model: role === 'none' ? null : MODELS[role],
       kind: role === 'none' ? 'DETERMINISTIC' : 'MODEL_BACKED',
       status: 'never_ran', detail: '', outputs: [], at: null,
@@ -190,19 +193,30 @@ export async function gtmAgents(runId?: string): Promise<{
   // The cycle's stage wrapper writes a second row after an agent has already
   // recorded its own with artifact paths on it. Taking the last row alone
   // dropped those paths, so a rendered PNG existed with no link to it.
+  //
+  // Former ids (A04, A05, A11/A12, A14, A16 in older journals) fold into the
+  // agent that owns the job now. A merged agent keeps the worst status any of
+  // its steps reported — the pipeline's own rule — so a degraded sub-step is
+  // not hidden by a later "ok".
+  const RANK: Record<string, number> = { ok: 0, skipped: 0, degraded: 1, failed: 2 };
   const lastStage = new Map<string, any>();
   for (const s of stages) {
-    const prior = lastStage.get(s.agent);
+    const id = ALIAS[s.agent] ?? s.agent;
+    const prior = lastStage.get(id);
     const outputs = Array.from(new Set([...(prior?.outputs ?? []), ...(s.outputs ?? [])]));
-    lastStage.set(s.agent, { ...s, outputs });
+    const worse = prior && (RANK[prior.status] ?? 0) > (RANK[s.status] ?? 0);
+    lastStage.set(id, { ...s, agent: id, outputs,
+                        status: worse ? prior.status : s.status,
+                        detail: worse ? prior.detail : s.detail });
   }
 
   const byAgentCalls = new Map<string, any[]>();
   for (const c of calls) {
     if (!isModelCall(c)) continue;
-    const arr = byAgentCalls.get(c.agent) || [];
+    const id = ALIAS[c.agent] ?? c.agent;
+    const arr = byAgentCalls.get(id) || [];
     arr.push(c);
-    byAgentCalls.set(c.agent, arr);
+    byAgentCalls.set(id, arr);
   }
 
   const agents: GtmAgent[] = AGENTS.map(([id, name, role], i) => {
@@ -211,6 +225,7 @@ export async function gtmAgents(runId?: string): Promise<{
     return {
       n: i + 1, id, name, role, code: DEF.get(id)!.code,
       learns: DEF.get(id)!.learns ?? null, fixed: DEF.get(id)!.fixed ?? null,
+      judge: Boolean(DEF.get(id)!.judge), absorbs: DEF.get(id)!.absorbs ?? null,
       model: role === 'none' ? null : MODELS[role],
       kind: role === 'none' ? 'DETERMINISTIC' : 'MODEL_BACKED',
       status: s?.status ?? 'never_ran',
