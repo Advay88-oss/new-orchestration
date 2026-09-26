@@ -300,6 +300,8 @@ class SchedulerEngine:
                 result = self._run_gtm_cycle()
             elif job_name == "notion_sync":
                 result = self._run_notion_sync()
+            elif job_name == "metrics_collect":
+                result = self._run_metrics_collect()
             else:
                 raise ValueError(f"No execution handler for job '{job_name}'")
 
@@ -355,6 +357,15 @@ class SchedulerEngine:
             "visual": bool(summary.get("visual_path")),
             "video": bool(summary.get("video_path")),
         }
+
+    def _run_metrics_collect(self) -> Dict[str, Any]:
+        """Read back published posts that are 48+ hours old (engagement ->
+        the reward events and the format / posting-slot arms)."""
+        from pipeline.gtm_learning.metrics_collector import collect
+        out = collect()
+        if out["errors"] and not out["collected"]:
+            raise RuntimeError("metrics collection failed: " + json.dumps(out["errors"])[:300])
+        return {"success": True, **out}
 
     def _run_notion_sync(self) -> Dict[str, Any]:
         """The daily safety-net sync of every connected tenant's Notion

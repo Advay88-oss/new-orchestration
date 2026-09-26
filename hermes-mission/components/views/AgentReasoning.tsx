@@ -178,7 +178,7 @@ export function AgentReasoning() {
                       fontFamily: MONO,
                       fontSize: 11.5,
                       color: 'var(--vn-ink-muted)',
-                      borderLeft: `2px solid ${ACCENT}44`,
+                      borderLeft: `2px solid color-mix(in srgb, ${ACCENT} 27%, transparent)`,
                       paddingLeft: 10,
                       margin: '6px 0',
                     }}

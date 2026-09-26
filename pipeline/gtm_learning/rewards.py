@@ -68,13 +68,59 @@ def length_bucket(copy: str) -> str:
     return "short" if n < 400 else "medium" if n < 900 else "long"
 
 
-def arms_of(summary: dict) -> dict[str, str]:
+# The posting slot, in the tenant's timezone (profile "timezone", else UTC).
+SLOTS = (("morning", 6, 11), ("midday", 11, 15), ("evening", 15, 20), ("night", 20, 6))
+
+
+def _tz():
+    from zoneinfo import ZoneInfo
+    try:
+        from pipeline.brand_brain import context as C
+        return ZoneInfo(str(C.profile().get("timezone") or "UTC"))
+    except Exception:                               # noqa: BLE001 — unknown zone
+        return ZoneInfo("UTC")
+
+
+def slot_of(iso: str) -> str:
+    """morning / midday / evening / night for a posting time."""
+    try:
+        h = datetime.fromisoformat(str(iso).replace("Z", "+00:00")).astimezone(_tz()).hour
+    except (TypeError, ValueError):
+        return ""
+    for name, lo, hi in SLOTS:
+        if (lo <= h < hi) if lo < hi else (h >= lo or h < hi):
+            return name
+    return ""
+
+
+def format_of(m: dict) -> str:
+    """What was actually published: video, image, thread or text."""
+    f = str(m.get("format") or "").lower()
+    if f in ("video", "image", "thread", "text"):
+        return f
+    media = [str(x).lower() for x in (m.get("media") or [])]
+    if any(x in ("video", "animated_gif") for x in media):
+        return "video"
+    if media:
+        return "image"
+    return ""
+
+
+def arms_of(summary: dict, published: Optional[dict] = None) -> dict[str, str]:
+    """The choices a run is credited with. Format and posting slot are what
+    was actually PUBLISHED (from the post's outcome record), never what was
+    recommended: a run makes every asset and the founder picks what to post,
+    so crediting the recommendation would teach the loop about posts that
+    never went out."""
     x = (summary.get("posts") or {}).get("x") or {}
     pillar = str(summary.get("pillar") or "")
+    pub = published or {}
     return {k: v for k, v in {
         "pillar": pillar if pillar and pillar != "NONE" else "",
         "hook_type": hook_type(x.get("hook", "")) if x else "",
         "length": length_bucket(x.get("copy", "")) if x else "",
+        "format": format_of(pub),
+        "slot": slot_of(pub.get("posted_at", "")) if pub.get("posted_at") else "",
     }.items() if v}
 
 
@@ -96,6 +142,17 @@ def engagement_rate(m: dict) -> Optional[float]:
         return None
     acts = sum(float(m.get(k) or 0) for k in ("likes", "reposts", "replies", "quotes", "bookmarks"))
     return acts / imp
+
+
+def published_of(run_id: str) -> Optional[dict]:
+    """The newest outcome record for a run: its metrics plus what was posted
+    (format, posted_at, url), if the post has been logged."""
+    try:
+        outs = _brain().outcomes(500)
+    except Exception:                               # noqa: BLE001 — no brain
+        return None
+    mine = [o for o in outs if o.get("run_id") == run_id or o.get("post_id") == run_id]
+    return mine[0]["metrics"] if mine else None
 
 
 def normalised_engagement(run_id: str) -> Optional[float]:
@@ -131,7 +188,7 @@ def compute(run_id: str) -> Optional[dict[str, Any]]:
     else:
         parts = [(v, w) for v, w in ((human, W_HUMAN), (engagement, W_ENGAGEMENT)) if v is not None]
         total = round(sum(v * w for v, w in parts) / sum(w for _, w in parts), 3) if parts else None
-    arms = arms_of(s)
+    arms = arms_of(s, published_of(run_id))
     if total is None or not arms:
         return None
     return {"run_id": run_id, "human": human,
@@ -194,9 +251,15 @@ def pairs(limit: int = 50) -> list[dict[str, Any]]:
 
 def log_outcome(run_id: str, metrics: dict[str, Any], *, source: str = "manual") -> dict[str, Any]:
     """A published post's metrics, then the run's reward recomputed."""
-    clean = {k: float(v) for k, v in metrics.items()
-             if k in ("impressions", "views", "likes", "reposts", "replies", "quotes", "bookmarks",
-                      "clicks", "signups") and v not in (None, "")}
+    clean: dict[str, Any] = {k: float(v) for k, v in metrics.items()
+                             if k in ("impressions", "views", "likes", "reposts", "replies", "quotes",
+                                      "bookmarks", "clicks", "signups") and v not in (None, "")}
+    # What was published, for the format and posting-slot arms.
+    for k in ("format", "posted_at", "url", "tweet_id"):
+        if metrics.get(k):
+            clean[k] = str(metrics[k])
+    if metrics.get("media"):
+        clean["media"] = [str(x) for x in metrics["media"]][:4]
     _brain().log_post_outcome(run_id, clean, run_id=run_id, source=source)
     return {"ok": True, "metrics": clean, "event": record_run(run_id)}
 

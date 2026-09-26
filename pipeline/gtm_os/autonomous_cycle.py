@@ -691,6 +691,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             from pipeline.brand_brain.sync import sync_if_stale
             from pipeline.brand_brain.client import Brain as _Brain
             from pipeline.brand_brain import mcp_client as _MC
+            _MC.enable()                             # the agents of this run use the Brain MCP server
             fresh = sync_if_stale()
             _b = _Brain()                            # run bookkeeping: the pipeline's own
             since = _b.meta("last_run_started") or ""
@@ -776,6 +777,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             _BD.CURRENT.clear()
             _BD.CURRENT.update(_BD.recommend(_RW.context_of(summary)))
             summary["bandit"] = dict(_BD.CURRENT)
+            summary["posting_plan"] = _BD.posting_plan(_BD.CURRENT)
             R.record_decision("A03_gtm_strategist", "bandit", summary["bandit"])
         except Exception as exc:                    # noqa: BLE001 — no guidance this run
             summary["bandit"] = {"error": str(exc)[:160]}

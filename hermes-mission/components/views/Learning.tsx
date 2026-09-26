@@ -26,7 +26,7 @@ const label: React.CSSProperties = {
   fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.8, textTransform: "uppercase",
   color: "var(--vn-ink-muted)", marginBottom: 10,
 };
-const DIM_LABEL: Record<string, string> = { pillar: "Narrative pillar", hook_type: "Hook type", length: "Post length" };
+const DIM_LABEL: Record<string, string> = { pillar: "Narrative pillar", format: "Format (as published)", hook_type: "Hook type", length: "Post length", slot: "Posting slot (as published)" };
 
 function Bar({ v }: { v: number }) {
   return (
@@ -150,7 +150,7 @@ export function Learning() {
                 <td style={{ color: e.reviewer_ok === 0 ? "var(--vn-bad)" : "var(--vn-ink-muted)" }}>{e.reviewer_ok === 0 ? "blocked" : e.reviewer_ok === 1 ? "passed" : "—"}</td>
                 <td style={{ fontFamily: MONO, color: "var(--vn-ink-muted)" }}>{e.human ?? "—"}</td>
                 <td style={{ fontFamily: MONO, color: "var(--vn-ink-muted)" }}>{e.engagement ?? "—"}</td>
-                <td style={{ color: "var(--vn-ink-muted)" }}>{[e.arms.hook_type, e.arms.length].filter(Boolean).join(" · ")}</td>
+                <td style={{ color: "var(--vn-ink-muted)" }}>{[e.arms.format, e.arms.hook_type, e.arms.length, e.arms.slot].filter(Boolean).join(" · ")}</td>
               </tr>
             ))}
           </tbody>

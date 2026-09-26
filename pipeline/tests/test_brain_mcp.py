@@ -23,6 +23,8 @@ class BrainOverMCPTest(unittest.TestCase):
         cls.env = mock.patch.dict(os.environ, {"BRAIN_ROOT": str(cls.tmp), "BRAIN_BACKEND": "sqlite",
                                                "BRAIN_TENANT": "mcptest", "BRAIN_MCP_DISABLE": ""})
         cls.env.start()
+        from pipeline.brand_brain import mcp_client as M
+        M.enable()
         from pipeline.brand_brain import store as S
         cls.root = mock.patch.object(S, "ROOT", cls.tmp)
         cls.root.start()

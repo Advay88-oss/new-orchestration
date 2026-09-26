@@ -244,7 +244,7 @@ export function VannaReferences() {
                 <span style={{ color: "var(--vn-accent-ink)", fontWeight: 700 }}>{i.channel.toUpperCase()}</span>
                 {i.publisher && <span style={{ color: DIM }}>· {i.publisher}</span>}
                 <span style={{ color: DIM }}>· {when(i.observedAt)}</span>
-                <span style={{ marginLeft: "auto", color: g ? g.tone : DIM, border: `1px solid ${g ? g.tone + "55" : "var(--vn-line-strong)"}`, borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>
+                <span style={{ marginLeft: "auto", color: g ? g.tone : DIM, border: `1px solid ${g ? "color-mix(in srgb, " + g.tone + " 33%, transparent)" : "var(--vn-line-strong)"}`, borderRadius: 6, padding: "2px 8px", fontWeight: 700 }}>
                   {g ? g.label : "UNREAD"}
                 </span>
               </div>

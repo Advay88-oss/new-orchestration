@@ -43,3 +43,10 @@ jobs:
     description: "Daily safety-net Notion sync for every connected tenant (webhooks and run start cover the rest)."
     model_heavy: false
     min_allowed_interval_m: 60
+
+  metrics_collect:
+    interval: "6h"
+    enabled: true
+    description: "Reads back published posts 48h+ old: engagement into the reward events and the format / posting-slot arms."
+    model_heavy: false
+    min_allowed_interval_m: 60

@@ -12,6 +12,10 @@ the reward the learning loop needs. It never publishes.
   * Approve / Kill: recorded at once.
   * Revise: recorded, then the founder's next text message in that chat is
     attached as the revision note ("what should change").
+  * Posted: after Approve, a reply containing the X post's link records
+    where it went out, so the metrics collector can read its engagement
+    48 hours later (pipeline.gtm_learning.metrics_collector). A link that
+    names a run id ("GTM-... https://x.com/...") is attached to that run.
   * Only the configured reviewer chat (TELEGRAM_REVIEWER_CHAT_ID), or the
     founder's user id, is accepted.
 
@@ -34,6 +38,8 @@ from pipeline.gtm_os.telegram_sender import NotConfigured, _chat_id, _token
 STATE = Path(__file__).resolve().parents[2] / "pipeline" / "state"
 OFFSET_FILE = STATE / "telegram_offset.json"
 PENDING_FILE = STATE / "telegram_pending_revise.json"
+POSTED_FILE = STATE / "telegram_pending_post.json"
+POSTED_TTL_S = 14 * 24 * 3600
 FOUNDER_USER_ID = 5501720892          # from the original listener
 API = "https://api.telegram.org/bot{token}/{method}"
 PENDING_TTL_S = 30 * 60
@@ -111,12 +117,19 @@ def handle(update: dict, token: str, reviewer_chat: Optional[str]) -> Optional[d
         else:
             _reply(token, chat_id, labels[verdict] + ": " + run_id
                    + ". Recorded for learning; nothing was published.")
+            if verdict == "approve":
+                _save(POSTED_FILE, {"chat_id": chat_id, "run_id": run_id, "at": time.time()})
+                _reply(token, chat_id, "When you post it, reply here with the X link and its "
+                       "engagement is read back after 48 hours.")
         return row
 
     msg = update.get("message")
     if msg and msg.get("text"):
         chat_id = (msg.get("chat") or {}).get("id")
         user_id = (msg.get("from") or {}).get("id")
+        posted = _posted_link(msg["text"], chat_id, user_id, token, reviewer_chat)
+        if posted is not None:
+            return posted
         pending = _load(PENDING_FILE, None)
         if (pending and str(pending.get("chat_id")) == str(chat_id)
                 and time.time() - float(pending.get("at", 0)) < PENDING_TTL_S
@@ -128,6 +141,34 @@ def handle(update: dict, token: str, reviewer_chat: Optional[str]) -> Optional[d
             _reply(token, chat_id, "Note attached to " + pending["run_id"] + ".")
             return row
     return None
+
+
+def _posted_link(text: str, chat_id: Any, user_id: Any, token: str,
+                 reviewer_chat: Optional[str]) -> Optional[dict]:
+    """A reply carrying an X post link: where an approved run went out."""
+    import re
+    from pipeline.gtm_learning import metrics_collector as MC
+    if not MC.parse_url(text) or not _authorized(chat_id, user_id, reviewer_chat):
+        return None
+    named = re.search(r"GTM-\d{8}-\d{6}", text)
+    pending = _load(POSTED_FILE, None)
+    if named:
+        run_id = named.group(0)
+    elif (pending and str(pending.get("chat_id")) == str(chat_id)
+          and time.time() - float(pending.get("at", 0)) < POSTED_TTL_S):
+        run_id = pending["run_id"]
+    else:
+        _reply(token, chat_id, "Which run is this post from? Send the run id with the link.")
+        return {"posted": False}
+    res = MC.mark_published(run_id, text, source="telegram")
+    if res.get("ok"):
+        _reply(token, chat_id, "Recorded: " + run_id + " went out at " + res["url"]
+               + ". Engagement will be read after " + res["collect_after"][:16].replace("T", " ") + " UTC.")
+        if not named:
+            POSTED_FILE.unlink(missing_ok=True)
+    else:
+        _reply(token, chat_id, "Could not record that: " + str(res.get("error")))
+    return res
 
 
 def poll_once(token: str, reviewer_chat: Optional[str], *, wait: int = 25) -> int:

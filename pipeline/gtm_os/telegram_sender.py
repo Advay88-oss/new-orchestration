@@ -152,6 +152,11 @@ def send_review(summary: dict[str, Any], run_id: str, *,
         "*Machine* " + _esc(str(summary.get("machine") or "—")),
         "*Creative* " + _esc(str(summary.get("creative_verdict") or "—")),
         "*Gate* " + ("passed" if summary.get("review_passed") else "BLOCKED"),
+        (("*Post as* " + _esc(str((summary.get("posting_plan") or {}).get("format") or "—"))
+          + " · *when* " + _esc(str((summary.get("posting_plan") or {}).get("slot") or "—"))
+          + " " + _esc(str((summary.get("posting_plan") or {}).get("window") or ""))
+          + " " + _esc(str((summary.get("posting_plan") or {}).get("timezone") or "")))
+         if (summary.get("posting_plan") or {}).get("format") else ""),
         ("*Blocking* " + _esc(json.dumps(review)[:300])
          if not summary.get("review_passed") else ""),
     ]))[:MESSAGE_MAX]

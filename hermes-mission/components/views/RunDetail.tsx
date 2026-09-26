@@ -738,7 +738,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
                 What the judge actually returned
               </h3>
             </div>
-            <span style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 800, color: verdictTone(overallVerdict), background: `${verdictTone(overallVerdict)}22`, padding: "6px 14px", borderRadius: "6px" }}>
+            <span style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 800, color: verdictTone(overallVerdict), background: `color-mix(in srgb, ${verdictTone(overallVerdict)} 13%, transparent)`, padding: "6px 14px", borderRadius: "6px" }}>
               {overallVerdict ? `VERDICT: ${overallVerdict}` : "NOT REVIEWED"}
             </span>
           </div>
@@ -753,7 +753,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           {assetVerdicts.length > 0 && (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "16px" }}>
               {assetVerdicts.map((a: any) => (
-                <div key={a.asset} style={{ background: "var(--vn-sunken)", padding: "20px", borderRadius: "12px", border: `1px solid ${verdictTone(a.verdict)}33` }}>
+                <div key={a.asset} style={{ background: "var(--vn-sunken)", padding: "20px", borderRadius: "12px", border: `1px solid color-mix(in srgb, ${verdictTone(a.verdict)} 20%, transparent)` }}>
                   <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)", textTransform: "uppercase" }}>{a.asset}</div>
                   <div style={{ fontSize: "18px", fontWeight: 700, color: verdictTone(a.verdict), marginTop: "4px" }}>{a.verdict}</div>
                   {a.critique && (
@@ -795,7 +795,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
           </div>
 
           {copyVerdict && (
-            <div style={{ marginTop: "14px", background: "var(--vn-sunken)", padding: "20px", borderRadius: "12px", border: `1px solid ${verdictTone(copyVerdict)}33` }}>
+            <div style={{ marginTop: "14px", background: "var(--vn-sunken)", padding: "20px", borderRadius: "12px", border: `1px solid color-mix(in srgb, ${verdictTone(copyVerdict)} 20%, transparent)` }}>
               <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>COPY</div>
               <div style={{ fontSize: "18px", fontWeight: 700, color: verdictTone(copyVerdict), marginTop: "4px" }}>{copyVerdict}</div>
               {copyCritique && (

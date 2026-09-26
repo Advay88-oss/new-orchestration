@@ -85,7 +85,7 @@ export function LiveHarvest() {
             const ok = v?.ok && v?.signals > 0;
             const tone = ok ? "var(--vn-ok)" : v?.ok ? "var(--vn-warn)" : "var(--vn-bad)";
             return (
-              <div key={name} style={{ background: "var(--vn-sunken)", border: `1px solid ${tone}33`, borderRadius: 8, padding: "12px 14px" }}>
+              <div key={name} style={{ background: "var(--vn-sunken)", border: `1px solid color-mix(in srgb, ${tone} 20%, transparent)`, borderRadius: 8, padding: "12px 14px" }}>
                 <div style={{ fontFamily: MONO, fontSize: 10, color: DIM, textTransform: "uppercase" }}>{name}</div>
                 <div style={{ fontSize: 17, fontWeight: 700, color: tone, marginTop: 2 }}>
                   {v?.signals ?? 0} signals

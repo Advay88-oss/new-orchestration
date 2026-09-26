@@ -1,7 +1,7 @@
 """The strategist's contextual bandit (the architecture's fast loop).
 
-Arms are strategy choices — the narrative pillar, the hook type, the post
-length. Context is the platform, weekday or weekend, whether the brand has
+Arms are strategy choices — the narrative pillar, the format, the hook
+type, the post length and the posting slot (the architecture's five). Context is the platform, weekday or weekend, whether the brand has
 news, and what the last posts used. Each (arm, option) has a Beta posterior
 over the reward events (`rewards.py`); a context's posterior is that global
 record, counted at half weight, as a prior (the hierarchical model the
@@ -35,6 +35,9 @@ CURRENT: dict[str, dict[str, Any]] = {}
 GLOBAL_WEIGHT = 0.5
 HOOK_TYPES = ("question", "contrarian", "data", "story", "statement")
 LENGTHS = ("short", "medium", "long")
+FORMATS = ("image", "video", "thread", "text")
+SLOTS = ("morning", "midday", "evening", "night")
+SLOT_HOURS = {"morning": "06:00-11:00", "midday": "11:00-15:00", "evening": "15:00-20:00", "night": "20:00-24:00"}
 
 
 def _brain():
@@ -46,7 +49,8 @@ def _brain():
 
 def options() -> dict[str, list[str]]:
     from pipeline.brand_brain import context as C
-    return {"pillar": list(C.pillars()), "hook_type": list(HOOK_TYPES), "length": list(LENGTHS)}
+    return {"pillar": list(C.pillars()), "format": list(FORMATS), "hook_type": list(HOOK_TYPES),
+            "length": list(LENGTHS), "slot": list(SLOTS)}
 
 
 def _ctx_key(ctx: dict) -> str:
@@ -139,6 +143,13 @@ def prompt_block(rec: dict[str, dict[str, Any]], *, for_agent: str) -> str:
         lines.append("  - narrative pillar: " + r["choice"] + " — " + r["why"]
                      + (". Use it." if "locked" in r["why"] else ". Prefer it when it fits the subject."))
     if for_agent == "A06":
+        if "format" in rec:
+            r = rec["format"]
+            how = {"thread": "write the X copy as a thread of 3-6 posts, each able to stand alone",
+                   "video": "write copy that works as the caption under a short video",
+                   "image": "write one post that pairs with the poster",
+                   "text": "write one post that works with no image at all"}.get(r["choice"], "")
+            lines.append("  - lead format: " + r["choice"] + " — " + r["why"] + (": " + how if how else "") + ".")
         for dim, label in (("hook_type", "hook type"), ("length", "length")):
             if dim in rec:
                 r = rec[dim]
@@ -148,6 +159,17 @@ def prompt_block(rec: dict[str, dict[str, Any]], *, for_agent: str) -> str:
                      "data = leads with a true figure; story = a short narrative; statement = a plain claim. "
                      "Lengths: short < 400 characters, medium < 900, long beyond.)")
     return "\n".join(lines) if len(lines) > 1 else ""
+
+
+def posting_plan(rec: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """What the review packet suggests: which asset to lead with, and when."""
+    if not rec:
+        return {}
+    from pipeline.gtm_learning.rewards import _tz
+    fmt, slot = rec.get("format", {}), rec.get("slot", {})
+    return {"format": fmt.get("choice"), "format_why": fmt.get("why"),
+            "slot": slot.get("choice"), "slot_why": slot.get("why"),
+            "window": SLOT_HOURS.get(str(slot.get("choice")), ""), "timezone": str(_tz())}
 
 
 def overview() -> dict[str, Any]:

@@ -229,7 +229,7 @@ function Row({ at, tone, strong, children }: {
     <div
       style={{
         background: "var(--vn-surface)",
-        border: `1px solid ${strong ? `${tone}33` : "var(--vn-line)"}`,
+        border: `1px solid ${strong ? `color-mix(in srgb, ${tone} 20%, transparent)` : "var(--vn-line)"}`,
         borderLeft: `3px solid ${tone}`,
         borderRadius: 8,
         padding: strong ? "14px 16px" : "10px 14px",

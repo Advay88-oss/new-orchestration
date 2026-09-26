@@ -13,6 +13,12 @@ cost a second each).
 The MCP SDK is async; the pipeline is not. The session lives on a private
 event loop in a daemon thread, and each call is a blocking round trip to it.
 
+The agent run turns this on (`enable()`, at the cycle's start) — that is
+where the agents are. Short-lived processes that only read the brain for a
+dashboard panel or a CLI command (bookkeeping, not agents) read it directly
+rather than paying a server start per command; so do tests. BRAIN_MCP=1
+turns it on for any process.
+
 If the server cannot be started, reads fall back to the in-process client so
 a run still completes; `transport()` says which one is serving, and the run
 records it.
@@ -139,11 +145,22 @@ class BrainMCP:
 _sessions: dict[str, BrainMCP] = {}
 _failed: dict[str, str] = {}
 _lock = threading.Lock()
+_enabled = os.environ.get("BRAIN_MCP") == "1"
+
+
+def enable() -> None:
+    """Agents in this process reach the brain over MCP (the cycle calls this)."""
+    global _enabled
+    _enabled = True
+
+
+def enabled() -> bool:
+    return _enabled and os.environ.get("BRAIN_MCP_DISABLE") != "1"
 
 
 def session(tenant: str) -> Optional[BrainMCP]:
     """The process's session for a tenant, or None when the server is down."""
-    if os.environ.get("BRAIN_MCP_DISABLE") == "1":
+    if not enabled():
         return None
     with _lock:
         s = _sessions.get(tenant)
@@ -166,7 +183,7 @@ def transport(tenant: str) -> dict[str, Any]:
         return {"transport": "mcp-" + s.transport}
     if tenant in _failed:
         return {"transport": "direct", "mcp_error": _failed[tenant]}
-    return {"transport": "not-connected"}
+    return {"transport": "not-connected" if enabled() else "direct"}
 
 
 @atexit.register

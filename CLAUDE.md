@@ -106,6 +106,16 @@ python -m pipeline.brand_brain.mcp_server --tenant vanna --http 8765  # local HT
 python -m pipeline.brand_brain.pg setup             # container, role, schema; URLs go to pipeline/.env
 python -m pipeline.brand_brain.pg migrate           # SQLite brains -> Postgres, then switch over
 python -m pipeline.brand_brain.pg status | check-isolation | use-sqlite
+
+# competitors (web search + their website and X posts -> pattern summaries only)
+python -m pipeline.brand_brain.analyzer competitors --tenant vanna [--suggest]
+
+# Notion: OAuth per tenant (Connect Notion on Brand Brain; token encrypted), or NOTION_TOKEN
+python -m pipeline.brand_brain.notion_sync all            # the daily scheduler job
+
+# learning: record where a post went out; engagement is read back after 48h (scheduler: metrics_collect)
+python -m pipeline.gtm_learning.metrics_collector published GTM-... https://x.com/<handle>/status/<id>
+python -m pipeline.gtm_learning.metrics_collector collect
 ```
 
 Requires `google-cloud-storage` and valid ADC (`gcloud auth application-default login`).
