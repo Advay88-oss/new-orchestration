@@ -170,11 +170,6 @@
   "partner_rule": "This is the whole list. A relationship with anything not on it is fabricated.",
   "competitors": [
     {
-      "name": "Morpho",
-      "handle": "Morpho",
-      "focus": "Peer-to-peer lending optimization on EVM"
-    },
-    {
       "name": "Gearbox Protocol",
       "handle": "GearboxProtocol",
       "focus": "Credit accounts for leverage on EVM"
@@ -235,7 +230,8 @@
       "ground": "#07020D",
       "glow_low_left": "#471485",
       "glow_high_right": "#5E0D46",
-      "accent": "#A387FF",
+      "accent": "#703AE6",
+      "accent_light": "#A387FF",
       "risk": "#FC5457",
       "text": "#FFFFFF",
       "muted": "#A9A9A9",
@@ -249,7 +245,7 @@
       "text": 0.03,
       "_basis": "estimate from the approved posters; the website analyzer measures it"
     },
-    "palette_needs_review": true,
+    "palette_needs_review": false,
     "palette_candidates": [
       {
         "name": "gtm tokens (used by the creative director)",
@@ -308,12 +304,10 @@
       "fees": "Fixed micro-gas at 0.00014 XLM, no priority-fee auction"
     },
     "prohibited": "ANY cryptocurrency glyph, symbol or coin — no Bitcoin B, no Ethereum diamond, no XLM or Stellar logo, no generic coin or token prop of any metal or colour, no vaults or safes holding coins. Vanna is credit infrastructure, not a currency, and a coin in frame advertises the wrong product. Also never: mainnet or live-trading cues, token price, ticker symbols, candlestick charts, price arrows, lambos, rockets, moons, bulls or bears, neon cyberpunk grids, hooded hackers, stock-photo handshakes, any competitor logo",
-    "disclosure_footer": "Stellar Soroban · testnet"
+    "disclosure_footer": "Stellar Soroban · testnet",
+    "palette_decision": "2026-09-26: ground and glows from the founder-approved posters; main accent #703AE6 as measured on vanna.finance (#7840E0) and in the OKF palette; #A387FF kept as the light accent."
   },
-  "open_questions": [
-    "Morpho is on the confirmed partner list (lending) and also on the competitor list — which is it?",
-    "Three brand palettes are in use (see visual.palette_candidates); confirm the canonical one."
-  ],
+  "open_questions": [],
   "relevance_terms": [
     "liquidat",
     "margin",
@@ -409,5 +403,6 @@
     "MACH_08_INCENTIVE_POINTS_CAMPAIGN": "Unapproved for autonomous execution until Vanna launches an official Sybil-resistant points engine.",
     "MACH_09_DEVELOPER_SDK_ADOPTION": "Release npm and rust SDK for Soroban contract integration.",
     "MACH_10_VIRAL_MEME_BOUNTY": "Strictly prohibited by Vanna positioning rules (never use meme hype)."
-  }
+  },
+  "partner_note": "Morpho is a confirmed integration partner (lending), per the Notion ground truth; not a competitor."
 }
