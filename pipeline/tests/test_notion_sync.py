@@ -103,10 +103,11 @@ class NotionSyncTest(unittest.TestCase):
         self.assertFalse([h for h in b.search_knowledge("Fees fixed pricing") if "p2" in (h["url"] or "")])
 
     def test_no_token_is_explained(self):
-        with mock.patch.object(N, "_token", lambda: None):
+        with mock.patch.object(N, "_token", lambda *a: None):
             r = N.sync("acme")
         self.assertFalse(r["ok"])
         self.assertIn("NOTION_TOKEN", r["error"])
+        self.assertIn("Connect Notion", r["error"])
 
 
 if __name__ == "__main__":

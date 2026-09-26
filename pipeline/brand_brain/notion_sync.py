@@ -4,9 +4,10 @@ The brain stays fresh from the company's Notion without an agent ever reading
 Notion: a background sync pulls what changed into the knowledge base and turns
 real changes into dated What's new events.
 
-  change detector  the Notion REST API (an internal integration token,
-                   NOTION_TOKEN; the architecture's OAuth public integration
-                   is the multi-tenant form of the same calls), pages sorted by
+  change detector  the Notion REST API with the tenant's own OAuth token
+                   (notion_oauth.py: a public integration, the token stored
+                   encrypted per tenant), or an internal integration token
+                   (NOTION_TOKEN) as a single-tenant fallback; pages sorted by
                    last_edited_time and fetched only when edited since the last
                    sync. Pages no longer shared or in the trash are tombstoned.
   clean + chunk    blocks rendered to markdown, heading-aware chunks; only the
@@ -15,9 +16,9 @@ real changes into dated What's new events.
                    text with the new one: feature_launch, factual_update or
                    noise (typos, internal todos). The first two become dated
                    What's new events; noise is not news.
-  triggers         run start (`sync.sync_if_stale`), the daily cadence of that
-                   check, and Notion webhooks (the dashboard's signed endpoint
-                   marks the tenant for sync).
+  triggers         a daily cron (the scheduler's notion_sync job), run start
+                   (`sync.sync_if_stale`), and Notion webhooks (the dashboard's
+                   signed endpoint marks the tenant for sync).
 
 The first sync is a baseline: it imports everything and creates events only
 for pages created in the last 14 days, so an initial import does not flood
@@ -44,7 +45,16 @@ VERSION = "2022-06-28"
 AGENT = "BRAIN_notion"
 
 
-def _token() -> Optional[str]:
+def _token(tenant: Optional[str] = None) -> Optional[str]:
+    """The tenant's OAuth token (encrypted at rest), else NOTION_TOKEN."""
+    if tenant:
+        try:
+            from pipeline.brand_brain.notion_oauth import token
+            t = token(tenant)
+            if t:
+                return t
+        except Exception:                           # noqa: BLE001 — fall back to the env token
+            pass
     from pipeline.intelligence_stream.social_and_docs_collector import _env
     return _env("NOTION_TOKEN")
 
@@ -164,11 +174,11 @@ def classify(title: str, before: str, after: str) -> dict[str, Any]:
 
 def sync(tenant: str, *, notion: Optional[Notion] = None, authority: int = 2,
          classify_fn: Callable[[str, str, str], dict] = classify) -> dict[str, Any]:
-    token = _token()
+    token = _token(tenant)
     if notion is None:
         if not token:
-            return {"ok": False, "error": "NOTION_TOKEN is not set (create an internal integration at "
-                    "notion.so/my-integrations and share the pages with it)"}
+            return {"ok": False, "error": "Notion is not connected for " + tenant + ": use Connect Notion on "
+                    "the dashboard (OAuth), or set NOTION_TOKEN (an internal integration)"}
         notion = Notion(token)
     brain = Brain(tenant, create=True)
     company = (brain.get_brand_profile().get("company") or {}).get("name") or tenant
@@ -220,6 +230,20 @@ def sync(tenant: str, *, notion: Optional[Notion] = None, authority: int = 2,
     return report
 
 
+def sync_all() -> dict[str, Any]:
+    """The daily cron: every tenant with a Notion connection."""
+    out = {}
+    for t in S.tenants():
+        if _token(t):
+            try:
+                out[t] = sync(t)
+            except Exception as exc:                # noqa: BLE001 — one tenant fails alone
+                out[t] = {"ok": False, "error": str(exc)[:200]}
+        else:
+            out[t] = {"ok": True, "skipped": "not connected"}
+    return out
+
+
 def mark_dirty(tenant: str) -> dict[str, Any]:
     """A Notion webhook said something changed: sync at the next run start."""
     Brain(tenant).meta("notion_dirty", datetime.now(timezone.utc).isoformat())
@@ -228,7 +252,9 @@ def mark_dirty(tenant: str) -> dict[str, Any]:
 
 if __name__ == "__main__":
     import sys
-    if sys.argv[1:2] == ["dirty"]:
+    if sys.argv[1:2] == ["all"]:
+        print(json.dumps(sync_all(), indent=1))
+    elif sys.argv[1:2] == ["dirty"]:
         print(json.dumps(mark_dirty(sys.argv[2] if len(sys.argv) > 2 else "vanna")))
     else:
         print(json.dumps(sync(sys.argv[1] if len(sys.argv) > 1 else "vanna"), indent=1))

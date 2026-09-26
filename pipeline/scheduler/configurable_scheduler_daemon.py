@@ -298,6 +298,8 @@ class SchedulerEngine:
                 result = self._run_research_collect()
             elif job_name == "gtm_cycle":
                 result = self._run_gtm_cycle()
+            elif job_name == "notion_sync":
+                result = self._run_notion_sync()
             else:
                 raise ValueError(f"No execution handler for job '{job_name}'")
 
@@ -353,6 +355,17 @@ class SchedulerEngine:
             "visual": bool(summary.get("visual_path")),
             "video": bool(summary.get("video_path")),
         }
+
+    def _run_notion_sync(self) -> Dict[str, Any]:
+        """The daily safety-net sync of every connected tenant's Notion
+        (webhooks and the run-start freshness check cover the rest)."""
+        from pipeline.brand_brain.notion_sync import sync_all
+        out = sync_all()
+        failed = [t for t, r in out.items() if not r.get("ok")]
+        if failed:
+            raise RuntimeError("Notion sync failed for " + ", ".join(failed) + ": "
+                               + "; ".join(str(out[t].get("error"))[:120] for t in failed))
+        return {"success": True, "tenants": out}
 
     def _run_trend_scan(self) -> Dict[str, Any]:
         """Runs zero-cost real-time trend scan from public feeds & news."""

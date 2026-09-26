@@ -85,12 +85,20 @@ def overview(tenant: str) -> dict[str, Any]:
 def _notion_status(b: Brain) -> dict[str, Any]:
     try:
         from pipeline.brand_brain.notion_sync import _token
-        configured = bool(_token())
+        configured = bool(_token(b.tenant))
     except Exception:                               # noqa: BLE001 — boundary
         configured = False
+    try:
+        from pipeline.brand_brain import notion_oauth as O
+        oauth = O.status(b.tenant)
+    except Exception:                               # noqa: BLE001 — boundary
+        oauth = {}
     pages = json.loads(b.meta("notion_pages") or "{}")
     return {"configured": configured, "last_sync": b.meta("notion_last_sync"),
-            "pages": len(pages), "pending_webhook": bool(b.meta("notion_dirty"))}
+            "pages": len(pages), "pending_webhook": bool(b.meta("notion_dirty")),
+            "oauth_configured": bool(oauth.get("configured")), "oauth_connected": bool(oauth.get("connected")),
+            "workspace": oauth.get("workspace"), "via": ("oauth" if oauth.get("connected")
+                                                         else "token" if configured else None)}
 
 
 def search(query: str, tenant: str) -> dict[str, Any]:

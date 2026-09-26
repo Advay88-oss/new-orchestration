@@ -66,6 +66,15 @@ export type ExpandedMap = Record<string, boolean>;
 export function useMissionControl(props: MissionControlProps) {
   const [data, setData] = useState<MissionData | null>(null);
   const [view, setView] = useState<string>("runs");
+  // `?view=brain` opens a view directly (the Notion OAuth callback lands there).
+  useEffect(() => {
+    try {
+      const v = new URLSearchParams(window.location.search).get("view");
+      if (v && /^[a-z]+$/.test(v)) setView(v);
+    } catch {
+      /* no window during prerender */
+    }
+  }, []);
   const [runKey, setRunKey] = useState<string>("");
   const [expanded, setExpanded] = useState<ExpandedMap>({});
   const [paused, setPaused] = useState(false);

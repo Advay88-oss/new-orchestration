@@ -31,7 +31,8 @@ export async function GET() {
           research_collect: { desc: "Full research collection across the free news, community and on-chain sources.", defaultInt: "12h", isModel: true },
           trend_scan: { desc: "Zero-cost real-time trend & news monitoring (Google News RSS + Curve/Stellar news).", defaultInt: "2m", isModel: false },
           ideas_panel: { desc: "Synthesizes 8-12 claim-gated actionable GTM ideas from newly scraped artefacts.", defaultInt: "6h", isModel: true },
-          memes_panel: { desc: "Scans crypto culture for liquidation/gas humor with strict claim & risk gating.", defaultInt: "2h", isModel: true }
+          memes_panel: { desc: "Scans crypto culture for liquidation/gas humor with strict claim & risk gating.", defaultInt: "2h", isModel: true },
+          notion_sync: { desc: "Daily safety-net Notion sync for every connected tenant (webhooks and run start cover the rest).", defaultInt: "24h", isModel: false }
         };
 
         for (const [jKey, meta] of Object.entries(jobDefs)) {

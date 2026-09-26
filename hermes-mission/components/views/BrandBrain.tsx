@@ -120,6 +120,56 @@ function ProfileActions({ tenant, version, status, onChanged }: { tenant: string
   );
 }
 
+/** Connect or disconnect the tenant's Notion (OAuth; the token is stored encrypted). */
+function NotionConnect({ tenant, notion, onChange }: { tenant: string; notion: any; onChange: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const [note] = useState(() => {
+    try {
+      return new URLSearchParams(window.location.search).get("notion");
+    } catch {
+      return null;
+    }
+  });
+  const disconnect = async () => {
+    setBusy(true);
+    try {
+      await fetch("/api/gtm/brain/notion/disconnect", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tenant }),
+      });
+      onChange();
+    } finally {
+      setBusy(false);
+    }
+  };
+  const msgs: Record<string, string> = {
+    connected: "Notion connected. The first sync runs at the start of the next run.",
+    denied: "Notion access was not granted.",
+    failed: "Notion connected, but the token exchange failed — check the integration's credentials.",
+    bad_state: "That Notion sign-in could not be verified. Try Connect Notion again.",
+    not_configured: "The Notion integration is not set up: add NOTION_OAUTH_CLIENT_ID and NOTION_OAUTH_CLIENT_SECRET to pipeline/.env.",
+  };
+  const b: React.CSSProperties = { border: "1px solid var(--vn-line-strong)", background: "transparent",
+    color: "var(--vn-ink)", borderRadius: 6, padding: "6px 12px", fontSize: 12.5, cursor: "pointer" };
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
+      {notion?.oauth_connected ? (
+        <button disabled={busy} onClick={disconnect} style={b}>Disconnect Notion</button>
+      ) : (
+        <a href={"/api/gtm/brain/notion/connect?tenant=" + tenant}
+           style={{ ...b, background: "var(--vn-cta)", color: "var(--vn-on-accent)", border: "none", textDecoration: "none" }}>
+          Connect Notion
+        </a>
+      )}
+      {note && msgs[note] && <span style={{ fontSize: 12, color: note === "connected" ? "var(--vn-ok)" : "var(--vn-bad)" }}>{msgs[note]}</span>}
+      {!notion?.oauth_configured && !note && (
+        <span style={{ fontSize: 11.5, color: "var(--vn-ink-muted)" }}>
+          Needs a Notion public integration: NOTION_OAUTH_CLIENT_ID / _SECRET in pipeline/.env.
+        </span>
+      )}
+    </div>
+  );
+}
+
 /** Competitors: web-searched suggestions to confirm, and each confirmed one's
  *  website and recent X posts turned into pattern summaries (never their text). */
 function Competitors({ tenant }: { tenant: string }) {
@@ -502,11 +552,14 @@ export function BrandBrain() {
         </div>
         <div style={card}>
           <div style={label}>What's new</div>
+          <NotionConnect tenant={data.tenant} notion={data.notion} onChange={() => setTick((x) => x + 1)} />
           <div style={{ fontFamily: MONO, fontSize: 11, color: data.notion?.configured ? "var(--vn-ok)" : "var(--vn-warn)", marginBottom: 8 }}>
             Notion: {data.notion?.configured
-              ? "connected · " + (data.notion.pages || 0) + " pages · last sync " + ago(data.notion.last_sync)
+              ? "connected" + (data.notion.workspace ? " to " + data.notion.workspace : "")
+                + (data.notion.via === "token" ? " (internal token)" : "")
+                + " · " + (data.notion.pages || 0) + " pages · last sync " + ago(data.notion.last_sync)
                 + (data.notion.pending_webhook ? " · change pending" : "")
-              : "not connected (set NOTION_TOKEN and share pages with the integration)"}
+              : "not connected"}
           </div>
           {(data.whats_new || []).length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--vn-ink-muted)", lineHeight: 1.5 }}>
