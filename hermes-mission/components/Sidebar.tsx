@@ -4,6 +4,7 @@ import React from "react";
 import { HoverButton } from "./Hover";
 import type { MissionVM } from "@/lib/viewmodel";
 import { AGENT_COUNT } from "@/lib/agents";
+import { sinceLabel, useViewer } from "@/lib/useViewer";
 
 interface SidebarProps {
   vm: MissionVM;
@@ -15,6 +16,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
   // null while unknown, so the rail says "checking…" rather than asserting
   // either state before it has an answer.
   const [daemon, setDaemon] = React.useState<boolean | null>(null);
+  const viewer = useViewer();
   React.useEffect(() => {
     const check = () =>
       fetch("/api/daemon", { cache: "no-store" })
@@ -168,6 +170,20 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
             </span>
           </div>
         </div>
+
+        {/* Who this view is for: the owner sees every run; a visitor sees the
+            runs since they first opened the link (lib/viewer.ts). */}
+        {viewer && (
+          <div style={{ padding: "0 4px", fontSize: "11.5px", lineHeight: 1.5, color: "var(--vn-ink-faint)" }}>
+            {viewer.owner ? (
+              <>Owner view · all runs · <a href="?as=visitor" style={{ fontWeight: 500 }}>see visitor view</a></>
+            ) : viewer.previewing ? (
+              <>Previewing the visitor view · <a href="?as=owner" style={{ fontWeight: 500 }}>back to owner view</a></>
+            ) : (
+              <>Showing runs since {sinceLabel(viewer.since)}</>
+            )}
+          </div>
+        )}
 
       </div>
     </div>

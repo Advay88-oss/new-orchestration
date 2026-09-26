@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
+import { EmptyState, SkeletonCard } from "@/components/States";
 
 // Helper to resolve media file streaming cleanly
 const resolveMediaUrl = (url: string | null | undefined): string => {
@@ -194,6 +195,12 @@ export function MemesView({ vm }: { vm: MissionVM }) {
         <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ok)", background: "var(--vn-ok-soft)", padding: "12px 18px", borderRadius: "8px", border: "1px solid var(--vn-ok-line)" }}>
           {actionFeedback}
         </div>
+      )}
+
+      {loading && memes.length === 0 && <><SkeletonCard lines={3} media /><SkeletonCard lines={3} media /></>}
+      {!loading && memes.length === 0 && (
+        <EmptyState icon="idea" title="No memes on the panel yet"
+          body="The memes panel job drafts on-brand meme concepts from the latest signals. It runs on the 24/7 scheduler, or on demand from there." />
       )}
 
       {/* Memes Cards Grid */}

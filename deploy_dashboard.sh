@@ -15,6 +15,8 @@ PROJECT_ID="sales-agent-504607"      # project number 114262736718 — the one
                                      # the live service already runs in
 REGION="us-central1"
 SERVICE_NAME="vanna-gtm-mission"
+# OWNER_KEY (hermes-mission/lib/viewer.ts) is set on the service once, by
+# hand, and survives deploys: --update-env-vars below touches only the bucket.
 IMAGE="us-central1-docker.pkg.dev/${PROJECT_ID}/vanna-repo/${SERVICE_NAME}:$(date +%Y%m%d-%H%M%S)"
 STATE_BUCKET="${VANNA_STATE_BUCKET:-vanna-gtm-state-504607}"
 SRC="$(cd "$(dirname "$0")" && pwd)/hermes-mission"
@@ -55,7 +57,7 @@ echo "[2/2] Deploying to Cloud Run..."
   --cpu 1 \
   --min-instances 0 \
   --max-instances 3 \
-  --set-env-vars "VANNA_STATE_BUCKET=${STATE_BUCKET}" \
+  --update-env-vars "VANNA_STATE_BUCKET=${STATE_BUCKET}" \
   "${AUTH[@]}"
 
 echo

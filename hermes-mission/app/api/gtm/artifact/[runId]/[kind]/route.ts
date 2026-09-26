@@ -21,7 +21,7 @@ export async function GET(
   return new Response(got.body, {
     headers: {
       'Content-Type': got.contentType,
-      'Cache-Control': 'public, max-age=3600',
+      'Cache-Control': 'private, max-age=3600',  // per viewer: lib/viewer.ts
     },
   });
 }

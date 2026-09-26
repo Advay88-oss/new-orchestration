@@ -14,6 +14,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
+import { ErrorState, ViewSkeleton } from "@/components/States";
 
 type Hit = {
   id: string; text: string; section: string; title: string; source: string;
@@ -209,12 +210,12 @@ export function BrandBrain() {
 
   if (err) {
     return (
-      <div className="vanna-section" style={{ color: "var(--vn-ink-body)" }}>
-        <div style={{ ...card, borderColor: "var(--vn-bad)" }}>Brand brain unavailable: {err}</div>
-      </div>
+      <section className="vanna-section">
+        <ErrorState title="The brand brain is unavailable" detail={err} />
+      </section>
     );
   }
-  if (!data) return <div className="vanna-section" style={{ color: "var(--vn-ink-muted)", fontFamily: MONO }}>Loading the brand brain…</div>;
+  if (!data) return <ViewSkeleton cards={3} media label="Loading the brand brain" />;
 
   const p = data.profile;
   const st = data.stats;

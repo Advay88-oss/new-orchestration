@@ -17,6 +17,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
+import { EmptyState, SkeletonCard } from "@/components/States";
 
 const DIM = "var(--vn-ink-muted)";
 
@@ -46,12 +47,11 @@ export function LiveHarvest() {
 
   if (err) {
     return (
-      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "var(--vn-card-pad)", fontFamily: MONO, fontSize: 13, color: DIM }}>
-        No scrape recorded yet — run a cycle and A01 will write one. ({err})
-      </div>
+      <EmptyState icon="signal" title="No scrape recorded yet"
+        body="Each run starts with the Intelligence Scout reading news, Reddit, X, Telegram and DefiLlama. Its signals appear here when the next run starts." />
     );
   }
-  if (!data) return null;
+  if (!data) return <SkeletonCard lines={5} />;
 
   const signals: any[] = data.signals ?? [];
   const shown = company === "ALL"

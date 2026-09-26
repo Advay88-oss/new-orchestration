@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
 import { FeedbackBar } from "./FeedbackBar";
+import { EmptyState, ViewSkeleton } from "@/components/States";
 
 // Helper to ensure media files load cleanly across production and local environments
 const resolveMediaUrl = (url: string | null | undefined): string => {
@@ -43,31 +44,29 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
   }, [(vm as any).runKey]);
 
 
+  if (!runData && loading) return <ViewSkeleton cards={2} media label="Loading the run" />;
+
   if (!runData && !loading) {
     return (
-      <section style={{ padding: "40px 32px", maxWidth: "1200px" }}>
-        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: "12px", padding: "40px 32px", textAlign: "center" }}>
-          
-          <h3 style={{ fontSize: "18px", fontWeight: 700, color: "var(--vn-ink)" }}>No System 2 Run Selected</h3>
-          <p style={{ color: "var(--vn-ink-muted)", fontSize: "14px", marginTop: "8px", maxWidth: "56ch", margin: "8px auto 0" }}>
-            The pipeline is reset and clean. Launch an autonomous directive from the Command Console above or inspect a run from the Observatory once executed.
-          </p>
+      <section className="vanna-section">
+        <div className="vanna-card">
+          <EmptyState compact icon="runs" title="This run is not available"
+            body="It may still be starting, or it is outside the runs this view shows. Pick a run from Agent History." />
           <button
             onClick={vm.goRuns}
             style={{
-              marginTop: "20px",
+              margin: "0 0 24px 76px",
               background: "var(--vn-cta)",
               color: "var(--vn-on-accent)",
               border: "none",
-              borderRadius: "8px",
-              padding: "10px 20px",
-              fontFamily: MONO,
-              fontSize: "12px",
-              fontWeight: 700,
+              borderRadius: "6px",
+              padding: "8px 14px",
+              fontSize: "13px",
+              fontWeight: 500,
               cursor: "pointer"
             }}
           >
-            ← View Runs Observatory
+            Open Agent History
           </button>
         </div>
       </section>

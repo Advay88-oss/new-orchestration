@@ -16,6 +16,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MONO } from "@/lib/colors";
+import { EmptyState } from "@/components/States";
 
 const DIM = "var(--vn-ink-muted)";
 
@@ -116,9 +117,8 @@ export function LiveTrace({ runId }: { runId?: string }) {
       </div>
 
       {events.length === 0 && (
-        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "var(--vn-card-pad)", fontFamily: MONO, fontSize: 13, color: DIM }}>
-          Nothing running. Launch a directive and the agents appear here as they report.
-        </div>
+        <EmptyState icon="trace" title="Nothing running right now"
+          body="When a run starts, each agent, model call and judgement appears here as it is recorded." />
       )}
 
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>

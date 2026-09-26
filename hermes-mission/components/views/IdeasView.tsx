@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
+import { EmptyState, SkeletonCard } from "@/components/States";
 
 // Helper to resolve media file streaming cleanly
 const resolveMediaUrl = (url: string | null | undefined): string => {
@@ -217,6 +218,14 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
           Show Only Runnable Today (No Blocked Claims)
         </label>
       </div>
+
+      {loading && allIdeas.length === 0 && <><SkeletonCard lines={4} /><SkeletonCard lines={4} /></>}
+      {!loading && filteredIdeas.length === 0 && (
+        allIdeas.length > 0
+          ? <EmptyState icon="search" title="No ideas match these filters" body="Switch the type filter to All, or untick Runnable today." />
+          : <EmptyState icon="idea" title="No ideas on the panel yet"
+              body="The Ideas panel job turns the latest signals into post angles. It runs on the 24/7 scheduler, or on demand from there." />
+      )}
 
       {/* Ideas Cards Grid */}
       <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>

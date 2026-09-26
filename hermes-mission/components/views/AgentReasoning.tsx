@@ -15,6 +15,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
+import { EmptyState, ErrorState, ViewSkeleton } from "@/components/States";
 
 const ACCENT = 'var(--vn-accent-ink)';
 const DIM = 'var(--vn-ink-muted)';
@@ -46,10 +47,13 @@ interface Detail {
 export function AgentReasoning() {
   const [d, setD] = useState<Detail | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [none, setNone] = useState(false);
 
   const load = useCallback(async () => {
     try {
       const r = await fetch('/api/gtm/run/latest', { cache: 'no-store' });
+      setNone(r.status === 404);
+      if (r.status === 404) { setErr(null); return; }
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       setD(await r.json());
       setErr(null);
@@ -64,7 +68,15 @@ export function AgentReasoning() {
     return () => clearInterval(t);
   }, [load]);
 
-  if (err) return <Msg tone="var(--vn-bad)">Could not read the run journal: {err}</Msg>;
+  if (none) {
+    return (
+      <section className="vanna-section">
+        <EmptyState icon="runs" title="No decisions to show yet"
+          body="Each run records what the agents chose and turned down: the signal, the angle, the creative direction and the review. The latest run's decisions appear here." />
+      </section>
+    );
+  }
+  if (err) return <section className="vanna-section"><ErrorState title="Could not read the run journal" detail={err} onRetry={load} /></section>;
   if (d && (d as any).inFlight) {
     // A cycle takes 2-4 minutes. Saying so beats an empty panel or an error.
     return (
@@ -74,7 +86,7 @@ export function AgentReasoning() {
       </Msg>
     );
   }
-  if (!d) return <Msg tone={DIM}>Loading…</Msg>;
+  if (!d) return <ViewSkeleton cards={3} label="Loading agent decisions" />;
 
   return (
     <div className="vanna-section">

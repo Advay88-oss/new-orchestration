@@ -21,6 +21,7 @@ import fs from 'fs';
 import path from 'path';
 import { isDeployed, getText, getBytes, runIds as gcsRunIds } from '@/lib/gcs';
 import { AGENTS as AGENT_DEFS, ALIAS, type GtmAgentRole } from '@/lib/agents';
+import { canSeeRun, runVisibility } from '@/lib/viewer';
 
 export type { GtmAgentRole };
 
@@ -86,6 +87,9 @@ const DEF = new Map(AGENT_DEFS.map((a) => [a.id, a]));
  * from GCS.
  */
 async function runFile(runId: string, name: string): Promise<string | null> {
+  // A visitor sees runs from their first visit on (lib/viewer.ts). Every
+  // per-run read passes here, so a run they cannot list cannot be opened by id.
+  if (!canSeeRun(runId)) return null;
   if (isDeployed()) return getText(`gtm_runs/${runId}/${name}`);
   try {
     return fs.readFileSync(path.join(RUNS_DIR, runId, name), 'utf-8');
@@ -110,14 +114,17 @@ function parseJsonl(text: string | null): any[] {
 }
 
 export async function listGtmRunIds(limit = 25): Promise<string[]> {
-  if (isDeployed()) return gcsRunIds(limit);
+  // Newest first, so filtering after the limit keeps the newest visible runs.
+  const visible = runVisibility();
+  if (isDeployed()) return (await gcsRunIds(limit)).filter(visible);
   try {
     return fs
       .readdirSync(RUNS_DIR)
       .filter((d) => d.startsWith('GTM-'))
       .sort()
       .reverse()
-      .slice(0, limit);
+      .slice(0, limit)
+      .filter(visible);
   } catch {
     return [];
   }
@@ -246,7 +253,7 @@ export async function gtmAgents(runId?: string): Promise<{
 /** Everything one run produced, for the detail and per-section views. */
 export async function gtmRunDetail(runId?: string) {
   const rid = runId || (await listGtmRunIds(1))[0];
-  if (!rid) return null;
+  if (!rid || !canSeeRun(rid)) return null;
 
   // A run in flight has a journal but no summary.json yet — it is written when
   // the cycle finishes. Returning null 404'd the whole view for the two-to-four
@@ -347,6 +354,7 @@ export async function gtmArtifact(
   kind: 'visual' | 'meme' | 'video',
 ): Promise<{ body: Buffer; contentType: string } | null> {
   const type = kind === 'video' ? 'video/mp4' : 'image/png';
+  if (!canSeeRun(runId)) return null;
 
   if (isDeployed()) {
     const ext = kind === 'video' ? 'mp4' : 'png';

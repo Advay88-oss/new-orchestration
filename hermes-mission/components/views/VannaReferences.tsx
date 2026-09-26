@@ -16,6 +16,7 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MONO } from "@/lib/colors";
+import { EmptyState, SkeletonCard } from "@/components/States";
 
 const DIM = "var(--vn-ink-muted)";
 const CARD = { background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12 } as const;
@@ -90,12 +91,11 @@ export function VannaReferences() {
 
   if (err) {
     return (
-      <div style={{ ...CARD, padding: "var(--vn-card-pad)", fontFamily: MONO, fontSize: 13, color: DIM }}>
-        No references yet — run a cycle and A01 will scrape some. ({err})
-      </div>
+      <EmptyState icon="search" title="No references yet"
+        body="References are the posts, docs and articles a run's scrape found. They appear here after the next run's Intelligence Scout finishes." />
     );
   }
-  if (!data) return null;
+  if (!data) return <SkeletonCard lines={5} />;
 
   const land = data.landscape;
   const strategies: any[] = land?.strategies ?? [];

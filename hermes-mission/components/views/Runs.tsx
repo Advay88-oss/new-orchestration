@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
+import { EmptyState, SkeletonRows } from "@/components/States";
+import { sinceLabel, useViewer } from "@/lib/useViewer";
 
 export function Runs({ vm }: { vm: MissionVM }) {
   const [runs, setRuns] = useState<any[]>([]);
@@ -14,6 +16,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
   const [sessionRunIds, setSessionRunIds] = useState<string[]>([]);
 
   const [daemonRunning, setDaemonRunning] = useState(false);
+  const viewer = useViewer();
 
   const syncSessionRuns = () => {
     try {
@@ -290,14 +293,19 @@ export function Runs({ vm }: { vm: MissionVM }) {
             <tbody>
               {filteredRuns.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: "60px 24px", textAlign: "center", color: "var(--vn-ink-muted)" }}>
-                    <div style={{ fontSize: "28px", marginBottom: "10px" }}></div>
-                    <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--vn-ink)" }}>
-                      No GTM cycles recorded yet
-                    </div>
-                    <div style={{ fontSize: "13px", color: "var(--vn-ink-muted)", marginTop: "6px", maxWidth: "60ch", margin: "6px auto 0" }}>
-                      Press Launch Run, or enter a founder directive above. Leaving it empty runs the fully autonomous path, where A02 picks the topic itself.
-                    </div>
+                  <td colSpan={6} style={{ padding: 0 }}>
+                    {loading ? (
+                      <SkeletonRows rows={4} cols={5} />
+                    ) : runs.length > 0 ? (
+                      <EmptyState compact icon="search" title="No runs match these filters"
+                        body="Clear the search or switch to Global Archive and All to see every run." />
+                    ) : viewer && !viewer.owner ? (
+                      <EmptyState compact icon="runs" title="No new runs since you opened this page"
+                        body={<>This view starts at {sinceLabel(viewer.since)}. Each run the agents finish from now on appears here, with its copy, visual and review.</>} />
+                    ) : (
+                      <EmptyState compact icon="runs" title="No runs recorded yet"
+                        body="Press Launch Run, or enter a directive above. Leaving it empty runs the autonomous path, where the agents pick the topic themselves." />
+                    )}
                   </td>
                 </tr>
               ) : (

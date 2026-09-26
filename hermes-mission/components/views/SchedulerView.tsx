@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
+import { EmptyState, SkeletonCard } from "@/components/States";
 
 export function SchedulerView({ vm }: { vm: MissionVM }) {
   const [schedulerData, setSchedulerData] = useState<any>(null);
@@ -163,6 +164,12 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
             </button>
           )}
         </div>
+      )}
+
+      {loading && jobs.length === 0 && <><SkeletonCard lines={2} /><SkeletonCard lines={2} /><SkeletonCard lines={2} /></>}
+      {!loading && jobs.length === 0 && (
+        <EmptyState icon="runs" title="No scheduled jobs"
+          body="Jobs are read from the scheduler on the machine that runs the pipeline. When it is reachable they appear here with their interval and last run." />
       )}
 
       {/* Jobs Grid */}

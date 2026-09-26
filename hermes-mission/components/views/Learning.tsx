@@ -17,6 +17,7 @@
 
 import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
+import { ErrorState, ViewSkeleton } from "@/components/States";
 
 const card: React.CSSProperties = {
   background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: 18,
@@ -68,8 +69,8 @@ export function Learning() {
     }
   };
 
-  if (err) return <div className="vanna-section"><div style={{ ...card, borderColor: "var(--vn-bad)" }}>Learning unavailable: {err}</div></div>;
-  if (!d) return <div className="vanna-section" style={{ fontFamily: MONO, color: "var(--vn-ink-muted)" }}>Loading the learning loop…</div>;
+  if (err) return <section className="vanna-section"><ErrorState title="The learning loop is unavailable" detail={err} /></section>;
+  if (!d) return <ViewSkeleton cards={3} label="Loading the learning loop" />;
 
   const input: React.CSSProperties = { background: "var(--vn-sunken)", border: "1px solid var(--vn-line)",
     borderRadius: 8, padding: "8px 10px", color: "var(--vn-ink)", fontSize: 13, width: 110 };

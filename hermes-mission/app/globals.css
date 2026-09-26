@@ -374,3 +374,20 @@ pre, code {
     max-width: 100%;
   }
 }
+
+/* --- LOADING SKELETONS --------------------------------------------------- */
+.vn-skel {
+  display: block;
+  background: linear-gradient(90deg, var(--vn-raised) 0%, #ECEBE7 50%, var(--vn-raised) 100%);
+  background-size: 200% 100%;
+  animation: vn-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes vn-shimmer {
+  from { background-position: 100% 0; }
+  to   { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vn-skel { animation: none; }
+}

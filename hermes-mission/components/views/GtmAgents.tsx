@@ -20,6 +20,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
 import { AGENTS as AGENT_DEFS, AGENT_COUNT, JUDGE_COUNT, LEARNING_COUNT, SPECIALIST_COUNT } from '@/lib/agents';
+import { ErrorState, ViewSkeleton } from '@/components/States';
 
 const ACCENT = 'var(--vn-accent-ink)';
 const DIM = 'var(--vn-ink-muted)';
@@ -82,8 +83,8 @@ export function GtmAgents() {
     return () => clearInterval(t);
   }, [load]);
 
-  if (err) return <Note tone="var(--vn-bad)">Could not read agent status: {err}</Note>;
-  if (!data) return <Note tone={DIM}>Loading…</Note>;
+  if (err) return <section className="vanna-section"><ErrorState title="Could not read agent status" detail={err} onRetry={load} /></section>;
+  if (!data) return <ViewSkeleton cards={4} label="Loading agents" />;
 
   const byId = new Map(data.agents.map((a) => [a.id, a]));
   const running = data.status === 'running' || data.status === null
