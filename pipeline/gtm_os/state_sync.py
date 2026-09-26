@@ -214,7 +214,7 @@ def _state_jobs() -> list[tuple[Path, str]]:
         snap = _brain_snapshot(td)
         if snap:
             jobs.append((snap, PREFIX_STATE + "pipeline/brain/tenants/" + td.name + "/brain.db"))
-        for sub in ("images", "stills"):
+        for sub in ("images", "stills", "website"):
             for p in sorted((td / sub).glob("*")):
                 if p.is_file():
                     jobs.append((p, PREFIX_STATE + p.relative_to(REPO_ROOT).as_posix()))

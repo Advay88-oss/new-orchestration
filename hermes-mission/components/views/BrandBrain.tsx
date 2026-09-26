@@ -48,7 +48,7 @@ function ago(iso?: string | null): string {
 }
 
 /** Approve the newest version, or edit it and save a new draft. */
-function ProfileActions({ version, status, onChanged }: { version: number; status: string; onChanged: () => void }) {
+function ProfileActions({ tenant, version, status, onChanged }: { tenant: string; version: number; status: string; onChanged: () => void }) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState("");
   const [note, setNote] = useState("");
@@ -60,7 +60,7 @@ function ProfileActions({ version, status, onChanged }: { version: number; statu
     setMsg(null);
     try {
       const d = await (await fetch("/api/gtm/brain/profile", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...body, tenant }),
       })).json();
       if (!d.ok) setMsg(d.error || "failed");
       else { setEditing(false); onChanged(); }
@@ -72,7 +72,7 @@ function ProfileActions({ version, status, onChanged }: { version: number; statu
   };
 
   const openEditor = async () => {
-    const d = await (await fetch("/api/gtm/brain/profile?version=" + version, { cache: "no-store" })).json();
+    const d = await (await fetch("/api/gtm/brain/profile?version=" + version + "&tenant=" + tenant, { cache: "no-store" })).json();
     if (d.ok) { setText(JSON.stringify(d.profile, null, 2)); setEditing(true); } else setMsg(d.error);
   };
 
@@ -119,31 +119,93 @@ function ProfileActions({ version, status, onChanged }: { version: number; statu
   );
 }
 
+/** Onboard a company from its website: the analyzer drafts its profile. */
+function Onboard({ onDone }: { onDone: (tenant: string) => void }) {
+  const [url, setUrl] = useState("");
+  const [tenant, setTenant] = useState("");
+  const [job, setJob] = useState<any | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!job || job.state !== "running") return;
+    const t = setInterval(async () => {
+      const d = await (await fetch("/api/gtm/brain/analyze?tenant=" + job.tenant, { cache: "no-store" })).json();
+      if (d.state && d.state !== "running") {
+        setJob(d);
+        if (d.state === "done") onDone(job.tenant);
+      }
+    }, 5000);
+    return () => clearInterval(t);
+  }, [job, onDone]);
+
+  const start = async () => {
+    setErr(null);
+    const d = await (await fetch("/api/gtm/brain/analyze", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, tenant: tenant.toLowerCase() }),
+    })).json();
+    if (d.ok) setJob(d); else setErr(d.error || "could not start");
+  };
+
+  const input: React.CSSProperties = { background: "var(--vn-sunken)", border: "1px solid var(--vn-line)",
+    borderRadius: 8, padding: "9px 12px", color: "var(--vn-ink)", fontSize: 13 };
+  return (
+    <div style={card}>
+      <div style={label}>Onboard a company from its website</div>
+      <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginBottom: 10, lineHeight: 1.5 }}>
+        The analyzer crawls the site (sitemap, docs / blog / app subdomains), measures colours and fonts from the
+        rendered pages, reads the voice, suggests competitors, and saves a DRAFT profile for your review. A company
+        that already has a profile gets a report instead; nothing it has is replaced.
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="company.com" style={{ ...input, flex: 2, minWidth: 200 }} />
+        <input value={tenant} onChange={(e) => setTenant(e.target.value)} placeholder="tenant id, e.g. acme" style={{ ...input, flex: 1, minWidth: 140 }} />
+        <button onClick={start} disabled={!url || !tenant || job?.state === "running"}
+                style={{ background: "var(--vn-accent)", color: "#fff", border: "none", borderRadius: 8, padding: "0 16px", fontWeight: 600, cursor: "pointer" }}>
+          {job?.state === "running" ? "Analysing…" : "Analyse"}
+        </button>
+      </div>
+      {job && (
+        <div style={{ fontFamily: MONO, fontSize: 12, marginTop: 10,
+                      color: job.state === "failed" ? "var(--vn-bad)" : job.state === "done" ? "var(--vn-ok)" : "var(--vn-ink-muted)" }}>
+          {job.state === "running" && "Crawling and analysing " + job.url + " — this takes one to three minutes."}
+          {job.state === "done" && (job.result?.saved
+            ? "Done: " + (job.name || job.tenant) + " — draft profile v" + job.result.version + ", " + job.result.pages + " pages, " + job.result.knowledge_chunks + " knowledge chunks."
+            : "Done: report written for " + job.tenant + " (it already has a profile, so nothing was replaced).")}
+          {job.state === "failed" && "Failed: " + (job.error || job.result?.error || "unknown error")}
+        </div>
+      )}
+      {err && <div style={{ color: "var(--vn-bad)", fontSize: 12.5, marginTop: 8 }}>{err}</div>}
+    </div>
+  );
+}
+
 export function BrandBrain() {
   const [data, setData] = useState<any | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
+  const [tenant, setTenant] = useState<string>("");
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<Hit[] | null>(null);
   const [searching, setSearching] = useState(false);
 
   useEffect(() => {
-    fetch("/api/gtm/brain", { cache: "no-store" })
+    fetch("/api/gtm/brain" + (tenant ? "?tenant=" + tenant : ""), { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => (d.ok ? setData(d) : setErr(d.error || "brain unavailable")))
       .catch((e) => setErr(String(e)));
-  }, [tick]);
+  }, [tick, tenant]);
 
   const search = useCallback(async () => {
     if (!q.trim()) return;
     setSearching(true);
     try {
-      const d = await (await fetch("/api/gtm/brain?q=" + encodeURIComponent(q.trim()), { cache: "no-store" })).json();
+      const d = await (await fetch("/api/gtm/brain?q=" + encodeURIComponent(q.trim()) + (data?.tenant ? "&tenant=" + data.tenant : ""), { cache: "no-store" })).json();
       setHits(d.ok ? d.hits : []);
     } finally {
       setSearching(false);
     }
-  }, [q]);
+  }, [q, data]);
 
   if (err) {
     return (
@@ -164,6 +226,19 @@ export function BrandBrain() {
 
   return (
     <div className="vanna-section" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {(data.tenants || []).length > 1 && (
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 12, color: "var(--vn-ink-muted)" }}>Tenant</span>
+          {(data.tenants as string[]).map((t) => (
+            <button key={t} onClick={() => { setHits(null); setTenant(t); }}
+                    style={{ fontFamily: MONO, fontSize: 12, padding: "5px 12px", borderRadius: 6, cursor: "pointer",
+                             border: "1px solid " + (t === data.tenant ? "var(--vn-accent)" : "var(--vn-line)"),
+                             background: t === data.tenant ? "var(--vn-accent-soft)" : "transparent", color: "var(--vn-ink)" }}>
+              {t}
+            </button>
+          ))}
+        </div>
+      )}
       {/* Identity and freshness */}
       <div style={card}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "baseline" }}>
@@ -227,7 +302,7 @@ export function BrandBrain() {
               ))}
             </div>
           )}
-          <ProfileActions version={p.version} status={p.status} onChanged={() => setTick((x) => x + 1)} />
+          <ProfileActions tenant={data.tenant} version={p.version} status={p.status} onChanged={() => setTick((x) => x + 1)} />
         </div>
       )}
 
@@ -349,6 +424,8 @@ export function BrandBrain() {
           ))}
         </div>
       </div>
+
+      <Onboard onDone={(t) => { setTenant(t); setTick((x) => x + 1); }} />
     </div>
   );
 }

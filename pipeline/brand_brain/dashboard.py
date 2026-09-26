@@ -57,6 +57,7 @@ def overview(tenant: str) -> dict[str, Any]:
     return {
         "ok": True,
         "tenant": tenant,
+        "tenants": S.tenants(),
         "stats": b.stats(),
         "profile": {
             "version": p.get("_version"), "status": p.get("_status"),
@@ -124,8 +125,10 @@ def save(path: str, note: str, tenant: str) -> dict[str, Any]:
 
 
 def main(argv: list[str]) -> int:
+    # "--tenant=<id>" anywhere selects the tenant; the rest is positional.
+    tenant = next((x.split("=", 1)[1] for x in argv if x.startswith("--tenant=")), None) or current_tenant()
+    argv = [x for x in argv if not x.startswith("--tenant=")]
     cmd = argv[0] if argv else "overview"
-    tenant = current_tenant()
     if cmd == "profile":
         out = profile_version(int(argv[1]) if len(argv) > 1 and argv[1].isdigit() else None, tenant)
         sys.stdout.write(json.dumps(out, ensure_ascii=False, default=str))
@@ -139,9 +142,11 @@ def main(argv: list[str]) -> int:
         sys.stdout.write(json.dumps(out, ensure_ascii=False, default=str))
         return 0
     if cmd == "search":
-        out = search(argv[1] if len(argv) > 1 else "", argv[2] if len(argv) > 2 else current_tenant())
+        out = search(argv[1] if len(argv) > 1 else "", argv[2] if len(argv) > 2 else tenant)
+    elif cmd == "tenants":
+        out = {"ok": True, "tenants": S.tenants()}
     else:
-        out = overview(argv[1] if len(argv) > 1 else current_tenant())
+        out = overview(argv[1] if len(argv) > 1 else tenant)
     sys.stdout.write(json.dumps(out, ensure_ascii=False, default=str))
     return 0
 

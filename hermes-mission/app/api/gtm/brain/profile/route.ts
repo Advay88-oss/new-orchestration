@@ -29,9 +29,13 @@ async function py(args: string[]) {
   }
 }
 
+const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
+const tenantArg = (t: unknown) => (typeof t === 'string' && TENANT.test(t) ? ['--tenant=' + t] : []);
+
 export async function GET(req: Request) {
-  const v = new URL(req.url).searchParams.get('version') || '';
-  return py(['profile', ...(/^\d+$/.test(v) ? [v] : [])]);
+  const sp = new URL(req.url).searchParams;
+  const v = sp.get('version') || '';
+  return py(['profile', ...(/^\d+$/.test(v) ? [v] : []), ...tenantArg(sp.get('tenant'))]);
 }
 
 export async function POST(req: Request) {
@@ -39,13 +43,13 @@ export async function POST(req: Request) {
   if (blocked) return blocked;
   const body = await req.json().catch(() => ({}));
   if (body.action === 'approve' && Number.isInteger(body.version)) {
-    return py(['approve', String(body.version)]);
+    return py(['approve', String(body.version), ...tenantArg(body.tenant)]);
   }
   if (body.action === 'save' && body.profile && typeof body.profile === 'object') {
     const file = path.join(fs.mkdtempSync(path.join(os.tmpdir(), 'brain-')), 'profile.json');
     fs.writeFileSync(file, JSON.stringify(body.profile), 'utf-8');
     try {
-      return await py(['save', file, String(body.note || '').slice(0, 300)]);
+      return await py(['save', file, String(body.note || '').slice(0, 300), ...tenantArg(body.tenant)]);
     } finally {
       fs.rmSync(path.dirname(file), { recursive: true, force: true });
     }

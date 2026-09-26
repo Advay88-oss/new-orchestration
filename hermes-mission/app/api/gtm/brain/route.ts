@@ -9,8 +9,11 @@ export const dynamic = 'force-dynamic';
  * hybrid knowledge search. Read-only; it never writes to the brain.
  */
 export async function GET(req: Request) {
-  const q = (new URL(req.url).searchParams.get('q') || '').trim().slice(0, 300);
-  const args = ['-m', 'pipeline.brand_brain.dashboard', ...(q ? ['search', q] : ['overview'])];
+  const sp = new URL(req.url).searchParams;
+  const q = (sp.get('q') || '').trim().slice(0, 300);
+  const tenant = (sp.get('tenant') || '').toLowerCase();
+  const t = /^[a-z0-9][a-z0-9_-]{1,40}$/.test(tenant) ? [tenant] : [];
+  const args = ['-m', 'pipeline.brand_brain.dashboard', ...(q ? ['search', q, ...t] : ['overview', ...t])];
   const r = await runPython(args, 60_000);
   if (!r.ok) {
     return NextResponse.json(

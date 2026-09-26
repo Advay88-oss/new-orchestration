@@ -64,3 +64,6 @@ pipeline/gtm_engine/registry/cache/
 pipeline/brain/tenants/*/brain.db*
 pipeline/brain/tenants/*/stills/
 pipeline/brain/tenants/*/images/
+pipeline/brain/tenants/*/website/
+pipeline/brain/tenants/*/analysis.json
+pipeline/state/analyzer/
