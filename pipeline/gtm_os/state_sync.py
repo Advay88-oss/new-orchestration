@@ -11,7 +11,8 @@ container filesystem where that directory does not exist, and reports zero
 runs and zero agents — a working system rendered as an empty one.
 
 What is pushed is deliberately narrow: the run journal and the assets a
-reviewer needs to see. Not the Brain DB, not the docs cache, not the render
+reviewer needs to see — plus, since 2026-09-26, the brain and learning
+state (push_state / pull_state below). Not the docs cache, not the render
 scratch. A push failure never fails a run — the assets are already on disk and
 the cycle has already done its work.
 """
@@ -143,15 +144,153 @@ def push_all(run_id: str, summary: dict[str, Any]) -> dict[str, Any]:
     run = push_run(run_id, summary)
     panels = push_panels()
     config = push_config()
-    return {"run": run, "panels": panels, "config": config}
+    # Every finished run also backs up what the system has learned.
+    state = push_state()
+    return {"run": run, "panels": panels, "config": config, "state": state}
 
 
-if __name__ == "__main__":
+# --------------------------------------------------------------------------
+# Brain and learning state: what the system has learned, backed up and
+# restorable on any machine.
+#
+# Everything above is for the dashboard to read. This is different: it is
+# the state a restarted container or a second laptop needs to carry on where
+# the last run left off — the brand brain of each tenant, the founder's
+# decisions, the Coach's rules, the approved posters and clips, and the
+# rotations that keep consecutive posts different. Without it a fresh
+# container starts with no brain and no memory, and a laptop's disk is the
+# only copy. One writer at a time is assumed (the pipeline runs in one
+# place); a push overwrites, a pull fills what is missing locally.
+# --------------------------------------------------------------------------
+
+PREFIX_STATE = "state/"
+
+STATE_FILES = (
+    "pipeline/state/feedback.jsonl",
+    "pipeline/state/coach_state.json",
+    "pipeline/state/recent_layouts.json",
+    "pipeline/state/recent_motion_styles.json",
+    "pipeline/state/docs_watch.json",
+    "pipeline/brain/knowledge/creative-rules.md",
+    "pipeline/brain/knowledge/learned-rules.json",
+    "pipeline/brain/knowledge/learned-rules.md",
+)
+STATE_DIRS = (
+    "pipeline/brain/visual_exemplars",
+    "pipeline/brain/video_exemplars",
+)
+
+
+def _brain_snapshot(tenant_dir: Path) -> Optional[Path]:
+    """A consistent copy of a live SQLite brain (WAL-safe), for upload."""
+    import sqlite3
+    import tempfile
+    db = tenant_dir / "brain.db"
+    if not db.exists():
+        return None
+    out = Path(tempfile.mkdtemp()) / "brain.db"
+    src = sqlite3.connect(str(db))
+    dst = sqlite3.connect(str(out))
+    try:
+        src.backup(dst)
+    finally:
+        src.close()
+        dst.close()
+    return out
+
+
+def _state_jobs() -> list[tuple[Path, str]]:
+    jobs: list[tuple[Path, str]] = []
+    for rel in STATE_FILES:
+        p = REPO_ROOT / rel
+        if p.exists():
+            jobs.append((p, PREFIX_STATE + rel))
+    for rel in STATE_DIRS:
+        for p in sorted((REPO_ROOT / rel).glob("*")):
+            if p.is_file():
+                jobs.append((p, PREFIX_STATE + p.relative_to(REPO_ROOT).as_posix()))
+    tenants = REPO_ROOT / "pipeline" / "brain" / "tenants"
+    for td in sorted(tenants.glob("*")) if tenants.exists() else []:
+        snap = _brain_snapshot(td)
+        if snap:
+            jobs.append((snap, PREFIX_STATE + "pipeline/brain/tenants/" + td.name + "/brain.db"))
+        for sub in ("images", "stills"):
+            for p in sorted((td / sub).glob("*")):
+                if p.is_file():
+                    jobs.append((p, PREFIX_STATE + p.relative_to(REPO_ROOT).as_posix()))
+    return jobs
+
+
+def _md5_b64(p: Path) -> str:
+    import base64
+    import hashlib
+    h = hashlib.md5()
+    with p.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return base64.b64encode(h.digest()).decode()
+
+
+def push_state() -> dict[str, Any]:
+    """Back up brain and learning state; only files that changed are sent.
+    Never raises."""
+    try:
+        bucket = _client().bucket(BUCKET)
+        remote = {b.name: b.md5_hash for b in bucket.list_blobs(prefix=PREFIX_STATE)}
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        return {"pushed": False, "reason": "no GCS client: " + str(exc)[:160]}
+    jobs = [(p, k) for p, k in _state_jobs() if remote.get(k) != _md5_b64(p)]
+    if not jobs:
+        return {"pushed": True, "objects": 0, "unchanged": len(remote), "bucket": BUCKET}
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        done = list(pool.map(lambda j: _upload(bucket, j[0], j[1]), jobs))
+    ok = [d for d in done if d]
+    return {"pushed": bool(ok), "objects": len(ok), "failed": len(done) - len(ok), "bucket": BUCKET}
+
+
+def pull_state(*, overwrite: bool = False) -> dict[str, Any]:
+    """Restore brain and learning state from the bucket. By default only
+    files missing locally are fetched, so a pull never clobbers newer local
+    work; `overwrite=True` makes the local copy match the bucket."""
+    try:
+        bucket = _client().bucket(BUCKET)
+        blobs = list(bucket.list_blobs(prefix=PREFIX_STATE))
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        return {"pulled": False, "reason": "no GCS client: " + str(exc)[:160]}
+    n = skipped = 0
+    for b in blobs:
+        rel = b.name[len(PREFIX_STATE):]
+        if not rel or ".." in rel.split("/"):
+            continue
+        dest = REPO_ROOT / rel
+        if dest.exists() and not overwrite:
+            skipped += 1
+            continue
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            b.download_to_filename(str(dest))
+            n += 1
+        except Exception:                           # noqa: BLE001 — this file fails alone
+            continue
+    return {"pulled": True, "objects": n, "kept_local": skipped, "bucket": BUCKET}
+
+
+def _cli() -> None:
     import json
     import sys
 
+    if sys.argv[1:2] == ["push-state"]:
+        print(json.dumps(push_state(), indent=2))
+        return
+    if sys.argv[1:2] == ["pull-state"]:
+        print(json.dumps(pull_state(overwrite="--overwrite" in sys.argv), indent=2))
+        return
     rid = sys.argv[1] if len(sys.argv) > 1 else sorted(
         d.name for d in RUNS_DIR.iterdir()
         if d.is_dir() and d.name.startswith("GTM-"))[-1]
     s = json.loads((RUNS_DIR / rid / "summary.json").read_text(encoding="utf-8"))
     print(json.dumps(push_all(rid, s), indent=2))
+
+
+if __name__ == "__main__":
+    _cli()

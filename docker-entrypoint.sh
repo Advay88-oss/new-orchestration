@@ -5,6 +5,12 @@ echo "==========================================================================
 echo "🚀 STARTING VANNA GTM OPERATING SYSTEM ON GOOGLE CLOUD RUN"
 echo "================================================================================"
 
+# 0. Restore what the system has learned (brand brain, founder decisions,
+#    coach rules, exemplars) from the state bucket. Missing files only; a
+#    failure here must not stop the dashboard from starting.
+echo "▶ Restoring brain and learning state from GCS..."
+python -m pipeline.gtm_os.state_sync pull-state || echo "⚠ state restore skipped"
+
 # 1. Start Spend Proxy Watchdog (:8900) in background
 echo "▶ Launching Vertex Spend Proxy on port 8900..."
 python /app/pipeline/scripts/vertex_spend_proxy.py --port 8900 &
