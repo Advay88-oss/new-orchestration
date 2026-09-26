@@ -15,8 +15,13 @@ relies on it as approved.
                 screenshots go to the vision model for layout and style.
   3. Voice      the pages' text to the model: tone, formality, sentence
                 length, jargon, CTA patterns, audiences, pillars.
-  4. Rivals     3-5 competitors SUGGESTED for the founder to confirm (they are
-                marked unconfirmed); only a patterns summary is ever kept.
+  4. Rivals     3-5 competitors found by WEB SEARCH (Google Search grounding,
+                with the pages it read) and SUGGESTED for the founder to
+                confirm — marked unconfirmed, the tenant's partners excluded.
+                `competitors` then analyses each confirmed one: its website
+                and its recent X posts, the same way as the company's own.
+                Only a patterns summary is kept; their text never enters the
+                knowledge base, or an agent would copy their language.
   5. Review     the draft is saved as a new profile version with status
                 "draft" and a list of open questions.
 
@@ -26,6 +31,8 @@ founder built — unless --save is passed.
 
     python -m pipeline.brand_brain.analyzer https://example.com --tenant example
     python -m pipeline.brand_brain.analyzer https://vanna.finance --tenant vanna   # report only
+    python -m pipeline.brand_brain.analyzer competitors --tenant vanna             # confirmed rivals
+    python -m pipeline.brand_brain.analyzer competitors --tenant vanna --suggest   # new suggestions
 """
 from __future__ import annotations
 
@@ -293,19 +300,184 @@ def _visual_style(pages: list[dict]) -> dict[str, Any]:
         system="You are a precise brand designer.")
 
 
-def _competitors(voice: dict) -> list[dict]:
+def _competitors(voice: dict, exclude: tuple[str, ...] = ()) -> list[dict]:
+    """3-5 competitors from a web search, for the founder to confirm.
+
+    Google Search grounding, so the suggestions come from pages that exist
+    today (kept as `sources`), not from the model's memory. Names in
+    `exclude` (the tenant's partners, the company itself) are dropped: a
+    search for rivals of a lending protocol happily returns its partners.
+    Falls back to the model alone, marked as such, if the search fails."""
+    from pipeline.gtm_os import agent_runtime as R
+    drop = {x.lower() for x in exclude if x} | {str(voice.get("name") or "").lower()}
+    ask = ("Company: " + str(voice.get("name")) + " (" + str(voice.get("website") or "") + ") — "
+           + str(voice.get("what_it_is")) + " Category: " + str(voice.get("category")) + ".\n"
+           "Search the web for its 3-5 closest DIRECT competitors: real, currently operating products "
+           "a customer would compare it with. Not its partners, integrations or investors.\n"
+           'Answer with only JSON: {"competitors": [{"name": str, "website": str, '
+           '"x_handle": str (without @, empty if unknown), "why": str (under 15 words)}]}')
+    found_via, sources = "web_search", []
+    try:
+        text, sources = R.brain_search(ask, agent=AGENT, system="You research markets from live web pages.")
+        rows = (R.parse_json_text(text) or {}).get("competitors") or []
+    except Exception:                               # noqa: BLE001 — model-only fallback
+        found_via, rows = "model", []
+        try:
+            out = R.brain_json(ask.replace("Search the web for", "Name"), agent=AGENT, role="reasoning",
+                               temperature=0.2, max_output_tokens=2048,
+                               system="You know the market. Suggest only real, currently operating companies.")
+            rows = out.get("competitors") or []
+        except Exception:                           # noqa: BLE001 — none suggested
+            rows = []
+    out = []
+    for c in rows:
+        name = str(c.get("name") or "").strip()
+        if not name or name.lower() in drop or any(d and d in name.lower() for d in drop):
+            continue
+        out.append({"name": name, "website": str(c.get("website") or ""),
+                    "handle": str(c.get("x_handle") or "").lstrip("@"),
+                    "focus": str(c.get("why") or ""), "confirmed": False,
+                    "found_via": found_via, "sources": sources[:8]})
+    return out[:5]
+
+
+def _lookup(name: str, focus: str = "") -> dict[str, str]:
+    """A competitor's official website and X handle, from a web search."""
     from pipeline.gtm_os import agent_runtime as R
     try:
-        out = R.brain_json(
-            "Company: " + str(voice.get("name")) + " — " + str(voice.get("what_it_is")) + " Category: "
-            + str(voice.get("category")) + ".\nSuggest 3-5 direct competitors a founder would name. "
-            'Return JSON: {"competitors": [{"name": str, "why": str (under 15 words)}]}',
-            agent=AGENT, role="reasoning", temperature=0.2, max_output_tokens=2048,
-            system="You know the market. Suggest only real, currently operating companies.")
-        return [{"name": c["name"], "focus": c.get("why", ""), "confirmed": False}
-                for c in (out.get("competitors") or [])[:5] if c.get("name")]
-    except Exception:                               # noqa: BLE001 — none suggested
-        return []
+        text, _ = R.brain_search(
+            "Find the official website and official X (Twitter) account of " + name
+            + (" (" + focus + ")" if focus else "") + '. Answer with only JSON: {"website": str, "x_handle": str '
+            "(without @)}. Use empty strings for anything you cannot confirm.",
+            agent=AGENT, system="You look things up on the live web and report only what you found.")
+        got = R.parse_json_text(text) or {}
+    except Exception:                               # noqa: BLE001 — nothing found
+        return {}
+    return {"website": str(got.get("website") or ""), "handle": str(got.get("x_handle") or "").lstrip("@")}
+
+
+def _post_stats(posts: list[dict]) -> dict[str, Any]:
+    """How an account posts, counted rather than described: cadence, format,
+    length, hook type, and which of those earn engagement. No text kept."""
+    if not posts:
+        return {}
+    import statistics
+    days = []
+    for p in posts:
+        try:
+            days.append(datetime.fromisoformat(p["created_at"]))
+        except (KeyError, ValueError):
+            pass
+    span = (max(days) - min(days)).days + 1 if len(days) > 1 else 7
+    fmt = Counter("video" if "video" in (p.get("media") or []) or "animated_gif" in (p.get("media") or [])
+                  else "image" if p.get("media") else "text" for p in posts)
+    hooks = Counter("question" if "?" in p["text"][:140] else "number" if re.search(r"\d", p["text"][:60])
+                    else "statement" for p in posts)
+    hours = Counter(d.hour for d in days)
+    eng = [(p.get("likes") or 0) + 2 * (p.get("reposts") or 0) + (p.get("replies") or 0) for p in posts]
+    best_fmt = max(fmt, key=lambda f: statistics.median(
+        [e for e, p in zip(eng, posts) if ("video" if "video" in (p.get("media") or []) else
+                                           "image" if p.get("media") else "text") == f] or [0]))
+    return {"posts": len(posts), "per_week": round(len(posts) / max(span, 1) * 7, 1),
+            "formats": dict(fmt), "hooks": dict(hooks),
+            "median_length": int(statistics.median(len(p["text"]) for p in posts)),
+            "peak_hours_utc": [h for h, _ in hours.most_common(3)],
+            "median_engagement": statistics.median(eng) if eng else 0, "best_format": best_fmt}
+
+
+def analyze_competitor(tenant: str, comp: dict, *, pages: int = 3, posts: int = 20) -> dict[str, Any]:
+    """One competitor's website and recent X posts -> pattern summaries.
+
+    Their pages and posts are read here and discarded; the brain keeps only
+    what the model and the counts say about HOW they communicate."""
+    import tempfile
+    from pipeline.brand_brain.client import Brain
+    from pipeline.gtm_os import agent_runtime as R
+    name = comp["name"]
+    site_text, x_posts, errors = "", [], []
+    comp = {**comp}
+    if not comp.get("website") or not comp.get("handle"):
+        comp.update({k: v for k, v in _lookup(name, comp.get("focus", "")).items() if v and not comp.get(k)})
+    website = comp.get("website") or ""
+    if website:
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                got = crawl(website if website.startswith("http") else "https://" + website,
+                            Path(tmp), max_pages=pages)
+            site_text = "\n\n".join((p.get("title") or "") + "\n" + (p.get("text") or "")[:2500]
+                                     for p in got.get("pages") or [])[:8000]
+        except Exception as exc:                    # noqa: BLE001 — posts may still work
+            errors.append("website: " + str(exc)[:120])
+    if comp.get("handle"):
+        try:
+            from pipeline.intelligence_stream import x_apify
+            x_posts = x_apify.recent_posts(comp["handle"], days=30, n=posts)
+        except Exception as exc:                    # noqa: BLE001 — the site may still work
+            errors.append("x: " + str(exc)[:120])
+    if not site_text and not x_posts:
+        return {"competitor": name, "ok": False, "errors": errors or ["no website or handle"]}
+
+    stats = _post_stats(x_posts)
+    sample = "\n".join("- " + p["text"][:280] for p in x_posts[:20])
+    prompt = ("Competitor: " + name + ". Below are its website text and its recent X posts.\n"
+              "Describe HOW it communicates, as patterns another brand can learn the SHAPE of: "
+              "positioning angle, audience it speaks to, formats, hook types, recurring topics, "
+              "length, tone, calls to action. Do NOT quote or closely paraphrase anything, and "
+              "include no product claims or figures.\n\nWEBSITE:\n" + (site_text or "(none)")
+              + "\n\nX POSTS:\n" + (sample or "(none)")
+              + '\n\nReturn JSON: {"patterns": [{"channel": "website"|"x", "topic": str, '
+                '"pattern": str (one sentence)}]} with 3-6 patterns.')
+    try:
+        out = R.brain_json(prompt, agent=AGENT, role="reasoning", temperature=0.2, max_output_tokens=2048,
+                           system="You summarise communication strategy without copying content.")
+        pats = (out.get("patterns") or [])[:6]
+    except Exception as exc:                        # noqa: BLE001 — stats alone are still worth keeping
+        errors.append("summary: " + str(exc)[:120])
+        pats = []
+    if stats:
+        fm = ", ".join(k + " " + str(v) for k, v in stats["formats"].items())
+        hk = ", ".join(k + " " + str(v) for k, v in stats["hooks"].items())
+        pats.append({"channel": "x", "topic": "cadence and format",
+                     "pattern": ("About " + str(stats["per_week"]) + " posts a week; formats " + fm
+                                 + "; hooks " + hk + "; median " + str(stats["median_length"])
+                                 + " characters; best-performing format: " + stats["best_format"]
+                                 + "; most posts at " + ", ".join(str(h) + ":00" for h in stats["peak_hours_utc"])
+                                 + " UTC.")})
+    brain = Brain(tenant)
+    key = tenant + ":" + re.sub(r"[^a-z0-9]+", "_", name.lower()).strip("_") + ":analysis:"
+    brain.clear_competitor_patterns(key)
+    for i, p in enumerate(pats):
+        brain.set_competitor_pattern(key + str(i), competitor=name,
+                                     topic=(str(p.get("channel") or "") + ": " + str(p.get("topic") or ""))[:80],
+                                     pattern=str(p.get("pattern") or "")[:400],
+                                     evidence_n=len(x_posts) + (1 if site_text else 0))
+    return {"competitor": name, "ok": True, "website": website, "handle": comp.get("handle") or "",
+            "patterns": len(pats), "x_posts_read": len(x_posts),
+            "website_read": bool(site_text), "stats": stats, "errors": errors}
+
+
+def analyze_competitors(tenant: str, names: Optional[list[str]] = None, *,
+                        suggest: bool = False) -> dict[str, Any]:
+    """Analyse the tenant's competitors (all in the profile, or `names`).
+    With `suggest`, first search the web for new ones to confirm."""
+    from pipeline.brand_brain.client import Brain
+    prof = Brain(tenant).get_brand_profile()
+    listed = list(prof.get("competitors") or [])
+    report: dict[str, Any] = {"tenant": tenant, "at": _now()}
+    if suggest:
+        company = prof.get("company") or {}
+        voice = {"name": company.get("name"), "what_it_is": company.get("what_it_is"),
+                 "category": company.get("category"), "website": company.get("website")}
+        have = {c.get("name", "").lower() for c in listed}
+        found = _competitors(voice, exclude=tuple(list((prof.get("partners") or {}).keys())))
+        report["suggested"] = [c for c in found if c["name"].lower() not in have]
+    targets = [c for c in listed if not names or c.get("name", "").lower() in {n.lower() for n in names}]
+    report["analysed"] = [analyze_competitor(tenant, c) for c in targets]
+    tdir = S.tenant_dir(tenant)
+    tdir.mkdir(parents=True, exist_ok=True)
+    (tdir / "competitors.json").write_text(json.dumps(report, indent=1, ensure_ascii=False, default=str),
+                                           encoding="utf-8")
+    return report
 
 
 # ------------------------------------------------------------------- assembly
@@ -315,7 +487,8 @@ def draft_profile(root: str, crawl_out: dict, voice: dict, style: dict,
     measures = [p["measure"] for p in crawl_out["pages"] if p.get("measure")]
     pal = palette_from(measures)
     open_q = [
-        "Competitors were suggested by a model — confirm or edit the list.",
+        "Competitors were found by web search — confirm or edit the list (partners are excluded "
+        "automatically; check nothing else slipped in).",
         "Approved claims, true figures and never-claim rules are empty: add them from the "
         "company's docs or facts ledger before the reviewer can fact-check posts.",
     ]
@@ -386,7 +559,7 @@ def analyze(root: str, tenant: str, *, save: bool = False, max_pages: int = 18,
         return {"ok": False, "error": "nothing could be crawled at " + root}
     voice = _voice(crawl_out["pages"])
     style = _visual_style(crawl_out["pages"])
-    competitors = _competitors(voice)
+    competitors = _competitors({**voice, "website": root})
     logo = _logo(crawl_out, work)
     profile = draft_profile(root, crawl_out, voice, style, competitors, logo)
     report = {"root": root, "tenant": tenant, "at": _now(), "pages": len(crawl_out["pages"]),
@@ -414,7 +587,37 @@ def analyze(root: str, tenant: str, *, save: bool = False, max_pages: int = 18,
     return report
 
 
+def competitors_main(argv: list[str]) -> None:
+    ap = argparse.ArgumentParser(description="Analyse a tenant's competitors")
+    ap.add_argument("--tenant", required=True)
+    ap.add_argument("--names", nargs="*", default=None)
+    ap.add_argument("--suggest", action="store_true", help="also web-search for new competitors to confirm")
+    ap.add_argument("--status-file", default=None)
+    a = ap.parse_args(argv)
+    status = Path(a.status_file) if a.status_file else None
+
+    def mark(state: str, **kw) -> None:
+        if status:
+            status.parent.mkdir(parents=True, exist_ok=True)
+            status.write_text(json.dumps({"state": state, "mode": "competitors", "tenant": a.tenant,
+                                          "at": _now(), **kw}, ensure_ascii=False, default=str),
+                              encoding="utf-8")
+
+    mark("running")
+    try:
+        out = analyze_competitors(a.tenant, a.names, suggest=a.suggest)
+    except Exception as exc:                        # noqa: BLE001 — reported to the dashboard
+        mark("failed", error=str(exc)[:400])
+        raise
+    mark("done", result={"analysed": [{k: v for k, v in r.items() if k != "stats"} for r in out["analysed"]],
+                         "suggested": [c["name"] for c in out.get("suggested", [])]})
+    print(json.dumps(out, indent=1, ensure_ascii=False, default=str))
+
+
 def main() -> None:
+    import sys
+    if sys.argv[1:2] == ["competitors"]:
+        return competitors_main(sys.argv[2:])
     ap = argparse.ArgumentParser(description="Draft a brand profile from a website")
     ap.add_argument("url")
     ap.add_argument("--tenant", required=True)

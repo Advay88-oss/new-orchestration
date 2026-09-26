@@ -254,6 +254,90 @@ def brain(
     return text
 
 
+def brain_search(
+    prompt: str,
+    *,
+    agent: str,
+    system: str = "",
+    role: str = "reasoning",
+    temperature: float = 0.2,
+    max_output_tokens: int = 4096,
+    run_id: Optional[str] = None,
+    timeout: float = 120.0,
+) -> tuple[str, list[dict]]:
+    """A model call grounded in Google Search. Returns (text, sources), where
+    each source is {"title", "url"} from the grounding metadata — the pages
+    the answer was actually built from. Raises BrainError on failure.
+
+    Grounding cannot be combined with a JSON response type, so a caller that
+    wants JSON asks for it in the prompt and parses the text.
+    """
+    started = time.time()
+    url, model, transport = endpoint(role)
+    payload: dict[str, Any] = {
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "tools": [{"google_search": {}}],
+        "generationConfig": {"temperature": temperature, "maxOutputTokens": max_output_tokens},
+    }
+    if system:
+        payload["systemInstruction"] = {"parts": [{"text": system}]}
+    try:
+        res = _post(url, payload, timeout)
+    except urllib.error.HTTPError as exc:
+        body = ""
+        try:
+            body = exc.read().decode("utf-8", "replace")[:300]
+        except Exception:
+            pass
+        note = "HTTP " + str(exc.code) + ": " + body
+        record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
+                         note=note, transport=transport), run_id)
+        raise BrainError(note) from exc
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        note = (type(exc).__name__ + ": " + str(exc))[:300]
+        record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
+                         note=note, transport=transport), run_id)
+        raise BrainError(note) from exc
+    usage = res.get("usageMetadata") or {}
+    try:
+        cand = res["candidates"][0]
+        text = "".join(p.get("text", "") for p in cand["content"]["parts"])
+    except (KeyError, IndexError, TypeError):
+        note = "no text in grounded response: " + json.dumps(res)[:250]
+        record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
+                         note=note, transport=transport), run_id)
+        raise BrainError(note)
+    sources = []
+    for ch in (cand.get("groundingMetadata") or {}).get("groundingChunks") or []:
+        web = ch.get("web") or {}
+        if web.get("uri"):
+            sources.append({"title": web.get("title") or "", "url": web["uri"]})
+    record(AgentCall(agent, role, model, True, round(time.time() - started, 2),
+                     input_tokens=usage.get("promptTokenCount", 0),
+                     output_tokens=usage.get("candidatesTokenCount", 0),
+                     note="grounded: " + str(len(sources)) + " sources", transport=transport), run_id)
+    return text, sources
+
+
+def parse_json_text(text: str) -> Any:
+    """JSON out of a model's free-text answer (a fenced block or a bare object)."""
+    txt = text.strip()
+    if "```" in txt:
+        parts = txt.split("```")
+        for part in parts[1::2]:
+            part = part[4:] if part.startswith("json") else part
+            try:
+                return json.loads(part)
+            except json.JSONDecodeError:
+                continue
+    start = min([i for i in (txt.find("{"), txt.find("[")) if i >= 0] or [0])
+    end = max(txt.rfind("}"), txt.rfind("]")) + 1
+    try:
+        return json.loads(txt[start:end] if end > start else txt)
+    except json.JSONDecodeError as exc:
+        raise BrainError("unparseable JSON in grounded answer: " + repr(txt[:200])) from exc
+
+
 def brain_json(prompt: str, **kw) -> Any:
     """`brain` plus a parse. A model that returns unparseable JSON has failed."""
     raw = brain(prompt, json_out=True, **kw)

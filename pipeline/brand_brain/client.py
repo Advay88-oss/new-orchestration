@@ -367,6 +367,15 @@ class Brain:
                         "updated_at=excluded.updated_at, embedding=excluded.embedding",
                         (pid, competitor, topic, pattern, evidence_n, _now(), E.to_blob(v)))
 
+    def clear_competitor_patterns(self, id_prefix: str) -> int:
+        """Drop one analysis's patterns before it is rewritten."""
+        with self._db() as con:
+            rows = con.execute("SELECT id FROM competitor_patterns").fetchall()
+            gone = [r["id"] for r in rows if str(r["id"]).startswith(id_prefix)]
+            for i in gone:
+                con.execute("DELETE FROM competitor_patterns WHERE id=?", (i,))
+        return len(gone)
+
     def meta(self, key: str, value: Optional[str] = None) -> Optional[str]:
         with self._db() as con:
             if value is not None:

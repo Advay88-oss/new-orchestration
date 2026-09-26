@@ -120,6 +120,96 @@ function ProfileActions({ tenant, version, status, onChanged }: { tenant: string
   );
 }
 
+/** Competitors: web-searched suggestions to confirm, and each confirmed one's
+ *  website and recent X posts turned into pattern summaries (never their text). */
+function Competitors({ tenant }: { tenant: string }) {
+  const [d, setD] = useState<any | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      setD(await (await fetch("/api/gtm/brain/competitors?tenant=" + tenant, { cache: "no-store" })).json());
+    } catch (e) {
+      setErr(String(e));
+    }
+  }, [tenant]);
+
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    if (d?.state !== "running") return;
+    const t = setInterval(load, 5000);
+    return () => clearInterval(t);
+  }, [d?.state, load]);
+
+  const start = async (suggest: boolean) => {
+    setErr(null);
+    const r = await (await fetch("/api/gtm/brain/competitors", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tenant, suggest }),
+    })).json();
+    if (r.ok) load(); else setErr(r.error || "could not start");
+  };
+
+  const running = d?.state === "running";
+  const rep = d?.report;
+  const btn2: React.CSSProperties = { border: "1px solid var(--vn-line-strong)", background: "transparent",
+    color: "var(--vn-ink)", borderRadius: 6, padding: "7px 12px", fontSize: 12.5, cursor: "pointer" };
+  return (
+    <div style={card}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
+        <div style={label}>Competitors</div>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button disabled={running} onClick={() => start(false)}
+                  style={{ ...btn2, background: "var(--vn-cta)", color: "var(--vn-on-accent)", border: "none" }}>
+            {running ? "Analysing…" : "Analyse competitors"}
+          </button>
+          <button disabled={running} onClick={() => start(true)} style={btn2}>Analyse + find new ones</button>
+        </div>
+      </div>
+      <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", margin: "6px 0 12px", lineHeight: 1.5 }}>
+        For each competitor in the profile: its website and its last 30 days of X posts, summarised into patterns
+        (formats, hooks, topics, cadence). The strategist and the copywriter learn the shape from these; the brain
+        keeps no competitor text. New suggestions come from a web search and wait for you to add them to the profile.
+      </div>
+      {running && <div style={{ fontFamily: MONO, fontSize: 12, color: "var(--vn-ink-muted)" }}>Reading websites and posts — a few minutes.</div>}
+      {d?.state === "failed" && <div style={{ fontSize: 12.5, color: "var(--vn-bad)" }}>Failed: {d.job?.error}</div>}
+      {rep?.analysed?.length > 0 && (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 10 }}>
+          {rep.analysed.map((c: any) => (
+            <div key={c.competitor} style={{ border: "1px solid var(--vn-line)", borderRadius: 8, padding: "10px 12px" }}>
+              <div style={{ fontWeight: 600, fontSize: 13.5 }}>{c.competitor}</div>
+              <div style={{ fontSize: 12, color: "var(--vn-ink-muted)", marginTop: 2 }}>
+                {c.ok
+                  ? c.patterns + " patterns · " + (c.website_read ? "website" : "no website") + " · " + c.x_posts_read + " X posts"
+                  : "not analysed: " + (c.errors || []).join("; ")}
+              </div>
+              {c.stats?.posts > 0 && (
+                <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-faint)", marginTop: 4 }}>
+                  {c.stats.per_week}/week · best: {c.stats.best_format} · median {c.stats.median_length} chars
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {rep?.suggested?.length > 0 && (
+        <div style={{ marginTop: 14 }}>
+          <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 6 }}>Suggested by web search — not in the profile yet</div>
+          {rep.suggested.map((c: any) => (
+            <div key={c.name} style={{ fontSize: 12.5, color: "var(--vn-ink-body)", padding: "4px 0", borderTop: "1px solid var(--vn-line)" }}>
+              <b>{c.name}</b>{c.website ? " · " + c.website : ""}{c.handle ? " · @" + c.handle : ""} — {c.focus}
+            </div>
+          ))}
+          <div style={{ fontSize: 11.5, color: "var(--vn-ink-muted)", marginTop: 6 }}>
+            Check each one is a live competitor, not a partner or a closed protocol, then add it under competitors in the profile.
+          </div>
+        </div>
+      )}
+      {err && <div style={{ color: "var(--vn-bad)", fontSize: 12.5, marginTop: 8 }}>{err}</div>}
+    </div>
+  );
+}
+
 /** Onboard a company from its website: the analyzer drafts its profile. */
 function Onboard({ onDone }: { onDone: (tenant: string) => void }) {
   const [url, setUrl] = useState("");
@@ -432,6 +522,7 @@ export function BrandBrain() {
         </div>
       </div>
 
+      {data?.tenant && <Competitors tenant={data.tenant} />}
       <Onboard onDone={(t) => { setTenant(t); setTick((x) => x + 1); }} />
     </div>
   );

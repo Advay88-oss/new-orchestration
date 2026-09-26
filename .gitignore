@@ -66,6 +66,7 @@ pipeline/brain/tenants/*/stills/
 pipeline/brain/tenants/*/images/
 pipeline/brain/tenants/*/website/
 pipeline/brain/tenants/*/analysis.json
+pipeline/brain/tenants/*/competitors.json
 pipeline/state/analyzer/
 pipeline/state/notion_verification_token.txt
 pipeline/brain/tenants/*/notion_cache/
