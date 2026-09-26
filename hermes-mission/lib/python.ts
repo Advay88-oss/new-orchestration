@@ -56,7 +56,7 @@ export interface PyResult {
  * refresh). Anything that takes minutes belongs in the job queue — a pipeline
  * run tied to an HTTP request is the anti-pattern this codebase is removing.
  */
-export function runPython(args: string[], timeoutMs = 120_000): Promise<PyResult> {
+export function runPython(args: string[], timeoutMs = 120_000, input?: string): Promise<PyResult> {
   const py = pythonPath();
   if (!py) {
     return Promise.resolve({
@@ -91,6 +91,10 @@ export function runPython(args: string[], timeoutMs = 120_000): Promise<PyResult
         error: `timed out after ${timeoutMs}ms`,
       });
     }, timeoutMs);
+
+    // Secrets and codes go on stdin, never in argv (argv is visible to other processes).
+    if (input !== undefined) child.stdin.end(input);
+    else child.stdin.end();
 
     child.stdout.on('data', (d) => { stdout += d.toString(); });
     child.stderr.on('data', (d) => { stderr += d.toString(); });

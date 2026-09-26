@@ -29,7 +29,8 @@ class NotionOAuthTest(unittest.TestCase):
         self.tmp = Path(tempfile.mkdtemp())
         self.patches = [
             mock.patch.object(S, "ROOT", self.tmp),
-            mock.patch.dict(os.environ, {"BRAIN_SECRET_KEY": Fernet.generate_key().decode()}),
+            mock.patch.dict(os.environ, {"BRAIN_SECRET_KEY": Fernet.generate_key().decode(),
+                                         "BRAIN_INVITE_SECRET": "test-invite-secret-0123456789"}),
             mock.patch.object(O, "_cfg", lambda: {"client_id": "cid", "client_secret": "csecret",
                                                   "redirect_uri": "http://localhost:3000/cb"}),
         ]
@@ -67,6 +68,23 @@ class NotionOAuthTest(unittest.TestCase):
         self.assertIsNone(O.token("acme"))
         self.assertIsNone(Brain("acme").get_secret("notion_token"))
         self.assertFalse(O.status("acme")["connected"])
+
+    def test_client_invite_is_signed_scoped_and_single_use(self):
+        inv = O.make_invite("globex", base="https://dash.example")
+        self.assertTrue(inv["url"].startswith("https://dash.example/connect/notion?invite="))
+        chk = O.check_invite(inv["invite"])
+        self.assertEqual((chk["ok"], chk["tenant"]), (True, "globex"))
+        payload, sig = inv["invite"].split(".")
+        forged = O._b64(__import__("json").dumps({"t": "acme", "n": "x", "exp": 9999999999}).encode()) + "." + sig
+        self.assertFalse(O.check_invite(forged)["ok"])           # a tenant swap breaks the signature
+        r = O.exchange_invite(inv["invite"], "code", http=lambda b: {"access_token": "g-token"})
+        self.assertTrue(r["ok"])
+        self.assertEqual(O.token("globex"), "g-token")
+        self.assertIsNone(O.token("acme"))
+        self.assertFalse(O.check_invite(inv["invite"])["ok"])    # used once
+        fresh = O.make_invite("acme")["invite"]
+        with mock.patch("time.time", lambda: 9999999999 + 1):
+            self.assertIn("expired", O.check_invite(fresh)["error"])
 
     def test_a_key_mismatch_reads_nothing(self):
         O.exchange("acme", "c", http=lambda b: {"access_token": "t"})

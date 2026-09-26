@@ -76,6 +76,12 @@ def record(run_id: str, verdict: str, note: str = "", *,
         raise ValueError("verdict must be one of " + ", ".join(VERDICTS))
     run_dir = RUNS / run_id
     if not run_dir.is_dir():
+        try:                                        # a fresh cloud container: fetch it
+            from pipeline.gtm_os.state_sync import ensure_run
+            ensure_run(run_id)
+        except Exception:                           # noqa: BLE001 — reported below
+            pass
+    if not run_dir.is_dir():
         raise FileNotFoundError("no run " + run_id)
 
     row = {

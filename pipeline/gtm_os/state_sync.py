@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import mimetypes
 import os
+import re
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Optional
@@ -44,7 +45,58 @@ PREFIX_PANELS = "panels/"
 # strategies — and the Vanna References view is built on it; without it the
 # deployed dashboard showed every run as unread.
 RUN_FILES = ("summary.json", "calls.jsonl", "stages.jsonl", "harvest.json",
-             "analysis.json", "feedback.json")
+             "analysis.json", "feedback.json", "partial.json", "decisions.jsonl",
+             "published.json")
+
+
+def in_cloud() -> bool:
+    """Running on GCP (a Cloud Run service or job), where the filesystem is
+    ephemeral and the bucket is the record."""
+    return bool(os.environ.get("K_SERVICE") or os.environ.get("CLOUD_RUN_JOB"))
+
+
+def pull_run(run_id: str) -> int:
+    """Fetch one run's files from the bucket into the local runs folder.
+    Returns how many were fetched; never raises."""
+    if not re.match(r"^GTM-\d{8}-\d{6}$", str(run_id)):
+        return 0
+    try:
+        bucket = _client().bucket(BUCKET)
+        blobs = list(bucket.list_blobs(prefix=PREFIX_RUNS + run_id + "/"))
+    except Exception:                               # noqa: BLE001 — boundary
+        return 0
+    d = RUNS_DIR / run_id
+    d.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for b in blobs:
+        name = b.name.rsplit("/", 1)[-1]
+        if name in RUN_FILES:
+            try:
+                b.download_to_filename(str(d / name))
+                n += 1
+            except Exception:                       # noqa: BLE001 — this file fails alone
+                pass
+    return n
+
+
+def ensure_run(run_id: str) -> bool:
+    """A run's folder is present locally, fetching it from the bucket in the
+    cloud (a fresh container has no runs on disk)."""
+    if (RUNS_DIR / run_id / "summary.json").exists() or (RUNS_DIR / run_id / "partial.json").exists():
+        return True
+    if in_cloud() or os.environ.get("VANNA_PULL_RUNS") == "1":
+        pull_run(run_id)
+    return (RUNS_DIR / run_id).is_dir()
+
+
+def runs_with(name: str) -> list[str]:
+    """Run ids whose folder in the bucket holds `name` (e.g. published.json)."""
+    try:
+        bucket = _client().bucket(BUCKET)
+        return sorted({b.name.split("/")[1] for b in bucket.list_blobs(prefix=PREFIX_RUNS)
+                       if b.name.endswith("/" + name)})
+    except Exception:                               # noqa: BLE001 — boundary
+        return []
 
 
 def _client():
@@ -174,6 +226,9 @@ STATE_FILES = (
     "pipeline/brain/knowledge/creative-rules.md",
     "pipeline/brain/knowledge/learned-rules.json",
     "pipeline/brain/knowledge/learned-rules.md",
+    "pipeline/state/scheduler_state.json",
+    "pipeline/state/telegram_pending_post.json",
+    "pipeline/state/telegram_pending_revise.json",
 )
 STATE_DIRS = (
     "pipeline/brain/visual_exemplars",
@@ -259,6 +314,29 @@ def push_state() -> dict[str, Any]:
         done = list(pool.map(lambda j: _upload(bucket, j[0], j[1]), jobs))
     ok = [d for d in done if d]
     return {"pushed": bool(ok), "objects": len(ok), "failed": len(done) - len(ok), "bucket": BUCKET}
+
+
+def push_state_files(rels: list[str]) -> int:
+    """Upload a few state files (repo-relative); a deleted one is removed
+    from the bucket too. Never raises."""
+    try:
+        bucket = _client().bucket(BUCKET)
+    except Exception:                               # noqa: BLE001 — boundary
+        return 0
+    n = 0
+    for rel in rels:
+        p = REPO_ROOT / rel
+        try:
+            if p.exists():
+                n += bool(_upload(bucket, p, PREFIX_STATE + rel))
+            else:
+                blob = bucket.blob(PREFIX_STATE + rel)
+                if blob.exists():
+                    blob.delete()
+                    n += 1
+        except Exception:                           # noqa: BLE001 — this file fails alone
+            pass
+    return n
 
 
 def pull_state(*, overwrite: bool = False) -> dict[str, Any]:

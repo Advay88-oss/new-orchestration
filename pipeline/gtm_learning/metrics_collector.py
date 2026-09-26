@@ -59,6 +59,9 @@ def mark_published(run_id: str, url: str, *, source: str = "manual",
                    fmt: Optional[str] = None) -> dict[str, Any]:
     """Record where a run's post went out (and, optionally, as what: a thread
     cannot be told from its first post's media, so the founder can say)."""
+    if RUN_ID.match(run_id) and not (RUNS / run_id).is_dir():
+        from pipeline.gtm_os.state_sync import ensure_run
+        ensure_run(run_id)
     if not RUN_ID.match(run_id) or not (RUNS / run_id).is_dir():
         return {"ok": False, "error": "unknown run " + run_id}
     got = parse_url(url)
@@ -71,8 +74,18 @@ def mark_published(run_id: str, url: str, *, source: str = "manual",
     if fmt in FORMATS:
         rec["format"] = fmt
     _write(run_id, rec)
+    _push(run_id)
     return {"ok": True, "run_id": run_id, **rec,
             "collect_after": (datetime.fromisoformat(rec["marked_at"]) + timedelta(hours=MIN_AGE_H)).isoformat()}
+
+
+def _push(run_id: str) -> None:
+    """The record lives in the bucket too (a cloud container forgets its disk)."""
+    try:
+        from pipeline.gtm_os import state_sync as SS
+        SS.push_run(run_id, {})
+    except Exception:                               # noqa: BLE001 — the local copy stands
+        pass
 
 
 def _fetch(rec: dict) -> Optional[dict]:
@@ -94,6 +107,13 @@ def collect(*, force: bool = False) -> dict[str, Any]:
     from pipeline.gtm_learning import rewards
     out: dict[str, Any] = {"due": 0, "collected": [], "not_found": [], "errors": []}
     now = _now()
+    try:
+        from pipeline.gtm_os import state_sync as SS
+        if SS.in_cloud():                           # the records are in the bucket
+            for rid in SS.runs_with("published.json"):
+                SS.pull_run(rid)
+    except Exception:                               # noqa: BLE001 — local records still count
+        pass
     for d in sorted(RUNS.glob("GTM-*")):
         rec = _read(d.name)
         if not rec or not rec.get("tweet_id"):
@@ -125,6 +145,7 @@ def collect(*, force: bool = False) -> dict[str, Any]:
         rec.setdefault("readings", []).append({"at": now.isoformat(), "age_h": round(age_h, 1),
                                                **{k: v for k, v in metrics.items() if k not in ("url", "media")}})
         _write(d.name, rec)
+        _push(d.name)
         out["collected"].append({"run_id": d.name, "age_h": round(age_h, 1), "impressions": metrics["impressions"],
                                  "reward": (res.get("event") or {}).get("total")})
     return out

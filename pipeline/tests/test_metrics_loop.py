@@ -49,6 +49,7 @@ class MetricsLoopTest(unittest.TestCase):
             mock.patch.object(MC, "RUNS", self.runs),
             mock.patch("pipeline.brand_brain.context.current_tenant", lambda: "acme"),
             mock.patch("pipeline.brand_brain.client.current_tenant", lambda: "acme"),
+            mock.patch("pipeline.gtm_os.state_sync.push_run", lambda *a, **k: None),
         ]
         for p in self.patches:
             p.start()

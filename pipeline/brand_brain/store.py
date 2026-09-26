@@ -350,7 +350,10 @@ OVERRIDE: Optional[str] = None       # tests set "sqlite"
 
 
 def _env_file(key: str) -> Optional[str]:
-    """A key from pipeline/.env (last definition wins), without printing it."""
+    """A setting from the environment (Cloud Run, from Secret Manager), else
+    pipeline/.env (last definition wins). Never printed."""
+    if os.environ.get(key):
+        return os.environ[key]
     f = Path(__file__).resolve().parents[1] / ".env"
     val = None
     try:

@@ -3,7 +3,8 @@ import { runPython, lastJson, pythonPath } from '@/lib/python';
 import { exec, spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
-import { localOnly } from '@/lib/local-only';
+import { cloudMode, localOnly } from '@/lib/local-only';
+import { runPipelineJob } from '@/lib/cloudrun';
 
 const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
 const SCHEDULER_SCRIPT = path.join(REPO_ROOT, 'pipeline/scheduler/configurable_scheduler_daemon.py');
@@ -124,6 +125,13 @@ export async function POST(req: Request) {
     if (action === 'run_now') {
       if (!job) {
         return NextResponse.json({ success: false, error: 'job required' }, { status: 400 });
+      }
+      // On GCP a GTM cycle is a Cloud Run Job execution, never a child of
+      // this web container (it would be throttled and lost on scale-down).
+      if (cloudMode() && job === 'gtm_cycle') {
+        const r = await runPipelineJob(['cycle']);
+        return NextResponse.json(r.ok ? { success: true, message: 'Cycle started on GCP (' + r.execution + ')' }
+                                      : { success: false, error: r.error }, { status: r.ok ? 200 : 502 });
       }
             
       const rawArgs = ['pipeline/scheduler/configurable_scheduler_daemon.py', '--run-now', job];

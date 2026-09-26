@@ -176,6 +176,12 @@ def normalised_engagement(run_id: str) -> Optional[float]:
 # ---------------------------------------------------------------------- events
 
 def compute(run_id: str) -> Optional[dict[str, Any]]:
+    if not (RUNS / run_id / "summary.json").exists():
+        try:
+            from pipeline.gtm_os.state_sync import ensure_run
+            ensure_run(run_id)
+        except Exception:                           # noqa: BLE001 — boundary
+            pass
     s = _json(RUNS / run_id / "summary.json")
     if not s or s.get("source") == "studio":
         return None

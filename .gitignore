@@ -70,3 +70,6 @@ pipeline/brain/tenants/*/competitors.json
 pipeline/state/analyzer/
 pipeline/state/notion_verification_token.txt
 pipeline/brain/tenants/*/notion_cache/
+
+# deploy_cloud.sh: the last image it built
+.last_cloud_image

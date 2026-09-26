@@ -23,7 +23,7 @@ export function isDeployed(): boolean {
 
 let cachedToken: { value: string; expires: number } | null = null;
 
-async function token(): Promise<string> {
+export async function token(): Promise<string> {
   // The metadata token lasts an hour; refreshing it per request would add a
   // round trip to every dashboard poll.
   if (cachedToken && Date.now() < cachedToken.expires) return cachedToken.value;

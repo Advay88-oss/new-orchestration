@@ -4,7 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import { pythonPath } from '@/lib/python';
 import { listGtmRunIds, gtmRunSummary } from '@/lib/gtm';
-import { localOnly } from '@/lib/local-only';
+import { cloudMode, localOnly } from '@/lib/local-only';
+import { runPipelineJob } from '@/lib/cloudrun';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,6 +35,19 @@ export async function POST(req: Request) {
     withVideo = body?.video !== false;
   } catch {
     /* empty body = fully autonomous */
+  }
+
+  // On GCP the cycle is a Cloud Run Job execution, not a child process.
+  if (cloudMode()) {
+    const args = ['cycle'];
+    if (directive.trim()) args.push('--directive', directive.trim().slice(0, 2000));
+    if (!withVideo) args.push('--no-video');
+    const r = await runPipelineJob(args);
+    if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 502 });
+    return NextResponse.json({
+      success: true, execution: r.execution, directive: directive || null, autonomous: !directive.trim(),
+      note: 'Cycle started on GCP. It appears under Live Trace and Agent History as it runs.',
+    });
   }
 
   const py = pythonPath();

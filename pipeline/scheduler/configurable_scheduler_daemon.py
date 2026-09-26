@@ -510,9 +510,15 @@ def run_scheduler_tick() -> dict:
     now_dt = datetime.now(timezone.utc)
     fired, skipped = [], []
 
+    only = {j.strip() for j in os.environ.get("SCHEDULER_ONLY", "").split(",") if j.strip()}
     for j_name, j_data in cfg.get("jobs", {}).items():
         if not j_data.get("enabled", True):
             skipped.append({"job": j_name, "why": "disabled"})
+            continue
+        # On GCP only the allow-listed jobs run (cloud_job.DEFAULT_CLOUD_JOBS):
+        # the autonomous cycle spends on every tick and is opt-in there.
+        if only and j_name not in only:
+            skipped.append({"job": j_name, "why": "not enabled in this environment"})
             continue
 
         interval_s = parse_interval_to_seconds(j_data.get("interval", "24h"))

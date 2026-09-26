@@ -1,39 +1,18 @@
 #!/usr/bin/env bash
-set -e
+# One image, two roles (see Dockerfile).
+#   web                 the dashboard (Cloud Run service)
+#   job <cloud_job ...> the pipeline (Cloud Run Job), e.g. `job cycle --directive "..."`
+set -euo pipefail
+role="${1:-web}"
+shift || true
 
-echo "================================================================================"
-echo "🚀 STARTING VANNA GTM OPERATING SYSTEM ON GOOGLE CLOUD RUN"
-echo "================================================================================"
+if [ "$role" = "job" ]; then
+  exec python -m pipeline.gtm_os.cloud_job "$@"
+fi
 
-# 0. Restore what the system has learned (brand brain, founder decisions,
-#    coach rules, exemplars) from the state bucket. Missing files only; a
-#    failure here must not stop the dashboard from starting.
-echo "▶ Restoring brain and learning state from GCS..."
-python -m pipeline.gtm_os.state_sync pull-state || echo "⚠ state restore skipped"
-
-# 1. Start Spend Proxy Watchdog (:8900) in background
-echo "▶ Launching Vertex Spend Proxy on port 8900..."
-python /app/pipeline/scripts/vertex_spend_proxy.py --port 8900 &
-PROXY_PID=$!
-echo "✓ Spend Proxy active with PID $PROXY_PID"
-
-# 2. Wait for spend proxy to be ready
-for i in $(seq 1 15); do
-  if curl -s http://127.0.0.1:8900/health > /dev/null 2>&1 || curl -s http://127.0.0.1:8900/ > /dev/null 2>&1; then
-    echo "✓ Spend proxy health check passed!"
-    break
-  fi
-  sleep 1
-done
-
-# 3. Start Configurable Autonomous Scheduler Daemon in background
-echo "▶ Launching Configurable Autonomous Scheduler Daemon..."
-python /app/pipeline/scheduler/configurable_scheduler_daemon.py --daemon &
-SCHEDULER_PID=$!
-echo "✓ Autonomous Scheduler Daemon active with PID $SCHEDULER_PID"
-
-# 4. Start Next.js Mission Control Dashboard on $PORT (Cloud Run default: 8080)
-TARGET_PORT=${PORT:-8080}
-echo "▶ Launching Next.js Mission Control Dashboard on port $TARGET_PORT..."
+# web: restore learned state (tenant images, exemplars, the scheduler's clock,
+# the Telegram notes) before serving; a failure must not keep the dashboard down.
+echo "restoring state from gs://${VANNA_STATE_BUCKET:-vanna-gtm-state-504607} ..."
+timeout 180 python -m pipeline.gtm_os.state_sync pull-state || echo "state restore skipped"
 cd /app/hermes-mission
-exec npm run start -- -p "$TARGET_PORT"
+exec node server.js

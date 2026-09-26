@@ -120,16 +120,28 @@ function ProfileActions({ tenant, version, status, onChanged }: { tenant: string
   );
 }
 
-/** Connect or disconnect the tenant's Notion (OAuth; the token is stored encrypted). */
+/** Connect or disconnect the tenant's Notion (OAuth; the token is stored
+ *  encrypted). Connecting always goes through a signed invite: open it
+ *  yourself, or send it to the client so they pick their own pages. */
 function NotionConnect({ tenant, notion, onChange }: { tenant: string; notion: any; onChange: () => void }) {
   const [busy, setBusy] = useState(false);
-  const [note] = useState(() => {
+  const [link, setLink] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const invite = async (): Promise<string | null> => {
+    setErr(null);
+    setBusy(true);
     try {
-      return new URLSearchParams(window.location.search).get("notion");
-    } catch {
-      return null;
+      const d = await (await fetch("/api/gtm/brain/notion/invite", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tenant }),
+      })).json();
+      if (!d.ok || !d.url) { setErr(d.error || "could not make an invite"); return null; }
+      return d.url as string;
+    } finally {
+      setBusy(false);
     }
-  });
+  };
   const disconnect = async () => {
     setBusy(true);
     try {
@@ -141,31 +153,44 @@ function NotionConnect({ tenant, notion, onChange }: { tenant: string; notion: a
       setBusy(false);
     }
   };
-  const msgs: Record<string, string> = {
-    connected: "Notion connected. The first sync runs at the start of the next run.",
-    denied: "Notion access was not granted.",
-    failed: "Notion connected, but the token exchange failed — check the integration's credentials.",
-    bad_state: "That Notion sign-in could not be verified. Try Connect Notion again.",
-    not_configured: "The Notion integration is not set up: add NOTION_OAUTH_CLIENT_ID and NOTION_OAUTH_CLIENT_SECRET to pipeline/.env.",
+  const copy = async () => {
+    if (!link) return;
+    try { await navigator.clipboard.writeText(link); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* shown anyway */ }
   };
+
   const b: React.CSSProperties = { border: "1px solid var(--vn-line-strong)", background: "transparent",
     color: "var(--vn-ink)", borderRadius: 6, padding: "6px 12px", fontSize: 12.5, cursor: "pointer" };
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", marginBottom: 8 }}>
-      {notion?.oauth_connected ? (
-        <button disabled={busy} onClick={disconnect} style={b}>Disconnect Notion</button>
-      ) : (
-        <a href={"/api/gtm/brain/notion/connect?tenant=" + tenant}
-           style={{ ...b, background: "var(--vn-cta)", color: "var(--vn-on-accent)", border: "none", textDecoration: "none" }}>
-          Connect Notion
-        </a>
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+        {notion?.oauth_connected ? (
+          <button disabled={busy} onClick={disconnect} style={b}>Disconnect Notion</button>
+        ) : (
+          <button disabled={busy} onClick={async () => { const u = await invite(); if (u) window.location.href = u; }}
+                  style={{ ...b, background: "var(--vn-cta)", color: "var(--vn-on-accent)", border: "none" }}>
+            Connect my Notion
+          </button>
+        )}
+        <button disabled={busy} onClick={async () => { const u = await invite(); if (u) setLink(u); }} style={b}>
+          Create client invite link
+        </button>
+        {!notion?.oauth_configured && (
+          <span style={{ fontSize: 11.5, color: "var(--vn-ink-muted)" }}>
+            Needs the Notion OAuth connection: NOTION_OAUTH_CLIENT_ID / _SECRET.
+          </span>
+        )}
+      </div>
+      {link && (
+        <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <code style={{ flex: "1 1 320px", minWidth: 0, fontSize: 11.5, background: "var(--vn-sunken)", border: "1px solid var(--vn-line)",
+                         borderRadius: 6, padding: "6px 8px", overflowX: "auto", whiteSpace: "nowrap" }}>{link}</code>
+          <button onClick={copy} style={b}>{copied ? "Copied" : "Copy"}</button>
+          <span style={{ fontSize: 11.5, color: "var(--vn-ink-muted)", flexBasis: "100%" }}>
+            Send this to the client. It connects their Notion to {tenant} only, works once, and expires in 7 days.
+          </span>
+        </div>
       )}
-      {note && msgs[note] && <span style={{ fontSize: 12, color: note === "connected" ? "var(--vn-ok)" : "var(--vn-bad)" }}>{msgs[note]}</span>}
-      {!notion?.oauth_configured && !note && (
-        <span style={{ fontSize: 11.5, color: "var(--vn-ink-muted)" }}>
-          Needs a Notion public integration: NOTION_OAUTH_CLIENT_ID / _SECRET in pipeline/.env.
-        </span>
-      )}
+      {err && <div style={{ fontSize: 12, color: "var(--vn-bad)", marginTop: 6 }}>{err}</div>}
     </div>
   );
 }

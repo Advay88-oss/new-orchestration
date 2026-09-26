@@ -1,26 +1,38 @@
 /**
  * The guard for routes that drive the pipeline rather than read it.
  *
- * The 13 agents run on the founder's machine — they need the Chrome bridge,
- * the Brain DB, the font files and four minutes per cycle. The deployed
- * dashboard reads their output from GCS and can do nothing else.
+ * Three places this dashboard runs:
  *
- * Without this, a route that spawns Python in the container fails with ENOENT
- * on a binary that was never installed, and the UI reports a broken pipeline
- * instead of a remote one. Worse for the write paths: a dismissal appended to
- * a container filesystem returns success and is gone at the next request.
- */
-import { NextResponse } from 'next/server';
-import { isDeployed } from '@/lib/gcs';
-
-/**
- * A 501 explaining why, or null when running locally and free to proceed.
+ *   local            the founder's machine: everything is allowed.
+ *   deployed, hybrid the Cloud Run dashboard with the pipeline on a laptop:
+ *                    it can only read the bucket, so writes are refused with
+ *                    a 501 saying where they run.
+ *   deployed, cloud  VANNA_CLOUD=1: the pipeline, the brain (Cloud SQL) and
+ *                    the jobs are on GCP too, so writes work — for the OWNER
+ *                    only (the ?key=<OWNER_KEY> cookie, lib/viewer.ts). A
+ *                    visitor to the public link gets a 403 and can change
+ *                    nothing.
  *
  * `what` names the action in the operator's terms — "starting a run",
  * "the scheduler" — because this string is what the dashboard shows.
  */
+import { NextResponse } from 'next/server';
+import { isDeployed } from '@/lib/gcs';
+import { isOwner } from '@/lib/viewer';
+
+export function cloudMode(): boolean {
+  return isDeployed() && process.env.VANNA_CLOUD === '1';
+}
+
 export function localOnly(what: string): NextResponse | null {
   if (!isDeployed()) return null;
+  if (cloudMode()) {
+    if (isOwner()) return null;
+    return NextResponse.json(
+      { success: false, ok: false, error: `${what} is for the owner of this dashboard.` },
+      { status: 403 },
+    );
+  }
   return NextResponse.json(
     {
       success: false,

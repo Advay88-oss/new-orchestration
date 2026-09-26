@@ -21,6 +21,7 @@ over. Until that line exists nothing reads Postgres.
 from __future__ import annotations
 
 import json
+import re
 import secrets
 import sqlite3
 import subprocess
@@ -130,6 +131,29 @@ def setup() -> dict[str, Any]:
         _set_env("BRAIN_PG_APP_URL", f"postgresql://{APP_ROLE}:{app_pw}@127.0.0.1:{PORT}/{DB}")
     return {"ok": True, "container_created": created, "container": CONTAINER, "port": PORT,
             "database": DB, "app_role": APP_ROLE, "switched_over": bool(S._env_file("BRAIN_DATABASE_URL"))}
+
+
+def apply_schema(admin_url: str, app_password: str | None = None) -> dict[str, Any]:
+    """Schema, RLS policies and the app role on any Postgres (Cloud SQL: the
+    admin is the instance's `postgres` user). Idempotent."""
+    import psycopg
+    with psycopg.connect(admin_url, autocommit=True, connect_timeout=20) as con:
+        con.execute(S.PG_SCHEMA)
+        has_role = con.execute("SELECT 1 FROM pg_roles WHERE rolname=%s", (APP_ROLE,)).fetchone()
+        if app_password:
+            if not re.fullmatch(r"[A-Za-z0-9_\-]{16,128}", app_password):
+                raise ValueError("app password must be 16-128 url-safe characters")
+            verb = "ALTER" if has_role else "CREATE"
+            con.execute(f"{verb} ROLE {APP_ROLE} LOGIN PASSWORD '{app_password}' "
+                        "NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE")
+        elif not has_role:
+            raise ValueError("the app role does not exist yet: pass its password")
+        db = con.execute("SELECT current_database()").fetchone()[0]
+        con.execute(f"GRANT CONNECT ON DATABASE {db} TO {APP_ROLE}")
+        con.execute(f"GRANT USAGE ON SCHEMA public TO {APP_ROLE}")
+        con.execute(S.pg_policies_sql(APP_ROLE))
+        n = con.execute("SELECT count(*) FROM tenants").fetchone()[0]
+    return {"ok": True, "database": db, "app_role": APP_ROLE, "tenants": n}
 
 
 # ------------------------------------------------------------------ migrate

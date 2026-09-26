@@ -1474,6 +1474,19 @@ def _checkpoint(summary: dict, rid: str) -> None:
         tmp.replace(d / "partial.json")
     except Exception:                               # noqa: BLE001 — boundary
         pass
+    # On GCP the dashboard reads the bucket, so the run in flight is pushed
+    # there too (at most every 20 s, and never blocking the run for long).
+    try:
+        from pipeline.gtm_os import state_sync as _SS
+        global _last_push
+        if _SS.in_cloud() and time.time() - _last_push > 20:
+            _last_push = time.time()
+            _SS.push_run(rid, summary)
+    except Exception:                               # noqa: BLE001 — boundary
+        pass
+
+
+_last_push = 0.0
 
 
 def _finish(summary: dict, t0: float, rid: str) -> dict:

@@ -16,12 +16,13 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
   // null while unknown, so the rail says "checking…" rather than asserting
   // either state before it has an answer.
   const [daemon, setDaemon] = React.useState<boolean | null>(null);
+  const [daemonLabel, setDaemonLabel] = React.useState<string | null>(null);
   const viewer = useViewer();
   React.useEffect(() => {
     const check = () =>
       fetch("/api/daemon", { cache: "no-store" })
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-        .then((d) => setDaemon(Boolean(d.running)))
+        .then((d) => { setDaemon(Boolean(d.running)); setDaemonLabel(d.label || null); })
         // A 501 is the deployed dashboard saying the pipeline is not here,
         // which is a real "not running" from this page's point of view.
         .catch(() => setDaemon(false));
@@ -166,7 +167,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
                            background: daemon ? "var(--vn-ok)" : "var(--vn-ink-muted)" }} />
             <span style={{ fontSize: "12px", fontWeight: 600,
                            color: daemon ? "var(--vn-ink)" : "var(--vn-ink-muted)" }}>
-              {daemon === null ? "checking…" : daemon ? "Active · 30m cycle" : "Not scheduled"}
+              {daemon === null ? "checking…" : daemon ? (daemonLabel || "Active · 30m cycle") : "Not scheduled"}
             </span>
           </div>
         </div>

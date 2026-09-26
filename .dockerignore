@@ -44,3 +44,13 @@ build
 **/.env
 **/.env.*
 pipeline/keys/
+
+# Runtime data lives in the bucket and Cloud SQL, not in the image.
+pipeline/state/gtm_runs/
+pipeline/state/veo_videos/
+pipeline/state/direct_posters/
+pipeline/state/visuals/
+pipeline/state/*.png
+pipeline/brain/tenants/*/brain.db*
+pipeline/brain/tenants/*/website/
+Dockerfile.legacy-combined

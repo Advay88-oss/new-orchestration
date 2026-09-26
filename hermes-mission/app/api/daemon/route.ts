@@ -3,7 +3,7 @@ import { runPython, lastJson, pythonPath } from '@/lib/python';
 import { spawnSync } from 'child_process';
 import path from 'path';
 import fs from 'fs';
-import { localOnly } from '@/lib/local-only';
+import { cloudMode, localOnly } from '@/lib/local-only';
 
 const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
 const SCRIPT_PATH = path.join(REPO_ROOT, 'pipeline/scripts/daemon_manager.py');
@@ -12,7 +12,12 @@ const STATUS_FILE = path.join(REPO_ROOT, 'pipeline/state/daemon_status.json');
 
 export const dynamic = 'force-dynamic';
 
+const CLOUD_NOTE = 'On GCP the schedule is Cloud Scheduler: an hourly tick runs the due jobs (Notion sync, metrics).';
+
 export async function GET() {
+  if (cloudMode()) {
+    return NextResponse.json({ running: true, cloud: true, label: 'Cloud Scheduler · hourly', note: CLOUD_NOTE });
+  }
   const blocked = localOnly('the daemon');
   if (blocked) return blocked;
 
@@ -57,6 +62,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  if (cloudMode()) {
+    return NextResponse.json({ success: false, cloud: true, error: CLOUD_NOTE }, { status: 409 });
+  }
   const blocked = localOnly('the daemon');
   if (blocked) return blocked;
 
