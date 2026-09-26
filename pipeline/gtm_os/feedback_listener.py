@@ -176,7 +176,8 @@ def main(argv: Optional[list[str]] = None) -> int:
             body = exc.read().decode("utf-8", "replace")[:300]
             print("telegram HTTP " + str(exc.code) + ": " + body)
             if exc.code == 409:
-                print("A webhook is set on this bot; getUpdates cannot run beside it.")
+                print("Another program is already reading this bot's updates (a second "
+                      "listener, or a webhook). Only one can run; this one exits.")
                 return 3
             time.sleep(10)
         except Exception as exc:                    # noqa: BLE001 — keep polling
