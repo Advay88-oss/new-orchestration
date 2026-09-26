@@ -411,10 +411,16 @@ export function BrandBrain() {
         </div>
         <div style={card}>
           <div style={label}>What's new</div>
+          <div style={{ fontFamily: MONO, fontSize: 11, color: data.notion?.configured ? "var(--vn-ok)" : "var(--vn-warn)", marginBottom: 8 }}>
+            Notion: {data.notion?.configured
+              ? "connected · " + (data.notion.pages || 0) + " pages · last sync " + ago(data.notion.last_sync)
+                + (data.notion.pending_webhook ? " · change pending" : "")
+              : "not connected (set NOTION_TOKEN and share pages with the integration)"}
+          </div>
           {(data.whats_new || []).length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--vn-ink-muted)", lineHeight: 1.5 }}>
-              No dated events yet. They arrive with the Notion sync (feature launches and factual updates are
-              classified and dated as they change).
+              No dated events yet. The Notion sync classifies every change (feature launch, factual update or
+              noise) and dates the first two here.
             </div>
           ) : (data.whats_new || []).map((e: any) => (
             <div key={e.id} style={{ borderTop: "1px solid var(--vn-line)", padding: "7px 0", fontSize: 12.5 }}>

@@ -78,7 +78,19 @@ def overview(tenant: str) -> dict[str, Any]:
         "images": images,
         "sources": {"last_scrape": _latest_harvest(), "record": record},
         "analyst_accuracy": accuracy,
+        "notion": _notion_status(b),
     }
+
+
+def _notion_status(b: Brain) -> dict[str, Any]:
+    try:
+        from pipeline.brand_brain.notion_sync import _token
+        configured = bool(_token())
+    except Exception:                               # noqa: BLE001 — boundary
+        configured = False
+    pages = json.loads(b.meta("notion_pages") or "{}")
+    return {"configured": configured, "last_sync": b.meta("notion_last_sync"),
+            "pages": len(pages), "pending_webhook": bool(b.meta("notion_dirty"))}
 
 
 def search(query: str, tenant: str) -> dict[str, Any]:

@@ -3,7 +3,7 @@
 A source spec with a `sync` block is fetched on a schedule and re-ingested
 incrementally (only changed chunks re-embed). Today that is a docs site that
 publishes an `llms.txt` index (docs.vanna.finance serves every page as
-markdown); Notion joins it in Phase 3.
+markdown), and the tenant's Notion workspace (notion_sync.py).
 
 Run start calls `sync_if_stale`, which does nothing unless the last sync is
 older than the source's max age — documentation moves on a release cadence,
@@ -78,15 +78,33 @@ def sync(tenant: Optional[str] = None) -> dict[str, Any]:
     for s in spec.get("sync", []):
         if s["kind"] == "llms_txt":
             out[s["name"]] = sync_llms_txt(s)
+        elif s["kind"] == "notion":
+            out[s["name"]] = _notion(t, s)
     out["ingest"] = O.ingest_knowledge(t)
     from pipeline.brand_brain.client import Brain
     Brain(t).meta("last_sync", str(time.time()))
     return out
 
 
+def _notion(tenant: str, s: dict) -> dict[str, Any]:
+    try:
+        from pipeline.brand_brain.notion_sync import sync as notion_sync
+        return notion_sync(tenant, authority=int(s.get("authority", 2)))
+    except Exception as exc:                        # noqa: BLE001 — the other sources still sync
+        return {"ok": False, "error": str(exc)[:200]}
+
+
 def sync_if_stale(tenant: Optional[str] = None) -> dict[str, Any]:
     t = tenant or current_tenant()
     from pipeline.brand_brain.client import Brain
+    # A Notion webhook marked this tenant: sync Notion now, whatever the age.
+    try:
+        if Brain(t).meta("notion_dirty"):
+            spec = O.spec(t)
+            s = next((x for x in spec.get("sync", []) if x["kind"] == "notion"), {"authority": 2})
+            return {"ok": True, "notion": _notion(t, s)}
+    except Exception:                               # noqa: BLE001 — fall through to the age check
+        pass
     try:
         spec = O.spec(t)
         max_age = min([int(s.get("max_age_s", 86400)) for s in spec.get("sync", [])] or [86400])
