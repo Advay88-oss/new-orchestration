@@ -108,7 +108,8 @@
       "Claiming mainnet live or advertising fake mainnet TVL",
       "Guaranteeing zero liquidation risk or fully hedged returns without risk parameters",
       "Claiming custody or unrestricted autonomous fund withdrawal",
-      "Claiming uncontested first mover advantage or zero competitors without market census"
+      "Claiming uncontested first mover advantage or zero competitors without market census",
+      "Calling Morpho a partner or an integration of Vanna — Morpho is a competitor"
     ],
     "true_figures": [
       {
@@ -159,7 +160,6 @@
     "Optimism": "chain — accessed via Derive",
     "Uniswap": "spot / AMM",
     "Aerodrome": "spot / AMM",
-    "Morpho": "lending",
     "Katana": "yield",
     "Privy": "wallet / auth infrastructure",
     "ZeroDev": "account abstraction infrastructure",
@@ -169,6 +169,11 @@
   },
   "partner_rule": "This is the whole list. A relationship with anything not on it is fabricated.",
   "competitors": [
+    {
+      "name": "Morpho",
+      "handle": "Morpho",
+      "focus": "Peer-to-peer lending optimisation (Morpho Blue, vaults)"
+    },
     {
       "name": "Gearbox Protocol",
       "handle": "GearboxProtocol",
@@ -404,5 +409,5 @@
     "MACH_09_DEVELOPER_SDK_ADOPTION": "Release npm and rust SDK for Soroban contract integration.",
     "MACH_10_VIRAL_MEME_BOUNTY": "Strictly prohibited by Vanna positioning rules (never use meme hype)."
   },
-  "partner_note": "Morpho is a confirmed integration partner (lending), per the Notion ground truth; not a competitor."
+  "competitor_note": "Morpho is a competitor (founder, 2026-09-26). The Notion ground truth still lists it among integrations; the founder's decision overrides it."
 }
