@@ -72,7 +72,12 @@ def _markdown_items(src: dict) -> list[tuple[str, str, str, Optional[str], str]]
             text = f.read_text(encoding="utf-8", errors="replace")
             items.append((src["source"] + ":" + f.stem, _title(text, f.stem), text, None, _mtime(f)))
     elif kind == "git_markdown":
-        # Tracked in git, deleted from disk: read the committed copy.
+        # Tracked in git, deleted from disk: read the committed copy. A
+        # container has no repository; its brain already holds these pages
+        # (migrated), and a source that yields nothing tombstones nothing.
+        import shutil
+        if not shutil.which("git") or not (REPO / ".git").exists():
+            return items
         names = subprocess.run(["git", "ls-files", src["path"]], cwd=REPO, capture_output=True,
                                text=True).stdout.split()
         for n in names:
