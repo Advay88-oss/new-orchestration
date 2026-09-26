@@ -34,7 +34,7 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
           // already been dispatched and the history table will still show it.
         }
       }
-      setLaunchMsg(data.success ? "✓ Run dispatched" : "Dispatched");
+      setLaunchMsg(data.success ? "Run dispatched" : "Dispatched");
       setTimeout(() => setLaunchMsg(null), 4000);
     } catch {
       setLaunchMsg("Dispatched");
@@ -47,9 +47,9 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
   return (
     <header
       style={{
-        borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-        background: "#0C0716",
-        padding: "20px 32px",
+        borderBottom: "1px solid var(--vn-line)",
+        background: "rgba(251, 251, 250, 0.86)",
+        padding: "22px clamp(16px, 3vw, 48px)",
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
@@ -65,11 +65,11 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
         <h1
           style={{
             margin: 0,
-            fontSize: "22px",
-            lineHeight: "32px",
-            fontWeight: 700,
+            fontSize: "30px",
+            lineHeight: "36px",
+            fontWeight: 400,
             letterSpacing: "-0.02em",
-            color: "#FFFFFF",
+            color: "var(--vn-ink)",
           }}
         >
           {vm.pageTitle}
@@ -78,7 +78,7 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
           style={{
             fontSize: "13px",
             lineHeight: "20px",
-            color: "#7B7590",
+            color: "var(--vn-ink-muted)",
             maxWidth: "78ch",
             marginTop: "2px",
           }}
@@ -101,10 +101,10 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
           onClick={handleLaunchRun}
           disabled={launching}
           style={{
-            background: "#703AE6",
-            color: "#000000",
+            background: "var(--vn-cta)",
+            color: "var(--vn-on-accent)",
             border: "none",
-            borderRadius: "10px",
+            borderRadius: "6px",
             padding: "9px 18px",
             fontFamily: MONO,
             fontSize: "12px",

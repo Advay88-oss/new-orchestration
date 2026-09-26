@@ -238,7 +238,7 @@ export function useMissionControl(props: MissionControlProps) {
           height: "6px",
           borderRadius: "999px",
           flex: "0 0 6px",
-          background: on ? "var(--vn-accent)" : "#2A2637",
+          background: on ? "var(--vn-accent)" : "var(--vn-line-strong)",
         } as const,
         style: {
           display: "flex",
@@ -247,17 +247,14 @@ export function useMissionControl(props: MissionControlProps) {
           gap: "8px",
           width: "100%",
           textAlign: "left",
-          padding: "11px 14px",
-          borderRadius: "10px",
+          padding: "8px 12px",
+          borderRadius: "6px",
           cursor: "pointer",
           border: "none",
-          // Selected was a neutral #1E1E1E block and a white label — the same
-          // treatment any grey UI gives any selected row. The rail is the one
-          // place a reader looks to know where they are, so the accent earns
-          // its keep here: a violet edge, the surface behind it, and the
-          // brightest text on the page.
-          background: on ? "var(--vn-surface)" : "transparent",
-          boxShadow: on ? "inset 2px 0 0 var(--vn-accent)" : "none",
+          // The rail is where a reader looks to know where they are: the
+          // selected row gets a quiet fill, ink text and the violet dot.
+          background: on ? "var(--vn-raised)" : "transparent",
+          boxShadow: "none",
           color: on ? "var(--vn-ink)" : "var(--vn-ink-muted)",
           fontWeight: on ? 600 : 500,
           fontSize: "14px",
@@ -269,7 +266,7 @@ export function useMissionControl(props: MissionControlProps) {
     const spent = totalSpent;
     const pct = spent === null ? 0 : Math.min(1, spent / cap);
     const capColor = pct > 0.85 ? BAD : pct > 0.6 ? ACCENT : INK;
-    const capBar = pct > 0.85 ? "#F0666B" : GRADIENT;
+    const capBar = pct > 0.85 ? "var(--vn-bad)" : "var(--vn-ink)";
     const secsLeft = Math.max(0, Math.ceil(interval_ - (Date.now() - lastPoll) / 1000));
     const intervals = [10, 15, 60].map((v) => {
       const on = interval_ === v;
@@ -280,10 +277,10 @@ export function useMissionControl(props: MissionControlProps) {
           setLastPoll(Date.now());
         },
         style: {
-          border: "1px solid " + (on ? ACCENT : "#2C2C2C"),
-          background: on ? "rgba(112,58,230,0.18)" : "transparent",
-          color: on ? "#FFFFFF" : "#777777",
-          borderRadius: "8px",
+          border: "1px solid " + (on ? "var(--vn-ink)" : "var(--vn-line)"),
+          background: on ? "var(--vn-ink)" : "transparent",
+          color: on ? "var(--vn-on-accent)" : "var(--vn-ink-muted)",
+          borderRadius: "6px",
           padding: "7px 10px",
           fontSize: "11px",
           fontWeight: 600,

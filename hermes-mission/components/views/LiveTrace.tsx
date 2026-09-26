@@ -17,22 +17,22 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MONO } from "@/lib/colors";
 
-const DIM = "#7B7590";
+const DIM = "var(--vn-ink-muted)";
 
 const TONE: Record<string, string> = {
-  ok: "#4ADE9B",
-  degraded: "#F5A524",
-  failed: "#F0666B",
+  ok: "var(--vn-ok)",
+  degraded: "var(--vn-warn)",
+  failed: "var(--vn-bad)",
   skipped: DIM,
 };
 
 const KIND_TONE: Record<string, string> = {
-  chose: "#A98CFF",
-  formulated: "#A98CFF",
-  directed: "#A98CFF",
-  judged: "#F5A524",
-  reviewed: "#4ADE9B",
-  declined: "#F0666B",
+  chose: "var(--vn-accent-ink)",
+  formulated: "var(--vn-accent-ink)",
+  directed: "var(--vn-accent-ink)",
+  judged: "var(--vn-warn)",
+  reviewed: "var(--vn-ok)",
+  declined: "var(--vn-bad)",
 };
 
 function clock(iso?: string): string {
@@ -97,26 +97,26 @@ export function LiveTrace({ runId }: { runId?: string }) {
                 width: 9,
                 height: 9,
                 borderRadius: 999,
-                background: live ? "#4ADE9B" : DIM,
-                boxShadow: live ? "0 0 10px #4ADE9B" : "none",
+                background: live ? "var(--vn-ok)" : DIM,
+                boxShadow: live ? "0 0 0 3px var(--vn-hover)" : "none",
               }}
             />
-            <span style={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: live ? "#4ADE9B" : DIM, letterSpacing: "0.08em" }}>
+            <span style={{ fontFamily: MONO, fontSize: 12, fontWeight: 700, color: live ? "var(--vn-ok)" : DIM, letterSpacing: "0.08em" }}>
               {live ? "RUNNING" : meta.finished ? String(meta.status).toUpperCase() : "IDLE"}
               {meta.runId ? ` · ${meta.runId}` : ""}
             </span>
           </div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: "#FFFFFF", marginTop: 6 }}>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--vn-ink)", marginTop: 6 }}>
             Live Trace
           </h2>
-          <p style={{ fontSize: 14, color: "#7B7590", marginTop: 4 }}>
+          <p style={{ fontSize: 14, color: "var(--vn-ink-muted)", marginTop: 4 }}>
             Each agent, each model call and each judgement, as it is recorded.
           </p>
         </div>
       </div>
 
       {events.length === 0 && (
-        <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "22px 26px", fontFamily: MONO, fontSize: 13, color: DIM }}>
+        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16, padding: "22px 26px", fontFamily: MONO, fontSize: 13, color: DIM }}>
           Nothing running. Launch a directive and the agents appear here as they report.
         </div>
       )}
@@ -128,10 +128,10 @@ export function LiveTrace({ runId }: { runId?: string }) {
             return (
               <Row key={i} at={e.at} tone={tone}>
                 <span style={{ fontFamily: MONO, fontSize: 11, color: DIM }}>{e.agent}</span>
-                <span style={{ fontSize: 13.5, color: "#F3F1F8", fontWeight: 600 }}>{e.name}</span>
+                <span style={{ fontSize: 13.5, color: "var(--vn-ink)", fontWeight: 600 }}>{e.name}</span>
                 <span style={{ fontFamily: MONO, fontSize: 11, color: tone }}>{e.status}</span>
                 {e.detail && (
-                  <span style={{ fontSize: 12.5, color: "#7B7590", flexBasis: "100%", lineHeight: 1.5 }}>
+                  <span style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", flexBasis: "100%", lineHeight: 1.5 }}>
                     {e.detail}
                   </span>
                 )}
@@ -141,9 +141,9 @@ export function LiveTrace({ runId }: { runId?: string }) {
 
           if (e.type === "call") {
             return (
-              <Row key={i} at={e.at} tone={e.ok ? "#2A2A32" : "#F0666B"}>
+              <Row key={i} at={e.at} tone={e.ok ? "#2A2A32" : "var(--vn-bad)"}>
                 <span style={{ fontFamily: MONO, fontSize: 11, color: DIM }}>{e.agent}</span>
-                <span style={{ fontFamily: MONO, fontSize: 11.5, color: "#A98CFF" }}>{e.model}</span>
+                <span style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--vn-accent-ink)" }}>{e.model}</span>
                 <span style={{ fontFamily: MONO, fontSize: 11, color: DIM }}>
                   {e.inputTokens?.toLocaleString?.() ?? 0} in / {e.outputTokens?.toLocaleString?.() ?? 0} out · {e.durationS}s
                   {e.ok ? "" : " · FAILED"}
@@ -153,7 +153,7 @@ export function LiveTrace({ runId }: { runId?: string }) {
           }
 
           // decision
-          const tone = KIND_TONE[e.kind] ?? "#A98CFF";
+          const tone = KIND_TONE[e.kind] ?? "var(--vn-accent-ink)";
           const p = e.payload ?? {};
           return (
             <Row key={i} at={e.at} tone={tone} strong>
@@ -184,7 +184,7 @@ export function LiveTrace({ runId }: { runId?: string }) {
                   <Sub label={`turned down (${p.rejected.length})`}>
                     {p.rejected.map((r: any, k: number) => (
                       <li key={k} style={{ marginBottom: 5 }}>
-                        <span style={{ color: "#9A9A9A" }}>{r.headline}</span>
+                        <span style={{ color: "var(--vn-ink-muted)" }}>{r.headline}</span>
                         {r.why && <span style={{ color: DIM }}> — {r.why}</span>}
                       </li>
                     ))}
@@ -195,7 +195,7 @@ export function LiveTrace({ runId }: { runId?: string }) {
                   <Sub label="assets">
                     {p.assets.map((a: any, k: number) => (
                       <li key={k} style={{ marginBottom: 5 }}>
-                        <span style={{ fontFamily: MONO, color: KIND_TONE[String(a.verdict).toLowerCase()] ?? "#9A9A9A" }}>
+                        <span style={{ fontFamily: MONO, color: KIND_TONE[String(a.verdict).toLowerCase()] ?? "var(--vn-ink-muted)" }}>
                           {a.asset}: {a.verdict}
                         </span>
                         {a.critique && <span style={{ color: DIM }}> — {a.critique}</span>}
@@ -207,7 +207,7 @@ export function LiveTrace({ runId }: { runId?: string }) {
                 {Array.isArray(p.blocked_claims) && p.blocked_claims.length > 0 && (
                   <Sub label={`blocked claims (${p.blocked_claims.length})`}>
                     {p.blocked_claims.map((c: any, k: number) => (
-                      <li key={k} style={{ marginBottom: 3, color: "#F0666B" }}>
+                      <li key={k} style={{ marginBottom: 3, color: "var(--vn-bad)" }}>
                         {typeof c === "string" ? c : JSON.stringify(c)}
                       </li>
                     ))}
@@ -228,8 +228,8 @@ function Row({ at, tone, strong, children }: {
   return (
     <div
       style={{
-        background: "#0C0716",
-        border: `1px solid ${strong ? `${tone}33` : "rgba(255,255,255,0.06)"}`,
+        background: "var(--vn-surface)",
+        border: `1px solid ${strong ? `${tone}33` : "var(--vn-line)"}`,
         borderLeft: `3px solid ${tone}`,
         borderRadius: 10,
         padding: strong ? "14px 16px" : "10px 14px",
@@ -239,7 +239,7 @@ function Row({ at, tone, strong, children }: {
         flexWrap: "wrap",
       }}
     >
-      <span style={{ fontFamily: MONO, fontSize: 10.5, color: "#5A5A66", minWidth: 62 }}>
+      <span style={{ fontFamily: MONO, fontSize: 10.5, color: "var(--vn-ink-faint)", minWidth: 62 }}>
         {clock(at)}
       </span>
       {children}
@@ -253,7 +253,7 @@ function Line({ label, children }: { label: string; children: React.ReactNode })
       <span style={{ fontFamily: MONO, fontSize: 10.5, color: DIM, textTransform: "uppercase", marginRight: 8 }}>
         {label}
       </span>
-      <span style={{ color: "#E2E1E6" }}>{children}</span>
+      <span style={{ color: "var(--vn-ink-body)" }}>{children}</span>
     </div>
   );
 }

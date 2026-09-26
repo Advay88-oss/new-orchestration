@@ -1,34 +1,43 @@
-/* Unified Vanna Protocol Dark Theme & Responsive Typography System */
+/* Vanna Mission Control — light, warm-monochrome theme.
+   Colour is scarce: ink and hairlines carry the layout, the violet accent marks
+   the one thing to act on, and the pastels carry status only. */
 
 :root {
-  /* Surfaces. The previous set ran #0A070F -> #100C18 -> #0C0913: a six-point
-     spread that no screen separates, which is why cards stopped reading as
-     cards the moment their shadows came off. */
-  --vn-bg: #08060C;        /* page + shell + rail */
-  --vn-surface: #14111C;   /* cards and banners — a real step up from the page */
-  --vn-raised: #1B1826;    /* hover, and panels nested inside a card */
-  --vn-sunken: #0B0912;    /* inputs and wells */
+  --vn-bg: #FBFBFA;         /* page + shell */
+  --vn-surface: #FFFFFF;    /* cards */
+  --vn-raised: #F4F3F0;     /* hover, and panels nested inside a card */
+  --vn-sunken: #F7F6F3;     /* inputs and wells */
+  --vn-hover: rgba(17, 17, 17, 0.035);
+  --vn-overlay: rgba(17, 17, 17, 0.28);
 
-  --vn-line: rgba(255, 255, 255, 0.08);
-  --vn-line-strong: rgba(255, 255, 255, 0.16);
-  /* The top highlight. One inset pixel is the whole trick for dark panels. */
-  --vn-lit: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --vn-line: #EAEAEA;
+  --vn-line-strong: #D9D8D4;
+  --vn-lit: 0 0 0 0 transparent;
 
-  /* Four text levels, actually four. */
-  --vn-ink: #F5F3FA;        /* headings, key figures — the brightest thing */
-  --vn-ink-body: #B8B3C6;   /* running text */
-  --vn-ink-muted: #7B7590;  /* labels */
-  --vn-ink-faint: #56516A;  /* metadata, timestamps */
+  --vn-ink: #111111;        /* headings, key figures */
+  --vn-ink-body: #2F3437;   /* running text */
+  --vn-ink-muted: #787774;  /* labels */
+  --vn-ink-faint: #A5A39E;  /* metadata, timestamps */
 
-  /* Vanna's own violet and rose, from the brand system. */
+  /* One accent: Vanna's violet. -ink is the same hue dark enough for text. */
   --vn-accent: #703AE6;
-  --vn-accent-light: #A98CFF;
-  --vn-accent-soft: rgba(112, 58, 230, 0.16);
-  --vn-rose: #FF007A;       /* second accent — live state only, never decoration */
+  --vn-accent-light: #5B2FC2;
+  --vn-accent-ink: #5B2FC2;
+  --vn-accent-soft: #F3EFFC;
+  --vn-accent-line: #DCD0F7;
+  --vn-rose: #B83280;       /* live state only, never decoration */
+  --vn-on-accent: #FFFFFF;
 
-  --vn-ok: #4ADE9B;
-  --vn-warn: #E8B34C;
-  --vn-bad: #F0666B;
+  /* Primary action: solid ink, not a gradient. */
+  --vn-cta: #111111;
+  --vn-cta-hover: #333333;
+
+  --vn-ok: #346538;       --vn-ok-soft: #EDF3EC;   --vn-ok-line: #CFE0CC;
+  --vn-warn: #956400;     --vn-warn-soft: #FBF3DB; --vn-warn-line: #EDDDAA;
+  --vn-bad: #9F2F2D;      --vn-bad-soft: #FDEBEC;  --vn-bad-line: #F3C9C8;
+
+  --font-display: var(--font-serif), "Newsreader", Georgia, serif;
+  --vn-radius: 10px;
 }
 
 
@@ -36,49 +45,59 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   background: var(--vn-bg) !important;
   color: var(--vn-ink) !important;
-  font-family: var(--font-plus-jakarta-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans), "Helvetica Neue", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   font-size: 15px;
   line-height: 1.6;
-  letter-spacing: 0.01em;
 }
 
-/* Fluid Responsive Typography */
 p {
   margin: 8px 0 14px 0;
   line-height: 1.65;
   color: var(--vn-ink-body);
   font-size: clamp(13px, 1vw + 8px, 15px);
+  text-wrap: pretty;
 }
 
 h1, h2, h3, h4 {
   margin: 0 0 8px 0;
-  line-height: 1.3;
-  letter-spacing: -0.015em;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
   color: var(--vn-ink);
+  text-wrap: balance;
 }
 
-h1 { font-size: clamp(22px, 1.6vw + 12px, 29px); font-weight: 650;
-     letter-spacing: -0.025em; }
-h2 { font-size: clamp(16px, 1vw + 10px, 20px); font-weight: 600; }
+/* Page and section titles set in the serif; smaller heads stay in the sans. */
+h1, h2 {
+  font-family: var(--font-display);
+  font-weight: 400 !important;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+h1 { font-size: clamp(26px, 1.6vw + 12px, 34px) !important; }
+h2 { font-size: clamp(24px, 1.4vw + 12px, 30px) !important; }
 h3 { font-size: clamp(14px, 0.8vw + 8px, 16px); font-weight: 600; }
 h4 { font-size: clamp(13px, 0.6vw + 8px, 15px); font-weight: 600; }
 
 a {
-  color: #B4A5FF;
+  color: var(--vn-accent-ink);
   text-decoration: none;
   font-weight: 500;
   transition: color 0.15s ease;
 }
 
 a:hover {
-  color: #D3C9FF;
+  color: var(--vn-ink);
 }
 
 button {
@@ -86,48 +105,99 @@ button {
   color: inherit;
   touch-action: manipulation;
   line-height: 1.4;
-  transition: transform 0.1s ease, background 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.12s ease, background 0.2s ease, border-color 0.2s ease,
+              color 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:not(:disabled):hover {
+  filter: brightness(0.97);
 }
 
 button:active {
   transform: scale(0.98);
 }
 
-::selection {
-  background: rgba(124, 92, 255, 0.32);
-  color: #FFFFFF;
+button:focus-visible, a:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--vn-accent);
+  outline-offset: 2px;
 }
 
-/* Precision Dark Scrollbars */
+input, textarea, select {
+  font-family: inherit;
+  color: var(--vn-ink);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--vn-ink-faint);
+}
+
+kbd {
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 0.85em;
+  border: 1px solid var(--vn-line);
+  border-radius: 4px;
+  background: var(--vn-sunken);
+  padding: 1px 5px;
+}
+
+::selection {
+  background: var(--vn-accent-soft);
+  color: var(--vn-ink);
+}
+
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2A2637 var(--vn-bg);
+  scrollbar-color: #D9D8D4 transparent;
 }
 
 *::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 *::-webkit-scrollbar-track {
   background: transparent;
-  border-radius: 3px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #232030;
-  border-radius: 3px;
+  background: #DEDDD9;
+  border-radius: 4px;
+  border: 2px solid var(--vn-bg);
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: #35303F;
+  background: #C9C8C3;
+}
+
+/* Tabular figures anywhere numbers line up. */
+table, .num {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes vn-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .vanna-section > * {
+    animation: vn-rise 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .vanna-section > *:nth-child(2) { animation-delay: 60ms; }
+  .vanna-section > *:nth-child(3) { animation-delay: 120ms; }
+  .vanna-section > *:nth-child(n+4) { animation-delay: 180ms; }
 }
 
 /* ── RESPONSIVE CONTAINER & GRID UTILITIES ────────────────────────────────── */
 
 .vanna-section {
-  padding: clamp(14px, 2vw, 24px) clamp(16px, 2.5vw, 32px) 80px;
-  max-width: 1760px;
+  padding: clamp(20px, 3vw, 40px) clamp(16px, 3vw, 48px) 96px;
+  max-width: 1440px;
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -135,14 +205,12 @@ button:active {
   gap: clamp(14px, 2vw, 24px);
 }
 
-/* A 48px shadow at 40% black, cast onto a page that is already near-black,
-   cannot describe height — there is no value left below it to darken. It read
-   as haze around every card. A hairline does the same job at no cost. */
+/* Cards are a hairline, not a shadow. */
 .vanna-banner {
   background: var(--vn-surface);
   border: 1px solid var(--vn-line);
-  box-shadow: var(--vn-lit), 0 1px 2px rgba(0, 0, 0, 0.6);
-  border-radius: 14px;
+  box-shadow: none;
+  border-radius: 12px;
   padding: clamp(16px, 2vw, 22px) clamp(18px, 2.5vw, 26px);
   display: flex;
   justify-content: space-between;
@@ -152,11 +220,16 @@ button:active {
 }
 
 .vanna-card {
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
   background: var(--vn-surface);
   border: 1px solid var(--vn-line);
-  box-shadow: var(--vn-lit), 0 1px 2px rgba(0, 0, 0, 0.6);
-  border-radius: 14px;
+  box-shadow: none;
+  border-radius: 12px;
   padding: clamp(16px, 2vw, 22px) clamp(18px, 2.2vw, 26px);
+}
+
+.vanna-card:hover {
+  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.04);
 }
 
 .responsive-table-container {

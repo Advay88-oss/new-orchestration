@@ -1,17 +1,27 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
 // `adjustFontFallback` is off deliberately. next/font otherwise injects a
 // metric-adjusted local fallback ahead of the stack, which then renders glyphs
 // outside the latin subset (● U+25CF, → U+2192) at different widths than the
 // original, whose stack fell through to plain monospace / sans-serif.
-const plusJakartaSans = Plus_Jakarta_Sans({
+const instrumentSans = Instrument_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
   display: "swap",
-  variable: "--font-plus-jakarta-sans",
+  variable: "--font-sans",
+  adjustFontFallback: false,
+});
+
+// Display headings only: page titles and section heads.
+const instrumentSerif = Instrument_Serif({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  display: "swap",
+  variable: "--font-serif",
   adjustFontFallback: false,
 });
 
@@ -25,7 +35,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "Mission Control",
-  description: "Production observability for the Vanna 13-agent autonomous GTM pipeline.",
+  description: "Production observability for the Vanna autonomous GTM pipeline.",
 };
 
 export default function RootLayout({
@@ -36,7 +46,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${plusJakartaSans.variable} ${jetbrainsMono.variable}`}
+      className={`${instrumentSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
     >
       <body>{children}</body>
     </html>

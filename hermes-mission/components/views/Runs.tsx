@@ -111,7 +111,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
         className="vanna-banner"
         style={{
           background: "var(--vn-surface)",
-          border: "1px solid rgba(163, 135, 255, 0.3)",
+          border: "1px solid var(--vn-accent-line)",
         }}
       >
         {/* Once the repeated title came out, this card was one word on the
@@ -149,8 +149,8 @@ export function Runs({ vm }: { vm: MissionVM }) {
           <div>
             <div style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>Autonomous daemon</div>
             <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-              <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: daemonRunning ? "#4ADE9B" : "#7B7590" }} />
-              <span style={{ fontFamily: MONO, fontSize: "22px", fontWeight: 600, color: daemonRunning ? "#4ADE9B" : "var(--vn-ink-muted)", letterSpacing: "-0.02em" }}>
+              <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: daemonRunning ? "var(--vn-ok)" : "var(--vn-ink-muted)" }} />
+              <span style={{ fontFamily: MONO, fontSize: "22px", fontWeight: 600, color: daemonRunning ? "var(--vn-ok)" : "var(--vn-ink-muted)", letterSpacing: "-0.02em" }}>
                 {daemonRunning ? "Active" : "Standby"}
               </span>
             </div>
@@ -168,11 +168,11 @@ export function Runs({ vm }: { vm: MissionVM }) {
             placeholder="Search runs by keyword, title, audience, or machine..."
             style={{
               flex: 1,
-              background: "#0C0716",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
+              background: "var(--vn-surface)",
+              border: "1px solid var(--vn-line-strong)",
               borderRadius: "10px",
               padding: "10px 18px",
-              color: "#FFFFFF",
+              color: "var(--vn-ink)",
               fontSize: "13px",
               outline: "none"
             }}
@@ -185,11 +185,11 @@ export function Runs({ vm }: { vm: MissionVM }) {
 
         <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
           {/* Scope Toggle: Fresh Session vs Global History */}
-          <div style={{ display: "flex", gap: "4px", background: "rgba(255,255,255,0.03)", padding: "4px", borderRadius: "10px", border: "1px solid rgba(255,255,255,0.08)" }}>
+          <div style={{ display: "flex", gap: "4px", background: "var(--vn-hover)", padding: "4px", borderRadius: "10px", border: "1px solid var(--vn-line)" }}>
             <button
               onClick={() => setSessionScope("SESSION")}
               style={{
-                background: sessionScope === "SESSION" ? "rgba(255,255,255,0.07)" : "transparent",
+                background: sessionScope === "SESSION" ? "var(--vn-hover)" : "transparent",
                 border: `1px solid ${sessionScope === "SESSION" ? "var(--vn-line-strong)" : "transparent"}`,
                 color: sessionScope === "SESSION" ? "var(--vn-ink)" : "var(--vn-ink-muted)",
                 padding: "7px 14px",
@@ -204,7 +204,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
             <button
               onClick={() => setSessionScope("GLOBAL")}
               style={{
-                background: sessionScope === "GLOBAL" ? "rgba(255,255,255,0.07)" : "transparent",
+                background: sessionScope === "GLOBAL" ? "var(--vn-hover)" : "transparent",
                 border: `1px solid ${sessionScope === "GLOBAL" ? "var(--vn-line-strong)" : "transparent"}`,
                 color: sessionScope === "GLOBAL" ? "var(--vn-ink)" : "var(--vn-ink-muted)",
                 padding: "7px 14px",
@@ -226,7 +226,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                 style={{
                   background: "transparent",
                   border: "none",
-                  color: "#7B7590",
+                  color: "var(--vn-ink-muted)",
                   padding: "6px 8px",
                   borderRadius: "6px",
                   fontFamily: MONO,
@@ -249,7 +249,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
               key={t.id}
               onClick={() => setStatusFilter(t.id)}
               style={{
-                background: statusFilter === t.id ? "rgba(255,255,255,0.07)" : "transparent",
+                background: statusFilter === t.id ? "var(--vn-hover)" : "transparent",
                 border: `1px solid ${statusFilter === t.id ? "var(--vn-line-strong)" : "transparent"}`,
                 color: statusFilter === t.id ? "var(--vn-ink)" : "var(--vn-ink-muted)",
                 padding: "7px 14px",
@@ -268,11 +268,11 @@ export function Runs({ vm }: { vm: MissionVM }) {
       {/* Production Runs Table */}
       <div
         style={{
-          background: "#0C0716",
-          border: "1px solid rgba(255, 255, 255, 0.08)",
+          background: "var(--vn-surface)",
+          border: "1px solid var(--vn-line)",
           borderRadius: "18px",
           overflow: "hidden",
-          boxShadow: "0 12px 36px rgba(0,0,0,0.4)"
+          boxShadow: "0 2px 8px rgba(17,17,17,0.04)"
         }}
       >
         <div style={{ overflowX: "auto" }}>
@@ -284,18 +284,18 @@ export function Runs({ vm }: { vm: MissionVM }) {
                 <th style={{ padding: "14px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Gate</th>
                 <th style={{ padding: "14px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Artifacts</th>
                 <th style={{ padding: "14px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Duration & cost</th>
-                <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "#7B7590", textTransform: "uppercase", textAlign: "right" }}>&nbsp;</th>
+                <th style={{ padding: "14px 20px", fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", textTransform: "uppercase", textAlign: "right" }}>&nbsp;</th>
               </tr>
             </thead>
             <tbody>
               {filteredRuns.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: "60px 24px", textAlign: "center", color: "#7B7590" }}>
+                  <td colSpan={6} style={{ padding: "60px 24px", textAlign: "center", color: "var(--vn-ink-muted)" }}>
                     <div style={{ fontSize: "28px", marginBottom: "10px" }}></div>
-                    <div style={{ fontSize: "16px", fontWeight: 700, color: "#FFFFFF" }}>
+                    <div style={{ fontSize: "16px", fontWeight: 700, color: "var(--vn-ink)" }}>
                       No GTM cycles recorded yet
                     </div>
-                    <div style={{ fontSize: "13px", color: "#7B7590", marginTop: "6px", maxWidth: "60ch", margin: "6px auto 0" }}>
+                    <div style={{ fontSize: "13px", color: "var(--vn-ink-muted)", marginTop: "6px", maxWidth: "60ch", margin: "6px auto 0" }}>
                       Press Launch Run, or enter a founder directive above. Leaving it empty runs the fully autonomous path, where A02 picks the topic itself.
                     </div>
                   </td>
@@ -316,14 +316,14 @@ export function Runs({ vm }: { vm: MissionVM }) {
                   : null;
                 const blocked = r.blocked_reason;
                 const gate = r.publishable === true
-                  ? { label: "GATE PASSED", tone: "#4ADE9B" }
+                  ? { label: "GATE PASSED", tone: "var(--vn-ok)" }
                   : blocked || r.status === "review_blocked"
-                    ? { label: "GATE BLOCKED", tone: "#F5A524" }
+                    ? { label: "GATE BLOCKED", tone: "var(--vn-warn)" }
                     : r.status === "aborted" || r.status === "failed"
-                      ? { label: "RUN ABORTED", tone: "#F0666B" }
+                      ? { label: "RUN ABORTED", tone: "var(--vn-bad)" }
                       : r.status === "NO_ACTION" || r.status === "KILL"
-                        ? { label: "NO ACTION", tone: "#7B7590" }
-                        : { label: "NOT REVIEWED", tone: "#7B7590" };
+                        ? { label: "NO ACTION", tone: "var(--vn-ink-muted)" }
+                        : { label: "NOT REVIEWED", tone: "var(--vn-ink-muted)" };
                 const dateStr = r.started ? new Date(r.started * 1000).toLocaleString() : `Run #${runs.length - i}`;
 
                 return (
@@ -333,10 +333,10 @@ export function Runs({ vm }: { vm: MissionVM }) {
                     // nothing to transition to. Fifty static rows with no
                     // response to the cursor is most of why the table read as
                     // a printout rather than a list you can act on.
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.025)")}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--vn-line)")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                     style={{
-                      borderBottom: "1px solid rgba(255, 255, 255, 0.05)",
+                      borderBottom: "1px solid var(--vn-line)",
                       transition: "background 0.15s ease",
                       cursor: "pointer",
                     }}
@@ -360,8 +360,8 @@ export function Runs({ vm }: { vm: MissionVM }) {
 
                     {/* Column 2: Audience & Machine */}
                     <td style={{ padding: "18px 22px" }}>
-                      <div style={{ fontSize: "13px", fontWeight: 600, color: "#A98CFF" }}>{aud}</div>
-                      <div style={{ fontSize: "11px", color: "#7B7590", marginTop: "3px" }}>{mach}</div>
+                      <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--vn-accent-ink)" }}>{aud}</div>
+                      <div style={{ fontSize: "11px", color: "var(--vn-ink-muted)", marginTop: "3px" }}>{mach}</div>
                     </td>
 
                     {/* Column 3: gate outcome — there is no reviewer score in
@@ -379,7 +379,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                         {gate.label}
                       </span>
                       {agentsRatio && (
-                        <div style={{ fontSize: "10.5px", color: "#7B7590", marginTop: "5px", fontFamily: MONO }}>
+                        <div style={{ fontSize: "10.5px", color: "var(--vn-ink-muted)", marginTop: "5px", fontFamily: MONO }}>
                           {agentsRatio} agents reasoned
                         </div>
                       )}
@@ -397,7 +397,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                             src={r.visual}
                             alt="rendered visual"
                             style={{ width: 96, height: 96, objectFit: "cover", borderRadius: 8,
-                                     border: "1px solid rgba(255,255,255,0.08)" }}
+                                     border: "1px solid var(--vn-line)" }}
                           />
                         )}
                         {r.video && (
@@ -409,11 +409,11 @@ export function Runs({ vm }: { vm: MissionVM }) {
                             onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play()}
                             onMouseLeave={(e) => (e.currentTarget as HTMLVideoElement).pause()}
                             style={{ width: 128, height: 96, objectFit: "cover", borderRadius: 8,
-                                     border: "1px solid rgba(163,135,255,0.3)", background: "#07020D" }}
+                                     border: "1px solid var(--vn-accent-line)", background: "var(--vn-sunken)" }}
                           />
                         )}
                         {!r.visual && !r.video && (
-                          <span style={{ fontSize: "11px", color: "#6A6A6A" }}>no media</span>
+                          <span style={{ fontSize: "11px", color: "var(--vn-ink-muted)" }}>no media</span>
                         )}
                       </div>
                     </td>
@@ -425,8 +425,8 @@ export function Runs({ vm }: { vm: MissionVM }) {
                         rate table is wired for Model Garden or the API key, so
                         this shows what is actually measured: tokens. */}
                     <td style={{ padding: "18px 22px" }}>
-                      <div style={{ fontFamily: MONO, fontSize: "12px", color: "#FFFFFF" }}>{dur}</div>
-                      <div style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590", marginTop: "2px" }}>
+                      <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ink)" }}>{dur}</div>
+                      <div style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", marginTop: "2px" }}>
                         {(r.spend?.input_tokens || r.spend?.output_tokens)
                           ? `${(((r.spend?.input_tokens ?? 0) + (r.spend?.output_tokens ?? 0)) / 1000).toFixed(1)}k tok · ${r.spend?.calls ?? 0} calls`
                           : "no model calls"}
@@ -439,7 +439,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                           never $0.00, when a model has no published rate. */}
                       {typeof r.spend?.cost_usd === "number" && (
                         <div style={{ fontFamily: MONO, fontSize: "12px",
-                                      color: r.spend.cost_usd >= 1 ? "#E8B34C" : "var(--vn-ink-muted)",
+                                      color: r.spend.cost_usd >= 1 ? "var(--vn-warn)" : "var(--vn-ink-muted)",
                                       marginTop: "3px" }}>
                           ${r.spend.cost_usd < 1
                             ? r.spend.cost_usd.toFixed(3)
@@ -458,7 +458,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                         style={{
                           background: "transparent",
                           border: "none",
-                          color: "#A98CFF",
+                          color: "var(--vn-accent-ink)",
                           padding: "8px 0",
                           fontSize: "13px",
                           fontWeight: 500,

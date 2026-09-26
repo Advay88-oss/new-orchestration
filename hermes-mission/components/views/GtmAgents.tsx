@@ -21,16 +21,16 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
 import { AGENTS as AGENT_DEFS, AGENT_COUNT, JUDGE_COUNT, LEARNING_COUNT, SPECIALIST_COUNT } from '@/lib/agents';
 
-const ACCENT = '#A98CFF';
-const DIM = '#6C6C6C';
-const FAINT = '#3A3A42';
-const LEARN = '#4ADE9B';
+const ACCENT = 'var(--vn-accent-ink)';
+const DIM = 'var(--vn-ink-muted)';
+const FAINT = 'var(--vn-ink-faint)';
+const LEARN = 'var(--vn-ok)';
 
 const MODEL_TONE: Record<string, string> = {
-  'gemini-3.8-flash': '#A98CFF',
-  'gemini-3.1-flash-image': '#38C9EF',
-  'gemini-3-pro-image': '#F5A524',
-  'veo-3.1-generate-001': '#FF7AB6',
+  'gemini-3.8-flash': 'var(--vn-accent-ink)',
+  'gemini-3.1-flash-image': '#1F6C9F',
+  'gemini-3-pro-image': 'var(--vn-warn)',
+  'veo-3.1-generate-001': 'var(--vn-rose)',
 };
 
 /** Ten specialists in three tracks, then the two independent judges. */
@@ -82,7 +82,7 @@ export function GtmAgents() {
     return () => clearInterval(t);
   }, [load]);
 
-  if (err) return <Note tone="#F0666B">Could not read agent status: {err}</Note>;
+  if (err) return <Note tone="var(--vn-bad)">Could not read agent status: {err}</Note>;
   if (!data) return <Note tone={DIM}>Loading…</Note>;
 
   const byId = new Map(data.agents.map((a) => [a.id, a]));
@@ -100,7 +100,7 @@ export function GtmAgents() {
     <div className="vanna-section">
       <header style={{ marginBottom: 22 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
-          <h2 style={{ margin: 0, fontSize: 20, color: '#EDEDED', fontWeight: 600 }}>
+          <h2 style={{ margin: 0, fontSize: 20, color: 'var(--vn-ink)', fontWeight: 600 }}>
             {SPECIALIST_COUNT} specialists · {JUDGE_COUNT} judges
           </h2>
           <span style={{ fontFamily: MONO, fontSize: 11.5, color: DIM }}>
@@ -118,7 +118,7 @@ export function GtmAgents() {
           <Stat v={String(data.modelBacked)} l="model-backed" />
           <Stat v={`${LEARNING_COUNT}/${AGENT_COUNT}`} l="learning" tone={LEARN} />
           <Stat v={String(data.failed.length)} l="failed"
-                tone={data.failed.length ? '#F0666B' : undefined} />
+                tone={data.failed.length ? 'var(--vn-bad)' : undefined} />
         </div>
 
         {data.modelsUsed.length > 0 && (
@@ -139,7 +139,7 @@ export function GtmAgents() {
         <section key={track.name} style={{ marginBottom: 26 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 10 }}>
             <h3 style={{
-              margin: 0, fontFamily: MONO, fontSize: 11, color: '#B9B9C4',
+              margin: 0, fontFamily: MONO, fontSize: 11, color: 'var(--vn-ink-body)',
               textTransform: 'uppercase', letterSpacing: 1,
             }}>{track.name}</h3>
             <span style={{ fontSize: 11.5, color: FAINT }}>{track.blurb}</span>
@@ -171,11 +171,11 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
 
   const tone =
     pending ? FAINT
-      : silent ? '#F5A524'
-      : a.status === 'ok' ? '#4ADE9B'
-      : a.status === 'degraded' ? '#F5A524'
-      : a.status === 'failed' ? '#F0666B'
-      : a.status === 'skipped' ? '#5A5A66'
+      : silent ? 'var(--vn-warn)'
+      : a.status === 'ok' ? 'var(--vn-ok)'
+      : a.status === 'degraded' ? 'var(--vn-warn)'
+      : a.status === 'failed' ? 'var(--vn-bad)'
+      : a.status === 'skipped' ? 'var(--vn-ink-faint)'
       : FAINT;
 
   const label =
@@ -190,7 +190,7 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
       borderLeft: `2px solid ${tone}`,
       borderRadius: 6,
       padding: '11px 13px 12px',
-      background: '#0C0716',
+      background: 'var(--vn-surface)',
       opacity: pending ? 0.5 : 1,
     }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline' }}>
@@ -200,11 +200,11 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
         <span style={{ fontFamily: MONO, fontSize: 10.5, color: tone }}>{label}</span>
       </div>
 
-      <h4 style={{ margin: '5px 0 7px', fontSize: 13.5, color: '#E8E8ED', fontWeight: 600, lineHeight: 1.3 }}>
+      <h4 style={{ margin: '5px 0 7px', fontSize: 13.5, color: 'var(--vn-ink)', fontWeight: 600, lineHeight: 1.3 }}>
         {a.name}
         {a.absorbs && (
           <span style={{ display: 'block', fontFamily: MONO, fontSize: 9.5, fontWeight: 400,
-                         color: '#6E6E78', marginTop: 3 }}>
+                         color: 'var(--vn-ink-muted)', marginTop: 3 }}>
             includes {a.absorbs}
           </span>
         )}
@@ -218,7 +218,7 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
         <div style={{ fontFamily: MONO, fontSize: 10.5, lineHeight: 1.65 }}>
           <div style={{ color: MODEL_TONE[a.model || ''] || ACCENT }}>{a.model}</div>
           {a.modelCalls > 0 ? (
-            <div style={{ color: '#8A8A93' }}>
+            <div style={{ color: 'var(--vn-ink-muted)' }}>
               {a.modelCallsOk}/{a.modelCalls} calls
               {a.inputTokens > 0 &&
                 ` · ${(a.inputTokens / 1000).toFixed(1)}k in / ${(a.outputTokens / 1000).toFixed(1)}k out`}
@@ -231,16 +231,16 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
       )}
 
       <div style={{ fontSize: 11, marginTop: 7, lineHeight: 1.45,
-                    color: a.learns ? '#9FE3BF' : '#6E6E78' }}>
+                    color: a.learns ? 'var(--vn-ok)' : 'var(--vn-ink-muted)' }}>
         <span style={{ fontFamily: MONO, fontSize: 9.5, letterSpacing: 0.6, marginRight: 6,
-                       color: a.learns ? LEARN : '#5A5A66' }}>
+                       color: a.learns ? LEARN : 'var(--vn-ink-faint)' }}>
           {a.learns ? 'LEARNS' : 'FIXED'}
         </span>
         {a.learns || a.fixed}
       </div>
 
       {a.detail && !pending && (
-        <div style={{ fontSize: 11, color: '#6E6E78', marginTop: 6, lineHeight: 1.45 }}>
+        <div style={{ fontSize: 11, color: 'var(--vn-ink-muted)', marginTop: 6, lineHeight: 1.45 }}>
           {a.detail.length > 150 ? a.detail.slice(0, 150) + '…' : a.detail}
         </div>
       )}
@@ -274,7 +274,7 @@ function Link({ href, children }: { href: string; children: React.ReactNode }) {
 function Stat({ v, l, tone }: { v: string; l: string; tone?: string }) {
   return (
     <div>
-      <div style={{ fontFamily: MONO, fontSize: 19, color: tone || '#EDEDED', lineHeight: 1.1 }}>{v}</div>
+      <div style={{ fontFamily: MONO, fontSize: 19, color: tone || 'var(--vn-ink)', lineHeight: 1.1 }}>{v}</div>
       <div style={{ fontFamily: MONO, fontSize: 9.5, color: DIM, textTransform: 'uppercase', letterSpacing: 0.7 }}>{l}</div>
     </div>
   );

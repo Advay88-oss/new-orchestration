@@ -11,8 +11,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
 
-const DIM = "#7B7590";
-const TONE: Record<string, string> = { approve: "#4ADE9B", edit: "#7FD4A8", revise: "#F5A524", kill: "#F0666B" };
+const DIM = "var(--vn-ink-muted)";
+const TONE: Record<string, string> = { approve: "var(--vn-ok)", edit: "#7FD4A8", revise: "var(--vn-warn)", kill: "var(--vn-bad)" };
 const LABEL: Record<string, string> = { approve: "Approved", edit: "Approved with edits", revise: "Revise", kill: "Killed" };
 
 export function FeedbackBar({ runId, draft }: { runId: string; draft?: string }) {
@@ -58,9 +58,9 @@ export function FeedbackBar({ runId, draft }: { runId: string; draft?: string })
 
   const latest = fb?.latest;
   return (
-    <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14, padding: "14px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
+    <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 14, padding: "14px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: MONO, fontSize: 11, color: "#A98CFF", fontWeight: 700 }}>
+        <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
           YOUR DECISION · TEACHES THE AGENTS
         </span>
         {latest ? (
@@ -72,14 +72,14 @@ export function FeedbackBar({ runId, draft }: { runId: string; draft?: string })
         )}
       </div>
       {latest?.note && (
-        <div style={{ fontSize: 13, color: "#CFC8E0" }}>Note: {latest.note}</div>
+        <div style={{ fontSize: 13, color: "var(--vn-ink-body)" }}>Note: {latest.note}</div>
       )}
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         <input
           value={note}
           onChange={(e) => setNote(e.target.value)}
           placeholder="What worked or what should change (optional; used for learning)"
-          style={{ flex: "1 1 260px", minWidth: 0, background: "#080310", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: "8px 10px", fontSize: 13 }}
+          style={{ flex: "1 1 260px", minWidth: 0, background: "var(--vn-sunken)", color: "var(--vn-ink)", border: "1px solid var(--vn-line-strong)", borderRadius: 8, padding: "8px 10px", fontSize: 13 }}
         />
         {(["approve", "revise", "kill"] as const).map((v) => (
           <button
@@ -88,7 +88,7 @@ export function FeedbackBar({ runId, draft }: { runId: string; draft?: string })
             onClick={() => send(v)}
             style={{ background: `${TONE[v]}1A`, border: `1px solid ${TONE[v]}88`, color: TONE[v], borderRadius: 8, padding: "8px 14px", fontFamily: MONO, fontSize: 12, fontWeight: 700, cursor: busy ? "wait" : "pointer" }}
           >
-            {busy === v ? "…" : v === "approve" ? "✓ Approve" : v === "revise" ? "✎ Revise" : "✕ Kill"}
+            {busy === v ? "…" : v === "approve" ? "Approve" : v === "revise" ? "Revise" : "Kill"}
           </button>
         ))}
         {draft && (
@@ -106,7 +106,7 @@ export function FeedbackBar({ runId, draft }: { runId: string; draft?: string })
           <textarea
             value={edited}
             onChange={(e) => setEdited(e.target.value)}
-            style={{ minHeight: 180, background: "#080310", color: "#FFFFFF", border: "1px solid rgba(255,255,255,0.15)", borderRadius: 8, padding: 10, fontSize: 13, lineHeight: 1.5, fontFamily: "inherit" }}
+            style={{ minHeight: 180, background: "var(--vn-sunken)", color: "var(--vn-ink)", border: "1px solid var(--vn-line-strong)", borderRadius: 8, padding: 10, fontSize: 13, lineHeight: 1.5, fontFamily: "inherit" }}
           />
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <button
@@ -114,7 +114,7 @@ export function FeedbackBar({ runId, draft }: { runId: string; draft?: string })
               onClick={() => send("edit")}
               style={{ background: `${TONE.edit}1A`, border: `1px solid ${TONE.edit}`, color: TONE.edit, borderRadius: 8, padding: "8px 14px", fontFamily: MONO, fontSize: 12, fontWeight: 700, cursor: "pointer" }}
             >
-              {busy === "edit" ? "…" : "✓ Approve my edit"}
+              {busy === "edit" ? "…" : "Approve my edit"}
             </button>
             <span style={{ fontSize: 11, color: DIM }}>
               Your version is recorded as the approved one, and draft vs edit is kept as a preference example.
@@ -125,7 +125,7 @@ export function FeedbackBar({ runId, draft }: { runId: string; draft?: string })
       <div style={{ fontSize: 11, color: DIM }}>
         Recording a decision never publishes. {fb?.history?.length > 1 && `${fb.history.length} decisions recorded on this run.`}
       </div>
-      {err && <div style={{ fontSize: 12, color: "#F0666B" }}>{err}</div>}
+      {err && <div style={{ fontSize: 12, color: "var(--vn-bad)" }}>{err}</div>}
     </div>
   );
 }

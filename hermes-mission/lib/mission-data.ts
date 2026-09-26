@@ -25,9 +25,9 @@ const CAP_USD = 10.0;
 const LEDGER_STARTED = "2026-08-08T16:28:05Z";
 
 const HUE: Record<ArcId, string> = {
-  "capital-efficiency": "#4ADE9B",
-  "risk-relief": "#A98CFF",
-  "agentic-credit": "#A98CFF",
+  "capital-efficiency": "#346538",
+  "risk-relief": "#5B2FC2",
+  "agentic-credit": "#B83280",
 };
 
 /** All 13 Specialized Vanna GTM OS Agents */

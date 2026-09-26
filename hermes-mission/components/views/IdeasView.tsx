@@ -43,7 +43,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
 
   const handleRenderVisual = async (ideaId: string) => {
     setRenderingIdeaId(ideaId);
-    setActionFeedback(`🎨 Synthesizing on-demand 3D isometric visual for idea ${ideaId}...`);
+    setActionFeedback(`Synthesizing on-demand 3D isometric visual for idea ${ideaId}...`);
     try {
       const res = await fetch("/api/panels/ideas", {
         method: "POST",
@@ -53,12 +53,12 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       const data = await res.json();
       if (data.success && data.visual_url) {
         setRenderedVisuals((prev) => ({ ...prev, [ideaId]: data.visual_url }));
-        setActionFeedback(`✓ Visual rendered successfully for idea ${ideaId}!`);
+        setActionFeedback(`Visual rendered successfully for idea ${ideaId}!`);
       } else {
-        setActionFeedback(`⚠️ Notice: ${data.error || "Rendering in progress"}`);
+        setActionFeedback(`Note: ${data.error || "Rendering in progress"}`);
       }
     } catch (err: any) {
-      setActionFeedback(`❌ Error rendering visual: ${err.message}`);
+      setActionFeedback(`Failed: rendering visual: ${err.message}`);
     } finally {
       setRenderingIdeaId(null);
       setTimeout(() => setActionFeedback(null), 6000);
@@ -84,11 +84,11 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
             window.dispatchEvent(new Event("vanna_session_updated"));
           }
         } catch {}
-        setActionFeedback(`✓ Run ${data.result.run_id} launched! Navigating to Run Detail...`);
+        setActionFeedback(`Run ${data.result.run_id} launched! Navigating to Run Detail...`);
         vm.openRun(data.result.run_id);
       }
     } catch (err: any) {
-      setActionFeedback(`❌ Error drafting post: ${err.message}`);
+      setActionFeedback(`Failed: drafting post: ${err.message}`);
     }
   };
 
@@ -103,7 +103,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       });
       const data = await res.json();
       if (data.success) {
-        setActionFeedback(`✓ Idea ${ideaId} dismissed`);
+        setActionFeedback(`Idea ${ideaId} dismissed`);
         // Remove locally from state
         setIdeasData((prev: any) => ({
           ...prev,
@@ -111,7 +111,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
         }));
       }
     } catch (err: any) {
-      setActionFeedback(`❌ Error dismissing idea: ${err.message}`);
+      setActionFeedback(`Failed: dismissing idea: ${err.message}`);
     }
   };
 
@@ -130,15 +130,15 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       <div className="vanna-banner">
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#A98CFF", boxShadow: "0 0 10px #A98CFF" }} />
-            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "#A98CFF", letterSpacing: "0.1em" }}>
+            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "var(--vn-accent-ink)", boxShadow: "0 0 0 3px var(--vn-hover)" }} />
+            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "var(--vn-accent-ink)", letterSpacing: "0.1em" }}>
               STRATEGIC GTM IDEAS OBSERVATORY
             </span>
           </div>
-          <h2 style={{ fontSize: "22px", fontWeight: 800, color: "#FFFFFF", marginTop: "6px" }}>
+          <h2 style={{ fontSize: "22px", fontWeight: 800, color: "var(--vn-ink)", marginTop: "6px" }}>
             Actionable Ideas Synthesized from Scraped Market Intelligence
           </h2>
-          <p style={{ fontSize: "14px", color: "#7B7590", marginTop: "4px" }}>
+          <p style={{ fontSize: "14px", color: "var(--vn-ink-muted)", marginTop: "4px" }}>
             Angles worth drafting, and the runs already made.
           </p>
         </div>
@@ -146,14 +146,14 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
         {/* Global Counter */}
         <div style={{ display: "flex", gap: "16px" }}>
           <div>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>RUNNABLE TODAY</div>
-            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "#4ADE9B" }}>
+            <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>RUNNABLE TODAY</div>
+            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "var(--vn-ok)" }}>
               {ideasData?.runnable_today_count || 0} Ideas
             </div>
           </div>
           <div>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "#7B7590" }}>BLOCKED (MAINNET)</div>
-            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "#F0666B" }}>
+            <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>BLOCKED (MAINNET)</div>
+            <div style={{ fontFamily: MONO, fontSize: "18px", fontWeight: 700, color: "var(--vn-bad)" }}>
               {ideasData?.blocked_count || 0} Ideas
             </div>
           </div>
@@ -161,20 +161,20 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
       </div>
 
       {actionFeedback && (
-        <div style={{ fontFamily: MONO, fontSize: "12px", color: "#4ADE9B", background: "rgba(56, 239, 125, 0.1)", padding: "12px 18px", borderRadius: "10px", border: "1px solid rgba(56, 239, 125, 0.3)" }}>
+        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ok)", background: "var(--vn-ok-soft)", padding: "12px 18px", borderRadius: "10px", border: "1px solid var(--vn-ok-line)" }}>
           {actionFeedback}
         </div>
       )}
 
       {/* Filter Row */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "14px" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px", borderBottom: "1px solid var(--vn-line)", paddingBottom: "14px" }}>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
           <button
             onClick={fetchIdeas}
             style={{
-              background: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
-              color: "#B8B3C6",
+              background: "var(--vn-hover)",
+              border: "1px solid var(--vn-line-strong)",
+              color: "var(--vn-ink-body)",
               padding: "6px 14px",
               borderRadius: "8px",
               fontFamily: MONO,
@@ -184,16 +184,16 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
               whiteSpace: "nowrap"
             }}
           >
-            🔄 Refresh
+            Refresh
           </button>
           {TYPES.map((t) => (
             <button
               key={t}
               onClick={() => setFilterType(t)}
               style={{
-                background: filterType === t ? "rgba(112, 58, 230, 0.3)" : "rgba(255,255,255,0.04)",
-                border: `1px solid ${filterType === t ? "#703AE6" : "rgba(255,255,255,0.1)"}`,
-                color: filterType === t ? "#FFFFFF" : "#7B7590",
+                background: filterType === t ? "var(--vn-accent-soft)" : "var(--vn-hover)",
+                border: `1px solid ${filterType === t ? "var(--vn-accent)" : "var(--vn-line-strong)"}`,
+                color: filterType === t ? "var(--vn-ink)" : "var(--vn-ink-muted)",
                 padding: "6px 14px",
                 borderRadius: "8px",
                 cursor: "pointer",
@@ -207,12 +207,12 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
           ))}
         </div>
 
-        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontFamily: MONO, fontSize: "12px", color: "#B8B3C6" }}>
+        <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", fontFamily: MONO, fontSize: "12px", color: "var(--vn-ink-body)" }}>
           <input
             type="checkbox"
             checked={onlyRunnable}
             onChange={(e) => setOnlyRunnable(e.target.checked)}
-            style={{ cursor: "pointer", accentColor: "#4ADE9B" }}
+            style={{ cursor: "pointer", accentColor: "var(--vn-ok)" }}
           />
           Show Only Runnable Today (No Blocked Claims)
         </label>
@@ -224,10 +224,10 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
           // PROPOSED is an angle nobody has drafted yet; GTM_CYCLE already ran.
           const typeColor =
             idea.type === "PROPOSED"
-              ? "#F5A524"
+              ? "var(--vn-warn)"
               : idea.type === "GTM_CYCLE"
-                ? "#A98CFF"
-                : "#A98CFF";
+                ? "var(--vn-accent-ink)"
+                : "var(--vn-accent-ink)";
 
           const renderedImg = renderedVisuals[idea.id];
 
@@ -235,14 +235,14 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
             <div
               key={idea.id}
               style={{
-                background: "#0C0716",
-                border: `1px solid ${idea.runnable_today ? "rgba(255, 255, 255, 0.08)" : "rgba(252, 84, 87, 0.3)"}`,
+                background: "var(--vn-surface)",
+                border: `1px solid ${idea.runnable_today ? "var(--vn-line)" : "var(--vn-bad-line)"}`,
                 borderRadius: "16px",
                 padding: "22px 26px",
                 display: "flex",
                 flexDirection: "column",
                 gap: "14px",
-                boxShadow: "0 8px 24px rgba(0,0,0,0.3)"
+                boxShadow: "0 2px 8px rgba(17,17,17,0.04)"
               }}
             >
               {/* Header & Hook */}
@@ -263,9 +263,9 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                     >
                       {idea.type}
                     </span>
-                    <span style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590" }}>{idea.id}</span>
-                    <span style={{ fontFamily: MONO, fontSize: "10px", color: idea.runnable_today ? "#4ADE9B" : "#F0666B", background: idea.runnable_today ? "rgba(56,239,125,0.1)" : "rgba(252,84,87,0.1)", padding: "2px 8px", borderRadius: "4px" }}>
-                      {idea.runnable_today ? "● RUNNABLE TODAY" : "⛔ BLOCKED"}
+                    <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)" }}>{idea.id}</span>
+                    <span style={{ fontFamily: MONO, fontSize: "10px", color: idea.runnable_today ? "var(--vn-ok)" : "var(--vn-bad)", background: idea.runnable_today ? "var(--vn-ok-soft)" : "var(--vn-bad-soft)", padding: "2px 8px", borderRadius: "4px" }}>
+                      {idea.runnable_today ? "RUNNABLE TODAY" : "BLOCKED"}
                     </span>
                   </div>
 
@@ -275,9 +275,9 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                       onClick={() => handleRenderVisual(idea.id)}
                       disabled={renderingIdeaId === idea.id}
                       style={{
-                        background: "rgba(112, 58, 230, 0.2)",
-                        border: "1px solid rgba(163, 135, 255, 0.4)",
-                        color: "#A98CFF",
+                        background: "var(--vn-accent-soft)",
+                        border: "1px solid var(--vn-accent-line)",
+                        color: "var(--vn-accent-ink)",
                         padding: "6px 14px",
                         borderRadius: "8px",
                         fontFamily: MONO,
@@ -286,15 +286,15 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                         cursor: renderingIdeaId === idea.id ? "not-allowed" : "pointer"
                       }}
                     >
-                      {renderingIdeaId === idea.id ? "Rendering..." : "🎨 Render Visual"}
+                      {renderingIdeaId === idea.id ? "Rendering..." : "Render visual"}
                     </button>
 
                     <button
                       onClick={() => handleDraftPost(idea)}
                       style={{
-                        background: "linear-gradient(135deg, #703AE6, #A98CFF)",
+                        background: "var(--vn-cta)",
                         border: "none",
-                        color: "#07020D",
+                        color: "var(--vn-on-accent)",
                         padding: "6px 14px",
                         borderRadius: "8px",
                         fontFamily: MONO,
@@ -309,9 +309,9 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                     <button
                       onClick={() => handleDismiss(idea.id)}
                       style={{
-                        background: "rgba(255, 255, 255, 0.04)",
-                        border: "1px solid rgba(255, 255, 255, 0.1)",
-                        color: "#7B7590",
+                        background: "var(--vn-hover)",
+                        border: "1px solid var(--vn-line-strong)",
+                        color: "var(--vn-ink-muted)",
                         padding: "6px 12px",
                         borderRadius: "8px",
                         fontFamily: MONO,
@@ -319,19 +319,19 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                         cursor: "pointer"
                       }}
                     >
-                      ✕ Dismiss
+                      Dismiss
                     </button>
                   </div>
                 </div>
 
-                <h3 style={{ fontSize: "17px", fontWeight: 700, color: "#FFFFFF", marginTop: "10px" }}>
+                <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--vn-ink)", marginTop: "10px" }}>
                   {idea.hook}
                 </h3>
-                <p style={{ fontSize: "13px", color: "#B8B3C6", lineHeight: 1.5, marginTop: "4px" }}>
+                <p style={{ fontSize: "13px", color: "var(--vn-ink-body)", lineHeight: 1.5, marginTop: "4px" }}>
                   {idea.rationale}
                 </p>
                 {idea.blocked_by && (
-                  <div style={{ fontSize: "12px", color: "#F0666B", background: "rgba(252,84,87,0.1)", padding: "8px 12px", borderRadius: "6px", marginTop: "8px" }}>
+                  <div style={{ fontSize: "12px", color: "var(--vn-bad)", background: "var(--vn-bad-soft)", padding: "8px 12px", borderRadius: "6px", marginTop: "8px" }}>
                     <strong>Blocker Notice:</strong> {idea.blocked_by}
                   </div>
                 )}
@@ -343,16 +343,16 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
               {(idea.visual_direction || idea.video_direction || idea.gtm_play) && (
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "10px" }}>
                   {[
-                    ["🎨 VISUAL", idea.visual_direction, "#A98CFF"],
-                    ["🎬 VIDEO", idea.video_direction, "#A98CFF"],
-                    ["GTM PLAY", idea.gtm_play, "#4ADE9B"],
+                    ["VISUAL", idea.visual_direction, "var(--vn-accent-ink)"],
+                    ["VIDEO", idea.video_direction, "var(--vn-accent-ink)"],
+                    ["GTM PLAY", idea.gtm_play, "var(--vn-ok)"],
                   ].map(([label, text, tone]) =>
                     text ? (
-                      <div key={label as string} style={{ background: "#080310", border: `1px solid ${tone}26`, borderRadius: "10px", padding: "12px 14px" }}>
+                      <div key={label as string} style={{ background: "var(--vn-sunken)", border: `1px solid ${tone}26`, borderRadius: "10px", padding: "12px 14px" }}>
                         <div style={{ fontFamily: MONO, fontSize: "10px", color: tone as string, fontWeight: 700, letterSpacing: "0.06em" }}>
                           {label}
                         </div>
-                        <div style={{ fontSize: "12px", color: "#B8B3C6", lineHeight: 1.55, marginTop: "5px" }}>
+                        <div style={{ fontSize: "12px", color: "var(--vn-ink-body)", lineHeight: 1.55, marginTop: "5px" }}>
                           {text}
                         </div>
                       </div>
@@ -363,7 +363,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
 
               {/* Rendered Visual Preview */}
               {(renderedImg || idea.visual_url) && (
-                <div style={{ borderRadius: "10px", overflow: "hidden", border: "1px solid rgba(255,255,255,0.12)", maxWidth: "560px", background: "#080310" }}>
+                <div style={{ borderRadius: "10px", overflow: "hidden", border: "1px solid var(--vn-line-strong)", maxWidth: "560px", background: "var(--vn-sunken)" }}>
                   <img
                     src={resolveMediaUrl(renderedImg || idea.visual_url)}
                     alt={idea.hook}
@@ -376,10 +376,10 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                         div.className = "fallback-notice";
                         div.style.padding = "24px";
                         div.style.textAlign = "center";
-                        div.style.color = "#7B7590";
+                        div.style.color = "var(--vn-ink-muted)";
                         div.style.fontSize = "12px";
                         div.style.fontFamily = "JetBrains Mono, monospace";
-                        div.innerHTML = "<div style='font-size: 20px; margin-bottom: 6px;'>🎨</div><div>3D Isometric schematic ready. Click <strong>Render Visual</strong> above to generate with Gemini 3.1 Flash Image.</div>";
+                        div.innerHTML = "<div>3D Isometric schematic ready. Click <strong>Render Visual</strong> above to generate with Gemini 3.1 Flash Image.</div>";
                         parent.appendChild(div);
                       }
                     }}
@@ -388,31 +388,31 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
               )}
 
               {/* Provenance & Claims Footer */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px", background: "rgba(255,255,255,0.02)", padding: "12px 14px", borderRadius: "8px", fontSize: "11px", fontFamily: MONO, color: "#7B7590" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "10px", background: "var(--vn-hover)", padding: "12px 14px", borderRadius: "8px", fontSize: "11px", fontFamily: MONO, color: "var(--vn-ink-muted)" }}>
                 {idea.pattern_ref && (
                   <div>
-                    <span style={{ color: "#B8B3C6" }}>PATTERN:</span> {idea.pattern_ref}
+                    <span style={{ color: "var(--vn-ink-body)" }}>PATTERN:</span> {idea.pattern_ref}
                   </div>
                 )}
                 {idea.audience_segment && (
                   <div>
-                    <span style={{ color: "#B8B3C6" }}>AUDIENCE:</span> {idea.audience_segment}
+                    <span style={{ color: "var(--vn-ink-body)" }}>AUDIENCE:</span> {idea.audience_segment}
                   </div>
                 )}
                 {idea.signal_headline && (
                   <div style={{ gridColumn: "1 / -1" }}>
-                    <span style={{ color: "#B8B3C6" }}>FROM SIGNAL:</span> {idea.signal_headline}
+                    <span style={{ color: "var(--vn-ink-body)" }}>FROM SIGNAL:</span> {idea.signal_headline}
                   </div>
                 )}
                 <div>
-                  <span style={{ color: "#B8B3C6" }}>EFFORT:</span> {idea.effort} · CLAIMS:{" "}
-                  <span style={{ color: idea.claims_gate === "PASS" ? "#4ADE9B" : idea.claims_gate === "UNCHECKED" ? "#F5A524" : "#F0666B" }}>
+                  <span style={{ color: "var(--vn-ink-body)" }}>EFFORT:</span> {idea.effort} · CLAIMS:{" "}
+                  <span style={{ color: idea.claims_gate === "PASS" ? "var(--vn-ok)" : idea.claims_gate === "UNCHECKED" ? "var(--vn-warn)" : "var(--vn-bad)" }}>
                     {idea.claims_gate}
                   </span>
                 </div>
                 {idea.pattern_source && (
                   <div>
-                    <a href={idea.trend_link || "#"} target="_blank" rel="noreferrer" style={{ color: "#A98CFF", textDecoration: "none" }}>
+                    <a href={idea.trend_link || "#"} target="_blank" rel="noreferrer" style={{ color: "var(--vn-accent-ink)", textDecoration: "none" }}>
                       Source Proof ↗
                     </a>
                   </div>

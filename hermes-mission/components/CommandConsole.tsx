@@ -230,9 +230,9 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
             onClick={handleToggleDaemon}
             disabled={daemonToggling}
             style={{
-              background: daemonState.running ? "rgba(56, 239, 125, 0.15)" : "rgba(255, 255, 255, 0.05)",
-              border: `1px solid ${daemonState.running ? "#4ADE9B" : "rgba(255, 255, 255, 0.12)"}`,
-              color: daemonState.running ? "#4ADE9B" : "#B8B3C6",
+              background: daemonState.running ? "var(--vn-ok-soft)" : "var(--vn-hover)",
+              border: `1px solid ${daemonState.running ? "var(--vn-ok)" : "var(--vn-line-strong)"}`,
+              color: daemonState.running ? "var(--vn-ok)" : "var(--vn-ink-body)",
               borderRadius: "8px",
               padding: "5px 12px",
               fontSize: "12px",
@@ -243,7 +243,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
               gap: "6px"
             }}
           >
-            <span style={{ width: "6px", height: "6px", borderRadius: "999px", background: daemonState.running ? "#4ADE9B" : "#7B7590" }} />
+            <span style={{ width: "6px", height: "6px", borderRadius: "999px", background: daemonState.running ? "var(--vn-ok)" : "var(--vn-ink-muted)" }} />
             {daemonToggling
               ? "Updating…"
               : daemonState.running
@@ -292,7 +292,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
               background: "transparent",
               border: "none",
               outline: "none",
-              color: "#FFFFFF",
+              color: "var(--vn-ink)",
               fontSize: "14px",
               letterSpacing: "0.01em",
               padding: "8px 0"
@@ -305,7 +305,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
               style={{
                 background: "transparent",
                 border: "none",
-                color: "#7B7590",
+                color: "var(--vn-ink-muted)",
                 cursor: "pointer",
                 fontSize: "14px",
                 padding: "4px 8px",
@@ -322,8 +322,8 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
           disabled={executing || !query.trim()}
           style={{
             flexShrink: 0,
-            background: executing || !query.trim() ? "rgba(255,255,255,0.05)" : "var(--vn-accent)",
-            color: executing || !query.trim() ? "var(--vn-ink-faint)" : "#FFFFFF",
+            background: executing || !query.trim() ? "var(--vn-hover)" : "var(--vn-accent)",
+            color: executing || !query.trim() ? "var(--vn-ink-faint)" : "var(--vn-ink)",
             border: "none",
             borderRadius: "8px",
             padding: "9px 18px",
@@ -354,9 +354,9 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
             }}
             disabled={executing}
             style={{
-              background: "rgba(255,255,255,0.03)",
-              border: "1px solid rgba(255,255,255,0.08)",
-              color: "#B8B3C6",
+              background: "var(--vn-hover)",
+              border: "1px solid var(--vn-line)",
+              color: "var(--vn-ink-body)",
               borderRadius: "8px",
               padding: "5px 12px",
               fontSize: "11px",
@@ -378,7 +378,7 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
       {executing && (
         <div
           style={{
-            background: "#080310",
+            background: "var(--vn-sunken)",
             border: "1px solid var(--vn-line)",
             borderRadius: "12px",
             padding: "18px 22px",
@@ -390,8 +390,8 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
           <div style={{ width: "28px", height: "28px", border: "2px solid var(--vn-accent)", borderTopColor: "transparent", borderRadius: "999px", animation: "spin 1s linear infinite", flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-              <div style={{ fontSize: "14px", fontWeight: 700, color: "#FFFFFF", display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontFamily: MONO, fontSize: "11px", color: "#A98CFF", background: "var(--vn-accent-soft)", padding: "2px 8px", borderRadius: "4px" }}>
+              <div style={{ fontSize: "14px", fontWeight: 700, color: "var(--vn-ink)", display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-accent-ink)", background: "var(--vn-accent-soft)", padding: "2px 8px", borderRadius: "4px" }}>
                   STEP {liveStep.step} / {liveStep.total}
                 </span>
                 {liveStep.agent_name}
@@ -400,16 +400,16 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
                 running
               </span>
             </div>
-            <div style={{ fontSize: "12px", color: "#B8B3C6" }}>
+            <div style={{ fontSize: "12px", color: "var(--vn-ink-body)" }}>
               {liveStep.detail}
             </div>
             {/* Progress track bar */}
-            <div style={{ width: "100%", height: "4px", background: "rgba(255, 255, 255, 0.08)", borderRadius: "2px", marginTop: "10px", overflow: "hidden" }}>
+            <div style={{ width: "100%", height: "4px", background: "var(--vn-hover)", borderRadius: "2px", marginTop: "10px", overflow: "hidden" }}>
               <div
                 style={{
                   width: `${Math.round((liveStep.step / liveStep.total) * 100)}%`,
                   height: "100%",
-                  background: "linear-gradient(90deg, #703AE6 0%, #A98CFF 100%)",
+                  background: "var(--vn-cta)",
                   transition: "width 0.4s ease"
                 }}
               />
@@ -420,8 +420,8 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
 
       {/* Error Message Display */}
       {errorMessage && (
-        <div style={{ fontFamily: MONO, fontSize: "12px", color: "#EF4444", background: "rgba(239, 68, 68, 0.1)", padding: "12px 18px", borderRadius: "10px", border: "1px solid rgba(239, 68, 68, 0.3)" }}>
-          ❌ {errorMessage}
+        <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-bad)", background: "var(--vn-bad-soft)", padding: "12px 18px", borderRadius: "10px", border: "1px solid var(--vn-bad-line)" }}>
+          {errorMessage}
         </div>
       )}
 
@@ -435,8 +435,8 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
       {runResult && (
         <div
           style={{
-            background: "#080310",
-            border: "1px solid rgba(56, 239, 125, 0.3)",
+            background: "var(--vn-sunken)",
+            border: "1px solid var(--vn-ok-line)",
             borderRadius: "16px",
             padding: "16px 20px",
             display: "flex",
@@ -447,11 +447,11 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "#4ADE9B" }} />
-            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "#4ADE9B" }}>
+            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "var(--vn-ok)" }} />
+            <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "var(--vn-ok)" }}>
               {runResult.run_id}
             </span>
-            <span style={{ fontFamily: MONO, fontSize: "11px", color: "#7B7590" }}>
+            <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)" }}>
               {executing ? "running — all 13 agents" : "finished"}
               {runResult.pid ? ` · pid ${runResult.pid}` : ""}
             </span>
@@ -460,9 +460,9 @@ export function CommandConsole({ vm }: { vm: MissionVM }) {
           <button
             onClick={() => runResult.run_id && vm.openRun(runResult.run_id)}
             style={{
-              background: "rgba(112, 58, 230, 0.25)",
-              border: "1px solid #703AE6",
-              color: "#FFFFFF",
+              background: "var(--vn-accent-soft)",
+              border: "1px solid var(--vn-accent)",
+              color: "var(--vn-ink)",
               padding: "7px 14px",
               borderRadius: "8px",
               fontFamily: MONO,

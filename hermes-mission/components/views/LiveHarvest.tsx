@@ -18,7 +18,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
 
-const DIM = "#7B7590";
+const DIM = "var(--vn-ink-muted)";
 
 function when(iso: string | null | undefined): string {
   if (!iso) return "—";
@@ -46,7 +46,7 @@ export function LiveHarvest() {
 
   if (err) {
     return (
-      <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "20px 24px", fontFamily: MONO, fontSize: 13, color: DIM }}>
+      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16, padding: "20px 24px", fontFamily: MONO, fontSize: 13, color: DIM }}>
         No scrape recorded yet — run a cycle and A01 will write one. ({err})
       </div>
     );
@@ -62,19 +62,19 @@ export function LiveHarvest() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-      <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 18, padding: "22px 26px" }}>
+      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 18, padding: "22px 26px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 12 }}>
           <div>
-            <span style={{ fontFamily: MONO, fontSize: 11, color: "#A98CFF", fontWeight: 700 }}>
+            <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
               A01 INTELLIGENCE SCOUT · LIVE HARVEST
             </span>
-            <h3 style={{ fontSize: 19, fontWeight: 700, color: "#FFFFFF", margin: "4px 0 0" }}>
+            <h3 style={{ fontSize: 19, fontWeight: 700, color: "var(--vn-ink)", margin: "4px 0 0" }}>
               {data.totalSignals} signals from {sourceRows.filter(([, v]) => v?.signals).length} sources
             </h3>
           </div>
           <div style={{ textAlign: "right", fontFamily: MONO, fontSize: 12, color: DIM }}>
             <div>SCRAPED AT</div>
-            <div style={{ color: "#FFFFFF", fontWeight: 700 }}>{when(data.scrapedAt)}</div>
+            <div style={{ color: "var(--vn-ink)", fontWeight: 700 }}>{when(data.scrapedAt)}</div>
             <div style={{ marginTop: 2 }}>run {data.runId}</div>
           </div>
         </div>
@@ -83,18 +83,18 @@ export function LiveHarvest() {
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 10, marginTop: 18 }}>
           {sourceRows.map(([name, v]) => {
             const ok = v?.ok && v?.signals > 0;
-            const tone = ok ? "#4ADE9B" : v?.ok ? "#F5A524" : "#F0666B";
+            const tone = ok ? "var(--vn-ok)" : v?.ok ? "var(--vn-warn)" : "var(--vn-bad)";
             return (
-              <div key={name} style={{ background: "#080310", border: `1px solid ${tone}33`, borderRadius: 10, padding: "12px 14px" }}>
+              <div key={name} style={{ background: "var(--vn-sunken)", border: `1px solid ${tone}33`, borderRadius: 10, padding: "12px 14px" }}>
                 <div style={{ fontFamily: MONO, fontSize: 10, color: DIM, textTransform: "uppercase" }}>{name}</div>
                 <div style={{ fontSize: 17, fontWeight: 700, color: tone, marginTop: 2 }}>
                   {v?.signals ?? 0} signals
                 </div>
                 {!v?.ok && v?.error && (
-                  <div style={{ fontSize: 11, color: "#F0666B", marginTop: 4 }}>{String(v.error).slice(0, 70)}</div>
+                  <div style={{ fontSize: 11, color: "var(--vn-bad)", marginTop: 4 }}>{String(v.error).slice(0, 70)}</div>
                 )}
                 {v?.ok && !v?.signals && (
-                  <div style={{ fontSize: 11, color: "#F5A524", marginTop: 4 }}>quiet this cycle</div>
+                  <div style={{ fontSize: 11, color: "var(--vn-warn)", marginTop: 4 }}>quiet this cycle</div>
                 )}
               </div>
             );
@@ -104,7 +104,7 @@ export function LiveHarvest() {
 
       {/* Companies, as a filter rather than a decoration. */}
       {data.byCompany?.length > 0 && (
-        <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, padding: "16px 20px" }}>
+        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16, padding: "16px 20px" }}>
           <div style={{ fontFamily: MONO, fontSize: 11, color: DIM, marginBottom: 10 }}>
             COMPANIES &amp; PROTOCOLS SCRAPED — click to filter
           </div>
@@ -119,9 +119,9 @@ export function LiveHarvest() {
                   key={name}
                   onClick={() => setCompany(name)}
                   style={{
-                    background: on ? "rgba(112,58,230,0.3)" : "rgba(255,255,255,0.04)",
-                    border: `1px solid ${on ? "#703AE6" : "rgba(255,255,255,0.1)"}`,
-                    color: on ? "#FFFFFF" : "#7B7590",
+                    background: on ? "var(--vn-accent-soft)" : "var(--vn-hover)",
+                    border: `1px solid ${on ? "var(--vn-accent)" : "var(--vn-line-strong)"}`,
+                    color: on ? "var(--vn-ink)" : "var(--vn-ink-muted)",
                     padding: "5px 11px", borderRadius: 7, cursor: "pointer",
                     fontFamily: MONO, fontSize: 11, fontWeight: 600,
                   }}
@@ -135,13 +135,13 @@ export function LiveHarvest() {
       )}
 
       {/* The signals themselves, with full provenance. */}
-      <div style={{ background: "#0C0716", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 16, overflow: "hidden" }}>
+      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16, overflow: "hidden" }}>
         <div className="responsive-table-container">
           <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              <tr style={{ borderBottom: "1px solid var(--vn-line)" }}>
                 {["Signal", "Companies", "Source", "Observed", "Scraped"].map((h) => (
-                  <th key={h} style={{ padding: "12px 16px", fontFamily: MONO, fontSize: 11, color: "#7B7590", textTransform: "uppercase", whiteSpace: "nowrap" }}>
+                  <th key={h} style={{ padding: "12px 16px", fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-muted)", textTransform: "uppercase", whiteSpace: "nowrap" }}>
                     {h}
                   </th>
                 ))}
@@ -149,24 +149,24 @@ export function LiveHarvest() {
             </thead>
             <tbody>
               {shown.map((s: any, i: number) => (
-                <tr key={s.signal_id ?? i} style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                <tr key={s.signal_id ?? i} style={{ borderBottom: "1px solid var(--vn-line)" }}>
                   <td style={{ padding: "12px 16px", maxWidth: 420 }}>
-                    <div style={{ color: "#F3F1F8", fontSize: 13, lineHeight: 1.5 }}>{s.headline}</div>
+                    <div style={{ color: "var(--vn-ink)", fontSize: 13, lineHeight: 1.5 }}>{s.headline}</div>
                     {s.metric_change && s.metric_change !== "LIVE_SIGNAL" && (
-                      <div style={{ fontFamily: MONO, fontSize: 11, color: "#4ADE9B", marginTop: 3 }}>{s.metric_change}</div>
+                      <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ok)", marginTop: 3 }}>{s.metric_change}</div>
                     )}
                   </td>
                   <td style={{ padding: "12px 16px" }}>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
                       {(s.entities ?? []).map((e: string) => (
-                        <span key={e} style={{ fontFamily: MONO, fontSize: 10, background: "rgba(163,135,255,0.14)", color: e === "(unattributed)" ? DIM : "#A98CFF", padding: "2px 7px", borderRadius: 5 }}>
+                        <span key={e} style={{ fontFamily: MONO, fontSize: 10, background: "var(--vn-accent-soft)", color: e === "(unattributed)" ? DIM : "var(--vn-accent-ink)", padding: "2px 7px", borderRadius: 5 }}>
                           {e}
                         </span>
                       ))}
                     </div>
                   </td>
                   <td style={{ padding: "12px 16px", fontFamily: MONO, fontSize: 11 }}>
-                    <div style={{ color: "#A98CFF" }}>{s.source_type}</div>
+                    <div style={{ color: "var(--vn-accent-ink)" }}>{s.source_type}</div>
                     {s.source?.startsWith("http") ? (
                       <a href={s.source} target="_blank" rel="noreferrer" style={{ color: DIM, fontSize: 10 }}>
                         {s.source_root || s.source.slice(0, 40)} ↗

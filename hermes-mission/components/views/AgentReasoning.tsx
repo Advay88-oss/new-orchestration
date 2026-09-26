@@ -16,8 +16,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
 
-const ACCENT = '#A98CFF';
-const DIM = '#6C6C6C';
+const ACCENT = 'var(--vn-accent-ink)';
+const DIM = 'var(--vn-ink-muted)';
 
 interface Detail {
   runId: string;
@@ -64,7 +64,7 @@ export function AgentReasoning() {
     return () => clearInterval(t);
   }, [load]);
 
-  if (err) return <Msg tone="#F0666B">Could not read the run journal: {err}</Msg>;
+  if (err) return <Msg tone="var(--vn-bad)">Could not read the run journal: {err}</Msg>;
   if (d && (d as any).inFlight) {
     // A cycle takes 2-4 minutes. Saying so beats an empty panel or an error.
     return (
@@ -79,7 +79,7 @@ export function AgentReasoning() {
   return (
     <div className="vanna-section">
       <header style={{ marginBottom: 18 }}>
-        <h2 style={{ margin: 0, fontSize: 19, color: '#EDEDED', fontWeight: 600 }}>
+        <h2 style={{ margin: 0, fontSize: 19, color: 'var(--vn-ink)', fontWeight: 600 }}>
           Agent Decisions
         </h2>
         <p style={{ margin: '6px 0 0', fontSize: 13, color: DIM, maxWidth: 760 }}>
@@ -108,12 +108,12 @@ export function AgentReasoning() {
                   <div
                     key={i}
                     style={{
-                      borderLeft: '2px solid #333',
+                      borderLeft: '2px solid var(--vn-line)',
                       paddingLeft: 10,
                       margin: '8px 0',
                     }}
                   >
-                    <div style={{ fontSize: 12.5, color: '#9A9A9A' }}>{r.headline}</div>
+                    <div style={{ fontSize: 12.5, color: 'var(--vn-ink-muted)' }}>{r.headline}</div>
                     <div style={{ fontSize: 12, color: DIM, marginTop: 2 }}>{r.why}</div>
                   </div>
                 ))}
@@ -149,7 +149,7 @@ export function AgentReasoning() {
                 <Label>reasoning</Label>
                 <ol style={{ margin: '6px 0 0', paddingLeft: 18 }}>
                   {d.strategyReasoning.map((r, i) => (
-                    <li key={i} style={{ fontSize: 12.5, color: '#9A9A9A', marginBottom: 4 }}>
+                    <li key={i} style={{ fontSize: 12.5, color: 'var(--vn-ink-muted)', marginBottom: 4 }}>
                       {r}
                     </li>
                   ))}
@@ -165,7 +165,7 @@ export function AgentReasoning() {
                     style={{
                       fontFamily: MONO,
                       fontSize: 11.5,
-                      color: '#9A9A9A',
+                      color: 'var(--vn-ink-muted)',
                       borderLeft: `2px solid ${ACCENT}44`,
                       paddingLeft: 10,
                       margin: '6px 0',
@@ -206,16 +206,16 @@ function Section({
   return (
     <section
       style={{
-        border: '1px solid #1E1E22',
+        border: '1px solid var(--vn-line)',
         borderRadius: 8,
         padding: '14px 16px',
         marginBottom: 14,
-        background: '#0C0716',
+        background: 'var(--vn-surface)',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 10 }}>
         <span style={{ fontFamily: MONO, fontSize: 11, color: DIM }}>{n}</span>
-        <h3 style={{ margin: 0, fontSize: 14.5, color: '#EDEDED', fontWeight: 600 }}>{title}</h3>
+        <h3 style={{ margin: 0, fontSize: 14.5, color: 'var(--vn-ink)', fontWeight: 600 }}>{title}</h3>
         <span style={{ fontFamily: MONO, fontSize: 10.5, color: ACCENT }}>{model}</span>
       </div>
       {children}
@@ -243,7 +243,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   return (
     <div style={{ marginBottom: 10 }}>
       <Label>{label}</Label>
-      <div style={{ fontSize: 13, color: '#D4D4D4', marginTop: 3, lineHeight: 1.55 }}>
+      <div style={{ fontSize: 13, color: 'var(--vn-ink-body)', marginTop: 3, lineHeight: 1.55 }}>
         {children}
       </div>
     </div>
@@ -254,7 +254,7 @@ function Chip({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <Label>{label}</Label>
-      <div style={{ fontFamily: MONO, fontSize: 12, color: '#D4D4D4' }}>{value}</div>
+      <div style={{ fontFamily: MONO, fontSize: 12, color: 'var(--vn-ink-body)' }}>{value}</div>
     </div>
   );
 }

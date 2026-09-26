@@ -36,7 +36,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        background: "#0C0716",
+        background: "var(--vn-surface)",
         padding: "24px 16px",
       }}
     >
@@ -53,13 +53,22 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <div
               style={{
-                width: "32px",
-                height: "32px",
-                borderRadius: "10px",
-                background: "#703AE6",
-                flex: "0 0 32px",
+                width: "30px",
+                height: "30px",
+                borderRadius: "7px",
+                background: "var(--vn-ink)",
+                color: "var(--vn-on-accent)",
+                flex: "0 0 30px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontFamily: "var(--font-display)",
+                fontSize: "19px",
+                lineHeight: 1,
                 }}
-            />
+            >
+              V
+            </div>
             <div>
               <div
                 style={{
@@ -95,9 +104,9 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
               onClick={onCloseMobile}
               className="mobile-only"
               style={{
-                background: "rgba(255,255,255,0.08)",
+                background: "var(--vn-hover)",
                 border: "none",
-                color: "#FFFFFF",
+                color: "var(--vn-ink)",
                 borderRadius: "8px",
                 padding: "6px 10px",
                 fontSize: "14px",
@@ -110,7 +119,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
         </div>
 
         {/* Navigation List */}
-        <nav style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+        <nav style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
           {vm.nav.map((n) => (
             <HoverButton
               key={n.id}
@@ -119,7 +128,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
                 if (onCloseMobile) onCloseMobile();
               }}
               style={n.style}
-              hoverStyle={{ background: "#1E1E28", color: "#FFFFFF" }}
+              hoverStyle={{ background: "var(--vn-hover)", color: "var(--vn-ink)" }}
             >
               <span style={{ display: "flex", alignItems: "center", gap: "10px", whiteSpace: "nowrap" }}>
                 <span style={n.dot} />
@@ -130,7 +139,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
                   fontFamily: "var(--font-jetbrains-mono), monospace",
                   fontSize: "10px",
                   fontWeight: 500,
-                  color: "#7E7598",
+                  color: "var(--vn-ink-muted)",
                 }}
               >
                 {n.count}
@@ -142,8 +151,8 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
 
       {/* Footer Info Cards */}
       <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "auto", paddingTop: "20px" }}>
-        <div style={{ background: "#130B22", borderRadius: "12px", padding: "14px", border: "1px solid rgba(255, 255, 255, 0.05)" }}>
-          <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "10px", fontWeight: 700, color: "#7B7590", textTransform: "uppercase" }}>
+        <div style={{ background: "var(--vn-raised)", borderRadius: "12px", padding: "14px", border: "1px solid var(--vn-line)" }}>
+          <div style={{ fontFamily: "var(--font-jetbrains-mono), monospace", fontSize: "10px", fontWeight: 700, color: "var(--vn-ink-muted)", textTransform: "uppercase" }}>
             AUTONOMOUS DAEMON
           </div>
           {/* Checked, not asserted. This was a green dot and the literal
@@ -152,9 +161,9 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
               Runs view already polls /api/daemon; the rail now does too. */}
           <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "6px" }}>
             <span style={{ width: "7px", height: "7px", borderRadius: "999px",
-                           background: daemon ? "#4ADE9B" : "#7B7590" }} />
+                           background: daemon ? "var(--vn-ok)" : "var(--vn-ink-muted)" }} />
             <span style={{ fontSize: "12px", fontWeight: 600,
-                           color: daemon ? "#FFFFFF" : "#7B7590" }}>
+                           color: daemon ? "var(--vn-ink)" : "var(--vn-ink-muted)" }}>
               {daemon === null ? "checking…" : daemon ? "Active · 30m cycle" : "Not scheduled"}
             </span>
           </div>
@@ -178,8 +187,8 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
         // top of the content. Fixed + a reserved gutter makes overlap
         // structurally impossible, whatever the scroll position.
         style={{
-          background: "#0C0716",
-          borderRight: "1px solid rgba(255, 255, 255, 0.08)",
+          background: "var(--vn-surface)",
+          borderRight: "1px solid var(--vn-line)",
         }}
       >
         {sidebarContent}
@@ -193,7 +202,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
             inset: 0,
             zIndex: 100,
             display: "flex",
-            background: "rgba(0, 0, 0, 0.75)",
+            background: "var(--vn-overlay)",
             backdropFilter: "blur(8px)",
           }}
           onClick={onCloseMobile}
@@ -203,7 +212,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
               width: "280px",
               maxWidth: "80vw",
               height: "100vh",
-              boxShadow: "0 0 40px rgba(0,0,0,0.9)",
+              boxShadow: "0 0 0 1px var(--vn-line)",
             }}
             onClick={(e) => e.stopPropagation()}
           >

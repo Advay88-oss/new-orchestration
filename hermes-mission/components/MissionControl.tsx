@@ -22,7 +22,7 @@ import type { MissionControlProps } from "@/lib/types";
 export function MissionControl({
   debateEdges = "both",
   capUsd = 10,
-  arcPalette = ["#703AE6", "#24A0A9", "#FF007A"],
+  arcPalette = ["var(--vn-accent)", "#24A0A9", "var(--vn-rose)"],
 }: MissionControlProps) {
   const vm = useMissionControl({ debateEdges, capUsd, arcPalette });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -33,8 +33,8 @@ export function MissionControl({
         display: "flex",
         alignItems: "stretch",
         minHeight: "100vh",
-        background: "#07020D",
-        color: "#F3F1F8",
+        background: "var(--vn-sunken)",
+        color: "var(--vn-ink)",
         fontSize: "14px",
         lineHeight: "21px",
       }}
@@ -64,8 +64,8 @@ export function MissionControl({
             alignItems: "center",
             justifyContent: "space-between",
             padding: "12px 16px",
-            background: "#0C0716",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
+            background: "var(--vn-surface)",
+            borderBottom: "1px solid var(--vn-line)",
             position: "sticky",
             top: 0,
             zIndex: 40,
@@ -77,10 +77,10 @@ export function MissionControl({
                 width: "24px",
                 height: "24px",
                 borderRadius: "8px",
-                background: "#703AE6",
+                background: "var(--vn-accent)",
               }}
             />
-            <span style={{ fontSize: "15px", fontWeight: 700, color: "#FFFFFF" }}>
+            <span style={{ fontSize: "15px", fontWeight: 700, color: "var(--vn-ink)" }}>
               Vanna Mission Control
             </span>
           </div>
@@ -88,9 +88,9 @@ export function MissionControl({
           <button
             onClick={() => setMobileMenuOpen(true)}
             style={{
-              background: "#130B22",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              color: "#A98CFF",
+              background: "var(--vn-raised)",
+              border: "1px solid var(--vn-line-strong)",
+              color: "var(--vn-accent-ink)",
               padding: "6px 14px",
               borderRadius: "8px",
               fontSize: "13px",
