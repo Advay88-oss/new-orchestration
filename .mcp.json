@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "brand-brain": {
+      "command": ".venv/Scripts/python.exe",
+      "args": ["-m", "pipeline.brand_brain.mcp_server", "--tenant", "vanna"],
+      "env": { "PYTHONIOENCODING": "utf-8" }
+    }
+  }
+}

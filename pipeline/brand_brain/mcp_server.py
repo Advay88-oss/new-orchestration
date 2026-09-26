@@ -5,7 +5,13 @@ session (the `--tenant` flag or BRAIN_TENANT), never a tool argument, so no
 call can ask for another company's data and no prompt needs a company name.
 
     python -m pipeline.brand_brain.mcp_server --tenant vanna                  # stdio
-    python -m pipeline.brand_brain.mcp_server --tenant vanna --http 8765      # streamable HTTP
+    python -m pipeline.brand_brain.mcp_server --tenant vanna --http 8765      # HTTP, this machine only
+    BRAIN_MCP_TOKEN=... python -m pipeline.brand_brain.mcp_server --tenant vanna --http 8765 --host 0.0.0.0
+
+Over HTTP the server listens on 127.0.0.1 unless told otherwise. On any
+other address it refuses to start without BRAIN_MCP_TOKEN, and then every
+request must carry `Authorization: Bearer <token>` — a brand's brain is
+never open to whoever can reach the port.
 """
 from __future__ import annotations
 
@@ -70,16 +76,48 @@ def build(tenant: str) -> MCPServer:
     return server
 
 
+class _BearerAuth:
+    """ASGI middleware: every HTTP request needs the shared bearer token."""
+
+    def __init__(self, app, token: str):
+        self.app, self.token = app, token.encode()
+
+    async def __call__(self, scope, receive, send):
+        import hmac
+        if scope.get("type") == "http":
+            auth = dict(scope.get("headers") or []).get(b"authorization", b"")
+            if not hmac.compare_digest(auth, b"Bearer " + self.token):
+                await send({"type": "http.response.start", "status": 401,
+                            "headers": [(b"content-type", b"application/json"),
+                                        (b"www-authenticate", b"Bearer")]})
+                await send({"type": "http.response.body", "body": b'{"error":"unauthorized"}'})
+                return
+        await self.app(scope, receive, send)
+
+
+def serve_http(server: MCPServer, port: int, host: str = "127.0.0.1",
+               token: Optional[str] = None) -> None:
+    import uvicorn
+    local = host in ("127.0.0.1", "localhost", "::1")
+    if not local and not token:
+        raise SystemExit("refusing to serve the brain on " + host + " without BRAIN_MCP_TOKEN")
+    app = server.streamable_http_app(host=host)
+    if token:
+        app = _BearerAuth(app, token)
+    uvicorn.run(app, host=host, port=port, log_level="warning")
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Brand Brain MCP server")
     ap.add_argument("--tenant", default=None)
     ap.add_argument("--http", type=int, default=None, help="serve streamable HTTP on this port")
+    ap.add_argument("--host", default="127.0.0.1", help="HTTP bind address (default: this machine only)")
     a = ap.parse_args()
     tenant = a.tenant or current_tenant()
     os.environ["BRAIN_TENANT"] = tenant
     server = build(tenant)
     if a.http:
-        server.run("streamable-http", port=a.http)
+        serve_http(server, a.http, a.host, os.environ.get("BRAIN_MCP_TOKEN") or None)
     else:
         server.run("stdio")
 

@@ -95,6 +95,12 @@ python pipeline/scripts/runner.py --interval 30
 
 # GCS state
 python pipeline/scripts/gcs_sync.py requests|runs|push|claim
+
+# brand brain (per tenant): build, search, serve over MCP
+python -m pipeline.brand_brain init vanna
+python -m pipeline.brand_brain search vanna "health factor"
+python -m pipeline.brand_brain.mcp_server --tenant vanna            # stdio (.mcp.json)
+python -m pipeline.brand_brain.mcp_server --tenant vanna --http 8765  # local HTTP; other hosts need BRAIN_MCP_TOKEN
 ```
 
 Requires `google-cloud-storage` and valid ADC (`gcloud auth application-default login`).
