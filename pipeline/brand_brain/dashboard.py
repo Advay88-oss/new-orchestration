@@ -90,8 +90,54 @@ def search(query: str, tenant: str) -> dict[str, Any]:
     return {"ok": True, "query": query, "hits": hits}
 
 
+def profile_version(version: int | None, tenant: str) -> dict[str, Any]:
+    """One profile version in full (the newest when no version is given)."""
+    b = Brain(tenant)
+    with b._db() as con:
+        row = (con.execute("SELECT * FROM profile_versions WHERE version=?", (version,)).fetchone()
+               if version else
+               con.execute("SELECT * FROM profile_versions ORDER BY version DESC LIMIT 1").fetchone())
+    if not row:
+        return {"ok": False, "error": "no such version"}
+    return {"ok": True, "version": row["version"], "status": row["status"], "note": row["note"],
+            "profile": json.loads(row["profile"])}
+
+
+def approve(version: int, tenant: str) -> dict[str, Any]:
+    """The founder's approval of one version; its facts are re-indexed."""
+    from pipeline.brand_brain.onboard import index_profile
+    b = Brain(tenant)
+    if not any(v["version"] == version for v in b.profile_versions()):
+        return {"ok": False, "error": "no such version"}
+    b.approve_profile(version, note="approved on the dashboard")
+    return {"ok": True, "approved": version, "reindexed": index_profile(tenant)}
+
+
+def save(path: str, note: str, tenant: str) -> dict[str, Any]:
+    """An edited profile, saved as a new DRAFT (approval is a separate step)."""
+    from pipeline.brand_brain.onboard import index_profile
+    prof = json.loads(Path(path).read_text(encoding="utf-8"))
+    if not isinstance(prof, dict) or not isinstance(prof.get("company"), dict):
+        return {"ok": False, "error": "a profile needs at least a 'company' object"}
+    v = Brain(tenant).save_profile(prof, status="draft", source="dashboard edit", note=note[:300])
+    return {"ok": True, "version": v, "reindexed": index_profile(tenant)}
+
+
 def main(argv: list[str]) -> int:
     cmd = argv[0] if argv else "overview"
+    tenant = current_tenant()
+    if cmd == "profile":
+        out = profile_version(int(argv[1]) if len(argv) > 1 and argv[1].isdigit() else None, tenant)
+        sys.stdout.write(json.dumps(out, ensure_ascii=False, default=str))
+        return 0
+    if cmd == "approve":
+        out = approve(int(argv[1]), tenant)
+        sys.stdout.write(json.dumps(out, ensure_ascii=False, default=str))
+        return 0
+    if cmd == "save":
+        out = save(argv[1], argv[2] if len(argv) > 2 else "", tenant)
+        sys.stdout.write(json.dumps(out, ensure_ascii=False, default=str))
+        return 0
     if cmd == "search":
         out = search(argv[1] if len(argv) > 1 else "", argv[2] if len(argv) > 2 else current_tenant())
     else:

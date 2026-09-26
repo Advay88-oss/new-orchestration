@@ -47,9 +47,82 @@ function ago(iso?: string | null): string {
   return Math.round(s / 86400) + " d ago";
 }
 
+/** Approve the newest version, or edit it and save a new draft. */
+function ProfileActions({ version, status, onChanged }: { version: number; status: string; onChanged: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [text, setText] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  const post = async (body: any) => {
+    setBusy(true);
+    setMsg(null);
+    try {
+      const d = await (await fetch("/api/gtm/brain/profile", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+      })).json();
+      if (!d.ok) setMsg(d.error || "failed");
+      else { setEditing(false); onChanged(); }
+    } catch (e) {
+      setMsg(String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const openEditor = async () => {
+    const d = await (await fetch("/api/gtm/brain/profile?version=" + version, { cache: "no-store" })).json();
+    if (d.ok) { setText(JSON.stringify(d.profile, null, 2)); setEditing(true); } else setMsg(d.error);
+  };
+
+  const save = () => {
+    let prof: any;
+    try { prof = JSON.parse(text); } catch (e) { setMsg("Not valid JSON: " + String(e)); return; }
+    post({ action: "save", profile: prof, note });
+  };
+
+  const btn: React.CSSProperties = { border: "1px solid var(--vn-line-strong)", background: "transparent",
+    color: "var(--vn-ink)", borderRadius: 8, padding: "7px 14px", fontSize: 13, cursor: "pointer" };
+  return (
+    <div style={{ marginTop: 12 }}>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        {status !== "approved" && (
+          <button disabled={busy} onClick={() => post({ action: "approve", version })}
+                  style={{ ...btn, background: "var(--vn-accent)", borderColor: "var(--vn-accent)", color: "#fff", fontWeight: 600 }}>
+            Approve v{version}
+          </button>
+        )}
+        <button disabled={busy} onClick={editing ? () => setEditing(false) : openEditor} style={btn}>
+          {editing ? "Close editor" : "Edit profile"}
+        </button>
+      </div>
+      {editing && (
+        <div style={{ marginTop: 10 }}>
+          <textarea value={text} onChange={(e) => setText(e.target.value)} spellCheck={false}
+                    style={{ width: "100%", minHeight: 360, fontFamily: MONO, fontSize: 12, lineHeight: 1.5,
+                             background: "var(--vn-sunken)", color: "var(--vn-ink)", border: "1px solid var(--vn-line)",
+                             borderRadius: 8, padding: 12 }} />
+          <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <input value={note} onChange={(e) => setNote(e.target.value)} placeholder="What changed (optional)"
+                   style={{ flex: 1, background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: 8,
+                            padding: "7px 10px", color: "var(--vn-ink)", fontSize: 13 }} />
+            <button disabled={busy} onClick={save} style={btn}>Save as new draft</button>
+          </div>
+          <div style={{ fontSize: 11.5, color: "var(--vn-ink-muted)", marginTop: 6 }}>
+            Saving creates a new draft version; the agents use it once it is the newest, and approval is a separate step.
+          </div>
+        </div>
+      )}
+      {msg && <div style={{ color: "var(--vn-bad)", fontSize: 12.5, marginTop: 8 }}>{msg}</div>}
+    </div>
+  );
+}
+
 export function BrandBrain() {
   const [data, setData] = useState<any | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<Hit[] | null>(null);
   const [searching, setSearching] = useState(false);
@@ -59,7 +132,7 @@ export function BrandBrain() {
       .then((r) => r.json())
       .then((d) => (d.ok ? setData(d) : setErr(d.error || "brain unavailable")))
       .catch((e) => setErr(String(e)));
-  }, []);
+  }, [tick]);
 
   const search = useCallback(async () => {
     if (!q.trim()) return;
@@ -133,8 +206,7 @@ export function BrandBrain() {
           <div style={label}>Needs your review</div>
           {p.status !== "approved" && (
             <div style={{ fontSize: 13, color: "var(--vn-ink-body)", marginBottom: 10 }}>
-              The profile is a draft. Agents use it, but it has not been approved.
-              Approve a version with <code style={{ fontFamily: MONO }}>python -m pipeline.brand_brain approve vanna {p.version}</code>.
+              The profile is a draft. The agents use it, but it has not been approved.
             </div>
           )}
           {(p.open_questions || []).map((qq: string) => (
@@ -155,6 +227,7 @@ export function BrandBrain() {
               ))}
             </div>
           )}
+          <ProfileActions version={p.version} status={p.status} onChanged={() => setTick((x) => x + 1)} />
         </div>
       )}
 
