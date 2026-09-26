@@ -14,31 +14,36 @@ and `OKF-PACKS.md` before adding a company.
 
 ---
 
-## Architecture — hybrid cloud/local
+## Architecture — all on GCP (2026-09-26)
 
 Scraping uses only free public feeds and APIs (news RSS, Google News, GDELT,
 Reddit, Telegram channel previews, DefiLlama) plus X via Apify (APIFY_TOKEN),
-so it runs anywhere. The
-dashboard is public on Cloud Run; the pipeline executes locally;
-**GCS is the seam between them**.
+so it runs anywhere. Everything runs in GCP project **`sales-agent-504607`**
+(number 114262736718), region `us-central1`, from one image (`Dockerfile`,
+two roles). `deploy_cloud.sh` builds and deploys all of it.
 
 ```
-Dashboard (Cloud Run, public)  --run request-->  GCS bucket  --polls-->  Local runner
-        ^                                     requests/ traces/                |
-        |                                     runs/ drafts/ cards/             | runs
-        +------------ SSE live trace ---------------+                          v
-                                                          autonomous_orchestrator.py
-                                                          brain: gemini-3.5-flash
-                                                                 |
-                                                                 v
-                                                        Telegram (human review)
+Dashboard  vanna-gtm-mission (Cloud Run service, public link)
+   | owner actions (OWNER_KEY cookie): Launch Run, approve, Brand Brain, Notion invites
+   v
+Cloud Run Job vanna-gtm-pipeline  ---- cycle: all 12 agents; they reach the brain only
+   ^        |                           through the Brain MCP server (stdio child process)
+   |        v
+Cloud Scheduler vanna-gtm-tick (hourly: notion_sync, metrics_collect; the cycle is opt-in)
+            |
+   Cloud SQL brand-brain (Postgres 17 + pgvector, RLS per tenant)   GCS vanna-gtm-state-504607
+   the brand brain of every tenant                                   runs, assets, learned state
+            |
+   Telegram review (webhook -> /api/telegram/webhook). Nothing publishes automatically.
 ```
 
-- Bucket: `gs://vanna-pipeline-state-506009` · GCP project `video-506009` · region `us-central1`
-- Brain: `gemini-3.5-flash` via the generativelanguage API key in `pipeline/.env`
-  (Vertex/ADC is blocked for this key — do not reroute to Vertex)
-- Dashboard auth: service account. Local runner auth: ADC. These are separate
-  and the org enforces periodic reauth, so the runner's ADC expires often.
+- Visitors to the public link see only runs since their first visit and can
+  change nothing; the owner opens it once with `?key=<OWNER_KEY>`.
+- Secrets live in Secret Manager (from `pipeline/.env` via `deploy_cloud.sh secrets`).
+- Brain LLM: the generativelanguage API key (Vertex/ADC is blocked for it — do not reroute).
+- The laptop still works as before (local Docker Postgres, `.venv`), but it is no longer
+  the production brain: Cloud SQL is. Telegram is on the webhook; do not start the local
+  polling listener, it would exit with 409.
 
 ---
 
@@ -141,6 +146,7 @@ Requires `google-cloud-storage` and valid ADC (`gcloud auth application-default 
 - `pipeline/README.md` and the claim gate reference `files/08-facts-ledger-and-claim-safety.md`
   — that path is currently missing, so claim verification may degrade.
 - `.claude/launch.json` still points at the missing `mission-control/`.
-- `deploy_gcp.sh` targets project `sales-agent-504607`, **not** the `video-506009`
-  project the live dashboard runs in. Check before using it.
+- The live dashboard and pipeline are in `sales-agent-504607` (deploy with
+  `deploy_cloud.sh`). `deploy_gcp.sh` / `deploy_dashboard.sh` are the older,
+  dashboard-only deploys.
 - ~537 untracked files. Commit work you care about — that is how the above was lost.

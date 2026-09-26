@@ -116,11 +116,11 @@ step_jobs() {
   local img; img="$(image)"
   say "jobs: ${JOB} (cycle / tick) and ${ADMIN_JOB} (schema / migration)"
   gc run jobs deploy "$JOB" --image "$img" --region "$REGION" --service-account "$SA" \
-    --command=/app/docker-entrypoint.sh --args=job,tick \
+    --command=//app/docker-entrypoint.sh --args=job,tick \
     --set-cloudsql-instances "$CONN" --set-secrets "$(secrets_flag job)" --set-env-vars "$COMMON_ENV" \
     --cpu 2 --memory 4Gi --task-timeout 3600 --max-retries 0
   gc run jobs deploy "$ADMIN_JOB" --image "$img" --region "$REGION" --service-account "$SA" \
-    --command=/app/docker-entrypoint.sh --args=job,admin-schema \
+    --command=//app/docker-entrypoint.sh --args=job,admin-schema \
     --set-cloudsql-instances "$CONN" --set-secrets "$(secrets_flag admin)" --set-env-vars "$COMMON_ENV" \
     --cpu 1 --memory 2Gi --task-timeout 1800 --max-retries 0
 }
