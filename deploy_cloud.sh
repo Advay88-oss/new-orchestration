@@ -81,8 +81,8 @@ step_sql() {
 }
 
 step_iam() {
-  say "IAM: the runtime service account can read secrets, reach Cloud SQL and start the pipeline job"
-  for role in roles/secretmanager.secretAccessor roles/cloudsql.client roles/run.developer; do
+  say "IAM: the runtime service account can read secrets, reach Cloud SQL, start the pipeline job and call the image/Veo models"
+  for role in roles/secretmanager.secretAccessor roles/cloudsql.client roles/run.developer roles/aiplatform.user; do
     gc projects add-iam-policy-binding "$PROJECT" --member="serviceAccount:${SA}" --role="$role" --condition=None >/dev/null
     echo "  $role"
   done
