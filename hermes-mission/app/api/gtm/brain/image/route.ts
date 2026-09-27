@@ -1,12 +1,15 @@
 import fs from 'fs';
 import path from 'path';
 import { REPO_ROOT } from '@/lib/v2';
+import { ownerOnly } from '@/lib/local-only';
 
 export const dynamic = 'force-dynamic';
 
 /** One image from a tenant's visual memory. Only files inside the brand
  *  brain's own tenant folders are served. */
 export async function GET(req: Request) {
+  const hidden = ownerOnly('the brand images');
+  if (hidden) return hidden;
   const rel = new URL(req.url).searchParams.get('path') || '';
   const root = path.resolve(REPO_ROOT, 'pipeline', 'brain');
   const file = path.resolve(REPO_ROOT, rel);

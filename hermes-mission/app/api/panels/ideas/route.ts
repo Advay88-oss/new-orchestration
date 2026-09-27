@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { runPython, lastJson, pythonPath } from '@/lib/python';
 import { isDeployed, getText } from '@/lib/gcs';
+import { scopePanel } from '@/lib/viewer';
 import fs from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
@@ -25,14 +26,14 @@ export async function GET() {
           { status: 404 },
         );
       }
-      return NextResponse.json({ success: true, ...JSON.parse(raw) });
+      return NextResponse.json({ success: true, ...scopePanel(JSON.parse(raw), 'ideas') });
     }
     const targetFile = fs.existsSync(IDEAS_FILE_2) ? IDEAS_FILE_2 : IDEAS_FILE_1;
     if (!fs.existsSync(targetFile)) {
       return NextResponse.json({ success: false, error: 'ideas.json not found' }, { status: 404 });
     }
     const data = JSON.parse(fs.readFileSync(targetFile, 'utf-8'));
-    return NextResponse.json({ success: true, ...data });
+    return NextResponse.json({ success: true, ...scopePanel(data, 'ideas') });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

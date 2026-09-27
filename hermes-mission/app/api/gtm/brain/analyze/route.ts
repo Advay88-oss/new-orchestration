@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 import { NextResponse } from 'next/server';
-import { localOnly } from '@/lib/local-only';
+import { localOnly, ownerOnly } from '@/lib/local-only';
 import { pythonPath } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
 
@@ -21,6 +21,8 @@ const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
 const statusFile = (t: string) => path.join(REPO_ROOT, 'pipeline', 'state', 'analyzer', t + '.json');
 
 export async function GET(req: Request) {
+  const hidden = ownerOnly('the website analysis');
+  if (hidden) return hidden;
   const t = new URL(req.url).searchParams.get('tenant') || '';
   if (!TENANT.test(t)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
   const f = statusFile(t);

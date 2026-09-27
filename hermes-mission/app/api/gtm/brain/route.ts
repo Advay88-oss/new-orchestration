@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runPython } from '@/lib/python';
+import { ownerOnly } from '@/lib/local-only';
 
 export const dynamic = 'force-dynamic';
 
@@ -9,6 +10,8 @@ export const dynamic = 'force-dynamic';
  * hybrid knowledge search. Read-only; it never writes to the brain.
  */
 export async function GET(req: Request) {
+  const hidden = ownerOnly('the brand brain');
+  if (hidden) return hidden;
   const sp = new URL(req.url).searchParams;
   const q = (sp.get('q') || '').trim().slice(0, 300);
   const tenant = (sp.get('tenant') || '').toLowerCase();

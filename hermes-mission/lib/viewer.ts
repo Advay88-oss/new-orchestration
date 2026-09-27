@@ -77,6 +77,58 @@ export function canSeeRun(runId: string): boolean {
   return runVisibility()(runId);
 }
 
+/**
+ * An Ideas or Memes panel as this viewer may see it: only items made by runs
+ * they may see (an item with no run is older than any visitor), with the
+ * panel's counts recomputed from what is left. The owner gets it unchanged.
+ */
+export function scopePanel(data: any, kind: 'ideas' | 'memes'): any {
+  if (!viewerSince() || !data || !Array.isArray(data[kind])) return data;
+  const see = runVisibility();
+  const items = data[kind].filter((it: any) => typeof it?.run_id === 'string' && see(it.run_id));
+  const out = { ...data, [kind]: items };
+  if (kind === 'ideas') {
+    out.total_ideas = items.length;
+    out.runnable_today_count = items.filter((i: any) => i.runnable_today).length;
+    out.blocked_count = items.length - out.runnable_today_count;
+  } else {
+    out.total_memes = items.length;
+    for (const r of ['low', 'medium', 'high']) {
+      out[`${r}_risk_count`] = items.filter((m: any) => String(m.risk || '').toLowerCase() === r).length;
+    }
+  }
+  return out;
+}
+
+/**
+ * The learning overview as this viewer may see it. The bandit's records are
+ * the sum of every past run, so for a visitor they are rebuilt from the reward
+ * events of the runs they may see: a fresh link starts at zero.
+ */
+export function scopeLearning(data: any): any {
+  if (!viewerSince() || !data || !Array.isArray(data.events)) return data;
+  const see = runVisibility();
+  const events = data.events.filter((e: any) => typeof e?.run_id === 'string' && see(e.run_id));
+  const pairs = (Array.isArray(data.pairs) ? data.pairs : [])
+    .filter((p: any) => typeof p?.run_id === 'string' && see(p.run_id));
+  const arms: Record<string, { option: string; alpha: number; beta: number; n: number; mean: number }[]> = {};
+  for (const dim of Object.keys(data.arms || {})) {
+    const by = new Map<string, { a: number; b: number; n: number }>();
+    for (const e of events) {
+      const opt = e.arms?.[dim];
+      if (typeof opt !== 'string') continue;
+      const r = Math.min(1, Math.max(0, Number(e.total) || 0));
+      const s = by.get(opt) || { a: 1, b: 1, n: 0 };
+      s.a += r; s.b += 1 - r; s.n += 1;
+      by.set(opt, s);
+    }
+    arms[dim] = [...by].map(([option, s]) => ({
+      option, alpha: +s.a.toFixed(3), beta: +s.b.toFixed(3), n: s.n, mean: +(s.a / (s.a + s.b)).toFixed(3),
+    })).sort((x, y) => y.mean - x.mean);
+  }
+  return { ...data, arms, events, n_events: events.length, pairs, n_pairs: pairs.length };
+}
+
 export function viewer() {
   const since = viewerSince();
   const previewing = jar()?.get(PREVIEW_COOKIE)?.value === 'visitor';

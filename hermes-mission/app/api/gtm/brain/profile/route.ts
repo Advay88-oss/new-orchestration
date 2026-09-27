@@ -2,7 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { localOnly } from '@/lib/local-only';
+import { localOnly, ownerOnly } from '@/lib/local-only';
 import { runPython } from '@/lib/python';
 
 export const dynamic = 'force-dynamic';
@@ -33,6 +33,8 @@ const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
 const tenantArg = (t: unknown) => (typeof t === 'string' && TENANT.test(t) ? ['--tenant=' + t] : []);
 
 export async function GET(req: Request) {
+  const hidden = ownerOnly('the brand profile');
+  if (hidden) return hidden;
   const sp = new URL(req.url).searchParams;
   const v = sp.get('version') || '';
   return py(['profile', ...(/^\d+$/.test(v) ? [v] : []), ...tenantArg(sp.get('tenant'))]);

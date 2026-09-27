@@ -97,8 +97,8 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
           marginLeft: "auto",
         }}
       >
-        {/* Launch Autonomous Run Button */}
-        <button
+        {/* Launch Autonomous Run Button (the owner's only) */}
+        {(vm as any).canLaunch && <button
           onClick={handleLaunchRun}
           disabled={launching}
           style={{
@@ -116,7 +116,7 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
           }}
         >
           {launching ? "Launching…" : (launchMsg || "Launch Run")}
-        </button>
+        </button>}
 
         {/* The Session Spend / Cap card lived here. Every model that runs
             is unpriced, so it could only ever read "unpriced / $10.00" on

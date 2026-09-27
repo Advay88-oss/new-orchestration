@@ -238,7 +238,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       )}
 
       {/* The founder's decision: the reward the learning loop records. */}
-      {runData?.run_id && (
+      {runData?.run_id && (vm as any).canReview && (
         <FeedbackBar runId={runData.run_id}
                      draft={xCopy ? ((xHook ? xHook + "\n\n" : "") + xCopy) : undefined} />
       )}

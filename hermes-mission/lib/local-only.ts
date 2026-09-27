@@ -24,6 +24,19 @@ export function cloudMode(): boolean {
   return isDeployed() && process.env.VANNA_CLOUD === '1';
 }
 
+/**
+ * The guard for data that belongs to the owner, not the public link: the brand
+ * brain (profile, knowledge, images, competitors). Reads too, everywhere —
+ * locally the owner is always the viewer unless previewing `?as=visitor`.
+ */
+export function ownerOnly(what: string): NextResponse | null {
+  if (isOwner()) return null;
+  return NextResponse.json(
+    { success: false, ok: false, owner_only: true, error: `${what} is for the owner of this dashboard.` },
+    { status: 403 },
+  );
+}
+
 export function localOnly(what: string): NextResponse | null {
   if (!isDeployed()) return null;
   if (cloudMode()) {

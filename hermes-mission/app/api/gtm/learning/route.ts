@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { localOnly } from '@/lib/local-only';
 import { runPython } from '@/lib/python';
+import { canSeeRun, scopeLearning } from '@/lib/viewer';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,13 +22,13 @@ export const dynamic = 'force-dynamic';
 const DIMS = new Set(['pillar', 'format', 'hook_type', 'length', 'slot']);
 const RUN = /^GTM-\d{8}-\d{6}$/;
 
-async function py(args: string[]) {
+async function py(args: string[], scope: (d: any) => any = (d) => d) {
   const r = await runPython(args, 60_000);
   if (!r.ok) {
     return NextResponse.json({ ok: false, error: r.error || r.stderr.split('\n').filter(Boolean).slice(-1)[0] }, { status: 500 });
   }
   try {
-    return NextResponse.json(JSON.parse(r.stdout.trim().split('\n').filter(Boolean).pop() || '{}'));
+    return NextResponse.json(scope(JSON.parse(r.stdout.trim().split('\n').filter(Boolean).pop() || '{}')));
   } catch {
     return NextResponse.json({ ok: false, error: 'unreadable output' }, { status: 500 });
   }
@@ -35,8 +36,8 @@ async function py(args: string[]) {
 
 export async function GET(req: Request) {
   const pub = new URL(req.url).searchParams.get('published');
-  if (pub && RUN.test(pub)) return py(['-m', 'pipeline.gtm_learning.metrics_collector', 'get', pub]);
-  return py(['-m', 'pipeline.gtm_learning.bandit']);
+  if (pub && RUN.test(pub) && canSeeRun(pub)) return py(['-m', 'pipeline.gtm_learning.metrics_collector', 'get', pub]);
+  return py(['-m', 'pipeline.gtm_learning.bandit'], scopeLearning);
 }
 
 export async function POST(req: Request) {

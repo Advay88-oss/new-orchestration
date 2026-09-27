@@ -18,6 +18,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
 import { ErrorState, ViewSkeleton } from "@/components/States";
+import { useViewer } from "@/lib/useViewer";
 
 const card: React.CSSProperties = {
   background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: 18,
@@ -43,6 +44,8 @@ export function Learning() {
   const [metrics, setMetrics] = useState<Record<string, string>>({});
   const [runId, setRunId] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
+  // Locks and logging change the loop: the owner's only (their POSTs answer 403).
+  const owner = useViewer()?.owner ?? false;
 
   const load = useCallback(() => {
     fetch("/api/gtm/learning", { cache: "no-store" })
@@ -90,6 +93,11 @@ export function Learning() {
         {Object.entries(d.arms as Record<string, any[]>).map(([dim, rows]) => (
           <div key={dim} style={card}>
             <div style={label}>{DIM_LABEL[dim] ?? dim}</div>
+            {rows.length === 0 && (
+              <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", padding: "7px 0", borderTop: "1px solid var(--vn-line)" }}>
+                No runs recorded yet.
+              </div>
+            )}
             {rows.map((r) => {
               const locked = d.locks?.[dim] === r.option;
               return (
@@ -100,13 +108,13 @@ export function Learning() {
                   <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-muted)", width: 78, textAlign: "right" }}>
                     {r.mean.toFixed(2)} · {r.n}
                   </div>
-                  <button disabled={busy}
+                  {owner && <button disabled={busy}
                           onClick={() => post(locked ? { action: "unlock", dim } : { action: "lock", dim, option: r.option })}
                           style={{ fontFamily: MONO, fontSize: 10.5, padding: "2px 8px", borderRadius: 6, cursor: "pointer",
                                    border: "1px solid " + (locked ? "var(--vn-warn)" : "var(--vn-line)"),
                                    color: locked ? "var(--vn-warn)" : "var(--vn-ink-muted)", background: "transparent" }}>
                     {locked ? "locked" : "lock"}
-                  </button>
+                  </button>}
                 </div>
               );
             })}
@@ -115,7 +123,7 @@ export function Learning() {
         ))}
       </div>
 
-      <div style={card}>
+      {owner && <div style={card}>
         <div style={label}>Log a published post's engagement</div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
           <input value={runId} onChange={(e) => setRunId(e.target.value)} placeholder="GTM-20260925-154856"
@@ -131,7 +139,7 @@ export function Learning() {
           </button>
         </div>
         {msg && <div style={{ fontSize: 12.5, color: "var(--vn-ink-body)", marginTop: 8 }}>{msg}</div>}
-      </div>
+      </div>}
 
       <div style={card}>
         <div style={label}>Reward trend — latest runs</div>

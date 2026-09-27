@@ -9,6 +9,7 @@
  */
 import { useCallback, useEffect, useState } from "react";
 import { probeRelay } from "./api";
+import { useViewer } from "./useViewer";
 import { AGENT_COUNT, JUDGE_COUNT, LEARNING_COUNT, SPECIALIST_COUNT } from "./agents";
 import {
   ACCENT,
@@ -63,9 +64,19 @@ type RelayState = "unknown" | "trying" | "live" | "failed";
 
 export type ExpandedMap = Record<string, boolean>;
 
+const OWNER_VIEWS = new Set(["assistant", "scheduler", "brain"]);
+
 export function useMissionControl(props: MissionControlProps) {
   const [data, setData] = useState<MissionData | null>(null);
   const [view, setView] = useState<string>("assistant");
+  // A visitor to the public link has no Assistant, Scheduler or Brand Brain
+  // (all the owner's; their routes answer 403), so those leave the nav and
+  // the page opens on the Live Trace instead.
+  const viewer = useViewer();
+  const visitor = viewer ? !viewer.owner : false;
+  useEffect(() => {
+    if (visitor && OWNER_VIEWS.has(view)) setView("trace");
+  }, [visitor, view]);
   // `?view=brain` opens a view directly (the Notion OAuth callback lands there).
   useEffect(() => {
     try {
@@ -227,7 +238,7 @@ export function useMissionControl(props: MissionControlProps) {
       { id: "brain", label: "Brand Brain" },
       { id: "learning", label: "Learning" },
       { id: "references", label: "Vanna References" },
-    ].map((n) => {
+    ].filter((n) => !(visitor && OWNER_VIEWS.has(n.id))).map((n) => {
       const on = view === n.id;
       return {
         on,
@@ -320,6 +331,10 @@ export function useMissionControl(props: MissionControlProps) {
       isNotes: view === "notes",
       isLive: view === "live",
       isTrace: view === "trace",
+      // Launching and directives are the owner's (their routes answer 403).
+      canLaunch: !visitor,
+      // Deciding on a run (approve, revise, kill, posted-it) is the owner's too.
+      canReview: !visitor,
       isPosts: view === "posts",
       goRuns: () => setView("runs"),
       goLive: () => setView("live"),
