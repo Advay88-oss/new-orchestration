@@ -42,8 +42,9 @@ DB = "brand_brain"
 APP_ROLE = "brain_app"
 # Copied in this order; tsv is generated, so it is never copied.
 TABLES = ("profile_versions", "chunks", "images", "whats_new", "competitor_patterns",
-          "outcomes", "reward_events", "preference_pairs", "meta", "tenant_secrets")
-IDENTITY = ("outcomes", "preference_pairs")
+          "outcomes", "reward_events", "preference_pairs", "meta", "tenant_secrets",
+          "chat_threads", "chat_messages", "audit_log")
+IDENTITY = ("outcomes", "preference_pairs", "chat_messages", "audit_log")
 
 
 # --------------------------------------------------------------------- .env

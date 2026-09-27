@@ -475,3 +475,9 @@ pre, code {
 @media (prefers-reduced-motion: reduce) {
   .vn-skel { animation: none; }
 }
+
+/* The assistant's conversation list gives way on narrow screens. */
+@media (max-width: 760px) {
+  .assistant-threads { display: none !important; }
+}
+.assistant-thread:hover { background: var(--vn-hover); }

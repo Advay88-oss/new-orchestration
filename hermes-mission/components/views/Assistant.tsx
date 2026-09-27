@@ -8,7 +8,8 @@
  * assistant (pipeline/assistant) shows what it is doing — each tool it calls
  * — and returns cards: an analysis running, a Notion button, an action for
  * the owner to confirm, a run to open. It never launches, approves or
- * publishes anything itself.
+ * publishes anything itself. Conversations are stored per company on the
+ * server; answers stream in and are checked against their sources.
  */
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MONO } from "@/lib/colors";
@@ -16,16 +17,10 @@ import type { MissionVM } from "@/lib/viewmodel";
 
 type Card = { type: string; [k: string]: any };
 type Tool = { name: string; summary: string };
-type Msg = { role: "user" | "assistant"; text: string; tools?: Tool[]; cards?: Card[]; error?: string; pending?: boolean };
-
-const STORE = (t: string) => "vn_assistant_" + t;
-
-function load(t: string): Msg[] {
-  try { return JSON.parse(localStorage.getItem(STORE(t)) || "[]"); } catch { return []; }
-}
-function save(t: string, m: Msg[]) {
-  try { localStorage.setItem(STORE(t), JSON.stringify(m.filter((x) => !x.pending).slice(-60))); } catch { /* private mode */ }
-}
+type Grounding = { checked: number; supported?: number; flagged?: { text: string; verdict: string }[]; note?: string };
+type Msg = { role: "user" | "assistant"; text: string; tools?: Tool[]; cards?: Card[]; grounding?: Grounding;
+             error?: string; pending?: boolean; stopped?: boolean };
+type Thread = { id: string; title: string; updated_at: string };
 
 // ---------------------------------------------------------------- markdown
 
@@ -74,6 +69,33 @@ function Markdown({ text }: { text: string }) {
   });
   flush();
   return <>{blocks}</>;
+}
+
+// ---------------------------------------------------------------- grounding
+
+function Grounding({ g }: { g: Grounding }) {
+  if (!g.checked) {
+    return g.note ? <div style={{ fontSize: 11.5, color: "var(--vn-ink-faint)", marginTop: 4 }}>{g.note}</div> : null;
+  }
+  const flagged = g.flagged || [];
+  return (
+    <div style={{ marginTop: 6 }}>
+      <div style={{ fontFamily: MONO, fontSize: 11, color: flagged.length ? "var(--vn-warn)" : "var(--vn-ok)" }}>
+        {flagged.length ? g.supported + " of " + g.checked + " claims found in the sources"
+                        : "all " + g.checked + " claims found in the sources"}
+      </div>
+      {flagged.map((f, i) => (
+        <div key={i} style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", margin: "3px 0 0", paddingLeft: 10,
+                              borderLeft: "2px solid " + (f.verdict === "CONTRADICTED" ? "var(--vn-bad)" : "var(--vn-warn)") }}>
+          {f.verdict === "CONTRADICTED" ? "Contradicted by the sources" : "Not in the sources"}: &ldquo;{f.text}&rdquo;
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Asked({ c }: { c: Card }) {
+  return c.asked ? <div style={{ fontSize: 11, color: "var(--vn-ink-faint)", marginTop: 6 }}>Because you asked: &ldquo;{String(c.asked).slice(0, 120)}&rdquo;</div> : null;
 }
 
 // -------------------------------------------------------------------- cards
@@ -162,7 +184,7 @@ function NotionCard({ c }: { c: Card }) {
   );
 }
 
-function ActionCard({ c, vm }: { c: Card; vm: MissionVM }) {
+function ActionCard({ c, vm, tenant, threadId }: { c: Card; vm: MissionVM; tenant: string; threadId: string | null }) {
   const [state, setState] = useState<string | null>(null);
   const label: Record<string, string> = { launch_run: "Launch run", approve: "Approve", revise: "Send back for revision", kill: "Kill", approve_profile: "Open Brand Brain to approve" };
   const go = async () => {
@@ -173,7 +195,12 @@ function ActionCard({ c, vm }: { c: Card; vm: MissionVM }) {
         ? await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ directive: c.directive || "" }) })
         : await fetch("/api/gtm/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runId: c.run_id, verdict: c.action, note: c.note || "" }) });
       const j = await r.json();
-      setState(j.success || j.ok ? "done" : "failed: " + (j.error || r.status));
+      const ok = Boolean(j.success || j.ok);
+      setState(ok ? "done" : "failed: " + (j.error || r.status));
+      // The audit log records what the owner confirmed from the chat.
+      fetch("/api/assistant/audit", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tenant, action: c.action, run_id: c.run_id, directive: c.directive,
+                               result: ok ? "ok" : String(j.error || r.status), thread_id: threadId, asked: c.asked }) }).catch(() => {});
     } catch (e: any) { setState("failed: " + String(e?.message || e)); }
   };
   return (
@@ -190,6 +217,7 @@ function ActionCard({ c, vm }: { c: Card; vm: MissionVM }) {
         {state && state.startsWith("failed") && <span style={{ fontSize: 12.5, color: "var(--vn-bad)" }}>{state}</span>}
         {state === "done" && c.action === "launch_run" && <span style={{ fontSize: 12.5, color: "var(--vn-ink-muted)" }}>Started. Follow it in Live Trace.</span>}
       </div>
+      <Asked c={c} />
     </div>
   );
 }
@@ -203,11 +231,12 @@ function RunCard({ c, vm }: { c: Card; vm: MissionVM }) {
   );
 }
 
-function CardView({ c, vm, onPick }: { c: Card; vm: MissionVM; onPick: (t: string) => void }) {
+function CardView({ c, vm, onPick, tenant, threadId }: { c: Card; vm: MissionVM; onPick: (t: string) => void;
+                                                       tenant: string; threadId: string | null }) {
   if (c.type === "analysis") return <AnalysisCard c={c} vm={vm} onPick={onPick} />;
   if (c.type === "competitors") return <CompetitorsCard c={c} />;
   if (c.type === "notion") return <NotionCard c={c} />;
-  if (c.type === "action") return <ActionCard c={c} vm={vm} />;
+  if (c.type === "action") return <ActionCard c={c} vm={vm} tenant={tenant} threadId={threadId} />;
   if (c.type === "run") return <RunCard c={c} vm={vm} />;
   return null;
 }
@@ -226,12 +255,16 @@ export function Assistant({ vm }: { vm: MissionVM }) {
   const [tenants, setTenants] = useState<string[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [tenant, setTenant] = useState<string>("");
+  const [threads, setThreads] = useState<Thread[]>([]);
+  const [threadId, setThreadId] = useState<string | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [loadingThread, setLoadingThread] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
   const box = useRef<HTMLTextAreaElement>(null);
+  const abort = useRef<AbortController | null>(null);
 
   useEffect(() => {
     fetch("/api/gtm/brain", { cache: "no-store" }).then((r) => r.json()).then((d) => {
@@ -245,15 +278,37 @@ export function Assistant({ vm }: { vm: MissionVM }) {
     }).catch((e) => setErr(String(e)));
   }, []);
 
+  const loadThreads = useCallback(async (t: string) => {
+    try {
+      const d = await (await fetch("/api/assistant/threads?tenant=" + t, { cache: "no-store" })).json();
+      setThreads(d.ok ? d.threads : []);
+    } catch { setThreads([]); }
+  }, []);
+
+  const openThread = useCallback(async (t: string, id: string | null) => {
+    setThreadId(id);
+    try { if (id) localStorage.setItem("vn_assistant_thread_" + t, id); else localStorage.removeItem("vn_assistant_thread_" + t); } catch { /* */ }
+    if (!id) { setMsgs([]); return; }
+    setLoadingThread(true);
+    try {
+      const d = await (await fetch("/api/assistant/threads?tenant=" + t + "&id=" + id, { cache: "no-store" })).json();
+      setMsgs(d.ok && d.thread ? d.thread.messages : []);
+      if (!d.ok) setThreadId(null);
+    } finally { setLoadingThread(false); }
+  }, []);
+
   useEffect(() => {
     if (!tenant) return;
-    setMsgs(load(tenant));
     try { localStorage.setItem("vn_assistant_tenant", tenant); } catch { /* */ }
     fetch("/api/gtm/brain?tenant=" + tenant, { cache: "no-store" }).then((r) => r.json())
       .then((d) => d.profile?.company?.name && setNames((n) => ({ ...n, [tenant]: d.profile.company.name }))).catch(() => {});
-  }, [tenant]);
+    loadThreads(tenant);
+    let last: string | null = null;
+    try { last = localStorage.getItem("vn_assistant_thread_" + tenant); } catch { /* */ }
+    openThread(tenant, last);
+  }, [tenant, loadThreads, openThread]);
 
-  useEffect(() => { scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" }); }, [msgs]);
+  useEffect(() => { scroller.current?.scrollTo({ top: scroller.current.scrollHeight }); }, [msgs]);
 
   const pick = useCallback((t: string) => {
     setTenants((ts) => (ts.includes(t) ? ts : [...ts, t]));
@@ -265,15 +320,15 @@ export function Assistant({ vm }: { vm: MissionVM }) {
     if (!q || busy || !tenant) return;
     setInput("");
     setErr(null);
-    const history = [...msgs, { role: "user" as const, text: q }];
-    const reply: Msg = { role: "assistant", text: "", tools: [], cards: [], pending: true };
-    setMsgs([...history, reply]);
+    setMsgs((m) => [...m, { role: "user", text: q }, { role: "assistant", text: "", tools: [], cards: [], pending: true }]);
     setBusy(true);
+    const ctl = new AbortController();
+    abort.current = ctl;
     const update = (f: (m: Msg) => Msg) => setMsgs((all) => { const c = [...all]; c[c.length - 1] = f({ ...c[c.length - 1] }); return c; });
     try {
       const r = await fetch("/api/assistant", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tenant, messages: history.map((m) => ({ role: m.role, text: m.text })) }),
+        method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
+        body: JSON.stringify({ tenant, text: q, thread_id: threadId }),
       });
       if (!r.ok || !r.body) {
         const j = await r.json().catch(() => ({}));
@@ -291,20 +346,36 @@ export function Assistant({ vm }: { vm: MissionVM }) {
           const chunk = buf.slice(0, i); buf = buf.slice(i + 2);
           if (!chunk.startsWith("data: ")) continue;
           const ev = JSON.parse(chunk.slice(6));
-          if (ev.type === "tool") update((m) => ({ ...m, tools: [...(m.tools || []), { name: ev.name, summary: ev.summary }] }));
+          if (ev.type === "thread") {
+            if (ev.thread_id !== threadId) {
+              setThreadId(ev.thread_id);
+              try { localStorage.setItem("vn_assistant_thread_" + tenant, ev.thread_id); } catch { /* */ }
+            }
+          } else if (ev.type === "tool") update((m) => ({ ...m, tools: [...(m.tools || []), { name: ev.name, summary: ev.summary }] }));
           else if (ev.type === "card") update((m) => ({ ...m, cards: [...(m.cards || []), ev.card] }));
-          else if (ev.type === "text") update((m) => ({ ...m, text: ev.text }));
+          else if (ev.type === "delta") update((m) => ({ ...m, text: (m.text || "") + ev.text }));
+          else if (ev.type === "grounding") update((m) => ({ ...m, grounding: { checked: ev.checked, supported: ev.supported, flagged: ev.flagged, note: ev.note } }));
           else if (ev.type === "error") update((m) => ({ ...m, error: ev.error }));
         }
       }
     } catch (e: any) {
-      update((m) => ({ ...m, error: String(e?.message || e) }));
+      if (e?.name === "AbortError") update((m) => ({ ...m, stopped: true }));
+      else update((m) => ({ ...m, error: String(e?.message || e) }));
     } finally {
       update((m) => ({ ...m, pending: false }));
       setBusy(false);
-      setMsgs((all) => { save(tenant, all); return all; });
+      abort.current = null;
+      loadThreads(tenant);
       box.current?.focus();
     }
+  };
+
+  const stop = () => abort.current?.abort();
+
+  const remove = async (id: string) => {
+    await fetch("/api/assistant/threads?tenant=" + tenant + "&id=" + id, { method: "DELETE" }).catch(() => {});
+    if (id === threadId) openThread(tenant, null);
+    loadThreads(tenant);
   };
 
   const addCompany = () => {
@@ -323,86 +394,111 @@ export function Assistant({ vm }: { vm: MissionVM }) {
 
   return (
     <section className="vanna-section" style={{ paddingBottom: 24 }}>
-      <div className="vanna-card" style={{ display: "flex", flexDirection: "column", padding: 0, height: "calc(100dvh - 170px)", minHeight: 480 }}>
-        {/* header: company + add */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", borderBottom: "1px solid var(--vn-line)", flexWrap: "wrap" }}>
-          <span style={{ fontSize: 12.5, color: "var(--vn-ink-muted)" }}>Company</span>
-          <select value={tenant} onChange={(e) => setTenant(e.target.value)}
-                  style={{ background: "var(--vn-sunken)", border: "1px solid var(--vn-line-strong)", borderRadius: 6, padding: "6px 10px", fontSize: 13.5, color: "var(--vn-ink)" }}>
-            {tenants.length === 0 && <option value="">no companies yet</option>}
-            {tenants.map((t) => <option key={t} value={t}>{names[t] || t}</option>)}
-          </select>
-          <button style={btn} onClick={addCompany}>+ Add company</button>
-          <span style={{ flex: 1 }} />
-          {msgs.length > 0 && (
-            <button style={{ ...btn, border: "none", color: "var(--vn-ink-muted)" }} disabled={busy}
-                    onClick={() => { setMsgs([]); save(tenant, []); }}>New chat</button>
-          )}
-        </div>
-
-        {/* messages */}
-        <div ref={scroller} style={{ flex: 1, overflowY: "auto", padding: "20px 18px" }}>
-          <div style={{ maxWidth: 780, margin: "0 auto" }}>
-            {msgs.length === 0 && (
-              <div style={{ padding: "32px 0" }}>
-                <h2 style={{ marginBottom: 8 }}>Ask about {name || "a company"}</h2>
-                <p style={{ maxWidth: "60ch" }}>
-                  Answers come from {name || "the company"}&rsquo;s brand brain, with their sources: docs, Notion, the knowledge pack,
-                  runs and what the agents learned. You can also add a company or connect its Notion from here.
-                </p>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
-                  {suggestions.map((s) => <button key={s} style={btn} onClick={() => send(s)} disabled={!tenant || busy}>{s}</button>)}
-                  <button style={btn} onClick={addCompany}>Add a new company</button>
-                </div>
-              </div>
-            )}
-            {msgs.map((m, i) => m.role === "user" ? (
-              <div key={i} style={{ display: "flex", justifyContent: "flex-end", margin: "14px 0" }}>
-                <div style={{ background: "var(--vn-raised)", borderRadius: 12, padding: "10px 14px", maxWidth: "80%", fontSize: 14.5, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{m.text}</div>
-              </div>
-            ) : (
-              <div key={i} style={{ margin: "14px 0" }}>
-                {(m.tools || []).map((t, j) => (
-                  <div key={j} style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--vn-ink-muted)", margin: "2px 0" }}>
-                    {TOOL_LABEL[t.name] || t.name} · {t.summary}
-                  </div>
-                ))}
-                {m.text && <div style={{ marginTop: (m.tools || []).length ? 8 : 0 }}><Markdown text={m.text} /></div>}
-                {(m.cards || []).filter((c) => c.type !== "run").map((c, j) => <CardView key={j} c={c} vm={vm} onPick={pick} />)}
-                {(m.cards || []).some((c) => c.type === "run") && (
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                    {Array.from(new Set((m.cards || []).filter((c) => c.type === "run").map((c) => c.run_id as string))).map((rid) => (
-                      <button key={rid} style={{ ...btn, fontFamily: MONO, fontSize: 11.5, padding: "4px 8px" }}
-                              onClick={() => (vm as any).openRun(rid)}>{rid}</button>
-                    ))}
-                  </div>
-                )}
-                {m.pending && !m.text && (
-                  <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 6 }} aria-label="thinking">
-                    <span className="vn-skel" style={{ width: 120, height: 10, borderRadius: 5 }} />
-                    <span style={{ fontSize: 12, color: "var(--vn-ink-faint)" }}>thinking…</span>
-                  </div>
-                )}
-                {m.error && <div style={{ fontSize: 13, color: "var(--vn-bad)", marginTop: 6 }}>{m.error}</div>}
+      <div className="vanna-card" style={{ display: "flex", padding: 0, height: "calc(100dvh - 170px)", minHeight: 480, overflow: "hidden" }}>
+        {/* conversations of this company */}
+        <aside className="assistant-threads" style={{ width: 230, flex: "0 0 230px", borderRight: "1px solid var(--vn-line)", display: "flex", flexDirection: "column" }}>
+          <div style={{ padding: 12 }}>
+            <button style={{ ...btn, width: "100%" }} disabled={busy} onClick={() => openThread(tenant, null)}>+ New chat</button>
+          </div>
+          <div style={{ flex: 1, overflowY: "auto", padding: "0 6px 12px" }}>
+            {threads.length === 0 && <div style={{ fontSize: 12, color: "var(--vn-ink-faint)", padding: "4px 8px" }}>No conversations yet.</div>}
+            {threads.map((t) => (
+              <div key={t.id} className="assistant-thread" style={{ display: "flex", alignItems: "center", borderRadius: 6,
+                   background: t.id === threadId ? "var(--vn-raised)" : "transparent" }}>
+                <button onClick={() => !busy && openThread(tenant, t.id)} title={t.title}
+                        style={{ flex: 1, minWidth: 0, textAlign: "left", border: "none", background: "transparent", padding: "7px 8px",
+                                 fontSize: 12.5, color: t.id === threadId ? "var(--vn-ink)" : "var(--vn-ink-body)", cursor: "pointer",
+                                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {t.title || "New chat"}
+                </button>
+                <button aria-label="Delete conversation" onClick={() => remove(t.id)}
+                        style={{ border: "none", background: "transparent", color: "var(--vn-ink-faint)", cursor: "pointer", padding: "4px 8px", fontSize: 12 }}>✕</button>
               </div>
             ))}
           </div>
-        </div>
+        </aside>
 
-        {/* composer */}
-        <div style={{ borderTop: "1px solid var(--vn-line)", padding: "12px 18px" }}>
-          <div style={{ maxWidth: 780, margin: "0 auto", display: "flex", gap: 8, alignItems: "flex-end" }}>
-            <textarea ref={box} value={input} rows={1} disabled={!tenant}
-                      onChange={(e) => setInput(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                      placeholder={tenant ? "Ask about " + name + ", or say “add acme.com”…" : "Add a company to begin"}
-                      style={{ flex: 1, resize: "none", minHeight: 44, maxHeight: 180, background: "var(--vn-sunken)", border: "1px solid var(--vn-line-strong)",
-                               borderRadius: 10, padding: "11px 12px", fontSize: 14.5, lineHeight: 1.45, fontFamily: "inherit", color: "var(--vn-ink)" }} />
-            <button style={{ ...cta, padding: "11px 16px" }} disabled={busy || !input.trim() || !tenant} onClick={() => send()}>
-              {busy ? "…" : "Send"}
-            </button>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
+          {/* header: company + add */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", borderBottom: "1px solid var(--vn-line)", flexWrap: "wrap" }}>
+            <span style={{ fontSize: 12.5, color: "var(--vn-ink-muted)" }}>Company</span>
+            <select value={tenant} onChange={(e) => setTenant(e.target.value)} disabled={busy}
+                    style={{ background: "var(--vn-sunken)", border: "1px solid var(--vn-line-strong)", borderRadius: 6, padding: "6px 10px", fontSize: 13.5, color: "var(--vn-ink)" }}>
+              {tenants.length === 0 && <option value="">no companies yet</option>}
+              {tenants.map((t) => <option key={t} value={t}>{names[t] || t}</option>)}
+            </select>
+            <button style={btn} onClick={addCompany}>+ Add company</button>
           </div>
-          {err && <div style={{ maxWidth: 780, margin: "6px auto 0", fontSize: 12.5, color: "var(--vn-bad)" }}>{err}</div>}
+
+          {/* messages */}
+          <div ref={scroller} style={{ flex: 1, overflowY: "auto", padding: "20px 18px" }}>
+            <div style={{ maxWidth: 780, margin: "0 auto" }}>
+              {loadingThread && <div style={{ padding: "24px 0" }}><span className="vn-skel" style={{ width: 260, height: 12 }} /></div>}
+              {!loadingThread && msgs.length === 0 && (
+                <div style={{ padding: "32px 0" }}>
+                  <h2 style={{ marginBottom: 8 }}>Ask about {name || "a company"}</h2>
+                  <p style={{ maxWidth: "60ch" }}>
+                    Answers come from {name || "the company"}&rsquo;s brand brain, with their sources, and are checked against them.
+                    You can also add a company or connect its Notion from here. Conversations are kept, on every device.
+                  </p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
+                    {suggestions.map((s) => <button key={s} style={btn} onClick={() => send(s)} disabled={!tenant || busy}>{s}</button>)}
+                    <button style={btn} onClick={addCompany}>Add a new company</button>
+                  </div>
+                </div>
+              )}
+              {msgs.map((m, i) => m.role === "user" ? (
+                <div key={i} style={{ display: "flex", justifyContent: "flex-end", margin: "14px 0" }}>
+                  <div style={{ background: "var(--vn-raised)", borderRadius: 12, padding: "10px 14px", maxWidth: "80%", fontSize: 14.5, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{m.text}</div>
+                </div>
+              ) : (
+                <div key={i} style={{ margin: "14px 0" }}>
+                  {(m.tools || []).map((t, j) => (
+                    <div key={j} style={{ fontFamily: MONO, fontSize: 11.5, color: t.summary.startsWith("failed: refused") ? "var(--vn-warn)" : "var(--vn-ink-muted)", margin: "2px 0" }}>
+                      {TOOL_LABEL[t.name] || t.name} · {t.summary}
+                    </div>
+                  ))}
+                  {m.text && <div style={{ marginTop: (m.tools || []).length ? 8 : 0 }}><Markdown text={m.text} /></div>}
+                  {m.grounding && <Grounding g={m.grounding} />}
+                  {(m.cards || []).filter((c) => c.type !== "run").map((c, j) => <CardView key={j} c={c} vm={vm} onPick={pick} tenant={tenant} threadId={threadId} />)}
+                  {(m.cards || []).some((c) => c.type === "run") && (
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                      {Array.from(new Set((m.cards || []).filter((c) => c.type === "run").map((c) => c.run_id as string))).map((rid) => (
+                        <button key={rid} style={{ ...btn, fontFamily: MONO, fontSize: 11.5, padding: "4px 8px" }}
+                                onClick={() => (vm as any).openRun(rid)}>{rid}</button>
+                      ))}
+                    </div>
+                  )}
+                  {m.pending && !m.text && (
+                    <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 6 }} aria-label="thinking">
+                      <span className="vn-skel" style={{ width: 120, height: 10, borderRadius: 5 }} />
+                      <span style={{ fontSize: 12, color: "var(--vn-ink-faint)" }}>thinking…</span>
+                    </div>
+                  )}
+                  {m.stopped && <div style={{ fontSize: 12, color: "var(--vn-ink-faint)", marginTop: 4 }}>Stopped.</div>}
+                  {m.error && <div style={{ fontSize: 13, color: "var(--vn-bad)", marginTop: 6 }}>{m.error}</div>}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* composer */}
+          <div style={{ borderTop: "1px solid var(--vn-line)", padding: "12px 18px" }}>
+            <div style={{ maxWidth: 780, margin: "0 auto", display: "flex", gap: 8, alignItems: "flex-end" }}>
+              <textarea ref={box} value={input} rows={1} disabled={!tenant}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                        placeholder={tenant ? "Ask about " + name + ", or say “add acme.com”…" : "Add a company to begin"}
+                        style={{ flex: 1, resize: "none", minHeight: 44, maxHeight: 180, background: "var(--vn-sunken)", border: "1px solid var(--vn-line-strong)",
+                                 borderRadius: 10, padding: "11px 12px", fontSize: 14.5, lineHeight: 1.45, fontFamily: "inherit", color: "var(--vn-ink)" }} />
+              {busy ? (
+                <button style={{ ...btn, padding: "11px 16px" }} onClick={stop}>Stop</button>
+              ) : (
+                <button style={{ ...cta, padding: "11px 16px" }} disabled={!input.trim() || !tenant} onClick={() => send()}>Send</button>
+              )}
+            </div>
+            {err && <div style={{ maxWidth: 780, margin: "6px auto 0", fontSize: 12.5, color: "var(--vn-bad)" }}>{err}</div>}
+          </div>
         </div>
       </div>
     </section>
