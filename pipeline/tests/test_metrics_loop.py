@@ -12,6 +12,7 @@ import os
 
 os.environ["BRAIN_MCP_DISABLE"] = "1"
 os.environ["BRAIN_BACKEND"] = "sqlite"
+os.environ["OPS_ALERTS"] = "0"      # tests never page the owner
 
 import json
 import shutil

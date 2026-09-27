@@ -11,6 +11,7 @@ from __future__ import annotations
 import os
 
 os.environ["BRAIN_MCP_DISABLE"] = "1"
+os.environ["OPS_ALERTS"] = "0"      # tests never page the owner
 
 import unittest
 from unittest import mock

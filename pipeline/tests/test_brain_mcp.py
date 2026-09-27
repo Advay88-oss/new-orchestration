@@ -15,6 +15,8 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
+os.environ["OPS_ALERTS"] = "0"      # tests never page the owner
+
 
 class BrainOverMCPTest(unittest.TestCase):
     @classmethod

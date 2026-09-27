@@ -29,6 +29,11 @@ def _now() -> datetime:
 
 
 def _telegram(text: str) -> bool:
+    # Tests set OPS_ALERTS=0: they raise errors on purpose, and those must
+    # never reach the owner's phone.
+    import os
+    if os.environ.get("OPS_ALERTS") == "0":
+        return False
     try:
         from pipeline.gtm_os.telegram_sender import _chat_id, _token
         token, chat = _token(), _chat_id()
