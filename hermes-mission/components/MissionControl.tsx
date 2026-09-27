@@ -113,7 +113,8 @@ export function MissionControl({
         </div>
 
         <PageHeader vm={vm} />
-        {!(vm as any).isAssistant && <CommandConsole vm={vm} />}
+        {/* The directive box belongs where a run is watched: Live Trace only. */}
+        {(vm as any).isTrace && <CommandConsole vm={vm} />}
 
         {(vm as any).isTrace && <LiveTrace />}
         {vm.isLive && <AgentReasoning />}
