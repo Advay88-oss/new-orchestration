@@ -213,59 +213,31 @@ def veo_element(prompt: str, out: Path, *, project: str = "vanna-mcp",
     import urllib.request
 
     from pipeline.scripts.gemini_flash_image import media_project
-    from pipeline.scripts.veo_broll import _vertex_token, _find_video, _write_video
+    from pipeline.scripts.veo_broll import _find_video, _write_video, run_veo
 
     project = media_project(project)
 
     started = time.time()
-    token = _vertex_token()
-    if not token:
-        _journal(False, 0.0, model, "no Vertex token")
-        raise RuntimeError("no Vertex token; run `gcloud auth application-default login`")
-
-    host = "https://" + location + "-aiplatform.googleapis.com"
-    base = (host + "/v1/projects/" + project + "/locations/" + location
-            + "/publishers/google/models/" + model)
-    headers = {"Authorization": "Bearer " + token,
-               "x-goog-user-project": project, "Content-Type": "application/json"}
-    body = {"instances": [{"prompt": prompt}],
-            "parameters": {"aspectRatio": "16:9", "sampleCount": 1,
-                           "durationSeconds": DURATION_S}}
-
-    req = urllib.request.Request(base + ":predictLongRunning",
-                                 data=json.dumps(body).encode(),
-                                 headers=headers, method="POST")
-    op = json.loads(urllib.request.urlopen(req, timeout=90).read())
-    name = op.get("name")
-    if not name:
-        raise RuntimeError("Veo returned no operation: " + json.dumps(op)[:200])
-
-    deadline = time.time() + timeout_s
-    while time.time() < deadline:
-        time.sleep(15)
-        poll = urllib.request.Request(
-            base + ":fetchPredictOperation",
-            data=json.dumps({"operationName": name}).encode(),
-            headers=headers, method="POST")
-        res = json.loads(urllib.request.urlopen(poll, timeout=90).read())
-        if not res.get("done"):
-            continue
-        if res.get("error"):
-            raise RuntimeError("Veo failed: " + json.dumps(res["error"])[:250])
-        b64, uri = _find_video(res)
-        if not (b64 or uri):
-            raise RuntimeError("Veo finished with no video payload")
-        out.parent.mkdir(parents=True, exist_ok=True)
-        if not _write_video(b64, uri, out, None):
-            raise RuntimeError("Veo payload could not be written")
-        # Journal the call. Routing A09 through here rather than through the
-        # cycle's own Veo path silently dropped veo-3.1 off the dashboard's
-        # model list — the work was happening and the telemetry said it was not.
-        _journal(True, round(time.time() - started, 2), model)
-        return out
-    _journal(False, round(time.time() - started, 2), model,
-             "Veo did not finish within " + str(int(timeout_s)) + "s")
-    raise RuntimeError("Veo did not finish within " + str(int(timeout_s)) + "s")
+    params = {"aspectRatio": "16:9", "sampleCount": 1, "durationSeconds": DURATION_S}
+    try:
+        res, key, _via = run_veo(model, {"prompt": prompt}, params, project=project,
+                                 location=location, timeout_s=timeout_s)
+    except RuntimeError as exc:
+        _journal(False, round(time.time() - started, 2), model, str(exc)[:120])
+        raise
+    if res.get("error"):
+        raise RuntimeError("Veo failed: " + json.dumps(res["error"])[:250])
+    b64, uri = _find_video(res)
+    if not (b64 or uri):
+        raise RuntimeError("Veo finished with no video payload")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    if not _write_video(b64, uri, out, key):
+        raise RuntimeError("Veo payload could not be written")
+    # Journal the call. Routing A09 through here rather than through the
+    # cycle's own Veo path silently dropped veo-3.1 off the dashboard's
+    # model list — the work was happening and the telemetry said it was not.
+    _journal(True, round(time.time() - started, 2), model)
+    return out
 
 
 def _journal(ok: bool, secs: float, model: str, note: str = "") -> None:

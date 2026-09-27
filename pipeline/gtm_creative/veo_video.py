@@ -182,17 +182,10 @@ def _veo(prompt: str, image: Path, out: Path, *, project: str = "vanna-mcp",
          last_frame: Optional[Path] = None) -> Path:
     from pipeline.gtm_creative.motion import _journal
     from pipeline.scripts.gemini_flash_image import media_project
-    from pipeline.scripts.veo_broll import _find_video, _vertex_token, _write_video
+    from pipeline.scripts.veo_broll import _find_video, _write_video, run_veo
 
     project = media_project(project)
     started = time.time()
-    token = _vertex_token()
-    if not token:
-        raise RuntimeError("no Vertex token; run `gcloud auth application-default login`")
-    base = ("https://" + location + "-aiplatform.googleapis.com/v1/projects/" + project
-            + "/locations/" + location + "/publishers/google/models/" + MODEL)
-    headers = {"Authorization": "Bearer " + token, "x-goog-user-project": project,
-               "Content-Type": "application/json"}
     instance: dict[str, Any] = {"prompt": prompt, "image": {
         "bytesBase64Encoded": base64.b64encode(image.read_bytes()).decode(),
         "mimeType": "image/png"}}
@@ -203,35 +196,18 @@ def _veo(prompt: str, image: Path, out: Path, *, project: str = "vanna-mcp",
         instance["lastFrame"] = {
             "bytesBase64Encoded": base64.b64encode(last_frame.read_bytes()).decode(),
             "mimeType": "image/png"}
-    body = {"instances": [instance],
-            "parameters": {"aspectRatio": "16:9", "sampleCount": 1,
-                           "durationSeconds": DURATION_S, "generateAudio": False,
-                           "resolution": "1080p"}}
-    req = urllib.request.Request(base + ":predictLongRunning",
-                                 data=json.dumps(body).encode(), headers=headers,
-                                 method="POST")
-    op = json.loads(urllib.request.urlopen(req, timeout=120).read())
-    name = op.get("name")
-    if not name:
-        raise RuntimeError("Veo returned no operation: " + json.dumps(op)[:300])
-    deadline = time.time() + timeout_s
-    while time.time() < deadline:
-        time.sleep(15)
-        poll = urllib.request.Request(base + ":fetchPredictOperation",
-                                      data=json.dumps({"operationName": name}).encode(),
-                                      headers=headers, method="POST")
-        res = json.loads(urllib.request.urlopen(poll, timeout=90).read())
-        if not res.get("done"):
-            continue
-        if res.get("error"):
-            _journal(False, round(time.time() - started, 2), MODEL, "image-to-video failed")
-            raise RuntimeError("Veo failed: " + json.dumps(res["error"])[:300])
-        b64, uri = _find_video(res)
-        if not (b64 or uri) or not _write_video(b64, uri, out, None):
-            raise RuntimeError("Veo finished with no usable video")
-        _journal(True, round(time.time() - started, 2), MODEL, "image-to-video")
-        return out
-    raise RuntimeError("Veo did not finish within " + str(int(timeout_s)) + "s")
+    params = {"aspectRatio": "16:9", "sampleCount": 1, "durationSeconds": DURATION_S,
+              "generateAudio": False, "resolution": "1080p"}
+    res, key, _via = run_veo(MODEL, instance, params, project=project,
+                             location=location, timeout_s=timeout_s)
+    if res.get("error"):
+        _journal(False, round(time.time() - started, 2), MODEL, "image-to-video failed")
+        raise RuntimeError("Veo failed: " + json.dumps(res["error"])[:300])
+    b64, uri = _find_video(res)
+    if not (b64 or uri) or not _write_video(b64, uri, out, key):
+        raise RuntimeError("Veo finished with no usable video")
+    _journal(True, round(time.time() - started, 2), MODEL, "image-to-video")
+    return out
 
 
 def _frames(mp4: Path, at: tuple[float, ...] = (0.4, 4.0, 7.6)) -> list[Path]:

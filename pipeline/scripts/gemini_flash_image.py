@@ -30,6 +30,18 @@ def media_project(project: str) -> str:
 
 REPO_ROOT = Path(os.environ.get("VANNA_ROOT", Path(__file__).resolve().parents[2]))
 
+
+def _image_api_key() -> str:
+    """The Gemini API key (the environment on GCP, pipeline/.env locally)."""
+    key = os.environ.get("GEMINI_API_KEY", "")
+    if not key:
+        try:
+            from pipeline.brand_brain.store import _env_file
+            key = _env_file("GEMINI_API_KEY") or ""
+        except Exception:                           # noqa: BLE001 — boundary
+            key = ""
+    return key
+
 def get_vertex_token() -> str:
     """Retrieves Google Cloud OAuth access token from ADC or gcloud."""
     try:
@@ -89,15 +101,24 @@ def generate_gemini_image(
     out.parent.mkdir(parents=True, exist_ok=True)
     project = media_project(project)
 
-    token = get_vertex_token()
-    host = "https://aiplatform.googleapis.com" if location == "global" else f"https://{location}-aiplatform.googleapis.com"
-    url = f"{host}/v1/projects/{project}/locations/{location}/publishers/google/models/{model}:generateContent"
-    
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "x-goog-user-project": project
-    }
+    # Two ways to reach the same model. On the laptop, Vertex with the
+    # founder's login (project vanna-mcp). On GCP the pipeline's service
+    # account may not call Vertex models, so deploy_cloud.sh sets
+    # VANNA_IMAGE_VIA=apikey and the Gemini API key already used for the brain
+    # is used instead: same model, same request body, no extra permission.
+    api_key = _image_api_key() if os.environ.get("VANNA_IMAGE_VIA") == "apikey" else ""
+    if api_key:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        headers = {"x-goog-api-key": api_key, "Content-Type": "application/json"}
+    else:
+        token = get_vertex_token()
+        host = "https://aiplatform.googleapis.com" if location == "global" else f"https://{location}-aiplatform.googleapis.com"
+        url = f"{host}/v1/projects/{project}/locations/{location}/publishers/google/models/{model}:generateContent"
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "x-goog-user-project": project
+        }
     
     parts: list = []
     for img in images or []:
@@ -112,7 +133,7 @@ def generate_gemini_image(
         payload["generationConfig"]["responseModalities"] = ["IMAGE"]
         payload["generationConfig"]["imageConfig"] = {"aspectRatio": aspect_ratio}
     
-    print(f"▶ Calling Google Model Garden: {model} (Project: {project}, Location: {location})...")
+    print(f"▶ Calling {model} via " + ("the Gemini API key" if api_key else f"Vertex (Project: {project}, Location: {location})") + "...")
     req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
     
     max_retries = 4
@@ -130,7 +151,7 @@ def generate_gemini_image(
                 print(f"⚠️ Vertex API Error (HTTP {e.code}). Retrying in {backoff:.1f}s (Attempt {attempt}/{max_retries})...")
                 time.sleep(backoff)
                 continue
-            raise RuntimeError(f"Vertex API Error (HTTP {e.code}): {err}")
+            raise RuntimeError(f"{'Gemini API' if api_key else 'Vertex API'} Error (HTTP {e.code}): {err}")
         except (urllib.error.URLError, TimeoutError) as e:
             if attempt < max_retries:
                 import random

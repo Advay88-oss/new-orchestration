@@ -100,6 +100,82 @@ def _write_video(b64: str | None, uri: str | None, out: Path, key: str | None) -
     return False
 
 
+# ── One Veo call for the pipeline, on either backend ─────────────────────────────
+def veo_via_apikey() -> bool:
+    """GCP sets VANNA_IMAGE_VIA=apikey: the pipeline's service account may not
+    call Vertex models, so Veo (like the posters) goes through the Gemini API
+    key. The laptop keeps Vertex with the founder's login."""
+    return os.environ.get("VANNA_IMAGE_VIA") == "apikey"
+
+
+def _veo_key() -> str:
+    # GEMINI_API_KEY first: it is the billed key (images and Veo both work on
+    # it, 2026-09-27); VEO_API_KEY answered 429 quota-exceeded.
+    key = os.environ.get("GEMINI_API_KEY") or os.environ.get("VEO_API_KEY") or ""
+    if not key:
+        try:
+            from pipeline.brand_brain.store import _env_file
+            key = _env_file("GEMINI_API_KEY") or _env_file("VEO_API_KEY") or ""
+        except Exception:                           # noqa: BLE001 — boundary
+            key = ""
+    return key
+
+
+def run_veo(model: str, instance: dict, parameters: dict, *, project: str,
+            location: str, timeout_s: float, poll_s: float = 15.0) -> tuple[dict, str | None, str]:
+    """Submit a Veo job and wait for it. Returns (finished operation, the API
+    key to download a generativelanguage URI with or None, transport).
+
+    Vertex: `<loc>-aiplatform` with an OAuth token, polled with
+    fetchPredictOperation. API key: generativelanguage, where the model ids end
+    in -preview rather than -001, the operation is polled by name, and the
+    Vertex-only parameters (sampleCount, generateAudio) are not accepted.
+    """
+    if veo_via_apikey():
+        key = _veo_key()
+        if not key:
+            raise RuntimeError("VANNA_IMAGE_VIA=apikey but no VEO_API_KEY / GEMINI_API_KEY")
+        m = model[:-4] + "-preview" if model.endswith("-001") else model
+        params = {k: v for k, v in parameters.items() if k not in ("sampleCount", "generateAudio")}
+        h = {"x-goog-api-key": key}
+        try:
+            op = _req(f"{AISTUDIO_BASE}/models/{m}:predictLongRunning",
+                      {"instances": [instance], "parameters": params}, h)
+        except urllib.error.HTTPError as e:
+            raise RuntimeError(f"Veo submit HTTP {e.code}: " + e.read().decode("utf-8", "replace")[:300]) from e
+        name = op.get("name")
+        if not name:
+            raise RuntimeError("Veo returned no operation: " + json.dumps(op)[:300])
+        deadline = time.time() + timeout_s
+        while time.time() < deadline:
+            time.sleep(poll_s)
+            res = _req(f"{AISTUDIO_BASE}/{name}", None, h)
+            if res.get("done"):
+                return res, key, "gemini-api"
+        raise RuntimeError("Veo did not finish within " + str(int(timeout_s)) + "s")
+
+    token = _vertex_token()
+    if not token:
+        raise RuntimeError("no Vertex token; run `gcloud auth application-default login`")
+    base = (f"https://{location}-aiplatform.googleapis.com/v1/projects/{project}"
+            f"/locations/{location}/publishers/google/models/{model}")
+    h = {"Authorization": "Bearer " + token, "x-goog-user-project": project}
+    try:
+        op = _req(f"{base}:predictLongRunning", {"instances": [instance], "parameters": parameters}, h)
+    except urllib.error.HTTPError as e:
+        raise RuntimeError(f"Veo submit HTTP {e.code}: " + e.read().decode("utf-8", "replace")[:300]) from e
+    name = op.get("name")
+    if not name:
+        raise RuntimeError("Veo returned no operation: " + json.dumps(op)[:300])
+    deadline = time.time() + timeout_s
+    while time.time() < deadline:
+        time.sleep(poll_s)
+        res = _req(f"{base}:fetchPredictOperation", {"operationName": name}, h)
+        if res.get("done"):
+            return res, None, "vertex"
+    raise RuntimeError("Veo did not finish within " + str(int(timeout_s)) + "s")
+
+
 # ── Vertex backend (ADC + credits) ─────────────────────────────────────────────
 def _vertex_token() -> str | None:
     try:

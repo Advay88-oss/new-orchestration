@@ -551,67 +551,36 @@ def render_video_cinematic(blueprint, run_id: str, *, timeout_s: float = 420.0) 
     if not prompt:
         raise RuntimeError("no Veo prompt on the creative blueprint")
 
-    token = _vertex_token()
-    if not token:
-        raise RuntimeError("no Vertex token; run `gcloud auth application-default login`")
+    from pipeline.scripts.veo_broll import run_veo, veo_via_apikey
 
-    host = "https://" + VEO_LOCATION + "-aiplatform.googleapis.com"
-    base = (host + "/v1/projects/" + VEO_PROJECT + "/locations/" + VEO_LOCATION
-            + "/publishers/google/models/" + R.MODELS["video"])
-    headers = {"Authorization": "Bearer " + token,
-               "x-goog-user-project": VEO_PROJECT,
-               "Content-Type": "application/json"}
-    body = {"instances": [{"prompt": prompt}],
-            "parameters": {"aspectRatio": "16:9", "sampleCount": 1,
-                           "durationSeconds": 8}}
-
+    via = "gemini-api" if veo_via_apikey() else "vertex"
     started = time.time()
-    req = urllib.request.Request(base + ":predictLongRunning",
-                                 data=json.dumps(body).encode(),
-                                 headers=headers, method="POST")
     try:
-        op = json.loads(urllib.request.urlopen(req, timeout=90).read())
-    except urllib.error.HTTPError as exc:
-        detail = exc.read().decode("utf-8", "replace")[:300]
+        res, key, via = run_veo(R.MODELS["video"], {"prompt": prompt},
+                                {"aspectRatio": "16:9", "sampleCount": 1, "durationSeconds": 8},
+                                project=VEO_PROJECT, location=VEO_LOCATION, timeout_s=timeout_s)
+    except RuntimeError as exc:
         R.record(R.AgentCall("A09_video_production", "video", R.MODELS["video"],
                              False, round(time.time() - started, 2),
-                             note="HTTP " + str(exc.code) + ": " + detail,
-                             transport="vertex"))
-        raise RuntimeError("Veo submit HTTP " + str(exc.code) + ": " + detail) from exc
-
-    op_name = op.get("name")
-    if not op_name:
-        raise RuntimeError("Veo returned no operation name: " + json.dumps(op)[:200])
-
-    deadline = time.time() + timeout_s
-    while time.time() < deadline:
-        time.sleep(15)
-        poll = urllib.request.Request(
-            base + ":fetchPredictOperation",
-            data=json.dumps({"operationName": op_name}).encode(),
-            headers=headers, method="POST")
-        res = json.loads(urllib.request.urlopen(poll, timeout=90).read())
-        if not res.get("done"):
-            continue
-        if res.get("error"):
-            raise RuntimeError("Veo failed: " + json.dumps(res["error"])[:250])
-        out = STATE_DIR / "gtm_runs" / run_id / (run_id + "_video.mp4")
-        out.parent.mkdir(parents=True, exist_ok=True)
-        # _find_video returns (inline_base64, uri); _write_video takes both
-        # plus the destination and an API key for generativelanguage URIs.
-        b64, uri = _find_video(res)
-        if not (b64 or uri):
-            raise RuntimeError("Veo operation done but carried no video payload")
-        if not _write_video(b64, uri, out, None):
-            raise RuntimeError("Veo payload could not be written (uri=" + str(uri)[:120] + ")")
-        R.record(R.AgentCall("A09_video_production", "video", R.MODELS["video"],
-                             True, round(time.time() - started, 2),
-                             transport="vertex"))
-        R.record_stage("A09_video_production", "ok", "rendered " + out.name,
-                       outputs=[str(out)])
-        return str(out)
-
-    raise RuntimeError("Veo did not finish within " + str(int(timeout_s)) + "s")
+                             note=str(exc)[:300], transport=via))
+        raise
+    if res.get("error"):
+        raise RuntimeError("Veo failed: " + json.dumps(res["error"])[:250])
+    out = STATE_DIR / "gtm_runs" / run_id / (run_id + "_video.mp4")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    # _find_video returns (inline_base64, uri); _write_video takes both
+    # plus the destination and an API key for generativelanguage URIs.
+    b64, uri = _find_video(res)
+    if not (b64 or uri):
+        raise RuntimeError("Veo operation done but carried no video payload")
+    if not _write_video(b64, uri, out, key):
+        raise RuntimeError("Veo payload could not be written (uri=" + str(uri)[:120] + ")")
+    R.record(R.AgentCall("A09_video_production", "video", R.MODELS["video"],
+                         True, round(time.time() - started, 2),
+                         transport=via))
+    R.record_stage("A09_video_production", "ok", "rendered " + out.name,
+                   outputs=[str(out)])
+    return str(out)
 
 
 # --------------------------------------------------------------------------
