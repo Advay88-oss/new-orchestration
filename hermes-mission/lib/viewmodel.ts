@@ -65,7 +65,7 @@ export type ExpandedMap = Record<string, boolean>;
 
 export function useMissionControl(props: MissionControlProps) {
   const [data, setData] = useState<MissionData | null>(null);
-  const [view, setView] = useState<string>("runs");
+  const [view, setView] = useState<string>("assistant");
   // `?view=brain` opens a view directly (the Notion OAuth callback lands there).
   useEffect(() => {
     try {
@@ -215,6 +215,7 @@ export function useMissionControl(props: MissionControlProps) {
     // Emoji came off the three labels that had them; nine items where three
     // are decorated and six are not is not a set.
     const nav = [
+      { id: "assistant", label: "Assistant" },
       { id: "trace", label: "Live Trace" },
       { id: "live", label: "Agent Decisions" },
       { id: "scheduler", label: "24/7 Scheduler" },
@@ -310,6 +311,7 @@ export function useMissionControl(props: MissionControlProps) {
       isResearch: view === "research",
       isReferences: view === "references",
       isBrain: view === "brain",
+      isAssistant: view === "assistant",
       isLearning: view === "learning",
       isScheduler: view === "scheduler",
       isIdeas: view === "ideas",
@@ -469,6 +471,10 @@ export function useMissionControl(props: MissionControlProps) {
         "Vanna References",
         "Every scraped post, doc and article with its source, what A02 read "
         + "in it, and the strategies it supports for Vanna.",
+      ],
+      assistant: [
+        "Assistant",
+        "Ask anything about a company, add a new one from its website, or connect its Notion.",
       ],
       research: [
         "Scraped Intelligence",

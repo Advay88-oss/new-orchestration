@@ -18,6 +18,7 @@ import { IdeasView } from "./views/IdeasView";
 import { MemesView } from "./views/MemesView";
 import { useMissionControl } from "@/lib/viewmodel";
 import type { MissionControlProps } from "@/lib/types";
+import { Assistant } from "./views/Assistant";
 
 export function MissionControl({
   debateEdges = "both",
@@ -112,7 +113,7 @@ export function MissionControl({
         </div>
 
         <PageHeader vm={vm} />
-        <CommandConsole vm={vm} />
+        {!(vm as any).isAssistant && <CommandConsole vm={vm} />}
 
         {(vm as any).isTrace && <LiveTrace />}
         {vm.isLive && <AgentReasoning />}
@@ -124,6 +125,7 @@ export function MissionControl({
         {vm.isAgents && <GtmAgents />}
         {(vm as any).isResearch && <Research vm={vm} />}
         {(vm as any).isReferences && <VannaReferences />}
+        {(vm as any).isAssistant && <Assistant vm={vm} />}
         {(vm as any).isBrain && <BrandBrain />}
         {(vm as any).isLearning && <Learning />}
       </main>
