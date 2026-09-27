@@ -156,7 +156,7 @@ export function useMissionControl(props: MissionControlProps) {
   const totalSpent: number | null = data ? (data.SPENT_USD ?? null) : null;
 
   const outcomeMeta = useCallback((run?: Run | null) => {
-    if (!run) return { label: "Standby", color: NEUTRAL, soft: "#F4F4F4", note: "No active run" };
+    if (!run) return { label: "Standby", color: NEUTRAL, soft: "var(--vn-raised)", note: "No active run" };
     if (run.outcome === "shipped")
       return { label: "Shipped", color: OK, soft: OK_SOFT, note: "sent for human review" };
     if (run.outcome === "killed")
@@ -165,7 +165,7 @@ export function useMissionControl(props: MissionControlProps) {
       return {
         label: "Died mid-run",
         color: NEUTRAL,
-        soft: "#F4F4F4",
+        soft: "var(--vn-raised)",
         note: "stopped at " + (run.died ? run.died.stage : ""),
       };
     return { label: "Running", color: ACCENT, soft: ACCENT_SOFT, note: "no close message yet" };
@@ -288,8 +288,8 @@ export function useMissionControl(props: MissionControlProps) {
           setLastPoll(Date.now());
         },
         style: {
-          border: "1px solid " + (on ? "var(--vn-ink)" : "var(--vn-line)"),
-          background: on ? "var(--vn-ink)" : "transparent",
+          border: "1px solid " + (on ? "var(--vn-cta)" : "var(--vn-line)"),
+          background: on ? "var(--vn-cta)" : "transparent",
           color: on ? "var(--vn-on-accent)" : "var(--vn-ink-muted)",
           borderRadius: "6px",
           padding: "7px 10px",
@@ -344,7 +344,7 @@ export function useMissionControl(props: MissionControlProps) {
       capNote: spent === null
         ? "no rate table"
         : pct > 0.85 ? "approaching cap" : Math.round(pct * 100) + "% of cap used",
-      relayDotColor: relay === "live" ? OK : "#595959",
+      relayDotColor: relay === "live" ? OK : "var(--vn-ink-muted)",
       relayLabel: d
         ? (typeof window === "undefined" ? "same origin" : window.location.host)
         : "loading…",
@@ -531,7 +531,7 @@ export function useMissionControl(props: MissionControlProps) {
             : r.boundary.confidence === "open"
               ? "open"
               : "inferred · weak",
-        boundaryStyle: pill(weak ? "#8C0043" : INK3, weak ? WARN_SOFT : "#F4F4F4", {
+        boundaryStyle: pill(weak ? "var(--vn-warn)" : INK3, weak ? WARN_SOFT : "var(--vn-raised)", {
           size: "10px",
           pad: "3px 9px",
         }),
@@ -547,15 +547,15 @@ export function useMissionControl(props: MissionControlProps) {
             boxSizing: "border-box",
             background:
               s.status === "done"
-                ? "#1F1F1F"
+                ? "var(--vn-ink)"
                 : s.status === "active"
                   ? ACCENT
                   : s.status === "failed"
                     ? BAD
                     : s.status === "skipped"
-                      ? "#B8B3C6"
-                      : "#FFFFFF",
-            border: s.status === "not_reached" ? "1px solid #B8B3C6" : "none",
+                      ? "var(--vn-line-strong)"
+                      : "var(--vn-surface)",
+            border: s.status === "not_reached" ? "1px solid var(--vn-line-strong)" : "none",
           } as React.CSSProperties,
         })),
         open: () => {
@@ -600,12 +600,12 @@ export function useMissionControl(props: MissionControlProps) {
     const stages = run.stages.map((s: Stage) => {
       const cfg = {
         done: {
-          dot: "#1F1F1F",
+          dot: "var(--vn-ink)",
           label: INK,
           meta: INK3,
           weight: 500,
-          bg: "#F7F7F7",
-          border: "1px solid #F7F7F7",
+          bg: "var(--vn-sunken)",
+          border: "1px solid var(--vn-sunken)",
         },
         active: {
           dot: ACCENT,
@@ -617,7 +617,7 @@ export function useMissionControl(props: MissionControlProps) {
         },
         failed: {
           dot: BAD,
-          label: "#8B2E30",
+          label: "var(--vn-bad)",
           meta: BAD,
           weight: 600,
           bg: BAD_SOFT,
@@ -628,16 +628,16 @@ export function useMissionControl(props: MissionControlProps) {
           label: INK3,
           meta: MUTED,
           weight: 500,
-          bg: "#F7F7F7",
-          border: "1px solid #F7F7F7",
+          bg: "var(--vn-sunken)",
+          border: "1px solid var(--vn-sunken)",
         },
         not_reached: {
           dot: "transparent",
-          label: "#BFBFBF",
-          meta: "#BFBFBF",
+          label: "var(--vn-ink-faint)",
+          meta: "var(--vn-ink-faint)",
           weight: 500,
-          bg: "#FFFFFF",
-          border: "1px dashed #B8B3C6",
+          bg: "var(--vn-surface)",
+          border: "1px dashed var(--vn-line-strong)",
         },
       }[s.status];
       let meta: string;
@@ -668,9 +668,9 @@ export function useMissionControl(props: MissionControlProps) {
           background: cfg.dot,
           border:
             s.status === "not_reached"
-              ? "1.5px solid #B8B3C6"
+              ? "1.5px solid var(--vn-line-strong)"
               : s.status === "skipped"
-                ? "1.5px dashed #A9A9A9"
+                ? "1.5px dashed var(--vn-ink-faint)"
                 : "none",
         } as React.CSSProperties,
       };
@@ -714,8 +714,8 @@ export function useMissionControl(props: MissionControlProps) {
               fontWeight: 600,
               borderRadius: "10px",
               background:
-                n === 0 ? "#F7F7F7" : self ? "#F4F4F4" : tint(arcHue(a), "24"),
-              color: n === 0 ? "#BFBFBF" : self ? INK3 : arcHue(a),
+                n === 0 ? "var(--vn-sunken)" : self ? "var(--vn-raised)" : tint(arcHue(a), "24"),
+              color: n === 0 ? "var(--vn-ink-faint)" : self ? INK3 : arcHue(a),
             } as React.CSSProperties,
           };
         }),
@@ -867,7 +867,7 @@ export function useMissionControl(props: MissionControlProps) {
           parentAgent,
           parentHue: parentAgent ? agentHue(parentAgent) : MUTED,
           parentSnippet,
-          railColor: isStrat && base.showRail ? agentHue(agent) : "#F4F4F4",
+          railColor: isStrat && base.showRail ? agentHue(agent) : "var(--vn-raised)",
           railWidth: isStrat && base.showRail ? "3px" : "2px",
           isProse: cls.type === "prose" || cls.type === "error",
           isPayload: ["research", "draft", "ruling", "gate", "json"].includes(cls.type),
@@ -928,8 +928,8 @@ export function useMissionControl(props: MissionControlProps) {
         on: r.key === liveRun.key,
         pick: () => setLiveKey(r.key),
         style: {
-          border: "1px solid " + (r.key === liveRun.key ? ACCENT : "#E5E7EB"),
-          background: r.key === liveRun.key ? ACCENT_SOFT : "#FFFFFF",
+          border: "1px solid " + (r.key === liveRun.key ? ACCENT : "var(--vn-line)"),
+          background: r.key === liveRun.key ? ACCENT_SOFT : "var(--vn-surface)",
           color: r.key === liveRun.key ? ACCENT_DEEP : INK2,
           borderRadius: "999px",
           padding: "7px 16px",
@@ -967,7 +967,7 @@ export function useMissionControl(props: MissionControlProps) {
           state: replies > 0 ? "engaged" : turns > 0 ? "posted only" : "silent",
           stateStyle: pill(
             replies > 0 ? OK : turns > 0 ? WARN : INK3,
-            replies > 0 ? OK_SOFT : turns > 0 ? WARN_SOFT : "#F4F4F4",
+            replies > 0 ? OK_SOFT : turns > 0 ? WARN_SOFT : "var(--vn-raised)",
             { size: "11px", pad: "3px 10px" },
           ),
         };
@@ -997,22 +997,22 @@ export function useMissionControl(props: MissionControlProps) {
       const nulls = srcs.filter((s) => !s.engagement).length;
       const blind = nulls === srcs.length;
       const tone = blind
-        ? { c: BAD, bg: BAD_SOFT, text: "#8B2E30", l: "Research was blind" }
+        ? { c: BAD, bg: BAD_SOFT, text: "var(--vn-bad)", l: "Research was blind" }
         : nulls
           ? {
               c: WARN,
               bg: WARN_SOFT,
-              text: "#8C0043",
+              text: "var(--vn-warn)",
               l: nulls + " of " + srcs.length + " sources: no data",
             }
-          : { c: OK, bg: OK_SOFT, text: "#155F64", l: "Engagement retrieved" };
+          : { c: OK, bg: OK_SOFT, text: "var(--vn-ok)", l: "Engagement retrieved" };
       return {
         hasResearch: true,
         researchNotes: r.notes,
         researchNoteLabel: tone.l,
         researchNoteColor: tone.text,
         researchNoteBg: tone.bg,
-        researchNoteChip: pill("#FFFFFF", tone.c, { size: "10px" }),
+        researchNoteChip: pill("var(--vn-surface)", tone.c, { size: "10px" }),
         keywords: r.keywords,
         hasCompetitors: r.competitor_content.length > 0,
         competitors: r.competitor_content,
@@ -1027,9 +1027,9 @@ export function useMissionControl(props: MissionControlProps) {
                 rising: OK_SOFT,
                 peaked: WARN_SOFT,
                 dead: BAD_SOFT,
-                evergreen: "#F4F4F4",
+                evergreen: "var(--vn-raised)",
               } as Record<string, string>
-            )[t.momentum] || "#F4F4F4";
+            )[t.momentum] || "var(--vn-raised)";
           const unknown = /unknown|unavailable/.test(t.why_it_works.engagement_shape);
           return {
             id: t.id,
@@ -1118,7 +1118,7 @@ export function useMissionControl(props: MissionControlProps) {
             fontWeight: 600,
             flex: "0 0 auto",
             fontVariantNumeric: "tabular-nums",
-            color: sc ? (sc.total >= 70 ? OK : BAD) : "#BFBFBF",
+            color: sc ? (sc.total >= 70 ? OK : BAD) : "var(--vn-ink-faint)",
           } as React.CSSProperties,
           hasKiller: !!sc,
           killer: sc ? sc.killer_issue : "",
@@ -1193,7 +1193,7 @@ export function useMissionControl(props: MissionControlProps) {
           foundStyle: tierStyle(a.you_found),
           flag: inflated ? "tier inflation" : "",
           flagColor: BAD,
-          rowBg: inflated ? BAD_SOFT : "#FFFFFF",
+          rowBg: inflated ? BAD_SOFT : "var(--vn-surface)",
         };
       });
       const inflations = audit.filter((a) => a.flag).length;
@@ -1204,7 +1204,7 @@ export function useMissionControl(props: MissionControlProps) {
         verdictLabel:
           v.verdict === "ship" ? "Ship" : v.verdict === "reject_all" ? "Reject all" : "Revise",
         verdictPill: pill(
-          v.verdict === "ship" ? "#FFFFFF" : "#FFFFFF",
+          v.verdict === "ship" ? "var(--vn-surface)" : "var(--vn-surface)",
           v.verdict === "ship" ? OK : BAD,
           { size: "16px", pad: "8px 20px" },
         ),
@@ -1308,8 +1308,8 @@ export function useMissionControl(props: MissionControlProps) {
       return {
         gateLabel: g ? (g.gate === "pass" ? "Passed" : "Failed") : "Not reached",
         gatePill: g
-          ? pill("#FFFFFF", g.gate === "pass" ? OK : BAD, { size: "14px", pad: "6px 16px" })
-          : pill(INK3, "#F4F4F4", { size: "14px", pad: "6px 16px" }),
+          ? pill("var(--vn-surface)", g.gate === "pass" ? OK : BAD, { size: "14px", pad: "6px 16px" })
+          : pill(INK3, "var(--vn-raised)", { size: "14px", pad: "6px 16px" }),
         gateSub: g
           ? g.violations.length + " violations · " + g.checks.length + " checks"
           : "the gate was never called",
@@ -1320,7 +1320,7 @@ export function useMissionControl(props: MissionControlProps) {
         reviewLabel: st ? st.l : "Not sent",
         reviewPill: st
           ? pill(st.c, st.s, { size: "14px", pad: "6px 16px" })
-          : pill(INK3, "#F4F4F4", { size: "14px", pad: "6px 16px" }),
+          : pill(INK3, "var(--vn-raised)", { size: "14px", pad: "6px 16px" }),
         reviewMeta: rv ? rv.draft_id + " · " + rv.channel : "nothing reached a human",
         reviewReply: rv
           ? rv.reviewer_reply || "No reply yet. Sent " + dur(Date.now() / 1000 - rv.sent_at) + " ago."
@@ -1386,7 +1386,7 @@ export function useMissionControl(props: MissionControlProps) {
       const cfg = ({
         connected: { c: OK, s: OK_SOFT },
         thinking: { c: ACCENT, s: ACCENT_SOFT },
-        idle: { c: INK3, s: "#F4F4F4" },
+        idle: { c: INK3, s: "var(--vn-raised)" },
         errored: { c: BAD, s: BAD_SOFT },
       } as Record<string, { c: string; s: string }>)[a.status] || { c: OK, s: OK_SOFT };
       return {
@@ -1427,7 +1427,7 @@ export function useMissionControl(props: MissionControlProps) {
         label: r.label,
         cost: usd(r.value, 4),
         pct: (r.value / max) * 100 + "%",
-        color: r.color || "#A9A9A9",
+        color: r.color || "var(--vn-ink-faint)",
       }));
     };
     const costByRun = bar(
@@ -1436,7 +1436,7 @@ export function useMissionControl(props: MissionControlProps) {
     const costByAgent = bar(
       d.AGENTS.map((a) => ({
         label: a.id.replace("strategist-", "s-"),
-        color: ARC_OF[a.id] ? arcHue(ARC_OF[a.id]) : "#A9A9A9",
+        color: ARC_OF[a.id] ? arcHue(ARC_OF[a.id]) : "var(--vn-ink-faint)",
         value: allCalls.filter((c) => c.agent === a.id).reduce((x, c) => x + c.cost_usd, 0),
       })).sort((a, b) => b.value - a.value),
     );
@@ -1444,7 +1444,7 @@ export function useMissionControl(props: MissionControlProps) {
       d.STAGE_ORDER.filter((s) => allCalls.some((c) => c.stage === s)).map((s) => ({
         label: s,
         value: allCalls.filter((c) => c.stage === s).reduce((x, c) => x + c.cost_usd, 0),
-        color: "#2C2C2C",
+        color: "var(--vn-ink-body)",
       })),
     );
 
@@ -1529,7 +1529,7 @@ export function useMissionControl(props: MissionControlProps) {
         } else if (won && r.outcome === "died") {
           status = "Won, never rendered";
           sColor = NEUTRAL;
-          sSoft = "#F4F4F4";
+          sSoft = "var(--vn-raised)";
           note = "Cleared the judge, then the visual stage failed. Nothing was sent to a human.";
         } else if (rl && rl.verdict === "reject_all") {
           status = "Killed";
@@ -1539,7 +1539,7 @@ export function useMissionControl(props: MissionControlProps) {
         } else if (rl) {
           status = "Not selected";
           sColor = INK3;
-          sSoft = "#F4F4F4";
+          sSoft = "var(--vn-raised)";
           note = sc ? sc.killer_issue : "";
         } else {
           status = "Awaiting ruling";
@@ -1580,7 +1580,7 @@ export function useMissionControl(props: MissionControlProps) {
           statusPill: pill(sColor, sSoft, { size: "12px", pad: "5px 14px" }),
           note,
           score: sc ? String(sc.total) : "—",
-          scoreColor: sc ? (sc.total >= 70 ? OK : BAD) : "#BFBFBF",
+          scoreColor: sc ? (sc.total >= 70 ? OK : BAD) : "var(--vn-ink-faint)",
           claims: p.claims.map((cl) => ({
             tier: cl.tier,
             tierStyle: tierStyle(cl.tier),
@@ -1606,8 +1606,8 @@ export function useMissionControl(props: MissionControlProps) {
         label: f,
         set: () => setPostFilter(f),
         style: {
-          border: "1px solid " + (pf === f ? ACCENT : "#E5E7EB"),
-          background: pf === f ? ACCENT_SOFT : "#FFFFFF",
+          border: "1px solid " + (pf === f ? ACCENT : "var(--vn-line)"),
+          background: pf === f ? ACCENT_SOFT : "var(--vn-surface)",
           color: pf === f ? ACCENT_DEEP : INK2,
           borderRadius: "999px",
           padding: "8px 18px",
@@ -1716,13 +1716,13 @@ export function useMissionControl(props: MissionControlProps) {
                 : 0;
           const bg =
             s.status === "done"
-              ? "#2C2C2C"
+              ? "var(--vn-ink-body)"
               : s.status === "active"
                 ? ACCENT
                 : s.status === "failed"
                   ? BAD
                   : s.status === "skipped"
-                    ? "#B8B3C6"
+                    ? "var(--vn-line-strong)"
                     : "transparent";
           return {
             id: s.id,
@@ -1736,7 +1736,7 @@ export function useMissionControl(props: MissionControlProps) {
               height: "14px",
               borderRadius: "4px",
               background: bg,
-              border: s.status === "not_reached" ? "1px dashed #B8B3C6" : "none",
+              border: s.status === "not_reached" ? "1px dashed var(--vn-line-strong)" : "none",
               boxSizing: "border-box",
               minWidth: "10px",
             } as React.CSSProperties,

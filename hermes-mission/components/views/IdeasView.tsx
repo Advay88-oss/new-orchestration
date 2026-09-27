@@ -264,8 +264,8 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                         fontSize: "10px",
                         fontWeight: 800,
                         color: typeColor,
-                        background: `${typeColor}18`,
-                        border: `1px solid ${typeColor}40`,
+                        background: `color-mix(in srgb, ${typeColor} 9%, transparent)`,
+                        border: `1px solid color-mix(in srgb, ${typeColor} 25%, transparent)`,
                         padding: "2px 8px",
                         borderRadius: "6px"
                       }}
@@ -357,7 +357,7 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                     ["GTM PLAY", idea.gtm_play, "var(--vn-ok)"],
                   ].map(([label, text, tone]) =>
                     text ? (
-                      <div key={label as string} style={{ background: "var(--vn-sunken)", border: `1px solid ${tone}26`, borderRadius: "8px", padding: "12px 14px" }}>
+                      <div key={label as string} style={{ background: "var(--vn-sunken)", border: `1px solid color-mix(in srgb, ${tone} 15%, transparent)`, borderRadius: "8px", padding: "12px 14px" }}>
                         <div style={{ fontFamily: MONO, fontSize: "10px", color: tone as string, fontWeight: 700, letterSpacing: "0.06em" }}>
                           {label}
                         </div>

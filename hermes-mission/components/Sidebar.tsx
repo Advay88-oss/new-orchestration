@@ -5,6 +5,7 @@ import { HoverButton } from "./Hover";
 import type { MissionVM } from "@/lib/viewmodel";
 import { AGENT_COUNT } from "@/lib/agents";
 import { sinceLabel, useViewer } from "@/lib/useViewer";
+import { useTheme, type Theme } from "@/lib/theme";
 
 interface SidebarProps {
   vm: MissionVM;
@@ -18,6 +19,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
   const [daemon, setDaemon] = React.useState<boolean | null>(null);
   const [daemonLabel, setDaemonLabel] = React.useState<string | null>(null);
   const viewer = useViewer();
+  const [theme, setTheme] = useTheme();
   React.useEffect(() => {
     const check = () =>
       fetch("/api/daemon", { cache: "no-store" })
@@ -59,7 +61,7 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
                 width: "30px",
                 height: "30px",
                 borderRadius: "6px",
-                background: "var(--vn-ink)",
+                background: "var(--vn-cta)",
                 color: "var(--vn-on-accent)",
                 flex: "0 0 30px",
                 display: "flex",
@@ -170,6 +172,20 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
               {daemon === null ? "checking…" : daemon ? (daemonLabel || "Active · 30m cycle") : "Not scheduled"}
             </span>
           </div>
+        </div>
+
+        {/* Light / dark / follow the OS. */}
+        <div role="radiogroup" aria-label="Theme"
+             style={{ display: "flex", background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: 8, padding: 2 }}>
+          {(["system", "light", "dark"] as Theme[]).map((t) => (
+            <button key={t} role="radio" aria-checked={theme === t} onClick={() => setTheme(t)}
+                    style={{ flex: 1, border: "none", borderRadius: 6, padding: "5px 0", fontSize: 12, cursor: "pointer",
+                             background: theme === t ? "var(--vn-surface)" : "transparent",
+                             color: theme === t ? "var(--vn-ink)" : "var(--vn-ink-muted)",
+                             boxShadow: theme === t ? "0 0 0 1px var(--vn-line)" : "none", fontWeight: theme === t ? 600 : 400 }}>
+              {t === "system" ? "System" : t === "light" ? "Light" : "Dark"}
+            </button>
+          ))}
         </div>
 
         {/* Who this view is for: the owner sees every run; a visitor sees the

@@ -49,7 +49,7 @@ export function PageHeader({ vm }: { vm: MissionVM }) {
       className="app-header"
       style={{
         borderBottom: "1px solid var(--vn-line)",
-        background: "rgba(251, 251, 250, 0.86)",
+        background: "var(--vn-header-bg)",
         padding: "24px 0 20px",
         display: "flex",
         alignItems: "center",

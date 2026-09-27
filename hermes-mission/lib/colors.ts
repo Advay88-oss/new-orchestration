@@ -3,27 +3,27 @@
  * source used as `const INK = "#1F1F1F"` etc. — re-exported, never re-derived.
  */
 
-export const INK = "#1F1F1F";
-export const INK2 = "#4B5563";
-export const INK3 = "#777777";
-export const MUTED = "#949494";
+export const INK = "var(--vn-ink)";
+export const INK2 = "var(--vn-ink-body)";
+export const INK3 = "var(--vn-ink-muted)";
+export const MUTED = "var(--vn-ink-faint)";
 
-export const ACCENT = "#703AE6";
-export const ACCENT_SOFT = "#F1EBFD";
-export const ACCENT_DEEP = "#3E207F";
+export const ACCENT = "var(--vn-accent)";
+export const ACCENT_SOFT = "var(--vn-accent-soft)";
+export const ACCENT_DEEP = "var(--vn-accent-ink)";
 
-export const OK = "#24A0A9";
-export const OK_SOFT = "#EBFCFD";
+export const OK = "var(--vn-ok)";
+export const OK_SOFT = "var(--vn-ok-soft)";
 
-export const BAD = "#F0666B";
-export const BAD_SOFT = "#FEEEEE";
+export const BAD = "var(--vn-bad)";
+export const BAD_SOFT = "var(--vn-bad-soft)";
 
-export const WARN = "#D2679B";
-export const WARN_SOFT = "#FFE6F2";
+export const WARN = "var(--vn-warn)";
+export const WARN_SOFT = "var(--vn-warn-soft)";
 
-export const NEUTRAL = "#777777";
+export const NEUTRAL = "var(--vn-ink-muted)";
 
-export const GRADIENT = "#703AE6";
+export const GRADIENT = "var(--vn-accent)";
 
 /**
  * The original wrote this literally as `'JetBrains Mono', monospace`. next/font

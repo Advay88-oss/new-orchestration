@@ -234,8 +234,13 @@ export function tierStyle(tier: Tier): CSSProperties {
 
 /* --------------------------------------------------------------------- misc */
 
-export const tint = (hex: string | null | undefined, aa?: string): string =>
-  (hex || "#000000") + (aa || "1A");
+export const tint = (hex: string | null | undefined, aa?: string): string => {
+  const c = hex || "#000000";
+  const a = aa || "1A";
+  // A CSS variable cannot take a hex alpha suffix; mix it with transparent instead.
+  if (!c.startsWith("#")) return `color-mix(in srgb, ${c} ${Math.round((parseInt(a, 16) / 255) * 100)}%, transparent)`;
+  return c + a;
+};
 
 export function rulingOf(run: Run): Ruling | null {
   if (run.ruling) return run.ruling;

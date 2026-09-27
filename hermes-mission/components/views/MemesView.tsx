@@ -231,7 +231,7 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                     <span style={{ fontFamily: MONO, fontSize: "10px", fontWeight: 800, color: "var(--vn-accent-ink)", background: "var(--vn-accent-soft)", padding: "2px 8px", borderRadius: "4px" }}>
                       {m.format}
                     </span>
-                    <span style={{ fontFamily: MONO, fontSize: "10px", color: riskColor, background: `${riskColor}18`, border: `1px solid ${riskColor}40`, padding: "2px 8px", borderRadius: "4px" }}>
+                    <span style={{ fontFamily: MONO, fontSize: "10px", color: riskColor, background: `color-mix(in srgb, ${riskColor} 9%, transparent)`, border: `1px solid color-mix(in srgb, ${riskColor} 25%, transparent)`, padding: "2px 8px", borderRadius: "4px" }}>
                       RISK: {m.risk}
                     </span>
                     <span style={{ fontFamily: MONO, fontSize: "10px", color: m.freshness === "in circulation" ? "var(--vn-accent-ink)" : "var(--vn-ink-muted)" }}>

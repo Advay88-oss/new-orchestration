@@ -379,8 +379,8 @@ export function Runs({ vm }: { vm: MissionVM }) {
                         style={{
                           fontFamily: MONO, fontSize: "11.5px", fontWeight: 700,
                           color: gate.tone,
-                          background: `${gate.tone}1F`,
-                          border: `1px solid ${gate.tone}4D`,
+                          background: `color-mix(in srgb, ${gate.tone} 12%, transparent)`,
+                          border: `1px solid color-mix(in srgb, ${gate.tone} 30%, transparent)`,
                           padding: "4px 10px", borderRadius: "6px", whiteSpace: "nowrap",
                         }}
                       >

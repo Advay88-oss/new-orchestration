@@ -38,7 +38,7 @@ export default function ConnectNotion() {
                    padding: "48px 16px", background: "var(--vn-bg)" }}>
       <div className="vanna-card" style={{ width: "100%", maxWidth: 520, padding: 36 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 28 }}>
-          <span style={{ width: 28, height: 28, borderRadius: 6, background: "var(--vn-ink)", color: "var(--vn-on-accent)",
+          <span style={{ width: 28, height: 28, borderRadius: 6, background: "var(--vn-cta)", color: "var(--vn-on-accent)",
                          display: "flex", alignItems: "center", justifyContent: "center",
                          fontFamily: "var(--font-display)", fontSize: 18 }}>V</span>
           <span style={{ fontSize: 14, fontWeight: 600 }}>Mission Control</span>

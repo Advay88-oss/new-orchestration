@@ -78,7 +78,7 @@ export function MissionControl({
                 width: "26px",
                 height: "26px",
                 borderRadius: "6px",
-                background: "var(--vn-ink)",
+                background: "var(--vn-cta)",
                 color: "var(--vn-on-accent)",
                 display: "flex",
                 alignItems: "center",

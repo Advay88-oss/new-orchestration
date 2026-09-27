@@ -210,8 +210,8 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
                         fontSize: "10px",
                         fontWeight: 700,
                         color: statusColor,
-                        background: `${statusColor}18`,
-                        border: `1px solid ${statusColor}40`,
+                        background: `color-mix(in srgb, ${statusColor} 9%, transparent)`,
+                        border: `1px solid color-mix(in srgb, ${statusColor} 25%, transparent)`,
                         padding: "2px 8px",
                         borderRadius: "6px"
                       }}

@@ -141,7 +141,7 @@ export function LiveTrace({ runId }: { runId?: string }) {
 
           if (e.type === "call") {
             return (
-              <Row key={i} at={e.at} tone={e.ok ? "#2A2A32" : "var(--vn-bad)"}>
+              <Row key={i} at={e.at} tone={e.ok ? "var(--vn-line-strong)" : "var(--vn-bad)"}>
                 <span style={{ fontFamily: MONO, fontSize: 11, color: DIM }}>{e.agent}</span>
                 <span style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--vn-accent-ink)" }}>{e.model}</span>
                 <span style={{ fontFamily: MONO, fontSize: 11, color: DIM }}>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { THEME_BOOT } from "@/lib/theme";
 
 // `adjustFontFallback` is off deliberately. next/font otherwise injects a
 // metric-adjusted local fallback ahead of the stack, which then renders glyphs
@@ -47,7 +48,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${instrumentSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
+      suppressHydrationWarning
     >
+      <head>
+        {/* The saved light/dark choice, applied before first paint (lib/theme.ts). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body>{children}</body>
     </html>
   );

@@ -128,8 +128,8 @@ export function GtmAgents() {
               <span key={m} style={{
                 fontFamily: MONO, fontSize: 10.5, padding: '3px 9px', borderRadius: 4,
                 color: MODEL_TONE[m] || ACCENT,
-                border: `1px solid ${(MODEL_TONE[m] || ACCENT)}40`,
-                background: `${(MODEL_TONE[m] || ACCENT)}0F`,
+                border: `1px solid color-mix(in srgb, ${(MODEL_TONE[m] || ACCENT)} 25%, transparent)`,
+                background: `color-mix(in srgb, ${(MODEL_TONE[m] || ACCENT)} 6%, transparent)`,
               }}>{m}</span>
             ))}
           </div>
@@ -187,7 +187,7 @@ function Card({ a, pending, runId }: { a: Agent; pending: boolean; runId: string
 
   return (
     <article style={{
-      border: `1px solid ${tone}2E`,
+      border: `1px solid color-mix(in srgb, ${tone} 18%, transparent)`,
       borderLeft: `2px solid ${tone}`,
       borderRadius: 6,
       padding: '11px 13px 12px',
@@ -267,7 +267,7 @@ function Link({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <a href={href} target="_blank" rel="noreferrer" style={{
       fontFamily: MONO, fontSize: 10.5, color: ACCENT, textDecoration: 'none',
-      border: `1px solid ${ACCENT}3A`, borderRadius: 4, padding: '2px 8px',
+      border: `1px solid color-mix(in srgb, ${ACCENT} 23%, transparent)`, borderRadius: 4, padding: '2px 8px',
     }}>{children}</a>
   );
 }
