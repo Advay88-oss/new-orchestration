@@ -144,11 +144,20 @@ def apply_schema(admin_url: str, app_password: str | None = None) -> dict[str, A
         if app_password:
             if not re.fullmatch(r"[A-Za-z0-9_\-]{16,128}", app_password):
                 raise ValueError("app password must be 16-128 url-safe characters")
-            verb = "ALTER" if has_role else "CREATE"
-            con.execute(f"{verb} ROLE {APP_ROLE} LOGIN PASSWORD '{app_password}' "
-                        "NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE")
+            # Cloud SQL's admin is not a superuser: it may create a role with
+            # these attributes but not ALTER them, so an existing role only gets
+            # its password, and the attributes are checked below instead.
+            if has_role:
+                con.execute(f"ALTER ROLE {APP_ROLE} LOGIN PASSWORD '{app_password}'")
+            else:
+                con.execute(f"CREATE ROLE {APP_ROLE} LOGIN PASSWORD '{app_password}' "
+                            "NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE")
         elif not has_role:
             raise ValueError("the app role does not exist yet: pass its password")
+        su, bypass = con.execute("SELECT rolsuper, rolbypassrls FROM pg_roles WHERE rolname=%s",
+                                 (APP_ROLE,)).fetchone()
+        if su or bypass:
+            raise RuntimeError(f"{APP_ROLE} can bypass row-level security; refusing to continue")
         db = con.execute("SELECT current_database()").fetchone()[0]
         con.execute(f"GRANT CONNECT ON DATABASE {db} TO {APP_ROLE}")
         con.execute(f"GRANT USAGE ON SCHEMA public TO {APP_ROLE}")
