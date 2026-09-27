@@ -241,6 +241,92 @@ function CardView({ c, vm, onPick, tenant, threadId }: { c: Card; vm: MissionVM;
   return null;
 }
 
+// ------------------------------------------------------------------ checks
+
+/** The assistant's checks: real questions, judged (pipeline/assistant/evals.py). */
+function ChecksPanel() {
+  const [d, setD] = useState<any>(null);
+  const [open, setOpen] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+  const load = useCallback(async () => {
+    try { setD(await (await fetch("/api/assistant/evals", { cache: "no-store" })).json()); } catch (e) { setErr(String(e)); }
+  }, []);
+  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    if (d?.status?.state !== "running") return;
+    const t = setInterval(load, 5000);
+    return () => clearInterval(t);
+  }, [d?.status?.state, load]);
+  const start = async () => {
+    setErr(null);
+    const r = await (await fetch("/api/assistant/evals", { method: "POST" })).json();
+    if (!r.ok) setErr(r.error || "could not start"); else load();
+  };
+  const rep = d?.report;
+  const running = d?.status?.state === "running";
+  return (
+    <div style={{ maxWidth: 820, margin: "0 auto" }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+        <div>
+          <h2 style={{ marginBottom: 4 }}>Assistant checks</h2>
+          <p style={{ margin: 0, maxWidth: "62ch" }}>
+            Real questions through the real model and brain: facts from the sources, no invented numbers, a document
+            that tries to give orders, actions only as buttons, Notion links, your language, memory, Stop, and speed.
+          </p>
+        </div>
+        <button style={cta} disabled={running} onClick={start}>{running ? "Running… (3-5 min)" : "Run checks"}</button>
+      </div>
+      {err && <div style={{ color: "var(--vn-bad)", fontSize: 13, marginTop: 8 }}>{err}</div>}
+      {!rep && !running && <p style={{ marginTop: 16 }}>No checks have run yet.</p>}
+      {rep && (
+        <>
+          <div style={{ display: "flex", gap: 28, margin: "18px 0 12px", flexWrap: "wrap" }}>
+            {[["passed", rep.passed + " / " + rep.total, rep.passed === rep.total ? "var(--vn-ok)" : "var(--vn-bad)"],
+              ["first words", (rep.first_token_s_median ?? "–") + " s", "var(--vn-ink)"],
+              ["full answer", (rep.answer_s_median ?? "–") + " s", "var(--vn-ink)"],
+              ["checked", new Date(rep.finished_at || rep.at).toLocaleString(), "var(--vn-ink-muted)"]].map(([k, v, c]) => (
+              <div key={k as string}>
+                <div style={{ fontFamily: MONO, fontSize: 20, color: c as string }}>{v}</div>
+                <div style={{ fontSize: 11.5, color: "var(--vn-ink-muted)" }}>{k}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ border: "1px solid var(--vn-line)", borderRadius: 10, overflow: "hidden" }}>
+            {rep.results.map((x: any, i: number) => (
+              <div key={x.case} style={{ borderTop: i ? "1px solid var(--vn-line)" : "none" }}>
+                <button onClick={() => setOpen(open === x.case ? null : x.case)}
+                        style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", border: "none",
+                                 background: open === x.case ? "var(--vn-raised)" : "transparent", cursor: "pointer", textAlign: "left" }}>
+                  <span style={{ fontFamily: MONO, fontSize: 11, padding: "2px 7px", borderRadius: 4,
+                                 background: x.passed ? "var(--vn-ok-soft)" : "var(--vn-bad-soft)",
+                                 color: x.passed ? "var(--vn-ok)" : "var(--vn-bad)" }}>{x.passed ? "PASS" : "FAIL"}</span>
+                  <span style={{ flex: 1, fontSize: 13.5, color: "var(--vn-ink)" }}>{x.title}</span>
+                  <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-faint)" }}>{x.total_s != null ? x.total_s + " s" : ""}</span>
+                </button>
+                {open === x.case && (
+                  <div style={{ padding: "4px 14px 14px", fontSize: 13 }}>
+                    {x.question && <div style={{ color: "var(--vn-ink-muted)", margin: "4px 0 8px" }}>Asked: &ldquo;{x.question}&rdquo;</div>}
+                    <ul style={{ margin: "0 0 8px", paddingLeft: 18, lineHeight: 1.6 }}>
+                      {(x.checks || []).map((c: any, j: number) => (
+                        <li key={j} style={{ color: c.ok ? "var(--vn-ink-body)" : "var(--vn-bad)" }}>{c.ok ? "✓ " : "✗ "}{c.check}</li>
+                      ))}
+                    </ul>
+                    {x.tools?.length > 0 && <div style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--vn-ink-muted)" }}>tools: {x.tools.join(", ")}</div>}
+                    {x.grounding?.checked > 0 && <div style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--vn-ink-muted)" }}>
+                      grounding: {x.grounding.supported}/{x.grounding.checked} claims in the sources</div>}
+                    {x.answer && <div style={{ marginTop: 8, padding: "10px 12px", background: "var(--vn-sunken)", borderRadius: 8 }}><Markdown text={x.answer} /></div>}
+                    {x.error && <div style={{ color: "var(--vn-bad)", marginTop: 6 }}>{x.error}</div>}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 // --------------------------------------------------------------------- view
 
 const TOOL_LABEL: Record<string, string> = {
@@ -265,6 +351,7 @@ export function Assistant({ vm }: { vm: MissionVM }) {
   const scroller = useRef<HTMLDivElement>(null);
   const box = useRef<HTMLTextAreaElement>(null);
   const abort = useRef<AbortController | null>(null);
+  const [checks, setChecks] = useState(false);
 
   useEffect(() => {
     fetch("/api/gtm/brain", { cache: "no-store" }).then((r) => r.json()).then((d) => {
@@ -428,10 +515,15 @@ export function Assistant({ vm }: { vm: MissionVM }) {
               {tenants.map((t) => <option key={t} value={t}>{names[t] || t}</option>)}
             </select>
             <button style={btn} onClick={addCompany}>+ Add company</button>
+            <span style={{ flex: 1 }} />
+            <button style={{ ...btn, background: checks ? "var(--vn-raised)" : "transparent" }} onClick={() => setChecks((c) => !c)}>
+              {checks ? "Back to chat" : "Checks"}
+            </button>
           </div>
 
           {/* messages */}
-          <div ref={scroller} style={{ flex: 1, overflowY: "auto", padding: "20px 18px" }}>
+          {checks && <div style={{ flex: 1, overflowY: "auto", padding: "20px 18px" }}><ChecksPanel /></div>}
+          <div ref={scroller} style={{ flex: 1, overflowY: "auto", padding: "20px 18px", display: checks ? "none" : "block" }}>
             <div style={{ maxWidth: 780, margin: "0 auto" }}>
               {loadingThread && <div style={{ padding: "24px 0" }}><span className="vn-skel" style={{ width: 260, height: 12 }} /></div>}
               {!loadingThread && msgs.length === 0 && (
@@ -483,7 +575,7 @@ export function Assistant({ vm }: { vm: MissionVM }) {
           </div>
 
           {/* composer */}
-          <div style={{ borderTop: "1px solid var(--vn-line)", padding: "12px 18px" }}>
+          <div style={{ borderTop: "1px solid var(--vn-line)", padding: "12px 18px", display: checks ? "none" : "block" }}>
             <div style={{ maxWidth: 780, margin: "0 auto", display: "flex", gap: 8, alignItems: "flex-end" }}>
               <textarea ref={box} value={input} rows={1} disabled={!tenant}
                         onChange={(e) => setInput(e.target.value)}
