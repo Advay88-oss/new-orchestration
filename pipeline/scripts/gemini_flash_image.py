@@ -20,6 +20,14 @@ import urllib.error
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+
+def media_project(project: str) -> str:
+    """The GCP project image and Veo calls bill to. `vanna-mcp` on the laptop
+    (the founder's own login can use it); on GCP the pipeline's service
+    account has no access there, so deploy_cloud.sh sets VANNA_MEDIA_PROJECT
+    to the pipeline's own project."""
+    return os.environ.get("VANNA_MEDIA_PROJECT") or project
+
 REPO_ROOT = Path(os.environ.get("VANNA_ROOT", Path(__file__).resolve().parents[2]))
 
 def get_vertex_token() -> str:
@@ -79,7 +87,8 @@ def generate_gemini_image(
     """
     out = Path(output_path).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
-    
+    project = media_project(project)
+
     token = get_vertex_token()
     host = "https://aiplatform.googleapis.com" if location == "global" else f"https://{location}-aiplatform.googleapis.com"
     url = f"{host}/v1/projects/{project}/locations/{location}/publishers/google/models/{model}:generateContent"

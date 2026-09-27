@@ -45,7 +45,7 @@ from pipeline.gtm_os import agent_runtime as R
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
 RUNS_DIR = STATE_DIR / "gtm_runs"
 
-VEO_PROJECT = "vanna-mcp"
+VEO_PROJECT = os.environ.get("VANNA_MEDIA_PROJECT") or "vanna-mcp"   # see gemini_flash_image.media_project
 VEO_LOCATION = "us-central1"
 
 

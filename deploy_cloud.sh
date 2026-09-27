@@ -110,7 +110,7 @@ secrets_flag() {
   [ "${1:-}" = "admin" ] && out="${out},BRAIN_PG_ADMIN_URL=brain-pg-admin-url:latest,BRAIN_APP_PASSWORD=brain-app-password:latest"
   echo "$out"
 }
-COMMON_ENV="VANNA_STATE_BUCKET=${BUCKET},VANNA_CLOUD=1,GOOGLE_CLOUD_PROJECT=${PROJECT},DASHBOARD_URL=${URL},VANNA_REGION=${REGION}"
+COMMON_ENV="VANNA_STATE_BUCKET=${BUCKET},VANNA_CLOUD=1,GOOGLE_CLOUD_PROJECT=${PROJECT},VANNA_MEDIA_PROJECT=${PROJECT},DASHBOARD_URL=${URL},VANNA_REGION=${REGION}"
 
 step_jobs() {
   local img; img="$(image)"

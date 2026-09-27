@@ -212,7 +212,10 @@ def veo_element(prompt: str, out: Path, *, project: str = "vanna-mcp",
     import urllib.error
     import urllib.request
 
+    from pipeline.scripts.gemini_flash_image import media_project
     from pipeline.scripts.veo_broll import _vertex_token, _find_video, _write_video
+
+    project = media_project(project)
 
     started = time.time()
     token = _vertex_token()

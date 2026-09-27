@@ -181,8 +181,10 @@ def _veo(prompt: str, image: Path, out: Path, *, project: str = "vanna-mcp",
          location: str = "us-central1", timeout_s: float = 480.0,
          last_frame: Optional[Path] = None) -> Path:
     from pipeline.gtm_creative.motion import _journal
+    from pipeline.scripts.gemini_flash_image import media_project
     from pipeline.scripts.veo_broll import _find_video, _vertex_token, _write_video
 
+    project = media_project(project)
     started = time.time()
     token = _vertex_token()
     if not token:
