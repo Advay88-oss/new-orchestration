@@ -51,6 +51,10 @@ pipeline/state/veo_videos/
 pipeline/state/direct_posters/
 pipeline/state/visuals/
 pipeline/state/*.png
+# ...except the brand's logos, which the poster agents read (see .gcloudignore).
+!pipeline/state/logo.png
+!pipeline/state/vanna_official_master_logo.png
+!pipeline/state/vanna_full_brand_badge.png
 pipeline/brain/tenants/*/brain.db*
 pipeline/brain/tenants/*/website/
 Dockerfile.legacy-combined
