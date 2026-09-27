@@ -42,6 +42,15 @@ function clock(iso?: string): string {
   return isNaN(d.getTime()) ? "" : d.toLocaleTimeString();
 }
 
+
+/** A payload value as text. Most are strings; the bandit's are {choice, why}. */
+function txt(v: any): string {
+  if (v == null) return "";
+  if (typeof v !== "object") return String(v);
+  if ("choice" in v) return String(v.choice) + (v.why ? " (" + v.why + ")" : "");
+  return JSON.stringify(v);
+}
+
 export function LiveTrace({ runId }: { runId?: string }) {
   const [events, setEvents] = useState<any[]>([]);
   const [meta, setMeta] = useState<{ runId: string | null; finished: boolean; status: string }>({
@@ -163,14 +172,19 @@ export function LiveTrace({ runId }: { runId?: string }) {
               </span>
 
               <div style={{ flexBasis: "100%", marginTop: 6, display: "flex", flexDirection: "column", gap: 6 }}>
-                {p.chosen && <Line label="chose">{p.chosen}</Line>}
-                {p.signal && <Line label="signal">{p.signal}</Line>}
-                {p.why && <Line label="why">{p.why}</Line>}
-                {p.verdict && <Line label="verdict">{p.verdict}</Line>}
-                {p.pillar && <Line label="pillar">{p.pillar}</Line>}
-                {p.rationale && <Line label="rationale">{p.rationale}</Line>}
-                {p.concept && <Line label="concept">{p.concept}</Line>}
-                {p.overall && <Line label="overall">{p.overall}</Line>}
+                {p.chosen && e.kind !== "bandit" && <Line label="chose">{txt(p.chosen)}</Line>}
+                {p.signal && e.kind !== "bandit" && <Line label="signal">{txt(p.signal)}</Line>}
+                {p.why && e.kind !== "bandit" && <Line label="why">{txt(p.why)}</Line>}
+                {p.verdict && e.kind !== "bandit" && <Line label="verdict">{txt(p.verdict)}</Line>}
+                {p.pillar && e.kind !== "bandit" && <Line label="pillar">{txt(p.pillar)}</Line>}
+                {p.rationale && e.kind !== "bandit" && <Line label="rationale">{txt(p.rationale)}</Line>}
+                {p.concept && e.kind !== "bandit" && <Line label="concept">{txt(p.concept)}</Line>}
+                {p.overall && e.kind !== "bandit" && <Line label="overall">{txt(p.overall)}</Line>}
+
+                {/* The strategist's bandit: one {choice, why} per strategy arm. */}
+                {e.kind === "bandit" && Object.entries(p).map(([dim, v]: [string, any]) => (
+                  <Line key={dim} label={dim.replace(/_/g, " ")}>{txt(v)}</Line>
+                ))}
 
                 {Array.isArray(p.reasoning) && p.reasoning.length > 0 && (
                   <Sub label={`reasoning (${p.reasoning.length})`}>
