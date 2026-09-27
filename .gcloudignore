@@ -34,6 +34,11 @@ pipeline/state/veo_videos/
 pipeline/state/direct_posters/
 pipeline/state/visuals/
 pipeline/state/*.png
+# ...except the brand's own logos, which the poster agents read from here
+# (without logo.png the approved-style poster fails and falls back to a template).
+!pipeline/state/logo.png
+!pipeline/state/vanna_official_master_logo.png
+!pipeline/state/vanna_full_brand_badge.png
 pipeline/state/*.html
 pipeline/brain/tenants/*/brain.db*
 pipeline/brain/tenants/*/website/
