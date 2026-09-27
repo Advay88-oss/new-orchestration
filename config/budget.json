@@ -1,0 +1,24 @@
+{
+  "_note": "Daily caps (UTC day) and the rates used to estimate spend. A service over its cap, or the day over daily_usd, refuses new calls until midnight UTC; human review and decisions never stop. Override the total with BUDGET_DAILY_USD. Rates are estimates: put your billed rates here.",
+  "daily_usd": 15.0,
+  "alert_at": 0.8,
+  "services": {
+    "gemini": 6.0,
+    "image": 3.0,
+    "veo": 8.0,
+    "embed": 1.0,
+    "apify": 2.0
+  },
+  "limits": {
+    "assistant_per_minute": 8,
+    "assistant_per_day": 300,
+    "cycles_per_day": 24
+  },
+  "rates": {
+    "gemini": {"input_per_1m": 0.30, "output_per_1m": 2.50, "per_call_estimate": 0.004},
+    "image": {"per_call": 0.04},
+    "veo": {"per_call": 3.20},
+    "embed": {"per_call": 0.0002},
+    "apify": {"per_call": 0.01, "per_result": 0.00025}
+  }
+}

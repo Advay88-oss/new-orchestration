@@ -1,6 +1,7 @@
 import crypto from 'crypto';
 import { NextResponse } from 'next/server';
 import { runPython, lastJson } from '@/lib/python';
+import { allow, clientIp } from '@/lib/ratelimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,6 +42,8 @@ function cookie(req: Request, name: string): string {
 
 export async function POST(req: Request, { params }: { params: { step: string } }) {
   if (params.step !== 'check') return NextResponse.json({ ok: false }, { status: 404 });
+  // Public page: an invite cannot be guessed, but a loop could still cost us.
+  if (!allow('notion-check:' + clientIp(req), 30, 600_000)) return NextResponse.json({ ok: false, error: 'too many tries; wait a few minutes' }, { status: 429 });
   const b = await req.json().catch(() => ({}));
   const r = await py(['check-invite'], { invite: String(b.invite || '').slice(0, 2000) });
   // Only what the page needs to show.
@@ -50,6 +53,7 @@ export async function POST(req: Request, { params }: { params: { step: string } 
 
 export async function GET(req: Request, { params }: { params: { step: string } }) {
   const url = new URL(req.url);
+  if (!allow('notion-flow:' + clientIp(req), 20, 600_000)) return page(req, { error: 'Too many tries; wait a few minutes.' });
 
   if (params.step === 'start') {
     const invite = String(url.searchParams.get('invite') || '').slice(0, 2000);

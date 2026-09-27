@@ -137,6 +137,10 @@ def _stream(payload: dict, cancelled: Callable[[], bool]) -> Iterator[dict]:
         R.record(R.AgentCall(AGENT, "reasoning", model, True, round(time.time() - t0, 2),
                              input_tokens=usage.get("promptTokenCount", 0),
                              output_tokens=usage.get("candidatesTokenCount", 0), transport=transport))
+        # A stream is not read in one body, so the guard cannot count it: count it here.
+        from pipeline.ops import budget as BG
+        i, o = int(usage.get("promptTokenCount") or 0), int(usage.get("candidatesTokenCount") or 0)
+        BG.add("gemini", BG.token_cost(i, o), input_tokens=i, output_tokens=o)
         return
 
 
@@ -225,6 +229,16 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
         yield {"type": "error", "error": "empty message"}
         yield {"type": "done"}
         return
+    from pipeline.ops import budget as BG
+    lim = BG.config().get("limits") or {}
+    try:
+        BG.hit("assistant_turn", per_minute=int(lim.get("assistant_per_minute", 8)),
+               per_day=int(lim.get("assistant_per_day", 300)))
+        BG.check("gemini")
+    except BG.BudgetExceeded as exc:
+        yield {"type": "error", "error": str(exc)}
+        yield {"type": "done"}
+        return
     if not thread_id or not ST.thread(tenant, thread_id):
         thread_id = ST.new_thread(tenant, text[:80])
     yield {"type": "thread", "thread_id": thread_id}
@@ -285,6 +299,10 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
             contents.append({"role": "user", "parts": responses})
     except Exception as exc:                        # noqa: BLE001 — shown in the chat, saved with the thread
         meta["error"] = str(exc)[:400]
+        from pipeline.ops import budget as BG
+        if not isinstance(exc, BG.BudgetExceeded):
+            from pipeline.ops import alerts as AL
+            AL.capture("assistant", exc, context={"tenant": tenant})
         yield {"type": "error", "error": meta["error"]}
 
     answer = answer.strip()

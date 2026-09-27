@@ -6,6 +6,7 @@ import { pythonPath } from '@/lib/python';
 import { listGtmRunIds, gtmRunSummary } from '@/lib/gtm';
 import { cloudMode, localOnly } from '@/lib/local-only';
 import { runPipelineJob } from '@/lib/cloudrun';
+import { allow } from '@/lib/ratelimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,11 @@ const LOG_DIR = path.join(REPO_ROOT, 'pipeline', 'state', 'gtm_runs');
 export async function POST(req: Request) {
   const blocked = localOnly('starting a run');
   if (blocked) return blocked;
+  // A cycle costs model calls and a Veo render: at most 6 launches an hour
+  // (the pipeline also caps cycles per day, and the daily budget holds).
+  if (!allow('launch', 6, 3_600_000)) {
+    return NextResponse.json({ success: false, error: 'too many launches: the limit is 6 an hour' }, { status: 429 });
+  }
 
   let directive = '';
   let withVideo = true;

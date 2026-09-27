@@ -662,6 +662,15 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
     from pipeline.gtm_os.telegram_packet import TelegramPacketBuilder
 
     rid = R.set_run(run_id or R.new_run_id())
+    from pipeline.ops import budget as _BG
+    try:
+        _BG.check("gemini")
+        _BG.hit("cycle", per_day=int((_BG.config().get("limits") or {}).get("cycles_per_day", 24)))
+    except _BG.BudgetExceeded as exc:
+        print("  [refused] " + str(exc))
+        from pipeline.ops import alerts as _AL
+        _AL.send("cycle-refused-" + _BG.today(), "A GTM cycle was refused: " + str(exc), severity="info")
+        return {"run_id": rid, "status": "refused_budget", "reason": str(exc)}
     try:
         _claim_lock(rid)
     except AlreadyRunning as exc:

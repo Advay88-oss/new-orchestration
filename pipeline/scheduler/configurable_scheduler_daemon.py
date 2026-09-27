@@ -302,6 +302,9 @@ class SchedulerEngine:
                 result = self._run_notion_sync()
             elif job_name == "metrics_collect":
                 result = self._run_metrics_collect()
+            elif job_name == "ops_watch":
+                from pipeline.ops.watch import run as _watch
+                result = {"success": True, **_watch()}
             else:
                 raise ValueError(f"No execution handler for job '{job_name}'")
 
@@ -316,6 +319,11 @@ class SchedulerEngine:
             err_msg = str(e)
             print(f"❌ [SCHEDULER ERROR] Job '{job_name}' failed after {t_elapsed:.2f}s: {err_msg}")
             self.update_job_status(job_name, "FAILED", last_error=err_msg, duration_s=t_elapsed)
+            try:
+                from pipeline.ops import alerts
+                alerts.capture("scheduler " + job_name, e)
+            except Exception:
+                pass
             return {"success": False, "status": "FAILED", "error": err_msg}
 
     # -------------------------------------------------------------------------

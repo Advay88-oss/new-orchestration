@@ -24,7 +24,7 @@ from typing import Any
 # Jobs the cloud scheduler runs by default. The autonomous GTM cycle and the
 # model-heavy panels spend money on every tick, so they are opt-in:
 # SCHEDULER_ONLY=notion_sync,metrics_collect,gtm_cycle,... on the job.
-DEFAULT_CLOUD_JOBS = "notion_sync,metrics_collect"
+DEFAULT_CLOUD_JOBS = "notion_sync,metrics_collect,ops_watch"
 
 
 def _restore() -> dict[str, Any]:
@@ -42,7 +42,13 @@ def cycle(directive: str | None, with_video: bool) -> int:
     from pipeline.gtm_os.autonomous_cycle import run_cycle
     out = run_cycle(directive or None, with_video=with_video)     # pushes run + state at the end
     print(json.dumps({"run_id": out.get("run_id"), "status": out.get("status")}))
-    return 0 if out.get("status") in ("completed", "review_blocked", "NO_ACTION", "KILL") else 1
+    ok = out.get("status") in ("completed", "review_blocked", "NO_ACTION", "KILL", "refused_budget", "skipped_locked")
+    if not ok:
+        from pipeline.ops import alerts
+        alerts.send("cycle-failed-" + str(out.get("run_id")), "A GTM cycle failed: " + str(out.get("run_id"))
+                    + " — " + str(out.get("status")) + ": " + str(out.get("error") or out.get("reason") or "")[:300],
+                    severity="critical")
+    return 0 if ok else 1
 
 
 def tick() -> int:
@@ -98,17 +104,35 @@ def telegram() -> int:
     return 0
 
 
+def _guarded_main(argv: list[str]) -> int:
+    """Any crash of a job is recorded and alerted before it exits."""
+    try:
+        return main(argv)
+    except SystemExit:
+        raise
+    except BaseException as exc:                    # noqa: BLE001
+        try:
+            from pipeline.ops import alerts
+            alerts.capture("cloud_job " + (argv[0] if argv else "?"), exc)
+        finally:
+            raise
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["cycle", "tick", "admin-schema", "admin-migrate", "telegram"])
+    ap.add_argument("cmd", choices=["cycle", "tick", "admin-schema", "admin-migrate", "telegram", "watch"])
     ap.add_argument("--directive", default=None)
     ap.add_argument("--no-video", action="store_true")
     a = ap.parse_args(argv)
     if a.cmd == "cycle":
         return cycle(a.directive, not a.no_video)
+    if a.cmd == "watch":
+        from pipeline.ops.watch import run as watch
+        print(json.dumps(watch(), default=str)[:4000])
+        return 0
     return {"tick": tick, "admin-schema": admin_schema, "admin-migrate": admin_migrate,
             "telegram": telegram}[a.cmd]()
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(_guarded_main(sys.argv[1:]))

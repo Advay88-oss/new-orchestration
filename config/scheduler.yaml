@@ -50,3 +50,10 @@ jobs:
     description: "Reads back published posts 48h+ old: engagement into the reward events and the format / posting-slot arms."
     model_heavy: false
     min_allowed_interval_m: 60
+
+  ops_watch:
+    interval: "1h"
+    enabled: true
+    description: "Health watch: failed jobs, the brain database, the Telegram webhook, the dashboard, the budget and new errors; alerts on Telegram."
+    model_heavy: false
+    min_allowed_interval_m: 10

@@ -233,13 +233,15 @@ def run(only: Optional[list[str]] = None) -> dict[str, Any]:
             results.append({"case": key, "title": title, "passed": False, "checks": [],
                             "error": type(exc).__name__ + ": " + str(exc)[:300], "total_s": round(time.time() - t0, 1)})
         print(("PASS " if results[-1]["passed"] else "FAIL ") + key, flush=True)
-    _cleanup_probe()
     for t, tid in _threads:                        # the checks leave no conversations behind
+        if t == PROBE:
+            continue                               # removed with the probe company below
         try:
             ST.delete_thread(t, tid)
         except Exception:                          # noqa: BLE001
             pass
     _threads.clear()
+    _cleanup_probe()                               # last: deleting its threads would recreate it
     firsts = [x["first_s"] for x in results if x.get("first_s")]
     totals = [x["total_s"] for x in results if x.get("total_s")]
     report = {"at": started, "finished_at": datetime.now(timezone.utc).isoformat(), "tenant": TENANT,

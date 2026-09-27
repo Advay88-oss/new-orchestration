@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
 import { EmptyState, SkeletonCard } from "@/components/States";
+import { OpsCard } from "@/components/views/OpsCard";
 
 export function SchedulerView({ vm }: { vm: MissionVM }) {
   const [schedulerData, setSchedulerData] = useState<any>(null);
@@ -165,6 +166,8 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
           )}
         </div>
       )}
+
+      <OpsCard />
 
       {loading && jobs.length === 0 && <><SkeletonCard lines={2} /><SkeletonCard lines={2} /><SkeletonCard lines={2} /></>}
       {!loading && jobs.length === 0 && (

@@ -44,7 +44,10 @@ class ChatTurnTest(unittest.TestCase):
         self.patches = [mock.patch.object(S, "ROOT", self.tmp / "tenants"),
                         mock.patch.object(T, "STATUS_DIR", self.tmp / "status"),
                         mock.patch.object(CH, "_ground", lambda a, e: {"checked": 1, "supported": 1, "flagged": []}),
-                        mock.patch.object(CH, "_fold_quietly", lambda *a: None)]
+                        mock.patch.object(CH, "_fold_quietly", lambda *a: None),
+                        # The limits are tested in test_ops; here they would refuse the 16 quick turns.
+                        mock.patch("pipeline.ops.budget.hit", lambda *a, **k: None),
+                        mock.patch("pipeline.ops.budget.LOCAL_DB", self.tmp / "ops.db")]
         for p in self.patches:
             p.start()
         Brain("acme", create=True).save_profile({"company": {"name": "Acme"}}, status="approved")

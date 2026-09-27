@@ -4,7 +4,7 @@
 # pgvector, row-level security), the scheduler and the Telegram webhook.
 #
 #   bash deploy_cloud.sh all            # everything, in order
-#   bash deploy_cloud.sh <step> ...     # secrets sql iam build jobs migrate service scheduler telegram
+#   bash deploy_cloud.sh <step> ...     # secrets sql iam build jobs schema migrate service scheduler telegram monitoring
 #
 #   service   vanna-gtm-mission    Cloud Run: the dashboard (owner actions via OWNER_KEY)
 #   job       vanna-gtm-pipeline   Cloud Run Job: a GTM cycle, or the scheduler's tick
@@ -110,7 +110,7 @@ secrets_flag() {
   [ "${1:-}" = "admin" ] && out="${out},BRAIN_PG_ADMIN_URL=brain-pg-admin-url:latest,BRAIN_APP_PASSWORD=brain-app-password:latest"
   echo "$out"
 }
-COMMON_ENV="VANNA_STATE_BUCKET=${BUCKET},VANNA_CLOUD=1,GOOGLE_CLOUD_PROJECT=${PROJECT}"
+COMMON_ENV="VANNA_STATE_BUCKET=${BUCKET},VANNA_CLOUD=1,GOOGLE_CLOUD_PROJECT=${PROJECT},DASHBOARD_URL=${URL},VANNA_REGION=${REGION}"
 
 step_jobs() {
   local img; img="$(image)"
@@ -123,6 +123,60 @@ step_jobs() {
     --command=//app/docker-entrypoint.sh --args=job,admin-schema \
     --set-cloudsql-instances "$CONN" --set-secrets "$(secrets_flag admin)" --set-env-vars "$COMMON_ENV" \
     --cpu 1 --memory 2Gi --task-timeout 1800 --max-retries 0
+}
+
+step_schema() {
+  say "schema: Cloud SQL tables, row-level security and the ops tables (idempotent)"
+  gc run jobs execute "$ADMIN_JOB" --region "$REGION" --wait --args=job,admin-schema
+}
+
+step_monitoring() {
+  # From outside GCP's jobs: an uptime check on the dashboard, and an email
+  # to the gcloud account's address when it fails for 10 minutes. The hourly
+  # watch covers everything else, on Telegram.
+  say "monitoring: uptime check on ${URL}/api/health, email on failure"
+  local email host channel check policy
+  email="$("${GCLOUD}" config get-value account 2>/dev/null)"
+  host="${URL#https://}"
+  channel="$(gc beta monitoring channels list --filter='displayName="Mission Control owner"' --format='value(name)' | head -1)"
+  if [ -z "$channel" ]; then
+    channel="$(gc beta monitoring channels create --display-name="Mission Control owner" --type=email \
+      --channel-labels=email_address="$email" --format='value(name)')"
+  fi
+  check="$(gc monitoring uptime list-configs --filter='displayName="Mission Control dashboard"' --format='value(name)' | head -1)"
+  if [ -z "$check" ]; then
+    gc monitoring uptime create "Mission Control dashboard" --resource-type=uptime-url \
+      --resource-labels=host="$host",project_id="$PROJECT" --path=/api/health --protocol=https \
+      --period=5 --timeout=10 >/dev/null
+    check="$(gc monitoring uptime list-configs --filter='displayName="Mission Control dashboard"' --format='value(name)' | head -1)"
+  fi
+  local cid="${check##*/}"
+  if [ -z "$(gc alpha monitoring policies list --filter='displayName="Mission Control dashboard down"' --format='value(name)' | head -1)" ]; then
+    policy="$(mktemp -t policy.XXXXXX).json"
+    cat > "$policy" <<JSON
+{
+  "displayName": "Mission Control dashboard down",
+  "combiner": "OR",
+  "conditions": [{
+    "displayName": "uptime check failing",
+    "conditionThreshold": {
+      "filter": "metric.type=\"monitoring.googleapis.com/uptime_check/check_passed\" AND metric.label.check_id=\"${cid}\" AND resource.type=\"uptime_url\"",
+      "comparison": "COMPARISON_GT",
+      "thresholdValue": 1,
+      "duration": "600s",
+      "aggregations": [{"alignmentPeriod": "300s", "perSeriesAligner": "ALIGN_NEXT_OLDER",
+                        "crossSeriesReducer": "REDUCE_COUNT_FALSE", "groupByFields": ["resource.label.host"]}],
+      "trigger": {"count": 1}
+    }
+  }],
+  "notificationChannels": ["${channel}"],
+  "documentation": {"content": "The Mission Control dashboard has failed its health check for 10 minutes: ${URL}"}
+}
+JSON
+    gc alpha monitoring policies create --policy-from-file="$policy" >/dev/null
+    rm -f "$policy"
+  fi
+  echo "  uptime check ${cid}; alerts go to the gcloud account's email"
 }
 
 step_migrate() {
@@ -152,7 +206,7 @@ step_scheduler() {
     gc scheduler jobs create http "$TICK" --location "$REGION" --schedule "0 * * * *" --uri "$uri" \
       --http-method POST --oauth-service-account-email "$SA" --time-zone "Etc/UTC" >/dev/null
   fi
-  echo "  hourly -> ${JOB} (tick: notion_sync, metrics_collect)"
+  echo "  hourly -> ${JOB} (tick: notion_sync, metrics_collect, ops_watch)"
 }
 
 step_telegram() {
@@ -168,6 +222,6 @@ print('  setWebhook:', json.load(urllib.request.urlopen(req, timeout=20)).get('d
 }
 
 steps=("$@"); [ "${#steps[@]}" -eq 0 ] && steps=(all)
-[ "${steps[0]}" = "all" ] && steps=(secrets sql iam build jobs migrate service scheduler telegram)
+[ "${steps[0]}" = "all" ] && steps=(secrets sql iam build jobs schema migrate service scheduler telegram monitoring)
 for s in "${steps[@]}"; do "step_$s"; done
 say "done: ${URL}"

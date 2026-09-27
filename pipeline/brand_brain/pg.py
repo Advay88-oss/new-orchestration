@@ -153,6 +153,11 @@ def apply_schema(admin_url: str, app_password: str | None = None) -> dict[str, A
         con.execute(f"GRANT CONNECT ON DATABASE {db} TO {APP_ROLE}")
         con.execute(f"GRANT USAGE ON SCHEMA public TO {APP_ROLE}")
         con.execute(S.pg_policies_sql(APP_ROLE))
+        # The owner's ops tables (budget, alerts, errors): global, no company content.
+        from pipeline.ops.budget import PG_SCHEMA as OPS
+        con.execute(OPS)
+        for t in ("ops_spend", "ops_counters", "ops_alerts", "ops_errors"):
+            con.execute(f"GRANT SELECT, INSERT, UPDATE, DELETE ON {t} TO {APP_ROLE}")
         n = con.execute("SELECT count(*) FROM tenants").fetchone()[0]
     return {"ok": True, "database": db, "app_role": APP_ROLE, "tenants": n}
 
