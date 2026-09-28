@@ -9,6 +9,7 @@
     python -m pipeline.brand_brain refs vanna "isolated margin accounts"
     python -m pipeline.brand_brain profile vanna
     python -m pipeline.brand_brain approve vanna VERSION
+    python -m pipeline.brand_brain tidy vanna             tag legal/pricing, drop duplicate passages
 """
 from __future__ import annotations
 
@@ -41,6 +42,8 @@ def main(argv: list[str]) -> int:
         out = Brain(tenant).get_visual_refs(" ".join(rest), n=4)
     elif cmd == "profile":
         out = Brain(tenant).get_brand_profile()
+    elif cmd == "tidy":
+        out = Brain(tenant).tidy()
     elif cmd == "approve":
         Brain(tenant).approve_profile(int(rest[0]))
         out = Brain(tenant).profile_versions()

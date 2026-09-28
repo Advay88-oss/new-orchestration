@@ -77,7 +77,7 @@ def search_knowledge(tenant: str, query: str, k: int = 6) -> dict:
     # company's own pages and would otherwise never make the cut. They are
     # marked external so they are quoted as reported, not as fact.
     b = _brain(tenant)
-    hits = b.search_knowledge(query, k=max(1, min(int(k or 6), 10)), max_authority=4)
+    hits = b.search_knowledge(query, k=max(1, min(int(k or 6), 10)), max_authority=4, include_legal=True)
     seen = {h.get("id") for h in hits}
     hits += [h for h in b.search_knowledge(query, k=3, sources=["public"], max_authority=5)
              if h.get("id") not in seen]

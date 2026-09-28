@@ -45,6 +45,42 @@ class Chunk:
                                     .encode("utf-8")).hexdigest()[:16]
 
 
+# Legal and pricing pages are tagged when stored (Brain.upsert_page). Legal
+# text ("not financial advice", "we are not liable") is not a product fact and
+# stays out of the agents' searches; pricing is kept, and the reviewer checks
+# its figures verbatim. "price" alone is not a pricing signal: a price oracle
+# is a docs concept.
+_LEGAL = re.compile(r"(?i)(terms[\s_-]*(of[\s_-]*)?(service|use)|privacy|cookie[\s_-]*policy|"
+                    r"\blegal\b|disclaimer|\blicen[cs]e\b|imprint|gdpr|acceptable[\s_-]*use)")
+_PRICING = re.compile(r"(?i)(\bpricing\b|\bfees?\b|fee[\s_-]*schedule|\bbilling\b)")
+
+
+def page_kind(where: str, title: str = "") -> Optional[str]:
+    """"legal" or "pricing" for a page from its URL/id and title, else None."""
+    s = (where or "").replace("/", " ").replace("-", " ") + " " + (title or "")
+    # "terms" alone is too loose ("loan terms"): only a URL path that IS /terms.
+    if _LEGAL.search(s) or re.search(r"/(terms|tos)/?$", (where or "").split("?")[0].strip()):
+        return "legal"
+    if _PRICING.search(s):
+        return "pricing"
+    return None
+
+
+def strip_boilerplate(texts: list[str], *, share: float = 0.5, max_len: int = 80) -> list[str]:
+    """A site's menu and footer: short lines that repeat on most of its pages
+    ("Products", "Solutions", "Use Morpho"). The generic nav/cookie filter in
+    clean() cannot know each site's menu; the crawl as a whole does."""
+    if len(texts) < 3:
+        return texts
+    from collections import Counter
+    seen = Counter()
+    for t in texts:
+        seen.update({ln.strip() for ln in (t or "").splitlines() if 0 < len(ln.strip()) <= max_len})
+    cut = max(3, int(len(texts) * share + 0.999))
+    common = {ln for ln, n in seen.items() if n >= cut}
+    return ["\n".join(ln for ln in (t or "").splitlines() if ln.strip() not in common) for t in texts]
+
+
 def digest(text: str) -> str:
     return hashlib.sha1(" ".join(text.split()).encode("utf-8")).hexdigest()[:16]
 

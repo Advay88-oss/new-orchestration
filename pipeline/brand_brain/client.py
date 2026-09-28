@@ -21,7 +21,7 @@ import numpy as np
 
 from pipeline.brand_brain import embed as E
 from pipeline.brand_brain import store as S
-from pipeline.brand_brain.chunking import Chunk, digest
+from pipeline.brand_brain.chunking import Chunk, digest, page_kind
 
 # How much a source is trusted when two disagree: 1 founder-confirmed (the
 # Notion ground truth), 2 the live docs, 3 the internal knowledge pack,
@@ -62,6 +62,12 @@ def _now() -> str:
 def current_tenant() -> str:
     """The tenant this process serves: the session's, else Vanna (tenant #1)."""
     return os.environ.get("BRAIN_TENANT") or os.environ.get("VANNA_TENANT") or "vanna"
+
+
+def _section_pricing(section: str) -> Optional[str]:
+    """A section heading marks pricing ("Limits and fees"), never legal: a
+    heading like "Traction, funding & legal" is not a legal page."""
+    return "pricing" if page_kind("", section) == "pricing" else None
 
 
 class Brain:
@@ -108,7 +114,7 @@ class Brain:
     def search_knowledge(self, query: str, *, k: int = 8,
                          content_types: Optional[Iterable[str]] = None,
                          sources: Optional[Iterable[str]] = None,
-                         max_authority: int = 4) -> list[dict]:
+                         max_authority: int = 4, include_legal: bool = False) -> list[dict]:
         """Hybrid search: BM25 keyword + vector, fused by reciprocal rank.
 
         Keyword search is what finds product names and terms ("Soroban",
@@ -119,6 +125,9 @@ class Brain:
         # answered by a Rust signature.
         ct = set(content_types or [])
         skip_code = "code" not in ct
+        # Legal pages (terms, privacy, disclaimers) are not product facts: out
+        # of the agents' searches unless asked for; the assistant includes them.
+        skip_legal = not include_legal and "legal" not in ct
         src = set(sources or [])
         with self._db() as con:
             bm25 = self._bm25(con, query, 40)
@@ -144,13 +153,23 @@ class Brain:
                 if (not r or r["content_type"] == "section"
                         or (ct and r["content_type"] not in ct)
                         or (skip_code and r["content_type"] == "code")
+                        or (skip_legal and r["content_type"] == "legal")
                         or (src and r["source"] not in src)
                         or r["authority"] > max_authority):
                     continue
                 out.append((score * AUTHORITY_WEIGHT.get(r["authority"], 0.5), r))
             out.sort(key=lambda x: -x[0])
+            # At most two passages per page: one long article otherwise fills
+            # every slot ("Curators Explained" four times) and crowds out the rest.
+            per_page: dict[str, int] = {}
+            diverse = []
+            for score, r in out:
+                if per_page.get(r["page_id"], 0) >= 2:
+                    continue
+                per_page[r["page_id"]] = per_page.get(r["page_id"], 0) + 1
+                diverse.append((score, r))
             results = []
-            for score, r in out[:k]:
+            for score, r in diverse[:k]:
                 parent = None
                 if r["parent_id"]:
                     pr = con.execute("SELECT text FROM chunks WHERE id=?", (r["parent_id"],)).fetchone()
@@ -293,7 +312,20 @@ class Brain:
                     url: Optional[str] = None, updated_at: Optional[str] = None,
                     embed: bool = True) -> dict[str, int]:
         """Incremental: unchanged chunks are kept, changed ones re-embedded,
-        vanished ones tombstoned. Returns what changed."""
+        vanished ones tombstoned. Returns what changed.
+
+        Legal and pricing pages are tagged here (chunking.page_kind), for
+        every source. A chunk whose exact text another page already holds at
+        the same or higher trust is not stored again (a feature paragraph on
+        the homepage, /features and a blog post): search would otherwise
+        return the same passage three times. Its children point at the copy
+        already stored."""
+        if source not in ("public", "profile", "rulebook"):
+            kind = page_kind(page_id + " " + (url or ""), chunks[0].title if chunks else "")
+            for c in chunks:
+                k = kind or _section_pricing(c.section if c.section != c.title else "")
+                if k and c.content_type in ("doc", "blog", "section", "faq"):
+                    c.content_type = k
         keymap = {c.key: "" for c in chunks}
         ids = {c.key: source + ":" + digest(page_id + c.key) for c in chunks}
         with self._db() as con:
@@ -301,6 +333,19 @@ class Brain:
                 "SELECT id, hash FROM chunks WHERE page_id=? AND deleted=0", (page_id,)).fetchall()}
             fresh = [c for c in chunks if ids[c.key] not in have
                      or have[ids[c.key]] != digest(c.content_type + "|" + c.text)]
+            dupes = 0
+            if fresh:
+                keep = []
+                for c in fresh:
+                    other = con.execute(
+                        "SELECT id FROM chunks WHERE text=? AND page_id<>? AND deleted=0 AND authority<=? "
+                        "LIMIT 1", (c.text, page_id, authority)).fetchone() if len(c.text) >= 80 else None
+                    if other:
+                        ids[c.key] = other["id"]            # children reference the stored copy
+                        dupes += 1
+                    else:
+                        keep.append(c)
+                fresh = keep
             gone = [i for i in have if i not in set(ids.values())]
             vecs: list[Optional[np.ndarray]] = [None] * len(fresh)
             if embed and fresh:
@@ -324,7 +369,81 @@ class Brain:
                 con.execute("UPDATE chunks SET deleted=1, updated_at=? WHERE id=?", (_now(), i))
         del keymap
         return {"added_or_changed": len(fresh), "tombstoned": len(gone),
-                "unchanged": len(chunks) - len(fresh)}
+                "unchanged": len(chunks) - len(fresh) - dupes, "duplicates": dupes}
+
+    def tidy(self) -> dict[str, int]:
+        """One pass over what is already stored, for brains built before
+        tagging and dedupe: legal / pricing tags, and exact duplicates across
+        pages tombstoned (the most trusted, then the oldest, copy is kept and
+        children of a dropped parent point at the kept one)."""
+        with self._db() as con:
+            rows = [dict(r) for r in con.execute(
+                "SELECT id, page_id, url, title, section, source, authority, content_type, text, updated_at "
+                "FROM chunks WHERE deleted=0").fetchall()]
+            tagged = dropped = cleaned = 0
+            # The site's menu and footer, stripped from website chunks stored
+            # before strip_boilerplate existed (re-embedded; emptied ones dropped).
+            from pipeline.brand_brain.chunking import strip_boilerplate
+            web = [r for r in rows if r["source"] == "website"]
+            pages: dict[str, list[dict]] = {}
+            for r in web:
+                pages.setdefault(r["page_id"], []).append(r)
+            if len(pages) >= 3:
+                joined = strip_boilerplate(["\n".join(x["text"] for x in rs) for rs in pages.values()])
+                keep_lines = {pid: set(j.splitlines()) for pid, j in zip(pages, joined)}
+                changed = []
+                for pid, rs in pages.items():
+                    for r in rs:
+                        new = "\n".join(ln for ln in r["text"].splitlines() if ln in keep_lines[pid]).strip()
+                        if new != r["text"].strip():
+                            changed.append((r, new))
+                vecs: list = [None] * len(changed)
+                try:
+                    vecs = E.texts([new for _, new in changed if new]) if changed else []
+                    it = iter(vecs)
+                    vecs = [next(it) if new else None for _, new in changed]
+                except Exception:                       # noqa: BLE001 — keyword search still works
+                    vecs = [None] * len(changed)
+                for (r, new), v in zip(changed, vecs):
+                    if len(new) < 40:
+                        con.execute("UPDATE chunks SET deleted=1, updated_at=? WHERE id=?", (_now(), r["id"]))
+                    else:
+                        con.execute("UPDATE chunks SET text=?, hash=?, embedding=? WHERE id=?",
+                                    (new, digest(r["content_type"] + "|" + new), E.to_blob(v), r["id"]))
+                        r["text"] = new
+                    cleaned += 1
+            for r in rows:
+                # A legal tag given from a section heading before it was page-level only.
+                if r["content_type"] == "legal" and page_kind(r["page_id"] + " " + (r["url"] or ""), r["title"] or "") != "legal":
+                    back = "blog" if r["source"] == "website" else "doc"
+                    con.execute("UPDATE chunks SET content_type=?, hash=? WHERE id=?",
+                                (back, digest(back + "|" + r["text"]), r["id"]))
+                    r["content_type"] = back
+                if r["source"] in ("public", "profile", "rulebook") or r["content_type"] not in ("doc", "blog", "section", "faq"):
+                    continue
+                k = (page_kind(r["page_id"] + " " + (r["url"] or ""), r["title"] or "")
+                     or _section_pricing(r["section"] if r["section"] != r["title"] else ""))
+                if k:
+                    con.execute("UPDATE chunks SET content_type=?, hash=? WHERE id=?",
+                                (k, digest(k + "|" + r["text"]), r["id"]))
+                    tagged += 1
+            by_text: dict[str, list[dict]] = {}
+            for r in rows:
+                if len(r["text"] or "") >= 80:
+                    by_text.setdefault(r["text"], []).append(r)
+            for group in by_text.values():
+                if len({r["page_id"] for r in group}) < 2:
+                    continue
+                group.sort(key=lambda r: (r["authority"], r["updated_at"] or ""))
+                keep = group[0]
+                for r in group[1:]:
+                    if r["page_id"] == keep["page_id"]:
+                        continue
+                    con.execute("UPDATE chunks SET parent_id=? WHERE parent_id=?", (keep["id"], r["id"]))
+                    con.execute("UPDATE chunks SET deleted=1, updated_at=? WHERE id=?", (_now(), r["id"]))
+                    dropped += 1
+        return {"chunks": len(rows), "tagged": tagged, "duplicates_dropped": dropped,
+                "menu_lines_cleaned": cleaned}
 
     def add_image(self, image_id: str, path: str, *, kind: str, caption: str = "",
                   style_tags: Optional[list[str]] = None, score: Optional[float] = None,

@@ -576,8 +576,10 @@ def analyze(root: str, tenant: str, *, save: bool = False, max_pages: int = 18,
                                            note="drafted from " + str(len(crawl_out["pages"])) + " pages")
     name = profile["company"].get("name") or tenant
     added = 0
-    for p in crawl_out["pages"]:
-        chunks = chunk_page(p["text"], title=p["title"] or p["url"], company=name, source_label="website")
+    from pipeline.brand_brain.chunking import strip_boilerplate
+    bodies = strip_boilerplate([p["text"] for p in crawl_out["pages"]])      # the site's menu and footer
+    for p, body in zip(crawl_out["pages"], bodies):
+        chunks = chunk_page(body, title=p["title"] or p["url"], company=name, source_label="website")
         r = brain.upsert_page("website:" + p["url"], chunks, source="website", authority=authority, url=p["url"])
         added += r["added_or_changed"]
         remember_image(Path(p["screenshot"]), kind="website", note=p["url"], tenant=tenant)

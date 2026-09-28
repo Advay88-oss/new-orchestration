@@ -36,6 +36,20 @@ def _gate(text: str) -> list[dict]:
         return []
 
 
+def _figures(text: str) -> set[str]:
+    """Numbers as written, normalised (1,000 -> 1000; 0.10% -> 0.1%)."""
+    import re
+    out = set()
+    for m in re.finditer(r"\d[\d,]*(?:\.\d+)?\s*%?", text or ""):
+        n = m.group(0).replace(",", "").replace(" ", "")
+        pct = n.endswith("%")
+        n = n.rstrip("%")
+        if "." in n:
+            n = n.rstrip("0").rstrip(".")
+        out.add(n + ("%" if pct else ""))
+    return out
+
+
 def check_copy(hook: str, copy: str, *, run_id: Optional[str] = None) -> dict[str, Any]:
     from pipeline.brand_brain import context as C
     from pipeline.gtm_os import agent_runtime as R
@@ -87,6 +101,14 @@ def check_copy(hook: str, copy: str, *, run_id: Optional[str] = None) -> dict[st
             r = by_i.get(i, {})
             v = str(r.get("verdict") or "UNSUPPORTED").upper()
             ev = next((h for h in evidence[i] if h["id"] == r.get("evidence_id")), None)
+            # Prices and fees go stale and are the costliest to get wrong: a
+            # claim supported by a pricing passage passes only if every figure
+            # in it appears in that passage exactly, whatever the judge said.
+            if v == "SUPPORTED" and ev and ev.get("content_type") == "pricing":
+                missing = [n for n in _figures(c) if n not in _figures(ev["text"])]
+                if missing:
+                    v = "CONTRADICTED"
+                    r = {**r, "why": "pricing figure not in the pricing source as written: " + ", ".join(missing)}
             judged.append({"claim": c, "verdict": v, "why": str(r.get("why") or "")[:200],
                            "source": ev["source"] if ev else None, "url": ev.get("url") if ev else None,
                            "section": ev["section"] if ev else None})
