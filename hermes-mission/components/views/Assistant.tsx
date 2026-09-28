@@ -14,6 +14,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
+import { useViewer } from "@/lib/useViewer";
 
 type Card = { type: string; [k: string]: any };
 type Tool = { name: string; summary: string };
@@ -338,6 +339,9 @@ const TOOL_LABEL: Record<string, string> = {
 };
 
 export function Assistant({ vm }: { vm: MissionVM }) {
+  // A client link talks about its own company only: no other companies, no
+  // onboarding, no model checks (those are the owner's).
+  const isClient = Boolean(useViewer()?.client);
   const [tenants, setTenants] = useState<string[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [tenant, setTenant] = useState<string>("");
@@ -514,11 +518,13 @@ export function Assistant({ vm }: { vm: MissionVM }) {
               {tenants.length === 0 && <option value="">no companies yet</option>}
               {tenants.map((t) => <option key={t} value={t}>{names[t] || t}</option>)}
             </select>
-            <button style={btn} onClick={addCompany}>+ Add company</button>
+            {!isClient && <button style={btn} onClick={addCompany}>+ Add company</button>}
             <span style={{ flex: 1 }} />
-            <button style={{ ...btn, background: checks ? "var(--vn-raised)" : "transparent" }} onClick={() => setChecks((c) => !c)}>
-              {checks ? "Back to chat" : "Checks"}
-            </button>
+            {!isClient && (
+              <button style={{ ...btn, background: checks ? "var(--vn-raised)" : "transparent" }} onClick={() => setChecks((c) => !c)}>
+                {checks ? "Back to chat" : "Checks"}
+              </button>
+            )}
           </div>
 
           {/* messages */}

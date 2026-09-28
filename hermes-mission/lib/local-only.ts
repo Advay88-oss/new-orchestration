@@ -18,7 +18,7 @@
  */
 import { NextResponse } from 'next/server';
 import { isDeployed } from '@/lib/gcs';
-import { isOwner } from '@/lib/viewer';
+import { clientTenant, isOwner } from '@/lib/viewer';
 
 export function cloudMode(): boolean {
   return isDeployed() && process.env.VANNA_CLOUD === '1';
@@ -31,6 +31,30 @@ export function cloudMode(): boolean {
  */
 export function ownerOnly(what: string): NextResponse | null {
   if (isOwner()) return null;
+  return NextResponse.json(
+    { success: false, ok: false, owner_only: true, error: `${what} is for the owner of this dashboard.` },
+    { status: 403 },
+  );
+}
+
+/**
+ * Owner, or a client acting on their own company. Returns the tenant the
+ * route must use — for a client always their own, whatever was asked for —
+ * or the response to send (403 for a visitor or for another company; 501 on
+ * the hybrid deployment where the pipeline is not in the cloud).
+ */
+export function companyAccess(what: string, requested?: string | null,
+                              opts: { write?: boolean } = {}): { tenant: string | null } | NextResponse {
+  if (opts.write && isDeployed() && !cloudMode()) return localOnly(what) as NextResponse;
+  if (isOwner()) return { tenant: requested || null };
+  const own = clientTenant();
+  if (own) {
+    if (requested && requested !== own) {
+      return NextResponse.json({ success: false, ok: false, error: `${what}: this link is for ${own} only.` },
+                               { status: 403 });
+    }
+    return { tenant: own };
+  }
   return NextResponse.json(
     { success: false, ok: false, owner_only: true, error: `${what} is for the owner of this dashboard.` },
     { status: 403 },

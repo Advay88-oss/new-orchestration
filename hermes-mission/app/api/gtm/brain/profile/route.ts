@@ -2,7 +2,7 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { localOnly, ownerOnly } from '@/lib/local-only';
+import { companyAccess } from '@/lib/local-only';
 import { runPython } from '@/lib/python';
 
 export const dynamic = 'force-dynamic';
@@ -33,17 +33,20 @@ const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
 const tenantArg = (t: unknown) => (typeof t === 'string' && TENANT.test(t) ? ['--tenant=' + t] : []);
 
 export async function GET(req: Request) {
-  const hidden = ownerOnly('the brand profile');
-  if (hidden) return hidden;
   const sp = new URL(req.url).searchParams;
+  const access = companyAccess('the brand profile', TENANT.test(sp.get('tenant') || '') ? sp.get('tenant') : null);
+  if (access instanceof NextResponse) return access;
   const v = sp.get('version') || '';
-  return py(['profile', ...(/^\d+$/.test(v) ? [v] : []), ...tenantArg(sp.get('tenant'))]);
+  return py(['profile', ...(/^\d+$/.test(v) ? [v] : []), ...tenantArg(access.tenant)]);
 }
 
 export async function POST(req: Request) {
-  const blocked = localOnly('changing the brand profile');
-  if (blocked) return blocked;
   const body = await req.json().catch(() => ({}));
+  // A client edits and approves their own company's profile, no other.
+  const access = companyAccess('changing the brand profile', TENANT.test(String(body.tenant || '')) ? body.tenant : null,
+                               { write: true });
+  if (access instanceof NextResponse) return access;
+  body.tenant = access.tenant ?? body.tenant;
   if (body.action === 'approve' && Number.isInteger(body.version)) {
     return py(['approve', String(body.version), ...tenantArg(body.tenant)]);
   }

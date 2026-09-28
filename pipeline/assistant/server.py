@@ -43,7 +43,7 @@ def _run(req: dict) -> None:
         return
     try:
         for ev in turn(tenant, str(req.get("text") or ""), thread_id=req.get("thread_id") or None,
-                       cancelled=lambda: rid in _cancelled):
+                       cancelled=lambda: rid in _cancelled, client=bool(req.get("client"))):
             _emit({"id": rid, **ev})
     except Exception as exc:                        # noqa: BLE001 — one turn fails alone
         _emit({"id": rid, "type": "error", "error": type(exc).__name__ + ": " + str(exc)[:300]})

@@ -56,7 +56,8 @@ export interface PyResult {
  * refresh). Anything that takes minutes belongs in the job queue — a pipeline
  * run tied to an HTTP request is the anti-pattern this codebase is removing.
  */
-export function runPython(args: string[], timeoutMs = 120_000, input?: string): Promise<PyResult> {
+export function runPython(args: string[], timeoutMs = 120_000, input?: string,
+                          env: Record<string, string> = {}): Promise<PyResult> {
   const py = pythonPath();
   if (!py) {
     return Promise.resolve({
@@ -75,7 +76,8 @@ export function runPython(args: string[], timeoutMs = 120_000, input?: string): 
     // containing &, |, ^ or quotes cannot become a second command.
     const child = spawn(py, args, {
       cwd: REPO_ROOT,
-      env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1' },
+      // `env` carries the tenant a request is for (BRAIN_TENANT), e.g. a client's own company.
+      env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1', ...env },
     });
 
     let stdout = '';

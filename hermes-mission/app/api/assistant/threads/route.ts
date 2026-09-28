@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { localOnly } from '@/lib/local-only';
+import { companyAccess } from '@/lib/local-only';
 import { runPython, lastJson } from '@/lib/python';
 
 export const dynamic = 'force-dynamic';
@@ -25,11 +25,18 @@ async function py(args: string[]) {
   }
 }
 
+function scoped(u: URL) {
+  const asked = u.searchParams.get('tenant') || '';
+  const access = companyAccess('the assistant', TENANT.test(asked) ? asked : null);
+  if (access instanceof NextResponse) return access;
+  return access.tenant || asked;
+}
+
 export async function GET(req: Request) {
-  const blocked = localOnly('the assistant');
-  if (blocked) return blocked;
   const u = new URL(req.url);
-  const tenant = u.searchParams.get('tenant') || '';
+  const s = scoped(u);
+  if (s instanceof NextResponse) return s;
+  const tenant = s;
   const id = u.searchParams.get('id') || '';
   if (!TENANT.test(tenant)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
   if (id) {
@@ -40,10 +47,10 @@ export async function GET(req: Request) {
 }
 
 export async function DELETE(req: Request) {
-  const blocked = localOnly('the assistant');
-  if (blocked) return blocked;
   const u = new URL(req.url);
-  const tenant = u.searchParams.get('tenant') || '';
+  const s = scoped(u);
+  if (s instanceof NextResponse) return s;
+  const tenant = s;
   const id = u.searchParams.get('id') || '';
   if (!TENANT.test(tenant) || !THREAD.test(id)) return NextResponse.json({ ok: false, error: 'bad request' }, { status: 400 });
   return py(['delete', '--tenant', tenant, '--id', id]);

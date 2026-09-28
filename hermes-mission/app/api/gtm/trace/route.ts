@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { companyOf, listGtmRunIds, gtmRunSummary } from '@/lib/gtm';
+import { companyOf, listGtmRunIds, gtmRunSummary, tenantOfRun } from '@/lib/gtm';
 import { isDeployed, getText } from '@/lib/gcs';
-import { canSeeRun } from '@/lib/viewer';
+import { canSeeRun, clientTenant } from '@/lib/viewer';
 import fs from 'fs';
 import path from 'path';
 
@@ -28,6 +28,8 @@ const RUNS_DIR = path.join(REPO_ROOT, 'pipeline', 'state', 'gtm_runs');
  */
 async function readFile(runId: string, name: string): Promise<string | null> {
   if (!canSeeRun(runId)) return null;
+  const own = clientTenant();
+  if (own && (await tenantOfRun(runId)) !== own) return null;
   if (isDeployed()) return getText(`gtm_runs/${runId}/${name}`);
   try {
     return fs.readFileSync(path.join(RUNS_DIR, runId, name), 'utf-8');

@@ -86,7 +86,7 @@ function start(): ChildProcessWithoutNullStreams {
 export interface Turn { id: string; done: Promise<void>; cancel: () => void }
 
 /** Start one turn; `onEvent` gets each event, ending with {type: 'done'}. */
-export function ask(req: { tenant: string; text: string; thread_id?: string | null; base?: string },
+export function ask(req: { tenant: string; text: string; thread_id?: string | null; base?: string; client?: boolean },
                     onEvent: Listener): Turn {
   const id = crypto.randomUUID();
   let finish!: () => void;

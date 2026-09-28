@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { spawn } from 'child_process';
 import { NextResponse } from 'next/server';
-import { localOnly, ownerOnly } from '@/lib/local-only';
+import { companyAccess } from '@/lib/local-only';
 import { pythonPath } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
 
@@ -31,20 +31,23 @@ function readJson(f: string): any | null {
 }
 
 export async function GET(req: Request) {
-  const hidden = ownerOnly('the competitor analysis');
-  if (hidden) return hidden;
-  const t = new URL(req.url).searchParams.get('tenant') || '';
-  if (!TENANT.test(t)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
+  const asked = new URL(req.url).searchParams.get('tenant') || '';
+  if (!TENANT.test(asked)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
+  const access = companyAccess('the competitor analysis', asked);
+  if (access instanceof NextResponse) return access;
+  const t = access.tenant || asked;
   const job = readJson(statusFile(t));
   const report = readJson(reportFile(t));
   return NextResponse.json({ ok: true, state: job?.state ?? 'none', job, report });
 }
 
 export async function POST(req: Request) {
-  const blocked = localOnly('analysing competitors');
-  if (blocked) return blocked;
   const body = await req.json().catch(() => ({}));
-  const tenant = String(body.tenant || '').toLowerCase();
+  const asked = String(body.tenant || '').toLowerCase();
+  // A client works on their own company only (a new company is the owner's call).
+  const access = companyAccess('analysing competitors', asked || null, { write: true });
+  if (access instanceof NextResponse) return access;
+  const tenant = access.tenant || asked;
   if (!TENANT.test(tenant)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
   const py = pythonPath();
   if (!py) return NextResponse.json({ ok: false, error: 'no python interpreter for the pipeline' }, { status: 500 });

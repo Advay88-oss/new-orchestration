@@ -196,6 +196,8 @@ export function Sidebar({ vm, mobileOpen = false, onCloseMobile }: SidebarProps)
               <>Owner view · all runs · <a href="?as=visitor" style={{ fontWeight: 500 }}>see visitor view</a></>
             ) : viewer.previewing ? (
               <>Previewing the visitor view · <a href="?as=owner" style={{ fontWeight: 500 }}>back to owner view</a></>
+            ) : viewer.client ? (
+              <>Client view · {viewer.client.charAt(0).toUpperCase() + viewer.client.slice(1)} · this company only</>
             ) : (
               <>Showing runs since {sinceLabel(viewer.since)}</>
             )}

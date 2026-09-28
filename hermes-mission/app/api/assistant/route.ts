@@ -1,4 +1,6 @@
-import { localOnly } from '@/lib/local-only';
+import { NextResponse } from 'next/server';
+import { companyAccess } from '@/lib/local-only';
+import { clientTenant } from '@/lib/viewer';
 import { ask } from '@/lib/assistant';
 
 export const dynamic = 'force-dynamic';
@@ -17,10 +19,13 @@ const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
 const THREAD = /^t_[A-Za-z0-9_-]{6,40}$/;
 
 export async function POST(req: Request) {
-  const blocked = localOnly('the assistant');
-  if (blocked) return blocked;
   const body = await req.json().catch(() => ({}));
-  const tenant = String(body.tenant || '');
+  // The owner talks about any company; a client only about their own.
+  const access = companyAccess('the assistant', TENANT.test(String(body.tenant || '')) ? String(body.tenant) : null,
+                               { write: true });
+  if (access instanceof NextResponse) return access;
+  const tenant = access.tenant || String(body.tenant || '');
+  const client = Boolean(clientTenant());
   const text = String(body.text || '').slice(0, 8000);
   const thread_id = THREAD.test(String(body.thread_id || '')) ? String(body.thread_id) : null;
   if (!TENANT.test(tenant)) return Response.json({ ok: false, error: 'pick a company first' }, { status: 400 });
@@ -38,7 +43,7 @@ export async function POST(req: Request) {
           controller.enqueue(enc.encode('data: ' + JSON.stringify(rest) + '\n\n'));
         } catch { open = false; }
       };
-      turn = ask({ tenant, text, thread_id, base: new URL(req.url).origin }, send);
+      turn = ask({ tenant, text, thread_id, base: new URL(req.url).origin, client }, send);
       req.signal.addEventListener('abort', () => turn?.cancel());
       turn.done.finally(() => { open = false; try { controller.close(); } catch { /* */ } });
     },

@@ -29,7 +29,7 @@ class AssistantToolsTest(unittest.TestCase):
         self.runs = self.tmp / "runs"
         (self.runs / "GTM-20260926-100000").mkdir(parents=True)
         (self.runs / "GTM-20260926-100000" / "summary.json").write_text(json.dumps({
-            "status": "review_blocked", "signal": "s", "review_notes": {"creative": "REJECT",
+            "status": "review_blocked", "signal": "s", "brain": {"tenant": "acme"}, "review_notes": {"creative": "REJECT",
             "channel_issues": {"linkedin": ["too vague"]}}, "posts": {"x": {"hook": "h"}}}), encoding="utf-8")
         self.patches = [mock.patch.object(S, "ROOT", self.tmp / "tenants"), mock.patch.object(T, "RUNS", self.runs),
                         mock.patch.object(T, "STATUS_DIR", self.tmp / "status")]
@@ -53,6 +53,16 @@ class AssistantToolsTest(unittest.TestCase):
         self.assertEqual(r["runs"][0]["run_id"], "GTM-20260926-100000")
         self.assertIn("creative judge: REJECT", r["runs"][0]["why"])
         self.assertIn("linkedin: too vague", r["runs"][0]["why"])
+
+    def test_another_companys_runs_stay_out(self):
+        (self.runs / "GTM-20260926-110000").mkdir(parents=True)
+        (self.runs / "GTM-20260926-110000" / "summary.json").write_text(json.dumps({
+            "status": "completed", "signal": "other", "brain": {"tenant": "globex"}}), encoding="utf-8")
+        ids = [r["run_id"] for r in T.call("list_runs", "acme", {"limit": 10})["runs"]]
+        self.assertEqual(ids, ["GTM-20260926-100000"])
+        self.assertIn("error", T.call("get_run", "acme", {"run_id": "GTM-20260926-110000"}))
+        names = {d["name"] for d in T.declarations(client=True)}
+        self.assertFalse(names & T.CLIENT_BLOCKED)
 
     def test_actions_are_cards_not_deeds(self):
         r = T.call("propose_action", "acme", {"action": "launch_run", "directive": "post on health factor"})

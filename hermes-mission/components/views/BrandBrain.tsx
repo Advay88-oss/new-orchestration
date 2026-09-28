@@ -15,6 +15,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
 import { ErrorState, ViewSkeleton } from "@/components/States";
+import { useViewer } from "@/lib/useViewer";
 
 type Hit = {
   id: string; text: string; section: string; title: string; source: string;
@@ -123,6 +124,52 @@ function ProfileActions({ tenant, version, status, onChanged }: { tenant: string
 /** Connect or disconnect the tenant's Notion (OAuth; the token is stored
  *  encrypted). Connecting always goes through a signed invite: open it
  *  yourself, or send it to the client so they pick their own pages. */
+/** The owner's client link for this company: that browser becomes the
+ *  company's client (its own runs, Assistant, brain, Notion, launches). */
+function ClientLink({ tenant }: { tenant: string }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const make = async () => {
+    setBusy(true); setMsg(null);
+    try {
+      const j = await (await fetch("/api/client-link", {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tenant, days: 30 }),
+      })).json();
+      if (j.ok) setUrl(j.url); else setMsg(j.error || "could not make the link");
+    } finally { setBusy(false); }
+  };
+  const copy = async () => {
+    if (!url) return;
+    try { await navigator.clipboard.writeText(url); setMsg("Copied."); } catch { setMsg("Select the link and copy it."); }
+  };
+  return (
+    <div style={card}>
+      <div style={label}>Client link · {tenant}</div>
+      <div style={{ fontSize: 13, color: "var(--vn-ink-body)", lineHeight: 1.55, marginBottom: 10 }}>
+        Send this to {tenant}&apos;s team. Whoever opens it gets {tenant}&apos;s own dashboard: its runs, the
+        Assistant, this Brand Brain, Notion, launching runs (up to 10 a day) and approving them. Nothing of any
+        other company. It works for 30 days.
+      </div>
+      {!url ? (
+        <button onClick={make} disabled={busy}
+                style={{ background: "var(--vn-accent)", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontWeight: 600, cursor: "pointer" }}>
+          {busy ? "Making…" : "Make a client link"}
+        </button>
+      ) : (
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <input readOnly value={url} onFocus={(e) => e.currentTarget.select()}
+                 style={{ flex: 1, minWidth: 240, background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: 8,
+                          padding: "8px 10px", color: "var(--vn-ink)", fontFamily: MONO, fontSize: 11.5 }} />
+          <button onClick={copy} style={{ background: "var(--vn-hover)", border: "1px solid var(--vn-line-strong)", borderRadius: 8,
+                                         padding: "8px 12px", color: "var(--vn-ink)", cursor: "pointer" }}>Copy</button>
+        </div>
+      )}
+      {msg && <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginTop: 8 }}>{msg}</div>}
+    </div>
+  );
+}
+
 function NotionConnect({ tenant, notion, onChange }: { tenant: string; notion: any; onChange: () => void }) {
   const [busy, setBusy] = useState(false);
   const [link, setLink] = useState<string | null>(null);
@@ -347,6 +394,8 @@ function Onboard({ onDone }: { onDone: (tenant: string) => void }) {
 }
 
 export function BrandBrain() {
+  const viewer = useViewer();
+  const isClient = Boolean(viewer?.client);
   const [data, setData] = useState<any | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
@@ -617,7 +666,9 @@ export function BrandBrain() {
       </div>
 
       {data?.tenant && <Competitors tenant={data.tenant} />}
-      <Onboard onDone={(t) => { setTenant(t); setTick((x) => x + 1); }} />
+      {data?.tenant && viewer?.owner && <ClientLink tenant={data.tenant} />}
+      {/* A new company is the owner's decision; a client works on their own. */}
+      {!isClient && <Onboard onDone={(t) => { setTenant(t); setTick((x) => x + 1); }} />}
     </div>
   );
 }

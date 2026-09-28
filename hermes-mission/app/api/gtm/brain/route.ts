@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { runPython } from '@/lib/python';
-import { ownerOnly } from '@/lib/local-only';
+import { companyAccess } from '@/lib/local-only';
+import { clientTenant } from '@/lib/viewer';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,12 +11,14 @@ export const dynamic = 'force-dynamic';
  * hybrid knowledge search. Read-only; it never writes to the brain.
  */
 export async function GET(req: Request) {
-  const hidden = ownerOnly('the brand brain');
-  if (hidden) return hidden;
   const sp = new URL(req.url).searchParams;
   const q = (sp.get('q') || '').trim().slice(0, 300);
-  const tenant = (sp.get('tenant') || '').toLowerCase();
-  const t = /^[a-z0-9][a-z0-9_-]{1,40}$/.test(tenant) ? [tenant] : [];
+  const asked = (sp.get('tenant') || '').toLowerCase();
+  // The owner reads any company's brain; a client only their own.
+  const access = companyAccess('the brand brain', /^[a-z0-9][a-z0-9_-]{1,40}$/.test(asked) ? asked : null);
+  if (access instanceof NextResponse) return access;
+  const tenant = access.tenant || '';
+  const t = tenant ? [tenant] : [];
   const args = ['-m', 'pipeline.brand_brain.dashboard', ...(q ? ['search', q, ...t] : ['overview', ...t])];
   const r = await runPython(args, 60_000);
   if (!r.ok) {
@@ -25,7 +28,11 @@ export async function GET(req: Request) {
     );
   }
   try {
-    return NextResponse.json(JSON.parse(r.stdout));
+    const out = JSON.parse(r.stdout);
+    // Other companies' names are not a client's business.
+    const own = clientTenant();
+    if (own && Array.isArray(out?.tenants)) out.tenants = [own];
+    return NextResponse.json(out);
   } catch {
     return NextResponse.json({ ok: false, error: 'unreadable brain output' }, { status: 500 });
   }

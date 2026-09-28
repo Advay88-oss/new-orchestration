@@ -20,7 +20,7 @@ async function projectId(): Promise<string> {
   return (project = (await r.text()).trim());
 }
 
-export async function runPipelineJob(args: string[]): Promise<{ ok: boolean; execution?: string; error?: string }> {
+export async function runPipelineJob(args: string[], env: Record<string, string> = {}): Promise<{ ok: boolean; execution?: string; error?: string }> {
   const job = process.env.VANNA_PIPELINE_JOB || 'vanna-gtm-pipeline';
   const region = process.env.VANNA_REGION || 'us-central1';
   try {
@@ -28,7 +28,10 @@ export async function runPipelineJob(args: string[]): Promise<{ ok: boolean; exe
     const r = await fetch(url, {
       method: 'POST',
       headers: { Authorization: `Bearer ${await token()}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ overrides: { containerOverrides: [{ args: ['job', ...args] }], taskCount: 1 } }),
+      // `env` overrides per execution, e.g. BRAIN_TENANT for a client's company.
+      body: JSON.stringify({ overrides: { containerOverrides: [{ args: ['job', ...args],
+        ...(Object.keys(env).length ? { env: Object.entries(env).map(([name, value]) => ({ name, value })) } : {}) }],
+        taskCount: 1 } }),
       cache: 'no-store',
     });
     const body = await r.json().catch(() => ({}));

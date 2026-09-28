@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { localOnly } from '@/lib/local-only';
+import { companyAccess } from '@/lib/local-only';
 import { runPython, lastJson } from '@/lib/python';
 
 export const dynamic = 'force-dynamic';
@@ -18,11 +18,13 @@ export const dynamic = 'force-dynamic';
 const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
 
 export async function POST(req: Request, { params }: { params: { action: string } }) {
-  const blocked = localOnly('managing Notion connections');
-  if (blocked) return blocked;
   const body = await req.json().catch(() => ({}));
-  const tenant = String(body.tenant || '');
-  if (!TENANT.test(tenant)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
+  const asked = String(body.tenant || '');
+  if (!TENANT.test(asked)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
+  // A client connects (or disconnects) their own company's Notion.
+  const access = companyAccess('managing Notion connections', asked, { write: true });
+  if (access instanceof NextResponse) return access;
+  const tenant = access.tenant || asked;
   let args: string[];
   if (params.action === 'invite') {
     args = ['invite', '--tenant', tenant, '--base', new URL(req.url).origin];

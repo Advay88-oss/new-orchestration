@@ -4,7 +4,8 @@ import fs from 'fs';
 import path from 'path';
 import { pythonPath } from '@/lib/python';
 import { listGtmRunIds, gtmRunSummary } from '@/lib/gtm';
-import { cloudMode, localOnly } from '@/lib/local-only';
+import { cloudMode, companyAccess } from '@/lib/local-only';
+import { clientTenant } from '@/lib/viewer';
 import { runPipelineJob } from '@/lib/cloudrun';
 import { allow } from '@/lib/ratelimit';
 
@@ -24,23 +25,34 @@ const LOG_DIR = path.join(REPO_ROOT, 'pipeline', 'state', 'gtm_runs');
  * should hold, so it is spawned detached and the client polls /api/runs. An
  * empty directive is the autonomous path: A02 picks the topic itself.
  */
-export async function POST(req: Request) {
-  const blocked = localOnly('starting a run');
-  if (blocked) return blocked;
-  // A cycle costs model calls and a Veo render: at most 6 launches an hour
-  // (the pipeline also caps cycles per day, and the daily budget holds).
-  if (!allow('launch', 6, 3_600_000)) {
-    return NextResponse.json({ success: false, error: 'too many launches: the limit is 6 an hour' }, { status: 429 });
-  }
+const CLIENT_RUNS_PER_DAY = Number(process.env.CLIENT_RUNS_PER_DAY || 10);
 
+export async function POST(req: Request) {
   let directive = '';
   let withVideo = true;
+  let asked: string | null = null;
   try {
     const body = await req.json();
     directive = body?.directive ?? '';
     withVideo = body?.video !== false;
+    asked = typeof body?.tenant === 'string' && body.tenant ? String(body.tenant) : null;
   } catch {
     /* empty body = fully autonomous */
+  }
+
+  // The owner runs any company (default: the dashboard's tenant); a client
+  // only their own, and at most CLIENT_RUNS_PER_DAY a day, video included.
+  const access = companyAccess('starting a run', asked, { write: true });
+  if (access instanceof NextResponse) return access;
+  const tenant = access.tenant || process.env.BRAIN_TENANT || 'vanna';
+  if (clientTenant() && !allow('client-launch:' + tenant, CLIENT_RUNS_PER_DAY, 86_400_000)) {
+    return NextResponse.json({ success: false,
+      error: `the limit for ${tenant} is ${CLIENT_RUNS_PER_DAY} runs a day` }, { status: 429 });
+  }
+  // A cycle costs model calls and a Veo render: at most 6 launches an hour
+  // (the pipeline also caps cycles per day, and the daily budget holds).
+  if (!allow('launch', 6, 3_600_000)) {
+    return NextResponse.json({ success: false, error: 'too many launches: the limit is 6 an hour' }, { status: 429 });
   }
 
   // On GCP the cycle is a Cloud Run Job execution, not a child process.
@@ -48,10 +60,10 @@ export async function POST(req: Request) {
     const args = ['cycle'];
     if (directive.trim()) args.push('--directive', directive.trim().slice(0, 2000));
     if (!withVideo) args.push('--no-video');
-    const r = await runPipelineJob(args);
+    const r = await runPipelineJob(args, { BRAIN_TENANT: tenant });
     if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 502 });
     return NextResponse.json({
-      success: true, execution: r.execution, directive: directive || null, autonomous: !directive.trim(),
+      success: true, execution: r.execution, tenant, directive: directive || null, autonomous: !directive.trim(),
       note: 'Cycle started on GCP. It appears under Live Trace and Agent History as it runs.',
     });
   }
@@ -74,7 +86,7 @@ export async function POST(req: Request) {
 
   const child = spawn(py, args, {
     cwd: REPO_ROOT,
-    env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONIOENCODING: 'utf-8' },
+    env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONIOENCODING: 'utf-8', BRAIN_TENANT: tenant },
     detached: true,
     stdio: ['ignore', out, out],
   });

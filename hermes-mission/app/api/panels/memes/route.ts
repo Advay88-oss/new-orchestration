@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { runPython, lastJson, pythonPath } from '@/lib/python';
 import { isDeployed, getText } from '@/lib/gcs';
-import { scopePanel } from '@/lib/viewer';
+import { clientTenant, scopePanel } from '@/lib/viewer';
 import { companiesOf } from '@/lib/gtm';
 import fs from 'fs';
 import path from 'path';
@@ -19,7 +19,11 @@ export const dynamic = 'force-dynamic';
 async function withCompany(data: any, kind: 'ideas' | 'memes') {
   const items: any[] = Array.isArray(data?.[kind]) ? data[kind] : [];
   const map = await companiesOf(items.map((i) => String(i?.run_id || '')));
-  return { ...data, [kind]: items.map((i) => ({ ...i, company: map[String(i?.run_id || '')] || 'vanna' })) };
+  let tagged = items.map((i) => ({ ...i, company: map[String(i?.run_id || '')] || 'vanna' }));
+  // A client sees their own company's items only.
+  const own = clientTenant();
+  if (own) tagged = tagged.filter((i) => i.company === own);
+  return { ...data, [kind]: tagged, ...(own ? { total_memes: tagged.length } : {}) };
 }
 
 export async function GET() {

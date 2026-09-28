@@ -179,10 +179,19 @@ def _why(s: dict) -> str:
     return "; ".join(bits)[:300]
 
 
+def _run_tenant(s: dict) -> str:
+    """The company a run served (runs from before the pluggable brain: Vanna)."""
+    return str(((s or {}).get("brain") or {}).get("tenant") or "vanna").lower()
+
+
 def list_runs(tenant: str, limit: int = 10, status: str = "") -> dict:
+    # Only this company's runs: a chat is about one company, and a client's
+    # chat must never list another company's work.
     rows = []
-    for rid in _run_ids(max(1, min(int(limit or 10), 25)) * (3 if status else 1)):
+    for rid in _run_ids(max(1, min(int(limit or 10), 25)) * 8):
         s = _summary(rid) or {}
+        if _run_tenant(s) != tenant:
+            continue
         if status and status.lower() not in str(s.get("status", "")).lower():
             continue
         x = ((s.get("posts") or {}).get("x") or {})
@@ -198,6 +207,8 @@ def get_run(tenant: str, run_id: str) -> dict:
     if not RUN_ID.match(str(run_id)):
         return {"error": "run ids look like GTM-20260926-133104"}
     s = _summary(run_id)
+    if s and _run_tenant(s) != tenant:
+        return {"error": run_id + " is not a run of this company"}
     if not s:
         return {"error": "no run " + run_id}
     posts = s.get("posts") or {}
@@ -351,8 +362,14 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
 }
 
 
-def declarations() -> list[dict]:
-    return [{"name": n, "description": d, "parameters": p} for n, (_, d, p) in TOOLS.items()]
+# A company's own client (a client link, not the owner) talks about their
+# company only: no list of the other companies, no onboarding a new one.
+CLIENT_BLOCKED = {"list_companies", "add_company"}
+
+
+def declarations(client: bool = False) -> list[dict]:
+    return [{"name": n, "description": d, "parameters": p} for n, (_, d, p) in TOOLS.items()
+            if not (client and n in CLIENT_BLOCKED)]
 
 
 def call(name: str, tenant: str, args: dict) -> dict:

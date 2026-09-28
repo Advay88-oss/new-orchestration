@@ -4,6 +4,10 @@ import { useEffect, useState } from "react";
 
 export interface Viewer {
   owner: boolean;
+  /** owner, client (a company's own link) or visitor */
+  role?: "owner" | "client" | "visitor";
+  /** the company a client link is for */
+  client?: string | null;
   previewing: boolean;
   since: string | null;
 }

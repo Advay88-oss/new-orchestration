@@ -65,6 +65,9 @@ type RelayState = "unknown" | "trying" | "live" | "failed";
 export type ExpandedMap = Record<string, boolean>;
 
 const OWNER_VIEWS = new Set(["assistant", "scheduler", "brain"]);
+// A company's client has everything for their own company except the
+// scheduler (global jobs and the budget are the owner's).
+const CLIENT_HIDDEN = new Set(["scheduler"]);
 
 export function useMissionControl(props: MissionControlProps) {
   const [data, setData] = useState<MissionData | null>(null);
@@ -73,10 +76,12 @@ export function useMissionControl(props: MissionControlProps) {
   // (all the owner's; their routes answer 403), so those leave the nav and
   // the page opens on the Live Trace instead.
   const viewer = useViewer();
-  const visitor = viewer ? !viewer.owner : false;
+  const client = viewer?.client || null;
+  const visitor = viewer ? !viewer.owner && !client : false;
+  const hidden = visitor ? OWNER_VIEWS : client ? CLIENT_HIDDEN : new Set<string>();
   useEffect(() => {
-    if (visitor && OWNER_VIEWS.has(view)) setView("trace");
-  }, [visitor, view]);
+    if (hidden.has(view)) setView(visitor ? "trace" : "assistant");
+  }, [visitor, client, view]);
   // `?view=brain` opens a view directly (the Notion OAuth callback lands there).
   useEffect(() => {
     try {
@@ -238,7 +243,7 @@ export function useMissionControl(props: MissionControlProps) {
       { id: "brain", label: "Brand Brain" },
       { id: "learning", label: "Learning" },
       { id: "references", label: "References" },
-    ].filter((n) => !(visitor && OWNER_VIEWS.has(n.id))).map((n) => {
+    ].filter((n) => !hidden.has(n.id)).map((n) => {
       const on = view === n.id;
       return {
         on,

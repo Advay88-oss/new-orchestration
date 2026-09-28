@@ -21,7 +21,7 @@ import fs from 'fs';
 import path from 'path';
 import { isDeployed, getText, getBytes, runIds as gcsRunIds } from '@/lib/gcs';
 import { AGENTS as AGENT_DEFS, ALIAS, type GtmAgentRole } from '@/lib/agents';
-import { canSeeRun, runVisibility } from '@/lib/viewer';
+import { canSeeRun, clientTenant, runVisibility } from '@/lib/viewer';
 
 export type { GtmAgentRole };
 
@@ -86,16 +86,43 @@ const DEF = new Map(AGENT_DEFS.map((a) => [a.id, a]));
  * produced. On Cloud Run that directory does not exist, so the same file comes
  * from GCS.
  */
-async function runFile(runId: string, name: string): Promise<string | null> {
-  // A visitor sees runs from their first visit on (lib/viewer.ts). Every
-  // per-run read passes here, so a run they cannot list cannot be opened by id.
-  if (!canSeeRun(runId)) return null;
+async function rawRunFile(runId: string, name: string): Promise<string | null> {
   if (isDeployed()) return getText(`gtm_runs/${runId}/${name}`);
   try {
     return fs.readFileSync(path.join(RUNS_DIR, runId, name), 'utf-8');
   } catch {
     return null;
   }
+}
+
+// run id -> tenant, for finished runs (a finished run's tenant never changes).
+const g = globalThis as unknown as { __vnRunTenant?: Map<string, string> };
+const runTenant: Map<string, string> = (g.__vnRunTenant ??= new Map());
+
+/** Which company a run served, read without the viewer gate. */
+export async function tenantOfRun(runId: string): Promise<string> {
+  const hit = runTenant.get(runId);
+  if (hit) return hit;
+  let s: any = null;
+  let finished = false;
+  try {
+    const raw = await rawRunFile(runId, 'summary.json');
+    if (raw) { s = JSON.parse(raw); finished = true; }
+    else s = JSON.parse((await rawRunFile(runId, 'partial.json')) || 'null');
+  } catch { s = null; }
+  const t = companyOf(s);
+  if (finished) runTenant.set(runId, t);
+  return t;
+}
+
+async function runFile(runId: string, name: string): Promise<string | null> {
+  // A visitor sees runs from their first visit on, and a client only their
+  // own company's runs (lib/viewer.ts). Every per-run read passes here, so a
+  // run they cannot list cannot be opened by id either.
+  if (!canSeeRun(runId)) return null;
+  const client = clientTenant();
+  if (client && (await tenantOfRun(runId)) !== client) return null;
+  return rawRunFile(runId, name);
 }
 
 function parseJsonl(text: string | null): any[] {
@@ -116,18 +143,23 @@ function parseJsonl(text: string | null): any[] {
 export async function listGtmRunIds(limit = 25): Promise<string[]> {
   // Newest first, so filtering after the limit keeps the newest visible runs.
   const visible = runVisibility();
-  if (isDeployed()) return (await gcsRunIds(limit)).filter(visible);
-  try {
-    return fs
-      .readdirSync(RUNS_DIR)
-      .filter((d) => d.startsWith('GTM-'))
-      .sort()
-      .reverse()
-      .slice(0, limit)
-      .filter(visible);
-  } catch {
-    return [];
+  const client = clientTenant();
+  // A client's company may have few of the newest runs: look further back,
+  // then keep only theirs.
+  const want = client ? Math.min(400, limit * 8) : limit;
+  let ids: string[] = [];
+  if (isDeployed()) ids = (await gcsRunIds(want)).filter(visible);
+  else {
+    try {
+      ids = fs.readdirSync(RUNS_DIR).filter((d) => d.startsWith('GTM-')).sort().reverse()
+        .slice(0, want).filter(visible);
+    } catch {
+      return [];
+    }
   }
+  if (!client) return ids;
+  const tenants = await Promise.all(ids.map((id) => tenantOfRun(id)));
+  return ids.filter((_, i) => tenants[i] === client).slice(0, limit);
 }
 
 /** The founder's decision on a run (approve / revise / kill), if one was given. */
@@ -272,6 +304,10 @@ export async function gtmAgents(runId?: string): Promise<{
 export async function gtmRunDetail(runId?: string) {
   const rid = runId || (await listGtmRunIds(1))[0];
   if (!rid || !canSeeRun(rid)) return null;
+  // A client asking for another company's run by id gets nothing, not an
+  // empty "running" shell carrying its id.
+  const client = clientTenant();
+  if (client && (await tenantOfRun(rid)) !== client) return null;
 
   // A run in flight has a journal but no summary.json yet — it is written when
   // the cycle finishes. Returning null 404'd the whole view for the two-to-four

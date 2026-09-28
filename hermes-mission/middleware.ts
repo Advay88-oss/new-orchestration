@@ -7,6 +7,9 @@
  *             the key, and the key is stripped from the address bar.
  *   vn_preview `?as=visitor` shows the owner what a visitor sees;
  *             `?as=owner` ends the preview.
+ *   vn_client `?client=<link>` (a signed link for one company, made by the
+ *             owner): this browser becomes that company's client. The token
+ *             is verified on every request in lib/viewer.ts; `?client=` ends it.
  *
  * Edge runtime: Web Crypto here, node:crypto in lib/viewer.ts, same hash.
  */
@@ -31,6 +34,14 @@ export async function middleware(req: NextRequest) {
     res = NextResponse.redirect(clean);
     if (url.searchParams.get('as') === 'visitor') res.cookies.set('vn_preview', 'visitor', opts);
     else res.cookies.delete('vn_preview');
+  } else if (url.searchParams.has('client')) {
+    const given = (url.searchParams.get('client') ?? '').slice(0, 600);
+    const clean = url.clone();
+    clean.searchParams.delete('client');
+    res = NextResponse.redirect(clean);
+    res.cookies.delete('vn_preview');
+    if (given) res.cookies.set('vn_client', given, { ...opts, maxAge: 60 * 60 * 24 * 30 });
+    else res.cookies.delete('vn_client');
   } else if (url.searchParams.has('key')) {
     const given = url.searchParams.get('key') ?? '';
     const clean = url.clone();

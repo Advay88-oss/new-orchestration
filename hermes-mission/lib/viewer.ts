@@ -10,6 +10,11 @@
  *            `?key=<OWNER_KEY>` (middleware.ts sets an httpOnly cookie holding
  *            a hash of the key, never the key itself). `?key=` clears it.
  *            `?as=visitor` previews the visitor's view, `?as=owner` ends it.
+ *   client   a company's own login: `?client=<link>` (made by the owner in
+ *            Brand Brain) sets `vn_client`, a signed token naming ONE tenant.
+ *            A client sees and runs everything for that company — its runs,
+ *            Assistant, Brand Brain, Notion, launches, decisions — and
+ *            nothing of any other company.
  *   visitor  everyone else. `vn_since` is set by the middleware on the first
  *            page load; a request without it sees no past runs at all.
  *
@@ -22,6 +27,60 @@ import { isDeployed } from '@/lib/gcs';
 export const SINCE_COOKIE = 'vn_since';
 export const OWNER_COOKIE = 'vn_owner';
 export const PREVIEW_COOKIE = 'vn_preview';
+export const CLIENT_COOKIE = 'vn_client';
+
+const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
+
+function linkSecret(): string {
+  return process.env.CLIENT_LINK_SECRET || process.env.BRAIN_INVITE_SECRET || process.env.OWNER_KEY
+    || (isDeployed() ? '' : 'local-dev-client-links');
+}
+
+function b64u(buf: Buffer): string {
+  return buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/** A client link token for one tenant: base64url(payload).base64url(hmac). */
+export function signClient(tenant: string, days = 30): string {
+  const secret = linkSecret();
+  if (!secret || !TENANT.test(tenant)) throw new Error('cannot sign a client link');
+  const body = b64u(Buffer.from(JSON.stringify({
+    t: tenant, e: Math.floor(Date.now() / 1000) + days * 86400, n: crypto.randomBytes(6).toString('hex'),
+  })));
+  const sig = b64u(crypto.createHmac('sha256', secret).update('vn-client:' + body).digest());
+  return body + '.' + sig;
+}
+
+/** The tenant a client token names, or null if it is missing, forged or expired. */
+export function verifyClient(token: string | undefined | null): { tenant: string; exp: number } | null {
+  const secret = linkSecret();
+  if (!token || !secret) return null;
+  const [body, sig] = String(token).split('.');
+  if (!body || !sig) return null;
+  const want = b64u(crypto.createHmac('sha256', secret).update('vn-client:' + body).digest());
+  if (want.length !== sig.length || !crypto.timingSafeEqual(Buffer.from(want), Buffer.from(sig))) return null;
+  try {
+    const p = JSON.parse(Buffer.from(body.replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf-8'));
+    if (!TENANT.test(String(p.t)) || !(Number(p.e) > Date.now() / 1000)) return null;
+    return { tenant: String(p.t), exp: Number(p.e) };
+  } catch {
+    return null;
+  }
+}
+
+/** The company this browser is a client of (never for the owner or a preview). */
+export function clientTenant(): string | null {
+  if (jar()?.get(PREVIEW_COOKIE)?.value === 'visitor') return null;
+  if (isOwner()) return null;
+  return verifyClient(jar()?.get(CLIENT_COOKIE)?.value)?.tenant ?? null;
+}
+
+export type Role = 'owner' | 'client' | 'visitor';
+
+export function role(): Role {
+  if (isOwner()) return 'owner';
+  return clientTenant() ? 'client' : 'visitor';
+}
 
 const RUN_ID = /^GTM-(\d{8}-\d{6})$/;
 
@@ -40,7 +99,9 @@ function jar() {
 
 export function isOwner(): boolean {
   if (jar()?.get(PREVIEW_COOKIE)?.value === 'visitor') return false;
-  if (!isDeployed()) return true;
+  // Locally the owner is the default viewer, unless this browser opened a
+  // client link (so the client view can be tried on the laptop).
+  if (!isDeployed()) return !verifyClient(jar()?.get(CLIENT_COOKIE)?.value);
   const key = process.env.OWNER_KEY;
   if (!key) return false;
   const got = jar()?.get(OWNER_COOKIE)?.value ?? '';
@@ -48,9 +109,11 @@ export function isOwner(): boolean {
   return got.length === want.length && crypto.timingSafeEqual(Buffer.from(got), Buffer.from(want));
 }
 
-/** When this visitor first opened the dashboard, or null for the owner. */
+/** When this visitor first opened the dashboard, or null for the owner and
+ * for a client (who sees every run of their own company, filtered by tenant
+ * in lib/gtm.ts rather than by date). */
 export function viewerSince(): Date | null {
-  if (isOwner()) return null;
+  if (isOwner() || clientTenant()) return null;
   const raw = jar()?.get(SINCE_COOKIE)?.value;
   const d = raw ? new Date(raw) : new Date();
   return Number.isNaN(d.getTime()) ? new Date() : d;
@@ -132,5 +195,7 @@ export function scopeLearning(data: any): any {
 export function viewer() {
   const since = viewerSince();
   const previewing = jar()?.get(PREVIEW_COOKIE)?.value === 'visitor';
-  return { owner: since === null, previewing, since: since ? since.toISOString() : null };
+  const r = role();
+  return { owner: r === 'owner', role: r, client: r === 'client' ? clientTenant() : null,
+           previewing, since: since ? since.toISOString() : null };
 }

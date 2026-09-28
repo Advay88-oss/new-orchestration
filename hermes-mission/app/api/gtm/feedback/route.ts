@@ -3,8 +3,8 @@ import { execFile } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { gtmFeedback } from '@/lib/gtm';
-import { localOnly } from '@/lib/local-only';
+import { gtmFeedback, tenantOfRun } from '@/lib/gtm';
+import { companyAccess } from '@/lib/local-only';
 import { pythonPath } from '@/lib/python';
 
 export const dynamic = 'force-dynamic';
@@ -30,9 +30,6 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const blocked = localOnly('recording feedback');
-  if (blocked) return blocked;
-
   const body = await req.json().catch(() => ({}));
   const runId = String(body.runId ?? '');
   const verdict = String(body.verdict ?? '').toLowerCase();
@@ -43,6 +40,12 @@ export async function POST(req: Request) {
       { status: 400 },
     );
   }
+  // The decision belongs to the run's company: the owner may decide any run,
+  // a client only their own company's; and the reward is written to that
+  // company's brain, not the dashboard's default one.
+  const runTenant = await tenantOfRun(runId);
+  const access = companyAccess('recording feedback', runTenant, { write: true });
+  if (access instanceof NextResponse) return access;
   const py = pythonPath();
   if (!py) {
     return NextResponse.json(
@@ -70,7 +73,7 @@ export async function POST(req: Request) {
   const result = await new Promise<{ code: number; out: string; err: string }>((resolve) => {
     execFile(py, args, {
       cwd: REPO_ROOT,
-      env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONIOENCODING: 'utf-8' },
+      env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONIOENCODING: 'utf-8', BRAIN_TENANT: runTenant },
       timeout: 60_000,
     }, (error, stdout, stderr) => {
       resolve({ code: error ? (typeof (error as any).code === 'number' ? (error as any).code : 1) : 0,

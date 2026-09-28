@@ -229,7 +229,9 @@ def _summarize(old: str, msgs: list[dict]) -> str:
 # --------------------------------------------------------------------- turn
 
 def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
-         cancelled: Callable[[], bool] = lambda: False) -> Iterator[dict]:
+         cancelled: Callable[[], bool] = lambda: False, client: bool = False) -> Iterator[dict]:
+    """One turn. `client`: the speaker is the company's own client (a client
+    link), not the dashboard owner — no other companies, no onboarding."""
     from pipeline.brand_brain import mcp_client as M
     M.enable()                                      # the assistant is an agent: brain reads go over MCP
     text = str(text or "").strip()[:8000]
@@ -255,7 +257,7 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
     owner = _owner_words(recent[-6:])
     contents = _contents(recent)
     base = {"systemInstruction": {"parts": [{"text": _system(tenant, summary)}]},
-            "tools": [{"functionDeclarations": T.declarations()}],
+            "tools": [{"functionDeclarations": T.declarations(client)}],
             "generationConfig": {"temperature": 0.3, "maxOutputTokens": 2048}}
 
     meta: dict[str, Any] = {"tools": [], "cards": []}
@@ -285,6 +287,8 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
             for c in calls:
                 name, args = c.get("name", ""), c.get("args") or {}
                 why = _gate(name, args, owner)
+                if client and name in T.CLIENT_BLOCKED:
+                    why = "not available on a company's client link"
                 if why:
                     result = {"error": "refused: " + why}
                     ST.audit(tenant, "assistant", "refused:" + name, {"args": args, "why": why}, thread_id)
