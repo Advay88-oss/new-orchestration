@@ -213,6 +213,29 @@ def judge(image: Path, brief: str) -> dict[str, Any]:
                           temperature=0.1, max_output_tokens=2048)
 
 
+def _find_lockup(inked, x0: int, x1: int, y0: int, y1: int):
+    """(top, bottom, left, right) of the first inked run in the band, or None."""
+    # A row inked across most of the width is a band or rule the model drew
+    # along the edge, not a lockup; one poster opened with a violet strip and
+    # the strip was patched instead of the logo.
+    cols_sampled = len(range(x0, x1, 2))
+    rows = [y for y in range(y0, y1)
+            if 3 <= sum(inked(x, y) for x in range(x0, x1, 2)) < cols_sampled * 0.6]
+    if not rows:
+        return None
+    # The first contiguous run of inked rows is the lockup; anything below a
+    # gap is the headline starting.
+    top_y, bot_y = rows[0], rows[0]
+    for y in rows[1:]:
+        if y - bot_y > 6:
+            break
+        bot_y = y
+    cols = [x for x in range(x0, x1) if any(inked(x, y) for y in range(top_y, bot_y + 1, 2))]
+    if not cols or bot_y - top_y < 12:
+        return None
+    return top_y, bot_y, cols[0], cols[-1]
+
+
 def fix_logo(path: Path) -> bool:
     """Replace whatever lockup the model drew with the official one.
 
@@ -233,38 +256,34 @@ def fix_logo(path: Path) -> bool:
     x0, x1 = int(W * 0.22), int(W * 0.78)
     y0, y1 = int(H * 0.015), int(H * 0.135)
     px = img.load()
-    # Ink is whatever differs from the ground, dark or light: sampled at the
-    # top corners (a white Morpho poster made every pixel "bright").
-    corners = [px[int(W * 0.04), int(H * 0.04)], px[int(W * 0.96), int(H * 0.04)]]
-    ground = tuple(sum(c[i] for c in corners) // 2 for i in range(3))
+    # Ink is whatever differs from the ground under it. The ground is taken
+    # per row from the edges of the scanned band, so a gradient (Vanna's glow,
+    # a blue Morpho field) is ground, and a light or saturated ground is not
+    # mistaken for ink — a fixed "bright or saturated" test marked a whole
+    # blue poster as ink and never found its lockup.
+    row_ground = {}
+    for y in range(y0, y1):
+        edge = [px[x, y] for x in list(range(x0, x0 + 12)) + list(range(x1 - 12, x1))]
+        row_ground[y] = tuple(sorted(c[i] for c in edge)[len(edge) // 2] for i in range(3))
 
-    light = sum(ground) / 3 > 140
-
-    def inked(x: int, y: int) -> bool:
+    def local_ink(x: int, y: int) -> bool:
         r, g, b = px[x, y]
-        if not light:       # dark grounds (Vanna): bright or saturated, as before
-            return max(r, g, b) > 150 or (max(r, g, b) - min(r, g, b) > 90 and max(r, g, b) > 90)
-        return abs(r - ground[0]) + abs(g - ground[1]) + abs(b - ground[2]) > 150
+        gr = row_ground.get(y) or px[x0, y]
+        return abs(r - gr[0]) + abs(g - gr[1]) + abs(b - gr[2]) > 140
 
-    # A row inked across most of the width is a band or rule the model drew
-    # along the edge, not a lockup; one poster opened with a violet strip and
-    # the strip was patched instead of the logo.
-    cols_sampled = len(range(x0, x1, 2))
-    rows = [y for y in range(y0, y1)
-            if 3 <= sum(inked(x, y) for x in range(x0, x1, 2)) < cols_sampled * 0.6]
-    if not rows:
-        return False
-    # The first contiguous run of inked rows is the lockup; anything below a
-    # gap is the headline starting.
-    top_y, bot_y = rows[0], rows[0]
-    for y in rows[1:]:
-        if y - bot_y > 6:
+    def dark_ink(x: int, y: int) -> bool:      # the original test, right for Vanna's dark ground
+        r, g, b = px[x, y]
+        return max(r, g, b) > 150 or (max(r, g, b) - min(r, g, b) > 90 and max(r, g, b) > 90)
+
+    found = None
+    for inked in (local_ink, dark_ink):
+        found = _find_lockup(inked, x0, x1, y0, y1)
+        if found:
             break
-        bot_y = y
-    cols = [x for x in range(x0, x1) if any(inked(x, y) for y in range(top_y, bot_y + 1, 2))]
-    if not cols or bot_y - top_y < 12:
+    if not found:
         return False
-    lx0, lx1 = cols[0], cols[-1]
+    top_y, bot_y, lx0, lx1 = found
+
     pad = 14
     box = (max(0, lx0 - pad), max(0, top_y - pad), min(W, lx1 + pad), min(H, bot_y + pad))
 
