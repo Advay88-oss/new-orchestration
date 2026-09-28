@@ -724,7 +724,10 @@ function refKind(s: any): { kind: RefKind; channel: string } | null {
 }
 
 export async function gtmReferences(runId?: string) {
-  const ids = runId ? [runId] : await listGtmRunIds(10);
+  // The selector always lists the recent runs. It used to list only the ids
+  // it was asked about, so once a run was picked it was the only option left.
+  const listed = await listGtmRunIds(12);
+  const ids = runId && !listed.includes(runId) ? [runId, ...listed] : listed;
 
   // Which recent runs have a harvest, and which were read by A02 — the view
   // offers these as a selector, because the newest run is not always the one
@@ -736,7 +739,10 @@ export async function gtmReferences(runId?: string) {
     if (!h) continue;
     const a = await runFile(id, 'analysis.json');
     recent.push({ runId: id, hasAnalysis: Boolean(a) });
-    if (!chosen) {
+    // The asked-for run; otherwise the newest run A02 read (an unread one
+    // has no strategies to show), else the newest with a harvest.
+    const wanted = runId ? id === runId : Boolean(a) && (!chosen || !chosen.analysis);
+    if (wanted || (!runId && !chosen)) {
       try {
         chosen = { id, harvest: JSON.parse(h), analysis: a ? JSON.parse(a) : null };
       } catch {
@@ -797,8 +803,17 @@ export async function gtmReferences(runId?: string) {
   const counts: Record<RefKind, number> = { post: 0, docs: 0, news: 0, data: 0 };
   for (const i of items) counts[i.kind as RefKind] += 1;
 
+  // Whose run this is (the tenant the run served), for the view's wording.
+  let company = '';
+  try {
+    const sm = JSON.parse((await runFile(chosen.id, 'summary.json')) ?? '{}');
+    const t = String(sm?.brain?.tenant ?? '');
+    company = t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
+  } catch { /* unnamed */ }
+
   return {
     runId: chosen.id,
+    company,
     scrapedAt: chosen.harvest.scraped_at ?? null,
     recent,
     analysisNote,

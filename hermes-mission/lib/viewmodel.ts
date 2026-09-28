@@ -237,7 +237,7 @@ export function useMissionControl(props: MissionControlProps) {
       { id: "research", label: "Scraped Intelligence" },
       { id: "brain", label: "Brand Brain" },
       { id: "learning", label: "Learning" },
-      { id: "references", label: "Vanna References" },
+      { id: "references", label: "References" },
     ].filter((n) => !(visitor && OWNER_VIEWS.has(n.id))).map((n) => {
       const on = view === n.id;
       return {
@@ -483,9 +483,9 @@ export function useMissionControl(props: MissionControlProps) {
         "What the agents know about the brand, and how fresh it is: profile, knowledge, visual memory, sources.",
       ],
       references: [
-        "Vanna References",
-        "Every scraped post, doc and article with its source, what A02 read "
-        + "in it, and the strategies it supports for Vanna.",
+        "References",
+        "Every scraped post, doc and article with its source, what the market "
+        + "analyst read in it, and the strategies it supports.",
       ],
       assistant: [
         "Assistant",

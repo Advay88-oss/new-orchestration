@@ -43,6 +43,21 @@ function when(v: string | null | undefined): string {
   return isNaN(d.getTime()) ? String(v).slice(0, 19) : d.toLocaleString();
 }
 
+/** "GTM-20260928-072105" as "28 Sep, 07:21" (UTC, as the run id is). */
+function runLabel(id: string): string {
+  const m = /^GTM-(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2})/.exec(id);
+  if (!m) return id;
+  const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]));
+  return d.toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+}
+
+/** A02's failure line, in words: the raw JSON parser message helps no reader. */
+function readableNote(note: string): string {
+  if (/unparseable JSON|Unterminated|Expecting value/i.test(note)) return "the analyst's reply was cut off, so it could not be read";
+  if (/did not run/i.test(note)) return "the analyst did not run on this cycle";
+  return note.replace(/^A02\s+\w+:\s*/, "");
+}
+
 function Cite({ c }: { c: { id: string; headline: string; url: string | null; channel: string } }) {
   const text = `${c.channel} · ${c.headline.replace(/\s+/g, " ").slice(0, 70)}${c.headline.length > 70 ? "…" : ""}`;
   const style: React.CSSProperties = {
@@ -91,42 +106,45 @@ export function VannaReferences() {
 
   if (err) {
     return (
-      <EmptyState icon="search" title="No references yet"
-        body="References are the posts, docs and articles a run's scrape found. They appear here after the next run's Intelligence Scout finishes." />
+      <div className="vanna-section">
+        <EmptyState icon="search" title="No references yet"
+          body="References are the posts, docs and articles a run's scrape found. They appear here after the next run's Intelligence Scout finishes." />
+      </div>
     );
   }
-  if (!data) return <SkeletonCard lines={5} />;
+  if (!data) return <div className="vanna-section"><SkeletonCard lines={5} /></div>;
+  const who = data.company || "the company";
 
   const land = data.landscape;
   const strategies: any[] = land?.strategies ?? [];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 0 }}>
+    <div className="vanna-section" style={{ gap: 16, minWidth: 0 }}>
       {/* Header: which run, when, and a selector for the recent ones. */}
       <div style={{ ...CARD, borderRadius: 12, padding: "var(--vn-card-pad)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
           <div style={{ minWidth: 0 }}>
             <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
-              VANNA REFERENCES · A01 HARVEST × A02 READING
+              {(data.company ? data.company.toUpperCase() + " · " : "") + "SCOUT HARVEST × ANALYST READING"}
             </span>
             <h3 style={{ fontSize: 19, fontWeight: 700, color: "var(--vn-ink)", margin: "4px 0 0" }}>
               {items.length} live references
               {read && <> · {items.filter((i) => i.relevance === "DIRECT").length} direct, {items.filter((i) => i.relevance === "ADJACENT").length} adjacent</>}
             </h3>
             <div style={{ fontFamily: MONO, fontSize: 12, color: DIM, marginTop: 4 }}>
-              scraped {when(data.scrapedAt)}
+              scraped {when(data.scrapedAt)} · {data.runId}
             </div>
           </div>
-          <label style={{ fontFamily: MONO, fontSize: 11, color: DIM, display: "flex", flexDirection: "column", gap: 4 }}>
-            RUN
+          <label style={{ fontFamily: MONO, fontSize: 11, color: DIM, display: "flex", flexDirection: "column", gap: 4, minWidth: 0 }}>
+            RUN ({(data.recent ?? []).length} recent)
             <select
               value={runId || data.runId}
               onChange={(e) => setRunId(e.target.value)}
-              style={{ background: "var(--vn-sunken)", color: "var(--vn-ink)", border: "1px solid var(--vn-line-strong)", borderRadius: 8, padding: "6px 8px", fontFamily: MONO, fontSize: 12, maxWidth: "100%" }}
+              style={{ background: "var(--vn-sunken)", color: "var(--vn-ink)", border: "1px solid var(--vn-line-strong)", borderRadius: 8, padding: "8px 10px", fontFamily: MONO, fontSize: 12, maxWidth: "100%", cursor: "pointer" }}
             >
               {(data.recent ?? []).map((r: any) => (
                 <option key={r.runId} value={r.runId}>
-                  {r.runId}{r.hasAnalysis ? "" : " (unread)"}
+                  {runLabel(r.runId)} · {r.hasAnalysis ? "read" : "unread"} · {r.runId}
                 </option>
               ))}
             </select>
@@ -135,8 +153,12 @@ export function VannaReferences() {
 
         {data.analysisNote && (
           <div style={{ marginTop: 14, background: "var(--vn-warn-soft)", border: "1px solid var(--vn-warn-line)", borderRadius: 8, padding: "10px 14px", fontSize: 13, color: "var(--vn-warn)" }}>
-            This run's references were not read, so there are no strategies for it. {data.analysisNote}
-            {(data.recent ?? []).some((r: any) => r.hasAnalysis) && " Pick a run without \"(unread)\" above."}
+            This run's references were not read ({readableNote(data.analysisNote)}), so there are no strategies for it.
+            {(data.recent ?? []).some((r: any) => r.hasAnalysis) && " Pick a run marked \"read\" above."}
+            <details style={{ marginTop: 6 }}>
+              <summary style={{ cursor: "pointer", fontFamily: MONO, fontSize: 11 }}>details</summary>
+              <div style={{ fontFamily: MONO, fontSize: 11, marginTop: 4, wordBreak: "break-word" }}>{data.analysisNote}</div>
+            </details>
           </div>
         )}
       </div>
@@ -145,7 +167,7 @@ export function VannaReferences() {
       {land && (
         <div style={{ ...CARD, padding: "var(--vn-card-pad)" }}>
           <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
-            WHAT VANNA CAN DO
+            WHAT {who.toUpperCase()} CAN DO
           </div>
           {land.forVanna && (
             <p style={{ fontSize: 15, color: "var(--vn-ink)", lineHeight: 1.6, margin: "8px 0 0" }}>{land.forVanna}</p>
@@ -224,7 +246,7 @@ export function VannaReferences() {
         {read && (
           <label style={{ display: "flex", alignItems: "center", gap: 6, marginLeft: "auto", fontFamily: MONO, fontSize: 12, color: DIM, cursor: "pointer" }}>
             <input type="checkbox" checked={relevantOnly} onChange={(e) => setRelevantOnly(e.target.checked)} />
-            relevant to Vanna only
+            relevant to {who} only
           </label>
         )}
       </div>
@@ -233,7 +255,7 @@ export function VannaReferences() {
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {shown.length === 0 && (
           <div style={{ ...CARD, padding: "20px 24px", fontSize: 13, color: DIM }}>
-            Nothing in this filter. {relevantOnly && read && "Untick \"relevant to Vanna only\" to see every item."}
+            Nothing in this filter. {relevantOnly && read && `Untick "relevant to ${who} only" to see every item.`}
           </div>
         )}
         {shown.map((i) => {
@@ -260,7 +282,7 @@ export function VannaReferences() {
               )}
               {i.vannaMove && (
                 <div style={{ marginTop: 10, background: "var(--vn-accent-soft)", borderLeft: "3px solid var(--vn-accent)", borderRadius: 6, padding: "8px 12px", fontSize: 13, color: "var(--vn-ink)", lineHeight: 1.5 }}>
-                  <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vn-accent-ink)", fontWeight: 700, marginRight: 8 }}>VANNA CAN</span>
+                  <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vn-accent-ink)", fontWeight: 700, marginRight: 8 }}>{who.toUpperCase()} CAN</span>
                   {i.vannaMove}
                 </div>
               )}
