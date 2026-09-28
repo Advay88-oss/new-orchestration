@@ -115,6 +115,10 @@ python -m pipeline.brand_brain.pg status | check-isolation | use-sqlite
 # competitors (web search + their website and X posts -> pattern summaries only)
 python -m pipeline.brand_brain.analyzer competitors --tenant vanna [--suggest]
 
+# public watch: X, Reddit, news, blog, web summary -> brain with sources (scheduler: brain_watch, 6h)
+# own channels are authority 3; everything others say is authority 5 (external: never proof for a post)
+python -m pipeline.brand_brain.watch run [tenant] | status <tenant>
+
 # Notion: OAuth per tenant (Connect Notion on Brand Brain; token encrypted), or NOTION_TOKEN
 python -m pipeline.brand_brain.notion_sync all            # the daily scheduler job
 

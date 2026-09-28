@@ -226,9 +226,22 @@ def whats_new_block(days: int = 21, tenant: Optional[str] = None) -> str:
         head = "WHAT'S NEW (last " + str(days) + " days)"
     if not ev:
         return ""
-    return (head + " — lead with it when the topic fits; never invent beyond it:\n"
-            + "\n".join("  - " + e["at"][:10] + " " + e["title"]
-                        + (": " + e["detail"][:200] if e.get("detail") else "") for e in ev))
+    # What others said (news, Reddit, other posts: brain_watch, source
+    # "public:*") is context, not something the company announced: an
+    # incident or a controversy is for awareness and tone, never a claim.
+    line = lambda e: ("  - " + e["at"][:10] + " " + e["title"]
+                      + (": " + e["detail"][:200] if e.get("detail") else ""))
+    own = [e for e in ev if not str(e.get("source") or "").startswith("public:")]
+    public = [e for e in ev if str(e.get("source") or "").startswith("public:")]
+    out = []
+    if own:
+        out.append(head + " — lead with it when the topic fits; never invent beyond it:\n"
+                   + "\n".join(line(e) for e in own))
+    if public:
+        out.append("IN THE NEWS (reported by others, not confirmed by the company) — for awareness and "
+                   "tone only: do not repeat allegations, do not cite it as a fact, do not joke about "
+                   "incidents:\n" + "\n".join(line(e) for e in public))
+    return "\n\n".join(out)
 
 
 def knowledge_hits(topic: str, k: int = 8, tenant: Optional[str] = None,

@@ -300,6 +300,8 @@ class SchedulerEngine:
                 result = self._run_gtm_cycle()
             elif job_name == "notion_sync":
                 result = self._run_notion_sync()
+            elif job_name == "brain_watch":
+                result = self._run_brain_watch()
             elif job_name == "metrics_collect":
                 result = self._run_metrics_collect()
             elif job_name == "ops_watch":
@@ -384,6 +386,17 @@ class SchedulerEngine:
         if failed:
             raise RuntimeError("Notion sync failed for " + ", ".join(failed) + ": "
                                + "; ".join(str(out[t].get("error"))[:120] for t in failed))
+        return {"success": True, "tenants": out}
+
+    def _run_brain_watch(self) -> Dict[str, Any]:
+        """New public items about each company (X, Reddit, news, its blog, a
+        web summary) into its brain, with their sources (brand_brain.watch)."""
+        from pipeline.brand_brain.watch import run_all
+        out = run_all()
+        failed = [r["tenant"] for r in out if r.get("error")]
+        if failed and len(failed) == len(out):
+            raise RuntimeError("brain watch failed for " + ", ".join(failed) + ": "
+                               + "; ".join(str(r.get("error"))[:120] for r in out))
         return {"success": True, "tenants": out}
 
     def _run_trend_scan(self) -> Dict[str, Any]:

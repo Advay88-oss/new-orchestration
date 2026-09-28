@@ -24,7 +24,7 @@ from typing import Any
 # Jobs the cloud scheduler runs by default. The autonomous GTM cycle and the
 # model-heavy panels spend money on every tick, so they are opt-in:
 # SCHEDULER_ONLY=notion_sync,metrics_collect,gtm_cycle,... on the job.
-DEFAULT_CLOUD_JOBS = "notion_sync,metrics_collect,ops_watch"
+DEFAULT_CLOUD_JOBS = "notion_sync,metrics_collect,ops_watch,brain_watch"
 
 
 def _restore() -> dict[str, Any]:

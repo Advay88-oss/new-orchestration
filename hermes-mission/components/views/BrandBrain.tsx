@@ -586,6 +586,16 @@ export function BrandBrain() {
                 + (data.notion.pending_webhook ? " · change pending" : "")
               : "not connected"}
           </div>
+          {/* The public watch (brain_watch job): X, Reddit, news, the blog, a web summary. */}
+          <div style={{ fontFamily: MONO, fontSize: 11, color: data.watch?.at ? "var(--vn-ink-muted)" : "var(--vn-warn)", marginBottom: 8, lineHeight: 1.6 }}>
+            Public watch: {data.watch?.at
+              ? "last run " + ago(data.watch.at) + " · "
+                + Object.entries(data.watch.collected || {}).map(([k, v]) => k.replace("_", " ") + " " + v).join(", ")
+                + " · " + (data.watch.stored ?? 0) + " kept"
+                + (data.watch.x_handle ? " · X @" + data.watch.x_handle + (data.watch.x_confirmed ? "" : " (found by search: set company.x_handle to confirm)") : "")
+                + (Object.keys(data.watch.errors || {}).length ? " · failed: " + Object.keys(data.watch.errors).join(", ") : "")
+              : "not run yet (every 6 hours on the scheduler)"}
+          </div>
           {(data.whats_new || []).length === 0 ? (
             <div style={{ fontSize: 13, color: "var(--vn-ink-muted)", lineHeight: 1.5 }}>
               No dated events yet. The Notion sync classifies every change (feature launch, factual update or
@@ -594,7 +604,13 @@ export function BrandBrain() {
           ) : (data.whats_new || []).map((e: any) => (
             <div key={e.id} style={{ borderTop: "1px solid var(--vn-line)", padding: "7px 0", fontSize: 12.5 }}>
               <span style={{ fontFamily: MONO, color: "var(--vn-ink-muted)" }}>{String(e.at).slice(0, 10)}</span>{" "}
-              <span style={{ color: "var(--vn-ink)" }}>{e.title}</span>
+              <span style={{ color: "var(--vn-ink)" }}>{e.url ? <a href={e.url} target="_blank" rel="noreferrer" style={{ color: "inherit" }}>{e.title}</a> : e.title}</span>
+              {(e.kind || e.source) && (
+                <span style={{ fontFamily: MONO, fontSize: 10.5, marginLeft: 6,
+                               color: e.kind === "incident" || e.kind === "controversy" ? "var(--vn-bad)" : "var(--vn-ink-faint)" }}>
+                  {String(e.kind || "").replace("_", " ")}{String(e.source || "").startsWith("public:") ? " · reported by others" : ""}
+                </span>
+              )}
             </div>
           ))}
         </div>

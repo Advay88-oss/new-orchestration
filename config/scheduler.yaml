@@ -37,6 +37,13 @@ jobs:
     model_heavy: false
     min_allowed_interval_m: 5
 
+  brain_watch:
+    interval: "6h"
+    enabled: true
+    description: "New public items about each company (its X, Reddit, news, its blog, a web summary) into its brain with sources."
+    model_heavy: false
+    min_allowed_interval_m: 60
+
   notion_sync:
     interval: "24h"
     enabled: true

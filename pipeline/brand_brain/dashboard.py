@@ -79,7 +79,17 @@ def overview(tenant: str) -> dict[str, Any]:
         "sources": {"last_scrape": _latest_harvest(), "record": record},
         "analyst_accuracy": accuracy,
         "notion": _notion_status(b),
+        "watch": _watch_status(b),
     }
+
+
+def _watch_status(b: Brain) -> dict[str, Any]:
+    """The public watch's last run (brand_brain.watch): per-source counts, the
+    X handle it used and whether the profile confirms it."""
+    try:
+        return json.loads(b.meta("watch:last_report") or "{}")
+    except ValueError:
+        return {}
 
 
 def _notion_status(b: Brain) -> dict[str, Any]:
