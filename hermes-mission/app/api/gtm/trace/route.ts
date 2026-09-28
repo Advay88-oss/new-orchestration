@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { listGtmRunIds, gtmRunSummary } from '@/lib/gtm';
+import { companyOf, listGtmRunIds, gtmRunSummary } from '@/lib/gtm';
 import { isDeployed, getText } from '@/lib/gcs';
 import { canSeeRun } from '@/lib/viewer';
 import fs from 'fs';
@@ -103,9 +103,15 @@ export async function GET(req: Request) {
   // `summary.json` exists only once the cycle has finished, so its presence
   // is what ends the client's polling.
   const finished = Boolean(summary);
+  // A run in flight has no summary yet; its checkpoint carries the brain record.
+  let partial: any = null;
+  if (!summary) {
+    try { partial = JSON.parse((await readFile(runId, 'partial.json')) || 'null'); } catch { partial = null; }
+  }
 
   return NextResponse.json({
     runId,
+    company: companyOf(summary ?? partial),
     finished,
     status: summary?.status ?? 'running',
     cursor: events.length - 1,

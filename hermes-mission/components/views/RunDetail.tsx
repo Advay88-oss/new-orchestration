@@ -5,6 +5,7 @@ import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
 import { FeedbackBar } from "./FeedbackBar";
 import { EmptyState, ViewSkeleton } from "@/components/States";
+import { CompanyChip } from "@/components/CompanyChip";
 
 // Helper to ensure media files load cleanly across production and local environments
 const resolveMediaUrl = (url: string | null | undefined): string => {
@@ -205,6 +206,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
             <span style={{ fontFamily: MONO, fontSize: "12px", fontWeight: 700, color: "var(--vn-ok)", letterSpacing: "0.08em" }}>
               {runId} // IMMUTABLE TELEMETRY RECORD
             </span>
+            <CompanyChip company={runData?.company || "vanna"} size="md" />
           </div>
           <h2 style={{ fontSize: "22px", fontWeight: 800, color: "var(--vn-ink)", marginTop: "6px" }}>
             {title}

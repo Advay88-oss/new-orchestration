@@ -18,6 +18,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
 import { EmptyState, SkeletonCard } from "@/components/States";
+import { CompanyChip } from "@/components/CompanyChip";
 
 const DIM = "var(--vn-ink-muted)";
 
@@ -75,7 +76,9 @@ export function LiveHarvest() {
           <div style={{ textAlign: "right", fontFamily: MONO, fontSize: 12, color: DIM }}>
             <div>SCRAPED AT</div>
             <div style={{ color: "var(--vn-ink)", fontWeight: 700 }}>{when(data.scrapedAt)}</div>
-            <div style={{ marginTop: 2 }}>run {data.runId}</div>
+            <div style={{ marginTop: 2, display: "flex", gap: 8, justifyContent: "flex-end", alignItems: "center" }}>
+              <CompanyChip company={data.company || "vanna"} /> run {data.runId}
+            </div>
           </div>
         </div>
 

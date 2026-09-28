@@ -17,6 +17,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MONO } from "@/lib/colors";
 import { EmptyState } from "@/components/States";
+import { CompanyChip } from "@/components/CompanyChip";
 
 const DIM = "var(--vn-ink-muted)";
 
@@ -53,7 +54,7 @@ function txt(v: any): string {
 
 export function LiveTrace({ runId }: { runId?: string }) {
   const [events, setEvents] = useState<any[]>([]);
-  const [meta, setMeta] = useState<{ runId: string | null; finished: boolean; status: string }>({
+  const [meta, setMeta] = useState<{ runId: string | null; finished: boolean; status: string; company?: string }>({
     runId: null,
     finished: false,
     status: "running",
@@ -79,7 +80,7 @@ export function LiveTrace({ runId }: { runId?: string }) {
         setEvents((prev) => [...prev, ...d.events]);
       }
       cursor.current = d.cursor ?? cursor.current;
-      setMeta({ runId: d.runId, finished: d.finished, status: d.status });
+      setMeta({ runId: d.runId, finished: d.finished, status: d.status, company: d.company });
     } catch {
       /* a dropped poll must not clear what is already on screen */
     }
@@ -115,6 +116,7 @@ export function LiveTrace({ runId }: { runId?: string }) {
               {live ? "RUNNING" : meta.finished ? String(meta.status).toUpperCase() : "IDLE"}
               {meta.runId ? ` · ${meta.runId}` : ""}
             </span>
+            {meta.runId && <CompanyChip company={meta.company || "vanna"} />}
           </div>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--vn-ink)", marginTop: 6 }}>
             Live Trace

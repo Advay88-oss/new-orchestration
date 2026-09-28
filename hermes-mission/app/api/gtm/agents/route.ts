@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { gtmAgents } from '@/lib/gtm';
+import { companyOf, gtmAgents } from '@/lib/gtm';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +16,7 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     runId: rid,
+    company: rid ? companyOf(summary) : null,
     agents,
     declared: agents.length,
     modelBacked: agents.filter((a) => a.kind === 'MODEL_BACKED').length,

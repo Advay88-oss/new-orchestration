@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
 import { EmptyState, SkeletonCard } from "@/components/States";
+import { CompanyChip } from "@/components/CompanyChip";
 
 // Helper to resolve media file streaming cleanly
 const resolveMediaUrl = (url: string | null | undefined): string => {
@@ -244,8 +245,9 @@ export function MemesView({ vm }: { vm: MissionVM }) {
                   </span>
                 </div>
 
-                {/* Vanna Angle */}
-                <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--vn-ink)", marginTop: "12px" }}>
+                <div style={{ marginTop: "12px" }}><CompanyChip company={m.company} /></div>
+                {/* The company's angle */}
+                <h3 style={{ fontSize: "16px", fontWeight: 700, color: "var(--vn-ink)", marginTop: "8px" }}>
                   {m.vanna_angle}
                 </h3>
 

@@ -21,6 +21,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
 import { AGENTS as AGENT_DEFS, AGENT_COUNT, JUDGE_COUNT, LEARNING_COUNT, SPECIALIST_COUNT } from '@/lib/agents';
 import { ErrorState, ViewSkeleton } from '@/components/States';
+import { CompanyChip } from "@/components/CompanyChip";
 
 const ACCENT = 'var(--vn-accent-ink)';
 const DIM = 'var(--vn-ink-muted)';
@@ -57,7 +58,7 @@ interface Agent {
 }
 
 interface Payload {
-  runId: string | null; agents: Agent[]; declared: number;
+  runId: string | null; company?: string | null; agents: Agent[]; declared: number;
   modelBacked: number; ranThisRun: number; failed: string[];
   modelsUsed: string[]; status: string | null;
 }
@@ -107,6 +108,7 @@ export function GtmAgents() {
           <span style={{ fontFamily: MONO, fontSize: 11.5, color: DIM }}>
             {data.runId ?? 'no run yet'}
           </span>
+          {data.runId && <CompanyChip company={data.company || 'vanna'} />}
           {running && (
             <span style={{ fontFamily: MONO, fontSize: 11, color: ACCENT }}>
               ● cycle in progress

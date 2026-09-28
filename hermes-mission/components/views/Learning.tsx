@@ -18,6 +18,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
 import { ErrorState, ViewSkeleton } from "@/components/States";
+import { CompanyChip } from "@/components/CompanyChip";
 import { useViewer } from "@/lib/useViewer";
 
 const card: React.CSSProperties = {
@@ -81,6 +82,9 @@ export function Learning() {
   return (
     <div className="vanna-section">
       <div style={card}>
+        <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "var(--vn-ink-muted)" }}>
+          <CompanyChip company={d.company || "vanna"} size="md" /> this company's learning record
+        </div>
         <div style={{ fontSize: 13, color: "var(--vn-ink-body)", lineHeight: 1.6 }}>
           Every run earns one reward: <b>0 if the reviewer blocked it</b> (the hard gate), otherwise the founder's
           decision (approve 1, edit 0.8, revise 0.3, kill 0) weighted 0.6 and engagement against the brand's own

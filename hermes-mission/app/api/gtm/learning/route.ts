@@ -37,7 +37,9 @@ async function py(args: string[], scope: (d: any) => any = (d) => d) {
 export async function GET(req: Request) {
   const pub = new URL(req.url).searchParams.get('published');
   if (pub && RUN.test(pub) && canSeeRun(pub)) return py(['-m', 'pipeline.gtm_learning.metrics_collector', 'get', pub]);
-  return py(['-m', 'pipeline.gtm_learning.bandit'], scopeLearning);
+  // The loop reads one company's brain: the dashboard process's tenant.
+  const company = (process.env.BRAIN_TENANT || process.env.VANNA_TENANT || 'vanna').toLowerCase();
+  return py(['-m', 'pipeline.gtm_learning.bandit'], (d) => ({ ...scopeLearning(d), company }));
 }
 
 export async function POST(req: Request) {

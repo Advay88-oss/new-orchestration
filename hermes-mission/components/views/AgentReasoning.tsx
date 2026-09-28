@@ -16,12 +16,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { MONO } from '@/lib/colors';
 import { EmptyState, ErrorState, ViewSkeleton } from "@/components/States";
+import { CompanyChip } from "@/components/CompanyChip";
 
 const ACCENT = 'var(--vn-accent-ink)';
 const DIM = 'var(--vn-ink-muted)';
 
 interface Detail {
   runId: string;
+  company?: string;
   status: string;
   signal: string | null;
   signalSourceType: string | null;
@@ -91,8 +93,8 @@ export function AgentReasoning() {
   return (
     <div className="vanna-section">
       <header style={{ marginBottom: 18 }}>
-        <h2 style={{ margin: 0, fontSize: 19, color: 'var(--vn-ink)', fontWeight: 600 }}>
-          Agent Decisions
+        <h2 style={{ margin: 0, fontSize: 19, color: 'var(--vn-ink)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          Agent Decisions <CompanyChip company={d.company || 'vanna'} size="md" />
         </h2>
         <p style={{ margin: '6px 0 0', fontSize: 13, color: DIM, maxWidth: 760 }}>
           What A02, A03 and A07 chose in {d.runId}, and what they turned down.

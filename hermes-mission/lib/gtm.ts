@@ -141,6 +141,24 @@ export async function gtmFeedback(runId: string): Promise<any | null> {
   }
 }
 
+/**
+ * The company (tenant) a run served, from its summary's brain record. Runs
+ * from before the brain was pluggable carry none: they were all Vanna's.
+ */
+export function companyOf(s: any): string {
+  const t = String(s?.brain?.tenant ?? s?.tenant ?? '').trim().toLowerCase();
+  return t || 'vanna';
+}
+
+/** run id -> company, for views that list items by run (ideas, memes, harvest). */
+export async function companiesOf(runIds: string[]): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  await Promise.all([...new Set(runIds.filter(Boolean))].map(async (id) => {
+    out[id] = companyOf(await gtmRunSummary(id));
+  }));
+  return out;
+}
+
 export async function gtmRunSummary(runId: string): Promise<any | null> {
   const raw = await runFile(runId, 'summary.json');
   if (!raw) return null;
@@ -265,6 +283,7 @@ export async function gtmRunDetail(runId?: string) {
 
   return {
     runId: rid,
+    company: companyOf(s),
     status: s.status,
     reason: s.reason ?? null,
     signal: s.signal ?? null,
@@ -321,6 +340,7 @@ export async function gtmRuns(limit = 15) {
       if (!s) return null;
       return {
         runId: id,
+        company: companyOf(s),
         status: s.status,
         signal: s.signal ?? null,
         machine: s.machine ?? null,
@@ -443,6 +463,7 @@ export async function gtmLegacyRun(runId: string): Promise<Record<string, unknow
     ended: startedUnix && d.durationS ? startedUnix + Math.round(d.durationS) : null,
     duration_s: d.durationS,
     status: d.status,
+    company: d.company,
     brain: d.modelsUsed[0] ?? null,
     stages_total: d.agents.length,
     stages_succeeded: d.agents.filter((a) => a.status === 'ok').length,
@@ -680,6 +701,7 @@ export async function gtmHarvest(runId?: string) {
 
       return {
         runId: id,
+        company: companyOf(await gtmRunSummary(id)),
         scrapedAt: h.scraped_at ?? null,
         sources: h.sources ?? {},
         totalSignals: signals.length,
@@ -804,18 +826,16 @@ export async function gtmReferences(runId?: string) {
   for (const i of items) counts[i.kind as RefKind] += 1;
 
   // Whose run this is (the tenant the run served), for the view's wording.
-  let company = '';
-  try {
-    const sm = JSON.parse((await runFile(chosen.id, 'summary.json')) ?? '{}');
-    const t = String(sm?.brain?.tenant ?? '');
-    company = t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
-  } catch { /* unnamed */ }
+  const t = companyOf(await gtmRunSummary(chosen.id));
+  const company = t.charAt(0).toUpperCase() + t.slice(1);
+  const byRun = await companiesOf(recent.map((r) => r.runId));
+  const recentTagged = recent.map((r) => ({ ...r, company: byRun[r.runId] || 'vanna' }));
 
   return {
     runId: chosen.id,
     company,
     scrapedAt: chosen.harvest.scraped_at ?? null,
-    recent,
+    recent: recentTagged,
     analysisNote,
     counts,
     items,

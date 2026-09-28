@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
 import { EmptyState, SkeletonCard } from "@/components/States";
+import { CompanyChip } from "@/components/CompanyChip";
 
 // Helper to resolve media file streaming cleanly
 const resolveMediaUrl = (url: string | null | undefined): string => {
@@ -333,7 +334,8 @@ export function IdeasView({ vm }: { vm: MissionVM }) {
                   </div>
                 </div>
 
-                <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--vn-ink)", marginTop: "10px" }}>
+                <div style={{ marginTop: "10px" }}><CompanyChip company={idea.company} /></div>
+                <h3 style={{ fontSize: "17px", fontWeight: 700, color: "var(--vn-ink)", marginTop: "8px" }}>
                   {idea.hook}
                 </h3>
                 <p style={{ fontSize: "13px", color: "var(--vn-ink-body)", lineHeight: 1.5, marginTop: "4px" }}>

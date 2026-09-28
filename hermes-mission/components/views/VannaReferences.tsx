@@ -17,6 +17,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { MONO } from "@/lib/colors";
 import { EmptyState, SkeletonCard } from "@/components/States";
+import { CompanyChip, companyName } from "@/components/CompanyChip";
 
 const DIM = "var(--vn-ink-muted)";
 const CARD = { background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12 } as const;
@@ -124,8 +125,8 @@ export function VannaReferences() {
       <div style={{ ...CARD, borderRadius: 12, padding: "var(--vn-card-pad)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
           <div style={{ minWidth: 0 }}>
-            <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
-              {(data.company ? data.company.toUpperCase() + " · " : "") + "SCOUT HARVEST × ANALYST READING"}
+            <span style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
+              <CompanyChip company={(data.company || "vanna").toLowerCase()} /> SCOUT HARVEST × ANALYST READING
             </span>
             <h3 style={{ fontSize: 19, fontWeight: 700, color: "var(--vn-ink)", margin: "4px 0 0" }}>
               {items.length} live references
@@ -144,7 +145,7 @@ export function VannaReferences() {
             >
               {(data.recent ?? []).map((r: any) => (
                 <option key={r.runId} value={r.runId}>
-                  {runLabel(r.runId)} · {r.hasAnalysis ? "read" : "unread"} · {r.runId}
+                  {companyName(r.company)} · {runLabel(r.runId)} · {r.hasAnalysis ? "read" : "unread"} · {r.runId}
                 </option>
               ))}
             </select>

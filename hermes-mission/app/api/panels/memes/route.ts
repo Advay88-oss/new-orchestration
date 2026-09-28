@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { runPython, lastJson, pythonPath } from '@/lib/python';
 import { isDeployed, getText } from '@/lib/gcs';
 import { scopePanel } from '@/lib/viewer';
+import { companiesOf } from '@/lib/gtm';
 import fs from 'fs';
 import path from 'path';
 import { exec, spawn } from 'child_process';
@@ -13,6 +14,13 @@ const OUTCOMES_FILE = path.join(REPO_ROOT, 'pipeline/state/outcomes.jsonl');
 const PUBLIC_DIR = path.join(REPO_ROOT, 'hermes-mission/public');
 
 export const dynamic = 'force-dynamic';
+
+/** Each item tagged with the company its run served (Vanna, Morpho, ...). */
+async function withCompany(data: any, kind: 'ideas' | 'memes') {
+  const items: any[] = Array.isArray(data?.[kind]) ? data[kind] : [];
+  const map = await companiesOf(items.map((i) => String(i?.run_id || '')));
+  return { ...data, [kind]: items.map((i) => ({ ...i, company: map[String(i?.run_id || '')] || 'vanna' })) };
+}
 
 export async function GET() {
   try {
@@ -26,14 +34,14 @@ export async function GET() {
           { status: 404 },
         );
       }
-      return NextResponse.json({ success: true, ...scopePanel(JSON.parse(raw), 'memes') });
+      return NextResponse.json({ success: true, ...(await withCompany(scopePanel(JSON.parse(raw), 'memes'), 'memes')) });
     }
     const targetFile = fs.existsSync(MEMES_FILE_2) ? MEMES_FILE_2 : MEMES_FILE_1;
     if (!fs.existsSync(targetFile)) {
       return NextResponse.json({ success: false, error: 'memes.json not found' }, { status: 404 });
     }
     const data = JSON.parse(fs.readFileSync(targetFile, 'utf-8'));
-    return NextResponse.json({ success: true, ...scopePanel(data, 'memes') });
+    return NextResponse.json({ success: true, ...(await withCompany(scopePanel(data, 'memes'), 'memes')) });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

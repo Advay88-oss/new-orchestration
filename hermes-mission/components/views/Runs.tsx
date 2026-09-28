@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { CompanyChip, CompanyFilter } from "@/components/CompanyChip";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
 import { EmptyState, SkeletonRows } from "@/components/States";
@@ -11,6 +12,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [company, setCompany] = useState<string>("all");
   const [sessionScope, setSessionScope] = useState<"SESSION" | "GLOBAL">("GLOBAL");
   const [showEmpty, setShowEmpty] = useState(false);
   const [sessionRunIds, setSessionRunIds] = useState<string[]>([]);
@@ -102,7 +104,9 @@ export function Runs({ vm }: { vm: MissionVM }) {
       (statusFilter === "PUBLISHED" && r.dispatched === true) ||
       (statusFilter === "BLOCKED" && r.publishable !== true);
 
-    return matchesSearch && matchesStatus && (showEmpty || !neverStarted(r));
+    const matchesCompany = company === "all" || (r.company || "vanna") === company;
+
+    return matchesSearch && matchesStatus && matchesCompany && (showEmpty || !neverStarted(r));
   });
 
   const emptyCount = targetPool.filter(neverStarted).length;
@@ -243,6 +247,8 @@ export function Runs({ vm }: { vm: MissionVM }) {
             )}
           </div>
 
+          <CompanyFilter companies={targetPool.map((r) => r.company || "vanna")} value={company} onChange={setCompany} />
+
           {[
             { id: "ALL", label: `All (${targetPool.length})` },
             { id: "PUBLISHED", label: "Published" },
@@ -361,6 +367,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                         {neverStarted(r) ? "Never started" : title}
                       </div>
                       <div style={{ display: "flex", gap: "12px", marginTop: "5px", alignItems: "center" }}>
+                        <CompanyChip company={r.company || "vanna"} />
                         <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-faint)" }}>{r.run_id}</span>
                         <span style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>{dateStr}</span>
                       </div>
