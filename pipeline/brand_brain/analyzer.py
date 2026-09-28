@@ -572,6 +572,15 @@ def analyze(root: str, tenant: str, *, save: bool = False, max_pages: int = 18,
                           "(analysis.json); pass --save to add it as a new draft")
         return report
     brain = Brain(tenant, create=True)
+    if not logo:
+        # Inline SVG and unlabelled images: screenshot the header's logo
+        # itself (brand_brain.logo); context.logo_path() then finds it.
+        try:
+            from pipeline.brand_brain.logo import fetch_logo
+            report["logo"] = fetch_logo(tenant, root)
+        except Exception as exc:                    # noqa: BLE001 — the profile asks for it instead
+            report["logo"] = {"ok": False, "error": str(exc)[:160]}
+    brain = Brain(tenant, create=True)
     report["version"] = brain.save_profile(profile, status="draft", source="website analyzer: " + root,
                                            note="drafted from " + str(len(crawl_out["pages"])) + " pages")
     name = profile["company"].get("name") or tenant

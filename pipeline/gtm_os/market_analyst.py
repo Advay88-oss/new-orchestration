@@ -64,7 +64,7 @@ _SYSTEM = (
     "that would not be a generic take).\n"
     "   why          — one sentence defending that grade. For NONE, say what "
     "would have had to be true for it to matter.\n"
-    "   vanna_move   — for DIRECT and ADJACENT only: ONE concrete thing {company} "
+    "   company_move — for DIRECT and ADJACENT only: ONE concrete thing {company} "
     "can do in response, in one sentence starting with a verb (explain, "
     "position against, watch, benchmark, open a conversation with...). Empty "
     "string for NONE.\n\n"
@@ -82,7 +82,7 @@ _SYSTEM = (
     "   quiet_on     — what is conspicuously ABSENT given what {company} does: "
     "subjects you would expect this market to be discussing and it is not. "
     "This is often the most useful line on the page.\n"
-    "   for_vanna    — what this landscape means for {company} specifically, in "
+    "   for_company  — what this landscape means for {company} specifically, in "
     "2-3 sentences. If the honest answer is 'nothing this cycle', write "
     "that; it is a legitimate reading and far more useful than a "
     "manufactured implication.\n"
@@ -128,12 +128,12 @@ def _system() -> str:
 SCHEMA_HINT = (
     '{"signals": [{"signal_id": str, "what_it_is": str, '
     '"relevance": "DIRECT"|"ADJACENT"|"NONE", "why": str, '
-    '"vanna_move": str}], '
+    '"company_move": str}], '
     '"landscape": {"summary": str, '
     '"themes": [{"theme": str, "what_is_happening": str, '
-    '"signal_ids": [str], "matters_to_vanna": bool, '
+    '"signal_ids": [str], "matters_to_company": bool, '
     '"outlook": "rising"|"steady"|"fading", "watch_terms": [str]}], '
-    '"quiet_on": [str], "for_vanna": str, '
+    '"quiet_on": [str], "for_company": str, '
     '"strategies": [{"title": str, "move": str, "rationale": str, '
     '"signal_ids": [str], "horizon": "this week"|"this month"}]}}'
 )
@@ -236,8 +236,8 @@ def analyse(signals: Iterable[Any], run_id: Optional[str] = None) -> dict[str, A
         r["relevance"] = g if g in ("DIRECT", "ADJACENT", "NONE") else "NONE"
         graded[r["relevance"]] = graded.get(r["relevance"], 0) + 1
         # A move for a signal graded NONE contradicts its own grade.
-        r["vanna_move"] = ("" if r["relevance"] == "NONE"
-                           else str(r.get("vanna_move") or "").strip())
+        r["company_move"] = ("" if r["relevance"] == "NONE"
+                             else str(r.get("company_move") or r.get("vanna_move") or "").strip())
 
     # A strategy must cite signals that were actually harvested. Unknown ids
     # are dropped, and a strategy left with no evidence is dropped with them:

@@ -107,6 +107,10 @@ def _field(prompt: str, out_raw: Path, size: tuple[int, int],
     # atmosphere on top of the real docs.vanna.finance bloom, blended, so the
     # brand colour is guaranteed and the model can only enrich it.
     ground = vanna_ground(size).convert("RGB")
+    if _lightp():
+        # The texture pass is a dark-field technique (lighten over near-black);
+        # on a light ground it greys the page. The themed ground is the field.
+        return ground
     try:
         from pipeline.scripts.gemini_flash_image import generate_gemini_image
 
@@ -178,9 +182,31 @@ def pick_variant(seed: str, count: int) -> int:
     return h % count
 
 
+def _lightp() -> bool:
+    """theme.apply() gave this module a light ground (another tenant's)."""
+    return (0.2126 * GROUND[0] + 0.7152 * GROUND[1] + 0.0722 * GROUND[2]) > 140
+
+
+def _t(c: tuple) -> tuple:
+    """A dark-ground colour for the current ground: white glass becomes ink
+    glass and near-black chips become the surface tone on a light ground."""
+    if not _lightp():
+        return c
+    rgb, rest = tuple(c[:3]), tuple(c[3:])
+    if rgb == (255, 255, 255):
+        rgb = tuple(INK)
+    elif sum(rgb) < 60:
+        rgb = tuple(SURFACE_2)
+    return rgb + rest
+
+
+def _scrim_rgb() -> tuple:
+    return tuple(GROUND) if _lightp() else (7, 5, 12)
+
+
 def _plate(img: Image.Image, box: tuple[int, int, int, int], *,
-           radius: int = 28, fill=(255, 255, 255, 12),
-           border=(255, 255, 255, 46), width: int = 2,
+           radius: int = 28, fill=None,
+           border=None, width: int = 2,
            scrim: float = 0.0) -> None:
     """A glass panel: a translucent fill with a bright hairline edge.
 
@@ -201,15 +227,19 @@ def _plate(img: Image.Image, box: tuple[int, int, int, int], *,
         # it into shadow, so the composited panel is unambiguously the only
         # real one in the frame.
         pad = max(24, int((box[3] - box[1]) * 0.55))
-        shade = Image.new("RGBA", img.size, (0, 0, 0, 0))
+        # Transparent in the scrim's own colour: blurred from transparent
+        # black, the edge pulls toward black and a light ground gets grey halos.
+        shade = Image.new("RGBA", img.size, _scrim_rgb() + (0,))
         ds = ImageDraw.Draw(shade)
         ds.rounded_rectangle(
             (box[0] - pad, box[1] - pad, box[2] + pad, box[3] + pad),
-            radius=radius + pad, fill=(7, 5, 12, int(255 * min(1.0, scrim))))
+            radius=radius + pad, fill=_scrim_rgb() + (int(255 * min(1.0, scrim)),))
         shade = shade.filter(ImageFilter.GaussianBlur(int(pad * 0.8)))
         img.paste(Image.alpha_composite(img.convert("RGBA"), shade).convert("RGB"),
                   (0, 0))
 
+    fill = _t(fill or (255, 255, 255, 12))
+    border = _t(border or (255, 255, 255, 46))
     overlay = Image.new("RGBA", img.size, (0, 0, 0, 0))
     d = ImageDraw.Draw(overlay)
     d.rounded_rectangle(box, radius=radius, fill=fill, outline=border, width=width)
@@ -230,10 +260,10 @@ def _type_scrim(img: Image.Image, box: tuple[float, float, float, float], *,
     x0, y0, x1, y1 = box
     h = max(1.0, y1 - y0)
     pad_x, pad_y = h * 0.42, h * 0.26
-    layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    layer = Image.new("RGBA", img.size, _scrim_rgb() + (0,))
     ImageDraw.Draw(layer).rounded_rectangle(
         (x0 - pad_x, y0 - pad_y, x1 + pad_x, y1 + pad_y),
-        radius=int(h * 0.4), fill=(7, 5, 12, int(255 * min(1.0, strength))))
+        radius=int(h * 0.4), fill=_scrim_rgb() + (int(255 * min(1.0, strength)),))
     layer = layer.filter(ImageFilter.GaussianBlur(int(max(20.0, pad_x * 0.9))))
     img.paste(Image.alpha_composite(img.convert("RGBA"), layer).convert("RGB"),
               (0, 0))
@@ -252,12 +282,13 @@ def _pill(d: ImageDraw.ImageDraw, xy, text: str, f, *, pad=(18, 10),
 
 
 def _corner_motif(d: ImageDraw.ImageDraw, size: tuple[int, int], *,
-                  inset: int, cell: int, colour=(255, 255, 255)) -> None:
+                  inset: int, cell: int, colour=None) -> None:
     """The dotted corner brackets Robinhood frames its metric cards with.
 
     A decorative device, deliberately not load-bearing: it frames the number
     without adding a claim.
     """
+    colour = _t(colour or (255, 255, 255))
     W, H = size
     pattern = [(0, 0), (1, 0), (2, 0), (0, 1), (0, 2), (2, 2), (3, 0), (0, 3)]
     for cx, cy, sx, sy in ((inset, inset, 1, 1), (W - inset, inset, -1, 1),
@@ -428,7 +459,7 @@ def render_p2_announcement(term: str, status_prefix: str, status_accent: str,
         box = (cx + ox - r, cy + oy - r, cx + ox + r, cy + oy + r)
         overlay = Image.new("RGBA", size, (0, 0, 0, 0))
         od = ImageDraw.Draw(overlay)
-        od.ellipse(box, fill=(10, 10, 14, 235), outline=ring + (150,), width=3)
+        od.ellipse(box, fill=_t((10, 10, 14, 235)), outline=ring + (150,), width=3)
         base.paste(Image.alpha_composite(base.convert("RGBA"), overlay).convert("RGB"), (0, 0))
         d = ImageDraw.Draw(base)
         # A single initial, set — not a logo.
@@ -465,12 +496,12 @@ def _p3_chip(base: Image.Image, chip: str, chip_note: str,
     chip_w = int(text_w) + 96
     chx = right - chip_w
     _plate(base, (chx, top, chx + chip_w, top + chip_h), radius=chip_h // 2,
-           fill=(255, 255, 255, 18), border=(255, 255, 255, 60))
+           fill=_t((255, 255, 255, 18)), border=_t((255, 255, 255, 60)))
     d = ImageDraw.Draw(base)
     dot = 40
     dy = top + (chip_h - dot) // 2
     d.ellipse([(chx + 12, dy), (chx + 12 + dot, dy + dot)],
-              fill=(10, 10, 14), outline=VIOLET_LIGHT, width=2)
+              fill=_t((10, 10, 14)), outline=VIOLET_LIGHT, width=2)
     g = chip[:1].upper()
     gw = d.textlength(g, font=font("semibold", 22))
     d.text((chx + 12 + dot / 2 - gw / 2, dy + 8), g, font=font("semibold", 22),

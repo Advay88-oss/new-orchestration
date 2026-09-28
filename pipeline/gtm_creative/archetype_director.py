@@ -54,7 +54,7 @@ ARCHETYPES: dict[str, dict[str, Any]] = {
         "notes": "metric is the figure alone and nothing else: \"1.10x\", "
                  "\"0.00014 XLM\", \"~320ms\". descriptor is one sentence "
                  "under 12 words saying what it is. eyebrow is the context "
-                 "line, e.g. \"Vanna - Stellar Soroban Testnet\".",
+                 "line, e.g. \"{company} - Fixed-rate loans\".",
     },
     "P2_announcement": {
         "name": "Announcement",
@@ -67,7 +67,7 @@ ARCHETYPES: dict[str, dict[str, Any]] = {
                  "large. The status line reads prefix + accent + suffix and "
                  "the accent is the only coloured words, e.g. prefix "
                  "\"Isolated credit is\", accent \"live on Soroban "
-                 "testnet\", suffix \"now\". partners is 1-2 names, Vanna "
+                 "on Base\", suffix \"now\". partners is 1-2 names, {company} "
                  "first; never claim a partnership that does not exist.",
     },
     "P3_product_card": {
@@ -87,7 +87,7 @@ ARCHETYPES: dict[str, dict[str, Any]] = {
                  "(\"Health factor\"). card_sub is one line under 8 words. "
                  "chip is the object it applies to, 1-2 words "
                  "(\"SmartAccount\", \"USDC / XLM\"); chip_note is 2-3 "
-                 "words under it. Every figure must be true of testnet.",
+                 "words under it. Every figure must be true and sourced.",
     },
     "A2_product": {
         "name": "Product Frame",
@@ -107,7 +107,7 @@ ARCHETYPES: dict[str, dict[str, Any]] = {
         "generated": False,
         "slots": '{"names": [str], "statement": str, "sub": str, '
                  '"notes": [[str, str]], "footnote": str}',
-        "notes": "names is 2-3 protocols, Vanna first. statement is the one "
+        "notes": "names is 2-3 protocols, {company} first. statement is the one "
                  "line, under ten words. Exactly three notes of [term, gloss].",
     },
     "A3_threshold": {
@@ -186,7 +186,7 @@ ARCHETYPES: dict[str, dict[str, Any]] = {
         "slots": '{"headline": str, "deck": str, "left_label": str, '
                  '"right_label": str, "footnote": str}',
         "notes": "Never name a competitor. The left side is the generic "
-                 "mechanism, the right is Vanna.",
+                 "mechanism, the right is {company}.",
     },
 }
 
@@ -278,13 +278,31 @@ def candidates() -> dict[str, dict[str, Any]]:
     return open_set or pool
 
 
+def _system() -> str:
+    """The director's rules for the current company: its name and line, and
+    its required disclosure when it has one (Vanna's "testnet")."""
+    from pipeline.brand_brain import context as C
+    d = C.disclosure()
+    rule = ("- Never imply more than the company's stage: every capability statement carries the word '"
+            + d + "'.\n") if d else ""
+    return C.fill(SYSTEM).replace("- Never name a competitor.\n", rule + "- Never name a competitor.\n")
+
+
+def _footnote() -> str:
+    """The quiet source line: the disclosure footer and the company's docs or site."""
+    from urllib.parse import urlparse
+    from pipeline.brand_brain import context as C
+    p = C.profile().get("company", {})
+    site = urlparse(str(p.get("docs_url") or p.get("website") or "")).netloc.replace("www.", "")
+    return " · ".join(x for x in (C.disclosure_footer(), site) if x)
+
+
 # --------------------------------------------------------------------------
 # Direction
 # --------------------------------------------------------------------------
 
 SYSTEM = (
-    "You are Vanna's creative director. Vanna is composable credit "
-    "infrastructure on Stellar Soroban TESTNET.\n\n"
+    "You are {company}'s creative director. {company_line}\n\n"
     "You choose ONE visual archetype for a post and write the words that go "
     "in it. You are not describing an image — the archetype already fixes the "
     "composition. Your job is the choice and the copy.\n\n"
@@ -312,15 +330,15 @@ SYSTEM = (
     "- The headline is the one idea, under nine words, no colon, no hype. It "
     "should read as a sentence a competent engineer would say out loud.\n"
     "- The deck is ONE line that earns the headline. Never two ideas.\n"
-    "- Every figure you write must be true of Vanna and checkable. If you are "
+    "- Every figure you write must be true of {company} and checkable. If you are "
     "unsure of a number, state the mechanism without it.\n"
-    "- Never imply mainnet. Vanna is on testnet.\n"
+
     "- Never name a competitor.\n"
     "- Footnotes carry the source and any caveat, quietly.\n"
     "- An `eyebrow` slot names THIS post's topic in 1-3 words ('Liquidity', "
     "'Health factor'); the network suffix is added for you.\n"
     "- Never print an illustrative, example or invented figure. Every "
-    "number on the asset must be real and true of Vanna on testnet.\n\n"
+    "number on the asset must be real and true of {company}.\n\n"
 
     "HOW THESE ARE BUILT, and why your word counts matter:\n"
     "  An image model renders the background as light alone — a gradient "
@@ -389,7 +407,7 @@ def direct(strategy: Any, hook: str, body: str,
         "  problem: " + str(getattr(strategy, "problem", ""))[:400] + "\n"
         "  hook:    " + str(hook)[:300] + "\n"
         "  body:    " + str(body)[:1200] + "\n\n"
-        "AVAILABLE ARCHETYPES\n" + listing + "\n\n"
+        "AVAILABLE ARCHETYPES\n" + __import__('pipeline.brand_brain.context', fromlist=['fill']).fill(listing) + "\n\n"
         + ("ALREADY USED BY THE LAST POSTS, and therefore not available: "
            + ", ".join(blocked) + "\n\n" if blocked else "")
         + _learned_block(list(opts))
@@ -404,7 +422,7 @@ def direct(strategy: Any, hook: str, body: str,
     # slip was costing the run its entire visual — and unlike a bad claim, a
     # broken brace is worth simply asking again for.
     try:
-        out = R.brain_json(prompt, agent=AGENT, role="reasoning", system=SYSTEM,
+        out = R.brain_json(prompt, agent=AGENT, role="reasoning", system=_system(),
                            temperature=0.55, max_output_tokens=6144,
                            run_id=client_run_id)
     except R.BrainError as first:
@@ -415,7 +433,7 @@ def direct(strategy: Any, hook: str, body: str,
             prompt + "\n\nReturn ONLY the JSON object. No prose "
                      "before or after it, no comments, no trailing commas, "
                      "no ellipsis. Every slot must carry a literal value.",
-            agent=AGENT, role="reasoning", system=SYSTEM,
+            agent=AGENT, role="reasoning", system=_system(),
             temperature=0.2, max_output_tokens=6144, run_id=client_run_id)
 
     choice = str(out.get("archetype") or "")
@@ -435,6 +453,10 @@ def direct(strategy: Any, hook: str, body: str,
 def render(direction: dict[str, Any], run_id: str,
            out_dir: Optional[Path] = None) -> Path:
     """Dispatch to the chosen archetype's renderer."""
+    # The current company's colours into the renderers' tokens (Vanna keeps
+    # its own); see theme.py.
+    from pipeline.gtm_creative import theme
+    theme.apply()
     choice = direction["archetype"]
     slots = dict(direction.get("slots") or {})
     fn = RENDERERS[choice]
@@ -487,7 +509,7 @@ def render(direction: dict[str, Any], run_id: str,
 
     accepted = set(inspect.signature(fn).parameters)
     if "footnote" in accepted:
-        slots.setdefault("footnote", "Stellar Soroban testnet · docs.vanna.finance")
+        slots.setdefault("footnote", _footnote())
 
     dropped = [k for k in slots if k not in accepted]
     for k in dropped:

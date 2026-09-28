@@ -24,6 +24,7 @@ import re
 import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
+from typing import Optional
 
 BLOCK = "BLOCK"
 WARN = "WARN"
@@ -295,6 +296,45 @@ LABEL_PHRASES = re.compile(
 TESTNET_DISCLOSURE = re.compile(r"\btestnet\b", re.IGNORECASE)
 
 
+# The built-ins are Vanna's: pre-mainnet (no TVL, no audits, no token, no
+# "enterprise-grade"), its integrations, its internal documents. Applied to
+# another company they block true statements — Morpho has TVL, audits, a
+# token and an enterprise pillar. These hold for every company.
+UNIVERSAL = ("P4-demo-as-result", "P5-returns-promise", "P6-financial-advice",
+             "P7-competitor-superiority", "P11-agent-autonomy", "P14-fabricated-proof")
+
+
+def _other_tenant_rules() -> Optional[list]:
+    """For a tenant other than Vanna: the universal rules, the superiority rule
+    over ITS competitors, and its profile's prohibited claims and never-state
+    phrases. None for Vanna (or when the tenant cannot be read)."""
+    try:
+        from pipeline.brand_brain import context as C
+        from pipeline.brand_brain.client import current_tenant
+        if current_tenant() == "vanna":
+            return None
+        p = C.profile() or {}
+        name = C.company_name()
+    except Exception:                               # noqa: BLE001 — Vanna's rules, the stricter set
+        return None
+    rules = [r for r in HARD_PROHIBITIONS if r.id in UNIVERSAL and r.id != "P7-competitor-superiority"]
+    comps = [re.escape(str(c.get("name"))) for c in (p.get("competitors") or [])
+             if isinstance(c, dict) and c.get("name")]
+    if comps:
+        rules.append(Rule("P7-competitor-superiority", BLOCK,
+                          r"\b(?:better than|superior to|beats|outperforms|kills|destroys|replaces)\s+(?:"
+                          + "|".join(comps) + r")\b",
+                          "Claims superiority over a named competitor.",
+                          "Compare jobs-to-be-done, never superiority."))
+    claims = p.get("claims") or {}
+    for i, phrase in enumerate(list(claims.get("prohibited") or []) + list(claims.get("never_state") or [])):
+        text = phrase.get("text") if isinstance(phrase, dict) else phrase
+        if isinstance(text, str) and 2 < len(text) < 120:
+            rules.append(Rule("PROFILE-" + str(i), BLOCK, r"\b" + re.escape(text) + r"\b",
+                              name + "'s profile says never to state this.", "Remove it."))
+    return rules
+
+
 def active_rules() -> tuple[list, str]:
     """The rule set to evaluate, and where it came from.
 
@@ -306,6 +346,9 @@ def active_rules() -> tuple[list, str]:
     Returns (rules, source) where source is 'okf:<path>' or 'builtin'.
     """
     builtin = HARD_PROHIBITIONS + TIER_F + RETIRED + VOICE
+    other = _other_tenant_rules()
+    if other is not None:
+        return other, "universal+profile"
     try:
         sys.path.insert(0, str(Path(__file__).resolve().parent))
         from okf_loader import Bundle, default_bundle_path

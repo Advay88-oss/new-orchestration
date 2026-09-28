@@ -108,7 +108,8 @@ def eyebrow_text(topic: str, default: str) -> str:
     t = " ".join(str(topic or "").split()).strip(" ·-").upper()
     if not t:
         return default
-    return t if "TESTNET" in t else t[:40] + " · STELLAR SOROBAN TESTNET"
+    tag = chain_tag()
+    return t if (not tag or tag.split(" · ")[-1] in t) else t[:40] + " · " + tag
 
 
 def subject_clause(subject: str) -> str:
@@ -205,7 +206,7 @@ def render_a5_round_trip(
     f_label = font("semibold", 14)
 
     y = int(H * 0.085)
-    _track(d, (m, y), "STELLAR SOROBAN · TESTNET", f_eyebrow, VIOLET_LIGHT, 2.2)
+    _track(d, (m, y), (chain_tag() or company_upper()), f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 40
     f_head, _hl, _lh = _fit(d, headline, "regular", int(W * 0.52), 3,
@@ -331,6 +332,36 @@ def render_a6_ledger(
 GROUND_BASE = (9, 7, 13)
 VIOLET_BLOOM = (112, 58, 230)
 PINK_BLOOM = (255, 0, 122)
+GRID = (15, 12, 21)
+BLOOM_ALPHA = None      # theme.apply() sets it for other tenants; None = Vanna's 0.38 / 0.42
+
+
+def _light() -> bool:
+    """A light ground (another tenant's, via theme.apply): no dark-field passes."""
+    return (0.2126 * GROUND[0] + 0.7152 * GROUND[1] + 0.0722 * GROUND[2]) > 140
+
+
+def chain_tag() -> str:
+    """The network line the eyebrows carry: the profile's disclosure footer
+    (Vanna: (chain_tag() or company_upper())), nothing for a company without one."""
+    try:
+        from pipeline.brand_brain import context as C
+        return C.disclosure_footer().upper()
+    except Exception:                               # noqa: BLE001 — no suffix
+        return ""
+
+
+def company_upper() -> str:
+    try:
+        from pipeline.brand_brain import context as C
+        return C.company_name().upper()
+    except Exception:                               # noqa: BLE001
+        return ""
+
+
+def tagged(label: str) -> str:
+    t = chain_tag()
+    return label + (" · " + t if t else "")
 
 
 def _radial(size: tuple[int, int], centre: tuple[float, float],
@@ -379,13 +410,14 @@ def vanna_ground(size: tuple[int, int] = (1600, 900), *, grid: bool = True) -> I
         d = ImageDraw.Draw(img)
         step = max(40, w // 34)
         for x in range(0, w, step):
-            d.line([(x, 0), (x, h)], fill=(15, 12, 21), width=1)
+            d.line([(x, 0), (x, h)], fill=GRID, width=1)
         for y in range(0, h, step):
-            d.line([(0, y), (w, y)], fill=(15, 12, 21), width=1)
+            d.line([(0, y), (w, y)], fill=GRID, width=1)
 
     # Pink upper-right, violet lower centre-left — the docs hero arrangement.
-    pink = _radial(size, (w * 0.78, h * 0.22), w * 0.46, PINK_BLOOM, 0.38, 0.15)
-    violet = _radial(size, (w * 0.44, h * 0.86), w * 0.50, VIOLET_BLOOM, 0.42, 0.15)
+    pa, va = (0.38, 0.42) if BLOOM_ALPHA is None else (BLOOM_ALPHA, BLOOM_ALPHA + 0.04)
+    pink = _radial(size, (w * 0.78, h * 0.22), w * 0.46, PINK_BLOOM, pa, 0.15)
+    violet = _radial(size, (w * 0.44, h * 0.86), w * 0.50, VIOLET_BLOOM, va, 0.15)
 
     img = img.convert("RGBA")
     img = Image.alpha_composite(img, violet)
@@ -456,6 +488,8 @@ def _vignette(img: Image.Image, strength: float = 0.42) -> Image.Image:
     """Darken the corners. Even edge-to-edge lighting is what makes a
     composition read as a screenshot rather than as a photograph."""
     from PIL import ImageFilter
+    if _light():
+        return img          # a white ground with grey corners reads as dirty, not deep
 
     W, H = img.size
     mask = Image.new("L", (W, H), 0)
@@ -569,7 +603,7 @@ def render_a3_threshold(headline: str, deck: str, floor_label: str,
     f_foot = font("regular", 15)
 
     y = int(H * 0.115)
-    _track(d, (m, y), "HEALTH FACTOR · STELLAR SOROBAN TESTNET", f_eyebrow,
+    _track(d, (m, y), tagged("HEALTH FACTOR"), f_eyebrow,
            VIOLET_LIGHT, 2.2)
 
     y += 44
@@ -666,7 +700,7 @@ def render_a4_isolation(headline: str, deck: str, stat_value: str,
     f_foot = font("regular", 15)
 
     y = int(H * 0.115)
-    _track(d, (m, y), "SMARTACCOUNT ISOLATION · TESTNET", f_eyebrow,
+    _track(d, (m, y), tagged("ISOLATION"), f_eyebrow,
            VIOLET_LIGHT, 2.2)
 
     y += 44
@@ -810,7 +844,7 @@ def render_a13_containment(headline: str, deck: str, notes: list[tuple[str, str]
     f_foot = font("regular", 15)
 
     y = int(H * 0.115)
-    _track(d, (m, y), "COMPOSABILITY · STELLAR SOROBAN TESTNET", f_eyebrow,
+    _track(d, (m, y), tagged("COMPOSABILITY"), f_eyebrow,
            VIOLET_LIGHT, 2.2)
 
     y += 44
@@ -899,7 +933,7 @@ def render_a14_comparison(headline: str, deck: str,
     f_foot = font("regular", 15)
 
     y = int(H * 0.085)
-    _track(d, (m, y), "RISK CONTAINMENT · STELLAR SOROBAN TESTNET", f_eyebrow,
+    _track(d, (m, y), tagged("RISK CONTAINMENT"), f_eyebrow,
            VIOLET_LIGHT, 2.2)
 
     y += 42
@@ -980,7 +1014,7 @@ def render_a7_composition(headline: str, deck: str,
     d = ImageDraw.Draw(base)
 
     y = int(H * 0.145)
-    _track(d, (m, y), eyebrow_text(eyebrow, "RECOGNISED COLLATERAL · STELLAR SOROBAN TESTNET"),
+    _track(d, (m, y), eyebrow_text(eyebrow, tagged("RECOGNISED COLLATERAL")),
            f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 44
@@ -1081,7 +1115,7 @@ def render_a8_sequence(headline: str, deck: str, steps: list[tuple[str, str]],
     f_foot = font("regular", 15)
 
     y = int(H * 0.105)
-    _track(d, (m, y), "DEFENSIVE REBALANCING · STELLAR SOROBAN TESTNET",
+    _track(d, (m, y), tagged("DEFENSIVE REBALANCING"),
            f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 42
@@ -1181,7 +1215,7 @@ def render_a2_product(headline: str, deck: str, panel_title: str,
     mid = (band_top + band_bot) / 2
 
     y = int(max(band_top, mid - text_h / 2))
-    _track(d, (m, y), eyebrow_text(eyebrow, "MARGIN ACCOUNT · STELLAR SOROBAN TESTNET"),
+    _track(d, (m, y), eyebrow_text(eyebrow, tagged("MARGIN ACCOUNT")),
            f_eyebrow, VIOLET_LIGHT, 2.2)
 
     y += 46

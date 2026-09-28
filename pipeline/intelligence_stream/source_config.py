@@ -53,6 +53,51 @@ def load() -> dict[str, Any]:
             cfg[k] = v
     except Exception:                               # noqa: BLE001 — boundary
         pass
+    return _for_tenant(cfg)
+
+
+# The file above is Vanna's: Stellar queries, r/Stellar, the Stellar and Blend
+# blogs, and Vanna's competitors on X (Morpho among them). For any other
+# company the scout searches for THAT company: its name and topics, its own X
+# account and its competitors', its subreddits and its own blog. The global,
+# company-neutral feeds (news RSS, Telegram news channels, DefiLlama) stay.
+_VANNA_ONLY = ("stellar", "soroban", "blend")
+
+
+def _for_tenant(cfg: dict[str, Any]) -> dict[str, Any]:
+    try:
+        from pipeline.brand_brain import context as C
+        from pipeline.brand_brain.client import Brain, current_tenant
+        t = current_tenant()
+        if t == "vanna":
+            return cfg
+        p = C.profile(t) or {}
+        if not p:
+            return cfg
+        co = p.get("company") or {}
+        name = C.company_name(t)
+        b = Brain(t)
+        own = str(co.get("x_handle") or b.meta("watch:x_handle") or "").lstrip("@")
+        terms = [x for x in (p.get("relevance_terms") or []) if isinstance(x, str) and len(x) > 3][:3]
+        cfg = dict(cfg)
+        cfg["news_queries"] = [name, name + " protocol", name + " news"] + [name + " " + x for x in terms]
+        comps = [c for c in (p.get("competitors") or []) if isinstance(c, dict)]
+        x = ([{"handle": own, "name": name}] if own else []) + [
+            {"handle": str(c["handle"]).lstrip("@"), "name": c.get("name") or c["handle"]}
+            for c in comps if c.get("handle") and str(c["handle"]).lstrip("@").lower() != own.lower()]
+        cfg["x_accounts"] = x or [a for a in cfg.get("x_accounts", [])
+                                  if str(a.get("name", "")).lower() != name.lower()]
+        subs = [str(s).strip().lstrip("/").replace("r/", "", 1) for s in (co.get("subreddits") or [])]
+        cfg["reddit_subreddits"] = subs or [s for s in cfg.get("reddit_subreddits", [])
+                                            if s.lower() not in _VANNA_ONLY]
+        blogs = [d for d in cfg.get("docs_and_blogs", [])
+                 if not any(v in (str(d.get("name")) + str(d.get("url"))).lower() for v in _VANNA_ONLY)]
+        feed = b.meta("watch:blog_feed")
+        if feed:
+            blogs = [{"name": name + " Blog", "url": feed, "type": "RSS"}] + blogs
+        cfg["docs_and_blogs"] = blogs
+    except Exception:                               # noqa: BLE001 — the file's config is the fallback
+        pass
     return cfg
 
 

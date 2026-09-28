@@ -29,8 +29,33 @@ def _c():
     return C
 
 
-def _logo() -> Path:
-    return _c().logo_path()
+def _logo() -> Optional[Path]:
+    p = _c().logo_path()
+    return p if p and Path(p).exists() else None
+
+
+def _palette() -> dict:
+    return {k: v for k, v in (_c().palette() or {}).items() if isinstance(v, str)}
+
+
+def _ground() -> str:
+    p = _palette()
+    return p.get("ground") or p.get("background") or p.get("bg") or ""
+
+
+def _palette_line() -> str:
+    """The brand's colours as hex, for the model to use — not "the brand
+    palette" in the abstract, which let every tenant come out in Vanna's."""
+    p = {k: v for k, v in _palette().items() if v.startswith("#")}
+    return ", ".join(k.replace("_", " ") + " " + v for k, v in p.items())
+
+
+def _emphasis() -> str:
+    g = _palette().get("gradient_word")
+    if g:
+        return "emphasis is one word in the " + g + " gradient"
+    acc = _palette().get("accent")
+    return "emphasis is one word in the accent colour" + (" " + acc if acc else "")
 
 
 def _facts() -> str:
@@ -73,8 +98,10 @@ def _refs(topic: str, kinds: list[str], n: int, min_score: float = 0.0) -> list[
 
 
 def references(topic: str = "") -> list[Path]:
-    """The tenant's design references, closest to the topic first."""
-    return _refs(topic, ["reference"], 8)
+    """The tenant's design references, closest to the topic first; a company
+    with none yet is shown its own website instead (the analyzer's
+    screenshots), so the style is its own and not a default."""
+    return _refs(topic, ["reference"], 8) or _refs(topic, ["website"], 4)
 
 
 def _learned_rules() -> str:
@@ -101,6 +128,9 @@ FLAT_RULE = (
 
 
 def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
+    has_logo = _logo() is not None
+    last = " The LAST image is the official logo." if has_logo else ""
+    ground = _ground()
     return (
         "You are designing ONE finished square (1:1) image for an X post by "
         + _c().company_name() + ".\n\n"
@@ -109,22 +139,26 @@ def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
            "explanatory diagram built from glass UI elements, icons and "
            "arrows, clearly contrasting the problem with " + _c().company_name() + "'s answer. Match "
            "that level and that approach; do NOT copy their text or their "
-           "exact layout. The images after them, except the last, are further "
-           "STYLE REFERENCES. The LAST image is the official logo.\n\n"
+           "exact layout. The images after them" + (", except the last," if has_logo else "")
+           + " are further STYLE REFERENCES." + last + "\n\n"
            if approved else
-           "ATTACHED IMAGES: all images except the last are STYLE REFERENCES. "
-           "The LAST image is the official logo.\n\n")
-        + "FORMAT: one full-bleed square, the dark ground running edge to "
-        "edge — no white or light borders, no bands, no frame around it.\n\n"
+           "ATTACHED IMAGES: " + ("all images except the last" if has_logo else "the images")
+           + " are STYLE REFERENCES from the brand's own website and designs." + last + "\n\n")
+        + "FORMAT: one full-bleed square, the brand's ground colour" + (" " + ground if ground else "")
+        + " running edge to edge — no borders, bands or frame around it.\n\n"
+        + ("BRAND COLOURS (use these, not others): " + _palette_line() + ".\n\n" if _palette_line() else "")
         + "Match the references' house style exactly: " + _c().house_style()
         + ". Generous spacing, nothing overlapping, everything aligned.\n\n"
         + FLAT_RULE + "\n\n"
-        "LOGO: use the logo from the LAST attached image, exactly as it is: "
-        + _c().logo_description() + ". Same mark, same wordmark, same colours, "
-        "drawn once. Do NOT invent a mark and do NOT copy any logo or icon "
-        "from the style references.\n\n"
-        "No markdown: never render asterisks, underscores or hashes as "
-        "characters; emphasis is the gradient word.\n\n"
+        + ("LOGO: use the logo from the LAST attached image, exactly as it is: "
+           + _c().logo_description() + ". Same mark, same wordmark, drawn once, in a tone that "
+           "reads on the ground (dark on a light ground, light on a dark one). Do NOT invent a "
+           "mark and do NOT copy any logo or icon from the style references.\n\n"
+           if has_logo else
+           "LOGO: no logo file is available; set the name " + _c().company_name() + " once, small, "
+           "as a plain wordmark in the text colour. Do NOT invent a mark.\n\n")
+        + "No markdown: never render asterisks, underscores or hashes as "
+        "characters; " + _emphasis() + ".\n\n"
         "TEXT RULES: every word must be spelled correctly. Keep all text "
         "short — headline under 9 words, subtitle under 14, labels 1-4 "
         "words. Use no text other than what explains the idea. Other "
@@ -156,8 +190,10 @@ def judge(image: Path, brief: str) -> dict[str, Any]:
     from pipeline.gtm_os import agent_runtime as R
 
     prompt = (
-        "The FIRST image is the poster to review. The SECOND is the official "
-        + _c().company_name() + " logo.\n\n" + _facts() + "\n\nThe brief was:\n" + brief + "\n\n"
+        ("The FIRST image is the poster to review. The SECOND is the official "
+         + _c().company_name() + " logo.\n\n" if _logo() else
+         "The image is the poster to review (no logo file exists; the name should appear once as a "
+         "plain wordmark).\n\n") + _facts() + "\n\nThe brief was:\n" + brief + "\n\n"
         "Check: every word spelled correctly and not garbled; no figure that "
         "is not in the facts list; the logo matches the official one (not a "
         "cube); nothing overlaps or is cut off; the image is about the brief; "
@@ -172,7 +208,7 @@ def judge(image: Path, brief: str) -> dict[str, Any]:
         "in one or two sentences." + _learned_rules()
         + "\n\nReturn JSON exactly:\n" + JUDGE_SCHEMA
     )
-    return R.brain_vision(prompt, [image, _logo()], agent="A15_creative_judge",
+    return R.brain_vision(prompt, [image] + ([_logo()] if _logo() else []), agent="A15_creative_judge",
                           system=JUDGE_SYSTEM, role="reasoning",
                           temperature=0.1, max_output_tokens=2048)
 
@@ -190,17 +226,25 @@ def fix_logo(path: Path) -> bool:
     """
     from PIL import Image, ImageDraw, ImageFilter
 
-    from pipeline.gtm_creative.brand import logo
+    from pipeline.gtm_creative.brand import contrast_safe, logo
 
     img = Image.open(path).convert("RGB")
     W, H = img.size
     x0, x1 = int(W * 0.22), int(W * 0.78)
     y0, y1 = int(H * 0.015), int(H * 0.135)
     px = img.load()
+    # Ink is whatever differs from the ground, dark or light: sampled at the
+    # top corners (a white Morpho poster made every pixel "bright").
+    corners = [px[int(W * 0.04), int(H * 0.04)], px[int(W * 0.96), int(H * 0.04)]]
+    ground = tuple(sum(c[i] for c in corners) // 2 for i in range(3))
+
+    light = sum(ground) / 3 > 140
 
     def inked(x: int, y: int) -> bool:
         r, g, b = px[x, y]
-        return max(r, g, b) > 150 or (max(r, g, b) - min(r, g, b) > 90 and max(r, g, b) > 90)
+        if not light:       # dark grounds (Vanna): bright or saturated, as before
+            return max(r, g, b) > 150 or (max(r, g, b) - min(r, g, b) > 90 and max(r, g, b) > 90)
+        return abs(r - ground[0]) + abs(g - ground[1]) + abs(b - ground[2]) > 150
 
     # A row inked across most of the width is a band or rule the model drew
     # along the edge, not a lockup; one poster opened with a violet strip and
@@ -248,7 +292,9 @@ def fix_logo(path: Path) -> bool:
         return False
     cx = (lx0 + lx1) // 2
     cy = (top_y + bot_y) // 2
-    img.paste(mark, (cx - mark.width // 2, cy - mark.height // 2), mark)
+    at = (cx - mark.width // 2, cy - mark.height // 2)
+    mark = contrast_safe(mark, img.crop((at[0], at[1], at[0] + mark.width, at[1] + mark.height)))
+    img.paste(mark, at, mark)
     img.save(path)
     return True
 
@@ -271,7 +317,7 @@ def make(brief: str, name: str, *, out_dir: Optional[Path] = None,
     # then the design references.
     approved = _refs(brief, ["approved_poster"], 3, min_score=0.7)
     imgs = (approved + references(brief)
-            + [Path(p) for p in (extra_refs or []) if Path(p).exists()] + [_logo()])
+            + [Path(p) for p in (extra_refs or []) if Path(p).exists()] + ([_logo()] if _logo() else []))
     history = []
     correction = ""
     for n in range(1, attempts + 1):

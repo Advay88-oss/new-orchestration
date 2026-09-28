@@ -29,13 +29,24 @@ _KEY_LOW = 26
 _KEY_HIGH = 64
 
 
-@lru_cache(maxsize=8)
 def _keyed() -> Optional[Image.Image]:
-    """The lockup with its background removed, or None if the file is absent."""
+    """The current tenant's lockup with its background removed."""
+    p = _logo_file()
+    return _keyed_file(str(p)) if p else None
+
+
+@lru_cache(maxsize=8)
+def _keyed_file(path: str) -> Optional[Image.Image]:
+    """One logo file with its background removed, or None if it is absent.
+    Cached per file, so two tenants in one process never share a logo."""
     try:
-        src = Image.open(_logo_file()).convert("RGBA")
+        src = Image.open(path).convert("RGBA")
     except Exception:                               # noqa: BLE001 — boundary
         return None
+    if src.getchannel("A").getextrema()[0] < 250:
+        # Already transparent (brand_brain.logo captures it that way): keying
+        # by luminance would erase a dark mark.
+        return src.crop(src.getchannel("A").getbbox() or (0, 0, src.width, src.height))
 
     lum = src.convert("L")
     alpha = lum.point(
@@ -60,11 +71,31 @@ def logo(height: int) -> Optional[Image.Image]:
     return base.resize((w, height), Image.Resampling.LANCZOS)
 
 
+def _lum(im: Image.Image, mask: Optional[Image.Image] = None) -> float:
+    from PIL import ImageStat
+    return ImageStat.Stat(im.convert("L"), mask).mean[0]
+
+
+def contrast_safe(mark: Image.Image, ground: Image.Image) -> Image.Image:
+    """The mark, inverted when it would vanish on the ground under it (a
+    white logo on a white poster): same shape, opposite tone."""
+    a = mark.getchannel("A")
+    if abs(_lum(mark.convert("RGB"), a) - _lum(ground)) >= 70:
+        return mark
+    from PIL import ImageOps
+    inv = ImageOps.invert(mark.convert("RGB")).convert("RGBA")
+    inv.putalpha(a)
+    return inv
+
+
 def paste_logo(img: Image.Image, xy: tuple[int, int], height: int) -> int:
     """Composite the lockup and return the x it ends at, or the x given."""
     mark = logo(height)
     if mark is None:
         return xy[0]
+    box = (xy[0], xy[1], min(img.width, xy[0] + mark.width), min(img.height, xy[1] + mark.height))
+    if box[2] > box[0] and box[3] > box[1]:
+        mark = contrast_safe(mark, img.crop(box))
     img.alpha_composite(mark, xy) if img.mode == "RGBA" else _paste_rgb(img, mark, xy)
     return xy[0] + mark.width
 

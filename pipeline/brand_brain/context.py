@@ -168,7 +168,16 @@ def avoid_colors(tenant: Optional[str] = None) -> list[str]:
 
 
 def logo_path(tenant: Optional[str] = None) -> Optional[Path]:
+    """The profile's logo; else the one brand_brain.logo found on the site."""
     p = _get("visual.logo.path", None, tenant)
+    if not p:
+        try:
+            import json as _json
+            from pipeline.brand_brain.client import Brain, current_tenant
+            rec = _json.loads(Brain(tenant or current_tenant()).meta("visual:logo") or "{}")
+            p = rec.get("path")
+        except Exception:                           # noqa: BLE001 — no logo
+            p = None
     if not p:
         return None
     path = Path(p)
@@ -176,7 +185,10 @@ def logo_path(tenant: Optional[str] = None) -> Optional[Path]:
 
 
 def logo_description(tenant: Optional[str] = None) -> str:
-    return str(_get("visual.logo.description", "", tenant))
+    d = str(_get("visual.logo.description", "", tenant))
+    if d and "as it appears on" not in d:
+        return d
+    return "the " + company_name(tenant) + " logo exactly as on its website: the mark and the wordmark"
 
 
 # -------------------------------------------------------------- prompt blocks

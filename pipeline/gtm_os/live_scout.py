@@ -177,6 +177,32 @@ def _signal_from_raw(raw: dict[str, Any]) -> MarketSignal | None:
     )
 
 
+def _watch_rows(days: int = 7) -> list[dict]:
+    """What brain_watch kept about this company in the last week (its launches,
+    partnerships, incidents, controversies, with their links) as scout rows,
+    so a run can be about the company's own news, not only the market's."""
+    import hashlib
+    from datetime import datetime, timedelta, timezone
+    from pipeline.brand_brain.client import Brain
+    since = (datetime.now(timezone.utc) - timedelta(days=days)).isoformat()
+    out = []
+    for e in Brain().get_whats_new(since, 12):
+        # Launches, updates and partnerships are topics; an incident or a
+        # controversy is context (What's new lists it for tone), never a
+        # subject the engine should volunteer a post about.
+        if not str(e.get("id") or "").startswith("watch:") or e.get("kind") not in (
+                "feature_launch", "factual_update", "partnership"):
+            continue
+        out.append({"signal_id": "watch-" + hashlib.md5(str(e["id"]).encode()).hexdigest()[:8],
+                    "headline": e["title"], "description": e.get("detail") or "",
+                    "source": e.get("url") or "", "source_type": "brain_watch",
+                    "derivation_provenance": "brain_watch:" + str(e.get("source") or ""),
+                    "timestamp": e["at"], "confidence": "MEDIUM",
+                    "data": {"title": e["title"], "insight": e.get("detail") or "", "kind": e.get("kind"),
+                             "url": e.get("url") or "", "reported_by": e.get("source") or ""}})
+    return out
+
+
 def collect_live(limit_per_source: int = 5) -> tuple[list[MarketSignal], dict[str, Any]]:
     """Run every live source in parallel. Returns (signals, per-source report)."""
     from pipeline.intelligence_stream.social_and_docs_collector import SocialAndDocsCollector
@@ -226,6 +252,7 @@ def collect_live(limit_per_source: int = 5) -> tuple[list[MarketSignal], dict[st
         # produces genuinely new signals even in a week when nobody publishes.
         "defillama": lambda: c.collect_defillama_signals(),
         "defillama_hacks": lambda: c.collect_defillama_hacks(),
+        "brain_watch": _watch_rows,
     }
 
     report: dict[str, Any] = {}
@@ -304,7 +331,10 @@ def scout(limit: int = 12, *, include_archive: bool = True) -> list[MarketSignal
 
     out = list(live)
 
-    if include_archive:
+    # The archive is Vanna's research brain (opportunities.jsonl), not per
+    # company: another tenant's run must not be offered Vanna's history.
+    from pipeline.brand_brain.client import current_tenant
+    if include_archive and current_tenant() == "vanna":
         try:
             from pipeline.gtm_orchestration.intelligence_provider import IntelligenceProvider
             archive = IntelligenceProvider().get_market_signals(limit=limit)

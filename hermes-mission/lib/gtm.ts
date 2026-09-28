@@ -781,7 +781,7 @@ export async function gtmReferences(runId?: string) {
         whatItIs: r?.what_it_is ?? null,
         relevance: (r?.relevance ?? null) as 'DIRECT' | 'ADJACENT' | 'NONE' | null,
         why: r?.why ?? null,
-        vannaMove: r?.vanna_move || null,
+        vannaMove: r?.company_move || r?.vanna_move || null,
       };
     })
     .filter(Boolean);
@@ -807,11 +807,11 @@ export async function gtmReferences(runId?: string) {
     landscape: land
       ? {
           summary: land.summary ?? '',
-          forVanna: land.for_vanna ?? '',
+          forVanna: land.for_company ?? land.for_vanna ?? '',
           quietOn: land.quiet_on ?? [],
           themes: (land.themes ?? []).map((t: any) => ({
             theme: t.theme, whatIsHappening: t.what_is_happening,
-            mattersToVanna: Boolean(t.matters_to_vanna), cites: cite(t.signal_ids),
+            mattersToVanna: Boolean(t.matters_to_company ?? t.matters_to_vanna), cites: cite(t.signal_ids),
           })),
           strategies: (land.strategies ?? []).map((st: any) => ({
             title: st.title, move: st.move, rationale: st.rationale,
