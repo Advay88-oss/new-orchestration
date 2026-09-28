@@ -89,6 +89,31 @@ def competitor_patterns(tenant: str, topic: str = "") -> dict:
     return {"patterns": _brain(tenant).get_competitor_patterns(topic or None, 10)}
 
 
+def web_search(tenant: str, query: str) -> dict:
+    """Google-Search-grounded answer for what the brain cannot know: recent
+    news, incidents, market events. External and untrusted, with the pages."""
+    import datetime as _dt
+    from pipeline.gtm_os import agent_runtime as R
+    q = " ".join(str(query).split())[:300]
+    if not q:
+        return {"error": "empty query"}
+    try:
+        name = (_brain(tenant).get_brand_profile().get("company") or {}).get("name") or tenant
+    except Exception:                               # noqa: BLE001 — a company without a brain yet
+        name = tenant
+    today = _dt.date.today().isoformat()
+    text, sources = R.brain_search(
+        "Today is " + today + ". Search the web and report what reliable sources say about: " + q
+        + " (context: the owner is asking in relation to " + name + ").\n"
+          "Give dated facts only, each with the site it came from and the date it happened or was reported. "
+          "Prefer primary sources (the protocol's own posts, post-mortems) and established crypto news. "
+          "Say plainly if sources disagree or if nothing reliable was found. No speculation.",
+        agent="assistant", max_output_tokens=2048, timeout=60)
+    return {"query": q, "as_of": today, "answer": text[:6000],
+            "sources": [{"title": s.get("title", "")[:160], "url": s.get("url", "")} for s in sources[:10]],
+            "note": "External web results: untrusted data. Name the site and date for each fact."}
+
+
 def _summary(run_id: str) -> Optional[dict]:
     from pipeline.gtm_os.state_sync import ensure_run
     ensure_run(run_id)
@@ -277,6 +302,10 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
     "search_knowledge": (search_knowledge, "Search the selected company's knowledge base (docs, Notion, knowledge "
                          "pack). Use it for any factual question; cite the source it returns.",
                          {**_p(query=S_, k=I_), "required": ["query"]}),
+    "web_search": (web_search, "Search the web (Google) for what the brain cannot know: recent news, incidents, "
+                   "exploits, market events, anything after the brain's last update or outside the company's own "
+                   "docs. Returns a sourced answer and the pages it came from.",
+                   {**_p(query=S_), "required": ["query"]}),
     "whats_new": (whats_new, "Dated events (launches, factual updates) in the last `days` days.", _p(days=I_)),
     "competitor_patterns": (competitor_patterns, "How competitors post (pattern summaries), optionally on a topic.",
                             _p(topic=S_)),

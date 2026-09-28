@@ -330,7 +330,7 @@ function ChecksPanel() {
 // --------------------------------------------------------------------- view
 
 const TOOL_LABEL: Record<string, string> = {
-  search_knowledge: "Searched the brain", brand_profile: "Read the brand profile", whats_new: "Checked what's new",
+  search_knowledge: "Searched the brain", web_search: "Searched the web", brand_profile: "Read the brand profile", whats_new: "Checked what's new",
   competitor_patterns: "Read competitor patterns", list_runs: "Listed runs", get_run: "Opened a run",
   learning_overview: "Read the learning loop", add_company: "Started the website analyzer",
   analysis_status: "Checked the analysis", analyse_competitors: "Started the competitor analysis",
