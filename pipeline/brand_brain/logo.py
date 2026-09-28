@@ -158,6 +158,22 @@ def fetch_logo(tenant: str, website: Optional[str] = None) -> dict[str, Any]:
     return {"ok": True, **rec}
 
 
+def register_shipped(tenant: str) -> Optional[str]:
+    """A logo fetch_logo saved under the tenant's images and shipped with the
+    image, recorded in a brain that has none (the cloud brain on Cloud SQL
+    was filled before the logo existed). Returns the path registered."""
+    from pipeline.brand_brain import store as S
+    from pipeline.brand_brain.client import Brain
+    b = Brain(tenant)
+    f = S.tenant_dir(tenant) / "images" / "logo.png"
+    prof = ((b.get_brand_profile() or {}).get("visual") or {}).get("logo") or {}
+    if not f.exists() or prof.get("path") or b.meta("visual:logo"):
+        return None
+    rel = f.resolve().relative_to(Path(__file__).resolve().parents[2]).as_posix()
+    b.meta("visual:logo", json.dumps({"path": rel, "source": "image", "website": ""}))
+    return rel
+
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print(__doc__)

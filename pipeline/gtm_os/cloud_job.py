@@ -104,19 +104,15 @@ def admin_tidy() -> int:
     the image (brand_brain.logo saved it under the tenant's images) when the
     brain has none."""
     import json as _json
-    from pathlib import Path
     from pipeline.brand_brain import store as S
     from pipeline.brand_brain.client import Brain
+    from pipeline.brand_brain.logo import register_shipped
     out = {}
     for t in S.tenants():
-        b = Brain(t)
-        r = {"tidy": b.tidy()}
-        logo = S.tenant_dir(t) / "images" / "logo.png"
-        prof = ((b.get_brand_profile() or {}).get("visual") or {}).get("logo") or {}
-        if logo.exists() and not prof.get("path") and not b.meta("visual:logo"):
-            rel = logo.resolve().relative_to(Path(__file__).resolve().parents[2]).as_posix()
-            b.meta("visual:logo", _json.dumps({"path": rel, "source": "image", "website": ""}))
-            r["logo"] = rel
+        r = {"tidy": Brain(t).tidy()}
+        got = register_shipped(t)
+        if got:
+            r["logo"] = got
         out[t] = r
     print(_json.dumps(out, default=str))
     return 0
