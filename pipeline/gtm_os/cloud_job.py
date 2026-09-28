@@ -98,6 +98,30 @@ def video(run_id: str) -> int:
     return 0
 
 
+def admin_tidy() -> int:
+    """Every tenant's brain on Cloud SQL: tag legal/pricing, drop duplicate
+    passages and site menus (Brain.tidy), and register a logo that ships in
+    the image (brand_brain.logo saved it under the tenant's images) when the
+    brain has none."""
+    import json as _json
+    from pathlib import Path
+    from pipeline.brand_brain import store as S
+    from pipeline.brand_brain.client import Brain
+    out = {}
+    for t in S.tenants():
+        b = Brain(t)
+        r = {"tidy": b.tidy()}
+        logo = S.tenant_dir(t) / "images" / "logo.png"
+        prof = ((b.get_brand_profile() or {}).get("visual") or {}).get("logo") or {}
+        if logo.exists() and not prof.get("path") and not b.meta("visual:logo"):
+            rel = logo.resolve().relative_to(Path(__file__).resolve().parents[2]).as_posix()
+            b.meta("visual:logo", _json.dumps({"path": rel, "source": "image", "website": ""}))
+            r["logo"] = rel
+        out[t] = r
+    print(_json.dumps(out, default=str))
+    return 0
+
+
 def tick() -> int:
     os.environ.setdefault("SCHEDULER_ONLY", DEFAULT_CLOUD_JOBS)
     _restore()
@@ -167,7 +191,7 @@ def _guarded_main(argv: list[str]) -> int:
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["cycle", "tick", "admin-schema", "admin-migrate", "telegram", "watch", "video"])
+    ap.add_argument("cmd", choices=["cycle", "tick", "admin-schema", "admin-migrate", "admin-tidy", "telegram", "watch", "video"])
     ap.add_argument("--directive", default=None)
     ap.add_argument("--no-video", action="store_true")
     ap.add_argument("--run", default=None, help="video: the run whose poster to animate")
@@ -180,7 +204,7 @@ def main(argv: list[str]) -> int:
         from pipeline.ops.watch import run as watch
         print(json.dumps(watch(), default=str)[:4000])
         return 0
-    return {"tick": tick, "admin-schema": admin_schema, "admin-migrate": admin_migrate,
+    return {"tick": tick, "admin-schema": admin_schema, "admin-migrate": admin_migrate, "admin-tidy": admin_tidy,
             "telegram": telegram}[a.cmd]()
 
 
