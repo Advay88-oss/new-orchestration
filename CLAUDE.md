@@ -145,7 +145,7 @@ Requires `google-cloud-storage` and valid ADC (`gcloud auth application-default 
 
 ---
 
-## Known state (2026-09-20)
+## Known state (2026-10-07)
 
 - `mission-control/` (the deployed dashboard's source) and `files/` (the 12-document
   Vanna knowledge base) were **deleted from disk**. Tracked copies remain in git
@@ -153,8 +153,16 @@ Requires `google-cloud-storage` and valid ADC (`gcloud auth application-default 
   Cloud Run revision still serves normally.
 - `pipeline/README.md` and the claim gate reference `files/08-facts-ledger-and-claim-safety.md`
   — that path is currently missing, so claim verification may degrade.
-- `.claude/launch.json` still points at the missing `mission-control/`.
+- The dashboard source is `hermes-mission/` (branded **Herald** since 2026-10-07):
+  `/` is the front page, the app is `/app`, `/brief` is the share page.
+  `.claude/launch.json` runs it (`hermes-mission`, port 3000).
 - The live dashboard and pipeline are in `sales-agent-504607` (deploy with
   `deploy_cloud.sh`). `deploy_gcp.sh` / `deploy_dashboard.sh` are the older,
   dashboard-only deploys.
-- ~537 untracked files. Commit work you care about — that is how the above was lost.
+- Scheduler: locally the dashboard server keeps `configurable_scheduler_daemon.py`
+  alive (`daemon_manager.py ensure` every minute; `stop` from the Autopilot drawer
+  is respected). When the GCP tick `vanna-gtm-tick` is ENABLED the laptop only
+  mirrors the bucket's clock. "Make N posts" chains posts back to back (`_post_chain`).
+  As of 2026-10-07 all four Cloud Scheduler jobs on GCP are PAUSED.
+- Many untracked files are runtime state. Commit source you care about — that is how
+  the above was lost. `.mcp.json` and `hermes-mission/.env.local` hold secrets.
