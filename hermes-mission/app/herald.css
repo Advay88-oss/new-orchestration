@@ -345,3 +345,18 @@
 .select{height:30px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface);color:var(--text);font:inherit;font-size:13px;padding:0 8px}
 .composer textarea:focus-visible{outline:none}
 .palette-in input:focus-visible{outline:none}
+
+/* Sidebar breathing room: taller rows, a gap between them, more air between
+   sections; the scrollbar only shows while the pointer is over the rail. */
+.side{gap:4px;padding:14px 12px}
+.side-btn{height:38px;padding:0 12px;gap:11px}
+.side-label{padding:20px 12px 8px}
+.ws{margin:0 0 12px}
+.ws-btn{padding:9px 10px}
+.side-foot{gap:8px;padding-top:20px}
+.sched{padding:12px}
+.side{scrollbar-width:none}
+.side::-webkit-scrollbar{width:0}
+.side:hover{scrollbar-width:thin}
+.side:hover::-webkit-scrollbar{width:6px}
+@media (pointer:coarse){.side-btn{height:44px}}
