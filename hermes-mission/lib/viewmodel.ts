@@ -236,9 +236,9 @@ export function useMissionControl(props: MissionControlProps) {
     // are decorated and six are not is not a set.
     const nav = [
       { id: "assistant", label: "Assistant" },
-      { id: "runs", label: "Post History" },
-      { id: "research", label: "Scraped Intelligence" },
-      { id: "vanna_plays", label: "What Vanna Can Do" },
+      { id: "runs", label: "Posts" },
+      { id: "research", label: "Signals" },
+      { id: "vanna_plays", label: "Inspiration" },
       { id: "campaigns", label: "Campaigns" },
       { id: "references", label: "References" },
     ].filter((n) => !hidden.has(n.id)).map((n) => {
@@ -389,7 +389,8 @@ export function useMissionControl(props: MissionControlProps) {
         ...base,
         // The loading state announced a different page than the one that
         // arrives a moment later, and named a Telegram channel while doing it.
-        pageTitle: "Post History",
+        pageTitle: ({ assistant: "Assistant", runs: "Posts", research: "Signals", references: "References",
+                      vanna_plays: "Inspiration", campaigns: "Campaigns", run: "Post" } as Record<string, string>)[view] || "Herald",
         pageSub: "Loading…",
         runRows: [],
         d: null,
@@ -452,11 +453,11 @@ export function useMissionControl(props: MissionControlProps) {
         + "kind of fault rather than by the run it happened in.",
       ],
       runs: [
-        "Post History",
-        "Each post the pipeline made: the line, the visual, and where review left it.",
+        "Posts",
+        "Each post the agents made: the line, the visual, and where review left it.",
       ],
       run: [
-        "Run detail",
+        "Post",
         "One inferred lifecycle: stages, the debate, research, drafts, the ruling, and what shipped.",
       ],
       agents: [
@@ -486,18 +487,22 @@ export function useMissionControl(props: MissionControlProps) {
       ],
       references: [
         "References",
-        "The same docs, posts and articles as Scraped Intelligence, each with the post idea the agents will write from it.",
+        "The same docs, posts and articles as Signals, each with the post idea the agents will write from it.",
       ],
       assistant: [
         "Assistant",
         "Tell the agents any gap, and a time to stop. They follow that.",
       ],
       research: [
-        "Scraped Intelligence",
+        "Signals",
         "Deep web research, discovered ecosystem players, and canonical claims from public sources.",
       ],
+      campaigns: [
+        "Campaigns",
+        "Live campaigns from the source you name, busiest first, with what the company could adapt.",
+      ],
       vanna_plays: [
-        "What Vanna Can Do",
+        "Inspiration",
         "Each campaign from the research: what they did, the reward, who took part, why it might have worked, and what Vanna could adapt.",
       ],
       scheduler: [
@@ -513,7 +518,7 @@ export function useMissionControl(props: MissionControlProps) {
         "Culturally grounded humor addressing liquidation anxiety, gas price shock, and pooled contagion without named competitor attacks.",
       ],
     };
-    const [pageTitle, pageSub] = titles[view] || ["Mission Control", "System 2: " + AGENT_COUNT + "-Agent Autonomous GTM OS"];
+    const [pageTitle, pageSub] = titles[view] || ["Herald", AGENT_COUNT + " agents, one marketing team"];
 
     const runRows = runs().map((r) => {
       const om = outcomeMeta(r),

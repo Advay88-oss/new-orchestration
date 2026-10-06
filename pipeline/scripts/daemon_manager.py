@@ -24,6 +24,10 @@ LOGS_DIR = REPO_ROOT / "pipeline" / "logs"
 PID_FILE = STATE_DIR / "daemon.pid"
 STATUS_FILE = STATE_DIR / "daemon_status.json"
 LOG_FILE = LOGS_DIR / "daemon.log"
+# Whether the owner wants the scheduler on. `stop` clears it, `start` sets it,
+# and `ensure` (the dashboard's watchdog) restarts a dead scheduler only when
+# it is wanted. No file means wanted: the dashboard is autonomous by default.
+WANTED_FILE = STATE_DIR / "daemon_wanted.json"
 
 # The 24/7 clock. The old master script is retired and its --continuous flag
 # exits immediately, which is why the sidebar stayed on "Not scheduled".
@@ -58,6 +62,30 @@ def get_spend_remaining() -> float:
             return float(data.get("remaining_usd", 10.0))
     except Exception:
         return 10.0  # Default safe assumption if proxy unreachable
+
+
+def _set_wanted(on: bool) -> None:
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    WANTED_FILE.write_text(json.dumps({"wanted": on, "at": datetime.now(timezone.utc).isoformat()}),
+                           encoding="utf-8")
+
+
+def wanted() -> bool:
+    try:
+        return bool(json.loads(WANTED_FILE.read_text(encoding="utf-8")).get("wanted", True))
+    except (OSError, ValueError):
+        return True
+
+
+def ensure_daemon() -> dict:
+    """Start the scheduler if it is wanted and not running. Safe to call often."""
+    st = get_status()
+    if st.get("running"):
+        return {**st, "ensured": "already running"}
+    if not wanted():
+        return {**st, "ensured": "stopped by the owner"}
+    res = start_daemon()
+    return {**res, "ensured": "restarted" if res.get("success") else "could not start"}
 
 
 def start_daemon(interval_seconds: int = 15) -> dict:
@@ -118,6 +146,7 @@ def start_daemon(interval_seconds: int = 15) -> dict:
 
     pid = proc.pid
     PID_FILE.write_text(str(pid), encoding="utf-8")
+    _set_wanted(True)
 
     status_data = {
         "status": "RUNNING",
@@ -129,7 +158,7 @@ def start_daemon(interval_seconds: int = 15) -> dict:
     }
     STATUS_FILE.write_text(json.dumps(status_data, indent=2), encoding="utf-8")
 
-    print(f"✅ Started Vanna scheduler (PID: {pid}). Intervals come from config/scheduler.yaml.")
+    print(f"Started Vanna scheduler (PID: {pid}). Intervals come from config/scheduler.yaml.", file=sys.stderr)
     return {
         "success": True,
         "message": f"Scheduler started with PID {pid}.",
@@ -141,8 +170,10 @@ def start_daemon(interval_seconds: int = 15) -> dict:
     }
 
 
-def stop_daemon() -> dict:
+def stop_daemon(by_owner: bool = True) -> dict:
     """Terminates the running background daemon."""
+    if by_owner:
+        _set_wanted(False)
     if not PID_FILE.exists():
         return {"success": True, "message": "No active daemon PID found.", "status": "STOPPED"}
 
@@ -177,21 +208,21 @@ def stop_daemon() -> dict:
         st["stopped_at"] = datetime.now(timezone.utc).isoformat()
         STATUS_FILE.write_text(json.dumps(st, indent=2), encoding="utf-8")
 
-    print(f"🛑 Terminated Vanna 24/7 Continuous GTM Daemon (PID: {pid})")
+    print(f"Stopped Vanna scheduler (PID: {pid})", file=sys.stderr)
     return {"success": True, "message": f"Daemon PID {pid} stopped successfully.", "status": "STOPPED"}
 
 
 def get_status() -> dict:
     """Returns the current status, PID, and health telemetry of the daemon."""
     if not PID_FILE.exists():
-        return {"status": "STOPPED", "pid": None, "running": False}
+        return {"status": "STOPPED", "pid": None, "running": False, "wanted": wanted()}
 
     try:
         pid = int(PID_FILE.read_text(encoding="utf-8").strip())
         running = is_process_running(pid)
         if not running:
             PID_FILE.unlink(missing_ok=True)
-            return {"status": "STOPPED", "pid": None, "running": False}
+            return {"status": "STOPPED", "pid": None, "running": False, "wanted": wanted()}
 
         status_info = {}
         if STATUS_FILE.exists():
@@ -207,7 +238,8 @@ def get_status() -> dict:
             "label": status_info.get("label") or DAEMON_LABEL,
             "started_at": status_info.get("started_at"),
             "interval_seconds": status_info.get("interval_seconds", 15),
-            "spend_remaining": get_spend_remaining()
+            "spend_remaining": get_spend_remaining(),
+            "wanted": wanted(),
         }
     except Exception as e:
         return {"status": "ERROR", "error": str(e), "running": False}
@@ -215,7 +247,7 @@ def get_status() -> dict:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Manage Vanna 24/7 Autonomous GTM Daemon.")
-    parser.add_argument("action", choices=["start", "stop", "status", "restart"], help="Lifecycle action")
+    parser.add_argument("action", choices=["start", "stop", "status", "restart", "ensure"], help="Lifecycle action")
     parser.add_argument("--interval", type=int, default=15, help="Unused by the scheduler; intervals live in config/scheduler.yaml")
     args = parser.parse_args()
 
@@ -228,8 +260,10 @@ if __name__ == "__main__":
     elif args.action == "status":
         res = get_status()
         print(json.dumps(res, indent=2))
+    elif args.action == "ensure":
+        print(json.dumps(ensure_daemon(), indent=2))
     elif args.action == "restart":
-        stop_daemon()
+        stop_daemon(by_owner=False)
         time.sleep(1)
         res = start_daemon(interval_seconds=args.interval)
         print(json.dumps(res, indent=2))

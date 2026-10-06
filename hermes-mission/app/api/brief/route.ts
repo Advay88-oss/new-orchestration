@@ -3,7 +3,7 @@ import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { pythonPath } from '@/lib/python';
-import { listGtmRunIds, gtmRunSummary } from '@/lib/gtm';
+import { listGtmRunIds, gtmRunSummary, gtmLegacyRun, companyOf } from '@/lib/gtm';
 import { cloudMode, companyAccess } from '@/lib/local-only';
 import { runPipelineJob } from '@/lib/cloudrun';
 import { allow } from '@/lib/ratelimit';
@@ -135,10 +135,25 @@ export async function GET(req: Request) {
       publisher: '',
     });
   }
+  const brief = String(summary.poster_brief || '');
+  const headline = (brief.match(/Headline:\s*([^\n]+)/)?.[1] || '').replace(/\s*\(gradient word:.*\)\s*$/, '').trim()
+    || String(posts.x?.hook || '').split('\n')[0].trim();
+  // The same rule as the Posts list (components/views/Runs.tsx), so a post
+  // never reads "Held" here and "Posted" there.
+  const row: any = await gtmLegacyRun(runId).catch(() => null);
+  const review = row?.dispatched === true ? 'posted'
+    : row?.publishable === true ? 'ready'
+    : row?.blocked_reason || summary.status === 'review_blocked' ? 'held'
+    : String(summary.status || '');
   return NextResponse.json({
     ok: true,
     runId,
     status: summary.status || 'finished',
+    review,
+    headline,
+    tenant: companyOf(summary) || null,
+    startedAt: summary.started_at || null,
+    visual: summary.visual_path ? '/api/gtm/artifact/' + runId + '/visual' : null,
     platforms,
     posts: Object.fromEntries(platforms.map((k) => [k, postText(posts[k])])),
     sources: sources.filter((s) => s.title),

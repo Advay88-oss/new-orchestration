@@ -51,7 +51,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
       <section className="vanna-section">
         <div className="vanna-card">
           <EmptyState compact icon="runs" title="This run is not available"
-            body="It may still be starting, or it is outside the posts this view shows. Pick one from Post History." />
+            body="It may still be starting, or it is outside the posts this view shows. Pick one from Posts." />
           <button
             onClick={vm.goRuns}
             style={{
@@ -66,7 +66,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
               cursor: "pointer"
             }}
           >
-            Open Post History
+            Open Posts
           </button>
         </div>
       </section>
@@ -145,7 +145,7 @@ export function RunDetail({ vm }: { vm: MissionVM }) {
               marginBottom: "12px",
             }}
           >
-            ← Post History
+            ← Posts
           </button>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
             <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: status.color, letterSpacing: "0.06em" }}>

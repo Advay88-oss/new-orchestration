@@ -31,7 +31,9 @@ export const GRADIENT = "var(--vn-accent)";
  * variable set in app/layout.tsx points at the same Google font, same weights.
  * Rendered output is unchanged; only the string differs.
  */
-export const MONO = "var(--font-jetbrains-mono), monospace";
+// Herald sets labels, ids and figures in the sans with tabular figures; the
+// real monospace is kept for code (globals.css `code, kbd, pre`).
+export const MONO = "var(--font-sans), system-ui, sans-serif";
 
 /** Default arc palette — also the default value of the `arcPalette` prop. */
 export const DEFAULT_ARC_PALETTE: readonly [string, string, string] = [

@@ -211,6 +211,80 @@ def upload_clock_file() -> bool:
     return code == 0
 
 
+TICK = "vanna-gtm-tick"
+STATE_OBJECT = "gs://" + BUCKET + "/state/pipeline/state/scheduler_state.json"
+
+
+def tick_live() -> bool:
+    """True when GCP keeps the clock: the 2-minute tick exists and is enabled.
+
+    Then the laptop's scheduler only mirrors the bucket, so a job never runs
+    in both places (and never sends its Telegram note twice)."""
+    if not _gcloud():
+        return False
+    code, raw = _run(["scheduler", "jobs", "describe", TICK, "--location", REGION,
+                      "--format", "value(state)"], timeout=20)
+    return code == 0 and raw.strip().splitlines()[-1:] == ["ENABLED"]
+
+
+def pull_clock() -> bool:
+    """Copy the bucket's clock (gaps, post count, job state) to this machine,
+    so the local dashboard shows what the cloud ran. Uses the user login."""
+    from pipeline.gtm_os.state_sync import blend_scheduler_records
+    state_dir = Path(__file__).resolve().parents[1] / "state"
+    code, raw = _run(["storage", "cat", CLOCK_OBJECT], timeout=25, limit=200000)
+    if code != 0:
+        return False
+    try:
+        chosen = json.loads(raw[raw.find("{"):])
+    except ValueError:
+        return False
+    if isinstance(chosen, dict):
+        (state_dir / "scheduler_intervals.json").write_text(json.dumps(chosen, indent=2), encoding="utf-8")
+    code, raw = _run(["storage", "cat", STATE_OBJECT], timeout=25, limit=500000)
+    if code != 0:
+        return True
+    try:
+        remote = json.loads(raw[raw.find("{"):])
+    except ValueError:
+        return True
+    path = state_dir / "scheduler_state.json"
+    try:
+        local = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except (OSError, ValueError):
+        local = {}
+    if isinstance(remote, dict) and isinstance(local, dict):
+        merged = blend_scheduler_records(local, remote)
+        # The cloud's status for a job it ran is the true one.
+        for name, rec in remote.items():
+            if isinstance(rec, dict) and isinstance(merged.get(name), dict) \
+                    and str(rec.get("last_run") or "") >= str(local.get(name, {}).get("last_run") or ""):
+                merged[name] = {**merged[name], **{k: rec[k] for k in ("status", "last_duration_s",
+                                "consecutive_failures", "last_error", "current_run_start") if k in rec}}
+        path.write_text(json.dumps(merged, indent=2), encoding="utf-8")
+    return True
+
+
+def execute_now(name: str) -> tuple[bool, str]:
+    """Start one job on the pipeline now, as its own Cloud Run execution.
+
+    From the laptop this is the user login (gcloud); inside GCP it is the
+    job's service account, the same one Cloud Scheduler uses."""
+    from pipeline.gtm_os.state_sync import in_cloud
+    if in_cloud():
+        try:
+            import google.auth
+            from google.auth.transport.requests import AuthorizedSession
+            creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+            resp = AuthorizedSession(creds).post(URI, json=_body(name), timeout=30)
+            return resp.status_code < 300, ("" if resp.status_code < 300 else resp.text[:200])
+        except Exception as exc:                    # noqa: BLE001 — the caller says it did not start
+            return False, str(exc)[:200]
+    code, detail = _run(["run", "jobs", "execute", JOB, "--region", REGION, "--async",
+                         "--args", "job,sched,--job," + name], timeout=60)
+    return code == 0, ("" if code == 0 else detail)
+
+
 def _row(name: str, interval: str, labels: dict, lands: dict) -> dict:
     return {
         "id": _job_id(name), "cron": interval_to_cron(interval) or "",
@@ -237,7 +311,7 @@ def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[s
 
     def remember(status: str) -> tuple[list[str], list[str], dict]:
         for name in on:
-            if name in paused:
+            if name in paused or (name == "gtm_cycle" and isinstance(chosen.get("_post_chain"), dict)):
                 continue
             interval = chosen.get(name)
             if not isinstance(interval, str):
@@ -267,6 +341,10 @@ def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[s
         _pause(name)
     for name in on:
         if name in paused:
+            _pause(name)
+            continue
+        if name == "gtm_cycle" and isinstance(chosen.get("_post_chain"), dict):
+            # Posts by count start each other; a cron would start extra ones.
             _pause(name)
             continue
         interval = chosen.get(name)

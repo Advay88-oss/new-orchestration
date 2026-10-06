@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Instrument_Sans, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import { Inter, Newsreader, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { THEME_BOOT } from "@/lib/theme";
 
@@ -7,19 +7,18 @@ import { THEME_BOOT } from "@/lib/theme";
 // metric-adjusted local fallback ahead of the stack, which then renders glyphs
 // outside the latin subset (● U+25CF, → U+2192) at different widths than the
 // original, whose stack fell through to plain monospace / sans-serif.
-const instrumentSans = Instrument_Sans({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
   display: "swap",
   variable: "--font-sans",
   adjustFontFallback: false,
 });
 
-// Display headings only: page titles and section heads.
-const instrumentSerif = Instrument_Serif({
+// The Assistant's greeting only.
+const newsreader = Newsreader({
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["400", "500"],
   style: ["normal", "italic"],
   display: "swap",
   variable: "--font-serif",
@@ -35,8 +34,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mission Control",
-  description: "Production observability for the Vanna autonomous GTM pipeline.",
+  title: "Herald",
+  description: "Researches your market, writes posts, checks every claim, and waits for your approval.",
 };
 
 export default function RootLayout({
@@ -47,7 +46,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSans.variable} ${instrumentSerif.variable} ${jetbrainsMono.variable}`}
+      className={`${inter.variable} ${newsreader.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
       <head>

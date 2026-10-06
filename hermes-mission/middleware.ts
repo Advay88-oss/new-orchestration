@@ -22,8 +22,17 @@ async function ownerHash(key: string): Promise<string> {
   return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+// The app moved from / to /app; / is the front page. Old links that carry an
+// app parameter (the owner key, a client link, a view) still open the app.
+const APP_PARAMS = ['key', 'client', 'as', 'view'];
+
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
+  if (url.pathname === '/' && APP_PARAMS.some((p) => url.searchParams.has(p))) {
+    const moved = url.clone();
+    moved.pathname = '/app';
+    return NextResponse.redirect(moved);
+  }
   const secure = url.protocol === 'https:';
   const opts = { httpOnly: true, sameSite: 'lax' as const, secure, path: '/', maxAge: YEAR };
 

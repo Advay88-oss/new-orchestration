@@ -14,6 +14,9 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
+import { useTenant } from "@/lib/tenant";
+import { Badge } from "../Sidebar";
+import { HeraldMark, IconArrowUp, IconStop } from "../icons";
 
 type Card = { type: string; [k: string]: any };
 type Tool = { name: string; summary: string };
@@ -221,7 +224,7 @@ function ActionCard({ c, tenant, threadId }: { c: Card; tenant: string; threadId
           {state === "done" ? "Done" : label[c.action] || "Confirm"}
         </button>
         {state && state.startsWith("failed") && <span style={{ fontSize: 12.5, color: "var(--vn-bad)" }}>{state}</span>}
-        {state === "done" && c.action === "launch_run" && <span style={{ fontSize: 12.5, color: "var(--vn-ink-muted)" }}>Started. It shows up in Post History.</span>}
+        {state === "done" && c.action === "launch_run" && <span style={{ fontSize: 12.5, color: "var(--vn-ink-muted)" }}>Started. It shows up in Posts.</span>}
       </div>
       <Asked c={c} />
     </div>
@@ -345,187 +348,6 @@ const TOOL_LABEL: Record<string, string> = {
   study_brand: "Studying a company",
 };
 
-function istWhen(iso: string): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return new Intl.DateTimeFormat("en-US", {
-    timeZone: "Asia/Kolkata", month: "long", day: "numeric", year: "numeric",
-    hour: "numeric", minute: "2-digit", hour12: true,
-  }).format(d) + " IST";
-}
-
-const WORK_LABEL: Record<string, string> = {
-  gtm_cycle: "Posts",
-  research_collect: "Headlines and competitor posts",
-  campaigns_refresh: "Campaigns",
-  trend_scan: "Trends",
-  ideas_panel: "Ideas",
-  memes_panel: "Memes",
-  github_commits: "GitHub",
-  notion_sync: "Notion",
-  brain_watch: "Public listening",
-  metrics_collect: "Published-post results",
-  ops_watch: "Health check",
-};
-
-const WORK_LANDS: Record<string, string> = {
-  gtm_cycle: "Post History",
-  research_collect: "Scraped Intelligence",
-  campaigns_refresh: "Campaigns",
-  trend_scan: "Scraped Intelligence",
-  ideas_panel: "Post History",
-  memes_panel: "Telegram",
-  github_commits: "the brand brain",
-  notion_sync: "the brand brain",
-  brain_watch: "the brand brain",
-  metrics_collect: "Learning",
-  ops_watch: "Telegram when something breaks",
-};
-
-const CRON_BADGE: Record<string, string> = {
-  live: "Cron set",
-  auth: "Saved · sign-in needed",
-  clock: "On the 2-minute clock",
-  local: "Saved on this machine",
-  failed: "Saved · cron failed",
-  stopped: "Stopped",
-};
-
-const CRON_TELL: Record<string, { stop: string; start: string }> = {
-  gtm_cycle: { stop: "stop posts", start: "start posts" },
-  research_collect: { stop: "stop headlines", start: "start headlines" },
-  campaigns_refresh: { stop: "stop campaigns", start: "start campaigns" },
-  trend_scan: { stop: "stop trends", start: "start trends" },
-  ideas_panel: { stop: "stop ideas", start: "start ideas" },
-  memes_panel: { stop: "stop memes", start: "start memes" },
-  github_commits: { stop: "stop github", start: "start github" },
-  notion_sync: { stop: "stop notion", start: "start notion" },
-  brain_watch: { stop: "stop brand watch", start: "start brand watch" },
-  metrics_collect: { stop: "stop metrics", start: "start metrics" },
-  ops_watch: { stop: "stop health", start: "start health" },
-};
-
-function WorkRail({ vm }: { vm: MissionVM }) {
-  const [clock, setClock] = useState<any>(null);
-  const [shelves, setShelves] = useState<any[]>([]);
-  const [job, setJob] = useState<any>(null);
-  const [busy, setBusy] = useState("");
-  const [note, setNote] = useState("");
-  const load = useCallback(async () => {
-    try {
-      const [s, c] = await Promise.all([
-        fetch("/api/scheduler", { cache: "no-store" }).then((r) => r.json()).catch(() => null),
-        fetch("/api/gtm/campaigns", { cache: "no-store" }).then((r) => r.json()).catch(() => null),
-      ]);
-      setClock(s);
-      setShelves(Array.isArray(c?.shelves) ? c.shelves : []);
-      setJob(c?.job || null);
-    } catch { /* the chat still works */ }
-  }, []);
-  useEffect(() => {
-    let stop = false;
-    const tick = async () => {
-      if (!stop) await load();
-      if (!stop) setTimeout(tick, 8000);
-    };
-    tick();
-    return () => { stop = true; };
-  }, [load]);
-  const searching = job?.state === "running";
-  const cards = ((clock?.jobs || []) as any[]).filter((j) => {
-    if (!WORK_LABEL[j.job]) return false;
-    if (j.paused) return j.cron_state === "stopped" || Boolean(j.cron_id);
-    return j.enabled !== false;
-  });
-  const count = cards.length + shelves.length + (searching ? 1 : 0);
-  const flip = async (name: string, phrase: string) => {
-    setBusy(name);
-    setNote("");
-    try {
-      const res = await fetch("/api/scheduler", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "tell", text: phrase }),
-      });
-      const data = await res.json();
-      const line = String(data.message || data.error || "").split("\n").find(Boolean) || "";
-      setNote(data.success ? line : (line || "Could not change that cron"));
-    } catch {
-      setNote("Could not change that cron");
-    }
-    setBusy("");
-    await load();
-  };
-  const until = typeof clock?.until === "string" ? clock.until : "";
-  const left = typeof clock?.posts_left === "number" ? clock.posts_left : null;
-  return (
-    <aside className="assistant-work" style={{ width: 340, flex: "0 0 340px", borderLeft: "1px solid var(--vn-line)", display: "flex", flexDirection: "column", background: "var(--vn-sunken)" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "16px 16px 12px" }}>
-        <div style={{ fontWeight: 700, fontSize: 16, color: "var(--vn-ink)" }}>Automations <span style={{ color: "var(--vn-ink-muted)", fontWeight: 500 }}>({count})</span></div>
-      </div>
-      <div style={{ flex: 1, overflowY: "auto", padding: "0 12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
-        {cards.map((item) => {
-          const stopped = Boolean(item.paused) || item.cron_state === "stopped";
-          const phrase = CRON_TELL[item.job];
-          return (
-          <div key={item.job} style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 14, padding: "14px 14px 12px", opacity: stopped ? 0.72 : 1 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
-              <div style={{ fontWeight: 700, fontSize: 14.5, color: "var(--vn-ink)" }}>{WORK_LABEL[item.job]} every {item.interval}</div>
-              <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 99, background: stopped ? "var(--vn-sunken)" : "var(--vn-ok-soft)", color: stopped ? "var(--vn-ink-muted)" : "var(--vn-ok)" }}>{stopped ? "Stopped" : (CRON_BADGE[item.cron_state] || "Active")}</span>
-            </div>
-            {item.cron_id && (
-              <div style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--vn-ink-muted)", marginTop: 8 }}>
-                {item.cron_id}{item.cron ? " · " + item.cron : ""}
-              </div>
-            )}
-            {item.job === "gtm_cycle" && !stopped && (
-              <div style={{ fontSize: 13, color: "var(--vn-ink-body)", marginTop: 10, lineHeight: 1.45 }}>
-                {left ? left + " posts left. Each one reads the newest scrape." : "When: " + (until ? istWhen(until) : "until you say stop")}
-              </div>
-            )}
-            <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginTop: 6, lineHeight: 1.45 }}>
-              Shows in {item.lands || WORK_LANDS[item.job] || "the dashboard"}.
-            </div>
-            {item.last_run && item.last_run !== "Never" && (
-              <div style={{ fontSize: 12, color: "var(--vn-ink-faint)", marginTop: 8 }}>Last activity: {istWhen(item.last_run)}</div>
-            )}
-            {phrase && (
-              <button type="button" disabled={busy === item.job}
-                onClick={() => flip(item.job, stopped ? phrase.start : phrase.stop)}
-                style={{ marginTop: 12, width: "100%", borderRadius: 10, padding: "8px 10px", cursor: busy === item.job ? "wait" : "pointer", fontWeight: 700, fontSize: 13, border: "1px solid " + (stopped ? "var(--vn-line)" : "var(--vn-bad)"), background: stopped ? "var(--vn-surface)" : "transparent", color: stopped ? "var(--vn-ink)" : "var(--vn-bad)" }}>
-                {busy === item.job ? (stopped ? "Starting…" : "Stopping…") : (stopped ? "Start again" : "Stop cron")}
-              </button>
-            )}
-          </div>
-          );
-        })}
-        {note && <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", lineHeight: 1.45, padding: "0 4px" }}>{note}</div>}
-        {searching && (
-          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 14, padding: "14px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
-              <div style={{ fontWeight: 700, fontSize: 14.5, color: "var(--vn-ink)" }}>Searching {job.source || "campaigns"}</div>
-              <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 99, background: "var(--vn-ok-soft)", color: "var(--vn-ok)" }}>Active</span>
-            </div>
-            <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginTop: 8 }}>{job.query || "Reading the live listing."}</div>
-          </div>
-        )}
-        {shelves.map((s: any) => (
-          <button key={(s.source_input || s.source) + (s.scraped_at || "")} onClick={() => (vm as any).goCampaigns?.()}
-                  style={{ textAlign: "left", background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 14, padding: "14px", cursor: "pointer", color: "inherit" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
-              <div style={{ fontWeight: 700, fontSize: 14.5, color: "var(--vn-ink)" }}>{s.source_input || s.source || "Campaigns"}</div>
-              <span style={{ fontSize: 11, fontWeight: 700, color: "var(--vn-ok)" }}>{s.count || (s.campaigns || []).length}</span>
-            </div>
-            <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginTop: 8, lineHeight: 1.45 }}>{s.query}</div>
-          </button>
-        ))}
-        {count === 0 && <div style={{ fontSize: 13, color: "var(--vn-ink-muted)", lineHeight: 1.5, padding: "4px 4px" }}>Nothing on a cron. Say the job and the gap: competitor Twitter every 5 minutes, or campaigns every 5 minutes. A post still needs 20 minutes.</div>}
-      </div>
-    </aside>
-  );
-}
-
 function CheckLine({ q, k, v, bad }: { q: string; k: string; v: string; bad?: boolean }) {
   return (
     <div style={{ display: "flex", gap: 10, alignItems: "baseline", padding: "4px 0", fontSize: 15, lineHeight: 1.45 }}>
@@ -585,12 +407,67 @@ function ToolSteps({ tools }: { tools: Tool[] }) {
   );
 }
 
-export function Assistant({ vm }: { vm: MissionVM }) {
-  // A client link talks about its own company only: no other companies, no
-  // onboarding, no model checks (those are the owner's).
-  const [tenants, setTenants] = useState<string[]>([]);
-  const [names, setNames] = useState<Record<string, string>>({});
-  const [tenant, setTenant] = useState<string>("");
+
+const SUGGEST: { label: string; fill?: string; send?: string; autopilot?: boolean }[] = [
+  { label: "Draft a post", fill: "Draft a post about " },
+  { label: "What’s new this week", send: "What's new this week?" },
+  { label: "Change the schedule", autopilot: true },
+  { label: "Study a brand", fill: "Study the brand " },
+  { label: "Find campaigns", fill: "Find campaigns on Galxe about " },
+];
+
+function greeting(): string {
+  const h = new Date().getHours();
+  return h < 5 ? "Good evening" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+}
+
+function useOwnerName(): string {
+  const [name, setName] = useState("");
+  useEffect(() => {
+    try { setName(localStorage.getItem("vn_owner_name") || ""); } catch { /* */ }
+    const on = (e: Event) => setName(String((e as CustomEvent).detail || ""));
+    window.addEventListener("vn:owner-name", on);
+    return () => window.removeEventListener("vn:owner-name", on);
+  }, []);
+  return name;
+}
+
+function Composer({ value, onChange, onSend, onStop, busy, disabled, company, placeholder, boxRef, big }: {
+  value: string; onChange: (v: string) => void; onSend: () => void; onStop: () => void; busy: boolean; disabled: boolean;
+  company: { id: string; name: string } | null; placeholder: string; boxRef: React.RefObject<HTMLTextAreaElement>; big?: boolean;
+}) {
+  const ready = Boolean(value.trim()) && !disabled;
+  return (
+    <div className="hd-composer" style={{ padding: big ? "8px 10px 10px" : "6px 8px 8px" }}>
+      <textarea ref={boxRef} value={value} rows={big ? 2 : 1} disabled={disabled}
+                onChange={(e) => onChange(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend(); } }}
+                placeholder={placeholder}
+                style={{ width: "100%", resize: "none", minHeight: big ? 64 : 40, maxHeight: 200, background: "transparent", border: "none",
+                         padding: big ? "12px 12px 6px" : "10px 10px 4px", fontSize: big ? 16.5 : 15, lineHeight: 1.5, fontFamily: "inherit", color: "var(--vn-ink)" }} />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, padding: "0 2px 0 6px" }}>
+        {company ? (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 7, border: "1px solid var(--vn-line)", borderRadius: 8, padding: "4px 10px 4px 5px", fontSize: 13.5, color: "var(--vn-ink-body)", background: "var(--vn-surface)" }}>
+            <Badge id={company.id} name={company.name} size={18} />{company.name}
+          </span>
+        ) : <span />}
+        {busy ? (
+          <button onClick={onStop} aria-label="Stop" className="hd-icon-btn" style={{ width: 38, height: 38, borderRadius: 11, background: "var(--vn-raised)", color: "var(--vn-ink)" }}><IconStop /></button>
+        ) : (
+          <button onClick={onSend} disabled={!ready} aria-label="Send"
+                  style={{ width: 38, height: 38, borderRadius: 11, border: "none", display: "inline-flex", alignItems: "center", justifyContent: "center",
+                           background: ready ? "var(--vn-cta)" : "var(--vn-raised)", color: ready ? "var(--vn-on-accent)" : "var(--vn-ink-muted)", cursor: ready ? "pointer" : "default" }}>
+            <IconArrowUp />
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export function Assistant({ vm, newChat = 0, onAutopilot }: { vm: MissionVM; newChat?: number; onAutopilot?: () => void }) {
+  const [company, , pickCompany] = useTenant();
+  const tenant = company?.id || "";
   const [, setThreads] = useState<Thread[]>([]);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
@@ -601,18 +478,7 @@ export function Assistant({ vm }: { vm: MissionVM }) {
   const scroller = useRef<HTMLDivElement>(null);
   const box = useRef<HTMLTextAreaElement>(null);
   const abort = useRef<AbortController | null>(null);
-
-  useEffect(() => {
-    fetch("/api/gtm/brain", { cache: "no-store" }).then((r) => r.json()).then((d) => {
-      const ts: string[] = d.tenants || [];
-      setTenants(ts);
-      let pick = ts[0] || "";
-      try { pick = localStorage.getItem("vn_assistant_tenant") || pick; } catch { /* */ }
-      if (!ts.includes(pick)) pick = ts[0] || "";
-      setTenant(pick);
-      if (d.tenant && d.profile?.company?.name) setNames((n) => ({ ...n, [d.tenant]: d.profile.company.name }));
-    }).catch((e) => setErr(String(e)));
-  }, []);
+  const owner = useOwnerName();
 
   const loadThreads = useCallback(async (t: string) => {
     try {
@@ -630,26 +496,29 @@ export function Assistant({ vm }: { vm: MissionVM }) {
       const d = await (await fetch("/api/assistant/threads?tenant=" + t + "&id=" + id, { cache: "no-store" })).json();
       setMsgs(d.ok && d.thread ? d.thread.messages : []);
       if (!d.ok) setThreadId(null);
-    } finally { setLoadingThread(false); }
+    } catch (e) { setErr(String(e)); } finally { setLoadingThread(false); }
   }, []);
 
   useEffect(() => {
     if (!tenant) return;
-    try { localStorage.setItem("vn_assistant_tenant", tenant); } catch { /* */ }
-    fetch("/api/gtm/brain?tenant=" + tenant, { cache: "no-store" }).then((r) => r.json())
-      .then((d) => d.profile?.company?.name && setNames((n) => ({ ...n, [tenant]: d.profile.company.name }))).catch(() => {});
     loadThreads(tenant);
     let last: string | null = null;
     try { last = localStorage.getItem("vn_assistant_thread_" + tenant); } catch { /* */ }
     openThread(tenant, last);
   }, [tenant, loadThreads, openThread]);
 
+  // "New chat" from the sidebar or the palette.
+  useEffect(() => {
+    if (!newChat || !tenant) return;
+    abort.current?.abort();
+    openThread(tenant, null);
+    setInput("");
+    setTimeout(() => box.current?.focus(), 0);
+  }, [newChat]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => { scroller.current?.scrollTo({ top: scroller.current.scrollHeight }); }, [msgs]);
 
-  const pick = useCallback((t: string) => {
-    setTenants((ts) => (ts.includes(t) ? ts : [...ts, t]));
-    setTenant(t);
-  }, []);
+  const pick = useCallback((t: string) => pickCompany(t), [pickCompany]);
 
   const send = async (text?: string) => {
     const q = (text ?? input).trim();
@@ -687,7 +556,10 @@ export function Assistant({ vm }: { vm: MissionVM }) {
               setThreadId(ev.thread_id);
               try { localStorage.setItem("vn_assistant_thread_" + tenant, ev.thread_id); } catch { /* */ }
             }
-          } else if (ev.type === "tool") update((m) => ({ ...m, tools: [...(m.tools || []), { name: ev.name, summary: ev.summary }] }));
+          } else if (ev.type === "tool") {
+            update((m) => ({ ...m, tools: [...(m.tools || []), { name: ev.name, summary: ev.summary }] }));
+            if (ev.name === "set_post_cadence") window.dispatchEvent(new Event("vn:autopilot"));
+          }
           else if (ev.type === "card") update((m) => ({ ...m, cards: [...(m.cards || []), ev.card] }));
           else if (ev.type === "delta") update((m) => ({ ...m, text: (m.text || "") + ev.text }));
           else if (ev.type === "grounding") update((m) => ({ ...m, grounding: { checked: ev.checked, supported: ev.supported, flagged: ev.flagged, note: ev.note } }));
@@ -707,84 +579,88 @@ export function Assistant({ vm }: { vm: MissionVM }) {
   };
 
   const stop = () => abort.current?.abort();
-
-  const name = names[tenant] || tenant;
+  const name = company?.name || tenant;
   const planned = (m: Msg) => (m.tools || []).some((t) => (t.name === "set_post_cadence" || t.name === "find_campaigns") && !t.summary.startsWith("failed"));
+  const empty = !loadingThread && msgs.length === 0;
+
+  const suggest = (s: typeof SUGGEST[number]) => {
+    if (s.autopilot) { onAutopilot?.(); return; }
+    if (s.send) { send(s.send); return; }
+    setInput(s.fill || "");
+    setTimeout(() => { const b = box.current; if (b) { b.focus(); b.setSelectionRange(b.value.length, b.value.length); } }, 0);
+  };
+
+  if (empty) {
+    return (
+      <section style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "24px 20px 12vh", minHeight: "calc(100dvh - 60px)" }}>
+        <div className="hd-pop" style={{ width: "min(760px, 100%)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 14, marginBottom: 28 }}>
+            <HeraldMark size={36} tone="accent" />
+            <div className="hd-greeting" role="heading" aria-level={1}>{greeting()}{owner ? ", " + owner : ""}</div>
+          </div>
+          <Composer big value={input} onChange={setInput} onSend={() => send()} onStop={stop} busy={busy} disabled={!tenant}
+                    company={company} boxRef={box} placeholder={"Ask anything about " + (name || "your company") + ", or tell me what to make…"} />
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 10, marginTop: 22 }}>
+            {SUGGEST.map((s) => (
+              <button key={s.label} className="hd-chip" onClick={() => suggest(s)} disabled={!tenant}>{s.label}</button>
+            ))}
+          </div>
+          {err && <div style={{ marginTop: 12, fontSize: 13, color: "var(--vn-bad)", textAlign: "center" }}>{err}</div>}
+        </div>
+      </section>
+    );
+  }
 
   return (
-    <section className="vanna-section" style={{ paddingBottom: 12 }}>
-      <div className="vanna-card assistant-shell" style={{ display: "flex", padding: 0, height: "calc(100dvh - 150px)", minHeight: 520, overflow: "hidden", background: "var(--vn-surface)", color: "var(--vn-ink)" }}>
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--vn-surface)" }}>
-          <div ref={scroller} style={{ flex: 1, overflowY: "auto", padding: "28px 22px 12px" }}>
-            <div style={{ maxWidth: 720, margin: "0 auto" }}>
-              {loadingThread && <div style={{ padding: "24px 0" }}><span className="vn-skel" style={{ width: 260, height: 12 }} /></div>}
-              {!loadingThread && msgs.length === 0 && (
-                <div style={{ padding: "48px 0 12px", color: "var(--vn-ink-muted)", fontSize: 15, lineHeight: 1.5 }}>
-                  One line does it. Scrape every 5 minutes and make 10 posts. Add memes, ideas, GitHub, or Notion in the same line.
-                </div>
-              )}
-              {msgs.map((m, i) => m.role === "user" ? (
-                <div key={i} style={{ display: "flex", justifyContent: "flex-end", margin: "16px 0" }}>
-                  <div style={{ background: "var(--vn-raised)", borderRadius: 14, padding: "10px 14px", maxWidth: "80%", fontSize: 15, lineHeight: 1.55, whiteSpace: "pre-wrap", color: "var(--vn-ink)" }}>{m.text}</div>
-                </div>
-              ) : (
-                <div key={i} style={{ margin: "16px 0", color: "var(--vn-ink)" }}>
-                  {(m.tools || []).length > 0 && <ToolSteps tools={m.tools || []} />}
-                  {m.text && !planned(m) && <div style={{ marginTop: (m.tools || []).length ? 8 : 0 }}><Markdown text={m.text} /></div>}
-                  {m.grounding && !planned(m) && <Grounding g={m.grounding} />}
-                  {(m.cards || []).filter((c) => c.type !== "run").map((c, j) => <CardView key={j} c={c} vm={vm} onPick={pick} tenant={tenant} threadId={threadId} />)}
-                  {(m.cards || []).some((c) => c.type === "run") && (
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
-                      {Array.from(new Set((m.cards || []).filter((c) => c.type === "run").map((c) => c.run_id as string))).map((rid) => (
-                        <button key={rid} style={{ ...btn, fontFamily: MONO, fontSize: 11.5, padding: "4px 8px" }}
-                                onClick={() => (vm as any).openRun(rid)}>{rid}</button>
-                      ))}
-                    </div>
-                  )}
-                  {m.pending && !m.text && !(m.tools || []).length && (
-                    <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 6 }} aria-label="thinking">
-                      <span className="vn-skel" style={{ width: 120, height: 10, borderRadius: 5 }} />
-                      <span style={{ fontSize: 12, color: "var(--vn-ink-faint)" }}>thinking…</span>
-                    </div>
-                  )}
-                  {m.stopped && <div style={{ fontSize: 12, color: "var(--vn-ink-faint)", marginTop: 4 }}>Stopped.</div>}
-                  {m.error && <div style={{ fontSize: 13, color: "var(--vn-bad)", marginTop: 6 }}>{m.error}</div>}
-                </div>
-              ))}
+    <section style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0, height: "calc(100dvh - 60px)" }}>
+      <div ref={scroller} style={{ flex: 1, overflowY: "auto", padding: "16px 20px 8px" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          {loadingThread && <div style={{ padding: "24px 0" }}><span className="vn-skel" style={{ width: 260, height: 12, borderRadius: 6 }} /></div>}
+          {msgs.map((m, i) => m.role === "user" ? (
+            <div key={i} style={{ display: "flex", justifyContent: "flex-end", margin: "18px 0" }}>
+              <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 16, padding: "10px 15px", maxWidth: "80%", fontSize: 15, lineHeight: 1.55, whiteSpace: "pre-wrap", color: "var(--vn-ink)" }}>{m.text}</div>
             </div>
-          </div>
-
-          <div style={{ padding: "8px 16px 16px" }}>
-            <div style={{ maxWidth: 760, margin: "0 auto" }}>
-              <div style={{ display: "flex", gap: 8, alignItems: "flex-end", background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: 16, padding: 6 }}>
-                <textarea ref={box} value={input} rows={1} disabled={!tenant}
-                          onChange={(e) => setInput(e.target.value)}
-                          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                          placeholder="Ask anything"
-                          style={{ flex: 1, resize: "none", minHeight: 46, maxHeight: 160, background: "transparent", border: "none",
-                                   padding: "12px 12px", fontSize: 15, lineHeight: 1.45, fontFamily: "inherit", color: "var(--vn-ink)", outline: "none" }} />
-                {busy ? (
-                  <button style={{ background: "transparent", color: "var(--vn-ink)", border: "1px solid var(--vn-line-strong)", borderRadius: 12, padding: "12px 16px", fontWeight: 700, cursor: "pointer" }} onClick={stop}>Stop</button>
-                ) : (
-                  <button style={{ background: "var(--vn-cta)", color: "var(--vn-on-accent)", border: "none", borderRadius: 12, padding: "12px 20px", fontWeight: 700, fontSize: 15, cursor: input.trim() && tenant ? "pointer" : "default", opacity: input.trim() && tenant ? 1 : 0.45 }}
-                          disabled={!input.trim() || !tenant} onClick={() => send()}>Ask</button>
+          ) : (
+            <div key={i} style={{ margin: "18px 0", color: "var(--vn-ink)", display: "flex", gap: 12 }}>
+              <div style={{ paddingTop: 2 }}><HeraldMark size={22} tone="accent" /></div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                {(m.tools || []).length > 0 && <ToolSteps tools={m.tools || []} />}
+                {m.text && !planned(m) && <div style={{ marginTop: (m.tools || []).length ? 8 : 0 }}><Markdown text={m.text} /></div>}
+                {m.grounding && !planned(m) && <Grounding g={m.grounding} />}
+                {(m.cards || []).filter((c) => c.type !== "run").map((c, j) => <CardView key={j} c={c} vm={vm} onPick={pick} tenant={tenant} threadId={threadId} />)}
+                {(m.cards || []).some((c) => c.type === "run") && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
+                    {Array.from(new Set((m.cards || []).filter((c) => c.type === "run").map((c) => c.run_id as string))).map((rid) => (
+                      <button key={rid} style={{ ...btn, fontFamily: MONO, fontSize: 11.5, padding: "4px 8px" }}
+                              onClick={() => (vm as any).openRun(rid)}>{rid}</button>
+                    ))}
+                  </div>
                 )}
-              </div>
-              <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
-                {tenants.length > 1 ? (
-                  <select value={tenant} onChange={(e) => setTenant(e.target.value)} disabled={busy} aria-label="Company"
-                          style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-body)", background: "var(--vn-raised)", border: "1px solid var(--vn-line)", borderRadius: 99, padding: "4px 10px" }}>
-                    {tenants.map((t) => <option key={t} value={t}>{names[t] || t}</option>)}
-                  </select>
-                ) : (
-                  <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-body)", border: "1px solid var(--vn-line)", borderRadius: 99, padding: "4px 10px", background: "var(--vn-raised)" }}>{name || "Company"}</span>
+                {planned(m) && onAutopilot && (
+                  <button className="hd-btn" style={{ marginTop: 10 }} onClick={onAutopilot}>Open Autopilot</button>
                 )}
+                {m.pending && !m.text && !(m.tools || []).length && (
+                  <div style={{ display: "flex", gap: 8, alignItems: "center", marginTop: 4 }} aria-label="thinking">
+                    <span className="vn-skel" style={{ width: 140, height: 10, borderRadius: 5 }} />
+                    <span style={{ fontSize: 12.5, color: "var(--vn-ink-faint)" }}>Thinking…</span>
+                  </div>
+                )}
+                {m.stopped && <div style={{ fontSize: 12.5, color: "var(--vn-ink-faint)", marginTop: 4 }}>Stopped.</div>}
+                {m.error && <div style={{ fontSize: 13, color: "var(--vn-bad)", marginTop: 6 }}>{m.error}</div>}
               </div>
-              {err && <div style={{ marginTop: 6, fontSize: 12.5, color: "var(--vn-bad)" }}>{err}</div>}
             </div>
+          ))}
+        </div>
+      </div>
+      <div style={{ padding: "8px 20px 18px" }}>
+        <div style={{ maxWidth: 760, margin: "0 auto" }}>
+          <Composer value={input} onChange={setInput} onSend={() => send()} onStop={stop} busy={busy} disabled={!tenant}
+                    company={company} boxRef={box} placeholder={"Reply about " + (name || "your company") + "…"} />
+          {err && <div style={{ marginTop: 6, fontSize: 12.5, color: "var(--vn-bad)" }}>{err}</div>}
+          <div style={{ fontSize: 11.5, color: "var(--vn-ink-faint)", textAlign: "center", marginTop: 8 }}>
+            Answers come from {name || "the company"}’s sources. Nothing is published from here.
           </div>
         </div>
-        <WorkRail vm={vm} />
       </div>
     </section>
   );

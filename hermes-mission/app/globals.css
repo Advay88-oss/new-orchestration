@@ -1,125 +1,130 @@
-/* Vanna Mission Control — light, warm-monochrome theme.
-   Colour is scarce: ink and hairlines carry the layout, the violet accent marks
-   the one thing to act on, and the pastels carry status only. */
+/* Herald — warm off-white, hairlines, one green accent, solid ink actions.
+   Colour is scarce: ink and hairlines carry the layout, the green marks the
+   brand and live state, and the pastels carry status only. */
 
 :root {
-  --vn-bg: #FBFBFA;         /* page + shell */
+  --vn-bg: #F9F8F6;         /* page */
   --vn-surface: #FFFFFF;    /* cards */
-  --vn-raised: #F4F3F0;     /* hover, and panels nested inside a card */
-  --vn-sunken: #F7F6F3;     /* inputs and wells */
-  --vn-hover: rgba(17, 17, 17, 0.035);
-  --vn-overlay: rgba(17, 17, 17, 0.28);
+  --vn-raised: #F1F0EC;     /* hover, nested panels */
+  --vn-sunken: #F3F2EE;     /* sidebar, inputs and wells */
+  --vn-hover: rgba(28, 27, 25, 0.04);
+  --vn-overlay: rgba(28, 27, 25, 0.28);
 
-  --vn-line: #EAEAEA;
-  --vn-line-strong: #D9D8D4;
+  --vn-line: #E8E6E1;
+  --vn-line-strong: #D7D4CD;
   --vn-lit: 0 0 0 0 transparent;
+  --vn-shadow: 0 1px 2px rgba(28, 27, 25, 0.05), 0 0 0 1px rgba(28, 27, 25, 0.04);
+  --vn-shadow-lg: 0 12px 32px rgba(28, 27, 25, 0.08), 0 1px 3px rgba(28, 27, 25, 0.06);
 
-  --vn-ink: #111111;        /* headings, key figures */
-  --vn-ink-body: #2F3437;   /* running text */
-  --vn-ink-muted: #787774;  /* labels */
-  --vn-ink-faint: #A5A39E;  /* metadata, timestamps */
+  --vn-ink: #1C1B19;        /* headings, key figures */
+  --vn-ink-body: #3A3935;   /* running text */
+  --vn-ink-muted: #75736D;  /* labels */
+  --vn-ink-faint: #A3A09A;  /* metadata, timestamps */
 
-  /* One accent: Vanna's violet. -ink is the same hue dark enough for text. */
-  --vn-accent: #703AE6;
-  --vn-accent-light: #5B2FC2;
-  --vn-accent-ink: #5B2FC2;
-  --vn-accent-soft: #F3EFFC;
-  --vn-accent-line: #DCD0F7;
-  --vn-rose: #B83280;       /* live state only, never decoration */
+  /* One accent: Herald green. -ink is the same hue dark enough for text. */
+  --vn-accent: #2F6B57;
+  --vn-accent-light: #24584A;
+  --vn-accent-ink: #24584A;
+  --vn-accent-soft: #E8F1ED;
+  --vn-accent-line: #C6DBD2;
+  --vn-rose: #B4553A;       /* live state only, never decoration */
   --vn-on-accent: #FFFFFF;
 
-  /* Primary action: solid ink, not a gradient. */
-  --vn-cta: #111111;
-  --vn-cta-hover: #333333;
+  /* Primary action: solid ink. */
+  --vn-cta: #1C1B19;
+  --vn-cta-hover: #34332F;
 
-  --vn-ok: #346538;       --vn-ok-soft: #EDF3EC;   --vn-ok-line: #CFE0CC;
-  --vn-warn: #956400;     --vn-warn-soft: #FBF3DB; --vn-warn-line: #EDDDAA;
-  --vn-bad: #9F2F2D;      --vn-bad-soft: #FDEBEC;  --vn-bad-line: #F3C9C8;
+  --vn-ok: #2F7A4F;       --vn-ok-soft: #E7F2EA;   --vn-ok-line: #C9E0CF;
+  --vn-warn: #94660E;     --vn-warn-soft: #FAF1DC; --vn-warn-line: #EEDDB0;
+  --vn-bad: #A23B32;      --vn-bad-soft: #FBEAE7;  --vn-bad-line: #F1CCC6;
 
-  --vn-header-bg: rgba(251, 251, 250, 0.86);
-  --vn-skel-hi: #ECEBE7;
-  --vn-scroll: #DEDDD9;
-  --vn-scroll-hover: #C9C8C3;
+  --vn-header-bg: rgba(249, 248, 246, 0.86);
+  --vn-skel-hi: #EAE8E3;
+  --vn-scroll: #DDDAD3;
+  --vn-scroll-hover: #C9C6BE;
   color-scheme: light;
 
   --font-display: var(--font-serif), "Newsreader", Georgia, serif;
   --vn-radius: 10px;
 
-  /* One grid for the whole page: the header, the console and every view sit
-     on the same left and right edges at any width. */
-  --vn-max: 1440px;
-  --vn-gutter: clamp(16px, 3vw, 48px);
+  /* One grid for the whole page: the header and every view sit on the same
+     left and right edges at any width. */
+  --vn-max: 1200px;
+  --vn-gutter: clamp(16px, 3vw, 40px);
   --vn-inline: max(var(--vn-gutter), calc((100% - var(--vn-max)) / 2 + var(--vn-gutter)));
-  --vn-space: 24px;        /* between blocks */
-  --vn-card-pad: 24px;     /* inside cards */
+  --vn-space: 20px;        /* between blocks */
+  --vn-card-pad: 22px;     /* inside cards */
+  --vn-rail: 272px;        /* the sidebar */
 }
 
-/* Dark theme: the same warm neutrals, inverted — not a purple-black. The
-   violet stays the one accent; CTAs become the violet so white text reads
-   on them in both themes. Chosen by the sidebar switch (data-theme), or by
-   the OS when the switch is on System. */
+/* Dark: the same warm neutrals, inverted. Chosen by the sidebar switch
+   (data-theme), or by the OS when no choice is saved. */
 :root[data-theme="dark"] {
-  --vn-bg: #111110;
-  --vn-surface: #191918;
-  --vn-raised: #232321;
-  --vn-sunken: #151514;
+  --vn-bg: #141413;
+  --vn-surface: #1C1C1A;
+  --vn-raised: #252523;
+  --vn-sunken: #181817;
   --vn-hover: rgba(255, 255, 255, 0.045);
   --vn-overlay: rgba(0, 0, 0, 0.55);
-  --vn-line: #2A2A28;
-  --vn-line-strong: #3A3A37;
-  --vn-ink: #EDEDEC;
-  --vn-ink-body: #C9C8C4;
-  --vn-ink-muted: #9B9A95;
-  --vn-ink-faint: #6F6E6A;
-  --vn-accent: #7C4DEB;
-  --vn-accent-light: #B69CFF;
-  --vn-accent-ink: #B69CFF;
-  --vn-accent-soft: #241D38;
-  --vn-accent-line: #3D3161;
-  --vn-rose: #E0609F;
-  --vn-on-accent: #FFFFFF;
-  --vn-cta: #7C4DEB;
-  --vn-cta-hover: #8B61F0;
-  --vn-ok: #7FD49A;   --vn-ok-soft: #16271B;   --vn-ok-line: #24402C;
-  --vn-warn: #E3B35A; --vn-warn-soft: #2B2412; --vn-warn-line: #4A3D1E;
-  --vn-bad: #F08A86;  --vn-bad-soft: #2E1716;  --vn-bad-line: #4E2624;
-  --vn-header-bg: rgba(17, 17, 16, 0.86);
-  --vn-skel-hi: #2C2C2A;
-  --vn-scroll: #34342F;
-  --vn-scroll-hover: #45453F;
+  --vn-line: #2B2A27;
+  --vn-line-strong: #3A3935;
+  --vn-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+  --vn-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --vn-ink: #EDECE8;
+  --vn-ink-body: #CBC9C3;
+  --vn-ink-muted: #9A9892;
+  --vn-ink-faint: #6E6C67;
+  --vn-accent: #5FAE92;
+  --vn-accent-light: #8CCAB3;
+  --vn-accent-ink: #8CCAB3;
+  --vn-accent-soft: #19271F;
+  --vn-accent-line: #2A4337;
+  --vn-rose: #E08A6E;
+  --vn-on-accent: #141413;
+  --vn-cta: #EDECE8;
+  --vn-cta-hover: #FFFFFF;
+  --vn-ok: #7FC99A;   --vn-ok-soft: #16261C;   --vn-ok-line: #24402C;
+  --vn-warn: #E1B45E; --vn-warn-soft: #2A2312; --vn-warn-line: #4A3D1E;
+  --vn-bad: #EE8C82;  --vn-bad-soft: #2D1715;  --vn-bad-line: #4E2624;
+  --vn-header-bg: rgba(20, 20, 19, 0.86);
+  --vn-skel-hi: #2C2C29;
+  --vn-scroll: #34332F;
+  --vn-scroll-hover: #45443F;
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"]) {
-    --vn-bg: #111110;
-    --vn-surface: #191918;
-    --vn-raised: #232321;
-    --vn-sunken: #151514;
+    --vn-bg: #141413;
+    --vn-surface: #1C1C1A;
+    --vn-raised: #252523;
+    --vn-sunken: #181817;
     --vn-hover: rgba(255, 255, 255, 0.045);
     --vn-overlay: rgba(0, 0, 0, 0.55);
-    --vn-line: #2A2A28;
-    --vn-line-strong: #3A3A37;
-    --vn-ink: #EDEDEC;
-    --vn-ink-body: #C9C8C4;
-    --vn-ink-muted: #9B9A95;
-    --vn-ink-faint: #6F6E6A;
-    --vn-accent: #7C4DEB;
-    --vn-accent-light: #B69CFF;
-    --vn-accent-ink: #B69CFF;
-    --vn-accent-soft: #241D38;
-    --vn-accent-line: #3D3161;
-    --vn-rose: #E0609F;
-    --vn-on-accent: #FFFFFF;
-    --vn-cta: #7C4DEB;
-    --vn-cta-hover: #8B61F0;
-    --vn-ok: #7FD49A;   --vn-ok-soft: #16271B;   --vn-ok-line: #24402C;
-    --vn-warn: #E3B35A; --vn-warn-soft: #2B2412; --vn-warn-line: #4A3D1E;
-    --vn-bad: #F08A86;  --vn-bad-soft: #2E1716;  --vn-bad-line: #4E2624;
-    --vn-header-bg: rgba(17, 17, 16, 0.86);
-    --vn-skel-hi: #2C2C2A;
-    --vn-scroll: #34342F;
-    --vn-scroll-hover: #45453F;
+    --vn-line: #2B2A27;
+    --vn-line-strong: #3A3935;
+    --vn-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
+    --vn-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    --vn-ink: #EDECE8;
+    --vn-ink-body: #CBC9C3;
+    --vn-ink-muted: #9A9892;
+    --vn-ink-faint: #6E6C67;
+    --vn-accent: #5FAE92;
+    --vn-accent-light: #8CCAB3;
+    --vn-accent-ink: #8CCAB3;
+    --vn-accent-soft: #19271F;
+    --vn-accent-line: #2A4337;
+    --vn-rose: #E08A6E;
+    --vn-on-accent: #141413;
+    --vn-cta: #EDECE8;
+    --vn-cta-hover: #FFFFFF;
+    --vn-ok: #7FC99A;   --vn-ok-soft: #16261C;   --vn-ok-line: #24402C;
+    --vn-warn: #E1B45E; --vn-warn-soft: #2A2312; --vn-warn-line: #4A3D1E;
+    --vn-bad: #EE8C82;  --vn-bad-soft: #2D1715;  --vn-bad-line: #4E2624;
+    --vn-header-bg: rgba(20, 20, 19, 0.86);
+    --vn-skel-hi: #2C2C29;
+    --vn-scroll: #34332F;
+    --vn-scroll-hover: #45443F;
     color-scheme: dark;
   }
 }
@@ -165,15 +170,16 @@ h1, h2, h3, h4 {
   text-wrap: balance;
 }
 
-/* Page and section titles set in the serif; smaller heads stay in the sans. */
+/* Titles in the sans, tight and semibold. The serif is kept for the
+   Assistant's greeting only. */
 h1, h2 {
-  font-family: var(--font-display);
-  font-weight: 400 !important;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-weight: 600 !important;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
 }
-h1 { font-size: clamp(26px, 1.6vw + 12px, 34px) !important; }
-h2 { font-size: clamp(24px, 1.4vw + 12px, 30px) !important; }
+h1 { font-size: clamp(24px, 1.2vw + 14px, 30px) !important; }
+h2 { font-size: clamp(20px, 0.9vw + 13px, 24px) !important; }
 h3 { font-size: clamp(14px, 0.8vw + 8px, 16px); font-weight: 600; }
 h4 { font-size: clamp(13px, 0.6vw + 8px, 15px); font-weight: 600; }
 
@@ -234,7 +240,7 @@ kbd {
 }
 
 ::selection {
-  background: var(--vn-accent-soft);
+  background: var(--vn-accent-line);
   color: var(--vn-ink);
 }
 
@@ -318,13 +324,13 @@ table, .num {
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
   background: var(--vn-surface);
   border: 1px solid var(--vn-line);
-  box-shadow: none;
-  border-radius: 12px;
+  box-shadow: 0 1px 2px rgba(28, 27, 25, 0.03);
+  border-radius: 14px;
   padding: var(--vn-card-pad);
 }
 
 .vanna-card:hover {
-  box-shadow: 0 2px 8px rgba(17, 17, 17, 0.04);
+  box-shadow: 0 2px 10px rgba(28, 27, 25, 0.05);
 }
 
 :root[data-theme="dark"] .vanna-card:hover {
@@ -415,7 +421,7 @@ table, .num {
 
 /* ── BREAKPOINT RULES ─────────────────────────────────────────────────────── */
 
-@media (max-width: 1279px) {
+@media (max-width: 1023px) {
   :root {
     --vn-space: 16px;
     --vn-card-pad: 18px;
@@ -468,7 +474,7 @@ table, .num {
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1024px) {
   .mobile-only {
     display: none !important;
   }
@@ -510,7 +516,7 @@ pre, code {
   position: fixed;
   top: 0;
   left: 0;
-  width: 240px;
+  width: var(--vn-rail);
   height: 100vh;
   z-index: 30;
   overflow-y: auto;
@@ -518,11 +524,11 @@ pre, code {
 }
 
 .app-shell-main {
-  margin-left: 240px;
-  max-width: calc(100% - 240px);
+  margin-left: var(--vn-rail);
+  max-width: calc(100% - var(--vn-rail));
 }
 
-@media (max-width: 1279px) {
+@media (max-width: 1023px) {
   /* Rail is hidden at this width; the drawer takes over and the gutter goes. */
   .app-shell-main {
     margin-left: 0;
@@ -553,3 +559,148 @@ pre, code {
   .assistant-work { width: 100% !important; flex: none !important; border-left: none !important; border-top: 1px solid var(--vn-line); max-height: 360px; }
 }
 .assistant-shell textarea::placeholder { color: var(--vn-ink-faint); }
+
+
+/* --- HERALD SHELL --------------------------------------------------------- */
+.hd-nav-item {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 7px 10px; border-radius: 9px; border: 1px solid transparent;
+  background: transparent; color: var(--vn-ink-body); font-size: 14px;
+  line-height: 20px; font-weight: 450; text-align: left; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.hd-nav-item:hover { background: var(--vn-hover); color: var(--vn-ink); filter: none; }
+.hd-nav-item[aria-current="page"] {
+  background: var(--vn-surface); color: var(--vn-ink); font-weight: 550;
+  box-shadow: var(--vn-shadow);
+}
+.hd-nav-item svg { flex: 0 0 auto; color: var(--vn-ink-muted); }
+.hd-nav-item[aria-current="page"] svg { color: var(--vn-ink); }
+.hd-section-label {
+  font-size: 12px; color: var(--vn-ink-faint); font-weight: 500;
+  padding: 18px 10px 6px;
+}
+.hd-chip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+  border-radius: 999px; border: 1px solid var(--vn-line); background: var(--vn-surface);
+  color: var(--vn-ink-body); font-size: 13.5px; cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.hd-chip:hover { border-color: var(--vn-line-strong); background: var(--vn-raised); filter: none; }
+.hd-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px;
+  border-radius: 999px; font-size: 12px; font-weight: 500; line-height: 18px;
+}
+.hd-dot { width: 7px; height: 7px; border-radius: 999px; display: inline-block; flex: 0 0 7px; }
+.hd-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  border-radius: 9px; padding: 8px 14px; font-size: 13.5px; font-weight: 550;
+  border: 1px solid var(--vn-line-strong); background: var(--vn-surface); color: var(--vn-ink);
+  cursor: pointer; text-decoration: none;
+}
+.hd-btn:hover { background: var(--vn-raised); color: var(--vn-ink); filter: none; }
+.hd-btn-dark { background: var(--vn-cta); border-color: var(--vn-cta); color: var(--vn-on-accent); }
+.hd-btn-dark:hover { background: var(--vn-cta-hover); color: var(--vn-on-accent); }
+.hd-icon-btn {
+  display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px;
+  border-radius: 8px; border: none; background: transparent; color: var(--vn-ink-muted); cursor: pointer;
+}
+.hd-icon-btn:hover { background: var(--vn-hover); color: var(--vn-ink); filter: none; }
+.hd-composer {
+  background: var(--vn-surface); border: 1px solid var(--vn-line); border-radius: 18px;
+  box-shadow: 0 1px 2px rgba(28, 27, 25, 0.04), 0 8px 24px rgba(28, 27, 25, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.hd-composer:focus-within { border-color: var(--vn-line-strong); }
+.hd-composer textarea { outline: none; }
+.hd-composer textarea:focus-visible { outline: none; }
+.hd-greeting {
+  font-family: var(--font-display); font-weight: 400; letter-spacing: -0.02em;
+  font-size: clamp(34px, 3.4vw + 10px, 52px); line-height: 1.1; color: var(--vn-ink);
+}
+.hd-drawer {
+  position: fixed; top: 0; right: 0; height: 100vh; width: min(400px, 100vw); z-index: 90;
+  background: var(--vn-bg); border-left: 1px solid var(--vn-line); box-shadow: var(--vn-shadow-lg);
+  display: flex; flex-direction: column;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hd-drawer { animation: hd-slide 260ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .hd-pop { animation: vn-rise 220ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+}
+@keyframes hd-slide { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.hd-topbar {
+  position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; height: 60px; padding: 0 20px 0 24px; background: var(--vn-header-bg); backdrop-filter: blur(12px);
+}
+.hd-crumbs { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--vn-ink-muted); min-width: 0; }
+.hd-crumbs b { color: var(--vn-ink); font-weight: 550; }
+@media (max-width: 1023px) {
+  .hd-topbar { padding: 0 12px; }
+}
+
+.hd-page-head { padding: 18px var(--vn-inline) 0; }
+.hd-page-head h1 { margin: 0; font-size: 26px !important; letter-spacing: -0.025em; }
+.hd-page-head p { margin: 6px 0 0; font-size: 14px; color: var(--vn-ink-muted); max-width: 72ch; }
+.hd-page-head + .vanna-section { padding-top: 18px; }
+
+code, kbd, pre { font-family: var(--font-jetbrains-mono), ui-monospace, monospace; }
+main { overflow-wrap: break-word; }
+main a, main span { overflow-wrap: anywhere; }
+table td span, table td a { overflow-wrap: normal; }
+
+/* --- LANDING (/) ---------------------------------------------------------- */
+.lp a { text-decoration: none; }
+.lp-wrap { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+.lp-nav { position: sticky; top: 0; z-index: 30; background: var(--vn-header-bg); backdrop-filter: blur(12px); border-bottom: 1px solid var(--vn-line); }
+.lp-h1 {
+  font-family: var(--font-sans), system-ui, sans-serif; font-weight: 600 !important; letter-spacing: -0.035em;
+  font-size: clamp(38px, 4.4vw + 14px, 68px) !important; line-height: 1.04; max-width: 820px; margin: 22px auto 22px;
+}
+.lp-h2 { font-size: clamp(26px, 2vw + 14px, 38px) !important; letter-spacing: -0.03em; line-height: 1.12; margin: 0; max-width: 620px; }
+.lp-lead { font-size: 15.5px; color: var(--vn-ink-muted); max-width: 520px; margin: 16px 0 0; line-height: 1.6; }
+.lp-section { padding: 110px 0 0; }
+.lp-band { margin-top: 110px; background: var(--vn-sunken); border-top: 1px solid var(--vn-line); border-bottom: 1px solid var(--vn-line); }
+.lp-band .lp-section { padding: 90px 0 96px; }
+.lp-strip {
+  display: flex; justify-content: center; flex-wrap: wrap; gap: 14px 48px; padding: 30px 16px; margin-top: 56px;
+  border-top: 1px solid var(--vn-line); border-bottom: 1px solid var(--vn-line); color: var(--vn-ink-muted); font-size: 14px; font-weight: 500;
+}
+.lp-pipe-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) minmax(0, 1.35fr); gap: 18px; padding: 20px; }
+.lp-col-title { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--vn-ink-faint); margin-bottom: 10px; }
+.lp-node {
+  display: flex; align-items: center; gap: 6px; padding: 7px 10px; margin-bottom: 7px; font-size: 12.5px; border-radius: 8px;
+  border: 1px solid var(--vn-line); background: var(--vn-surface); color: var(--vn-ink-body); transition: all 0.3s ease;
+}
+.lp-node[data-state="todo"] { color: var(--vn-ink-faint); background: transparent; }
+.lp-node[data-state="live"] { border-color: var(--vn-accent-line); background: var(--vn-accent-soft); color: var(--vn-ink); font-weight: 550; }
+@keyframes lp-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.lp-pulse { animation: lp-pulse 1.2s ease-in-out infinite; }
+.lp-bento { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 14px; margin-top: 40px; }
+.lp-card { background: var(--vn-surface); border: 1px solid var(--vn-line); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; min-height: 250px; }
+.lp-card h3 { font-size: 15.5px; margin: 0 0 6px; font-weight: 600; }
+.lp-card p { font-size: 13.5px; color: var(--vn-ink-muted); margin: 0 0 18px; line-height: 1.55; }
+.lp-well { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 12px; background: var(--vn-sunken); border: 1px solid var(--vn-line); }
+.lp-agents { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; margin-top: 44px; }
+.lp-split { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
+.lp-principles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 44px; background: var(--vn-surface); border: 1px solid var(--vn-line); border-radius: 16px; }
+.lp-principles > div + div { border-left: 1px solid var(--vn-line); }
+@media (max-width: 900px) {
+  .lp-pipe-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lp-bento { grid-template-columns: 1fr; }
+  .lp-bento > .lp-card { grid-column: auto !important; min-height: 0; }
+  .lp-agents, .lp-principles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lp-principles > div:nth-child(3) { border-left: none; }
+  .lp-principles > div:nth-child(n+3) { border-top: 1px solid var(--vn-line); }
+  .lp-split { grid-template-columns: 1fr; gap: 28px; }
+  .lp-links { display: none !important; }
+}
+@media (max-width: 560px) {
+  .lp-pipe-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 14px; gap: 12px; }
+  .lp-pipe-grid > div:last-child { grid-column: 1 / -1; }
+  .lp-agents, .lp-principles { grid-template-columns: 1fr; }
+  .lp-principles > div { border-left: none !important; }
+  .lp-principles > div + div { border-top: 1px solid var(--vn-line); }
+  .lp-hide-sm { display: none !important; }
+}
+
+@media (max-width: 560px) { .hd-know-text { display: none; } }

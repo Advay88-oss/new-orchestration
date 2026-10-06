@@ -135,7 +135,7 @@ export function VannaReferences({ focusId = "" }: { focusId?: string }) {
               <CompanyChip company={(data.company || "vanna").toLowerCase()} /> SCOUT HARVEST × ANALYST READING
             </span>
             <p style={{ margin: "8px 0 0", fontSize: 13.5, color: "var(--vn-ink-body)", lineHeight: 1.45, maxWidth: 640 }}>
-              Same docs, posts and articles as Scraped Intelligence. The post idea on each one is what the strategist, copywriter and poster write from.
+              Same docs, posts and articles as Signals. The post idea on each one is what the strategist, copywriter and poster write from.
             </p>
             <h3 style={{ fontSize: 19, fontWeight: 700, color: "var(--vn-ink)", margin: "4px 0 0" }}>
               {items.length} live references

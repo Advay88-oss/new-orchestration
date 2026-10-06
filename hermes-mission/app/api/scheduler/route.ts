@@ -97,6 +97,7 @@ export async function GET() {
           (listed as any).posts = paused.has('gtm_cycle') ? 'stopped' : 'on';
           (listed as any).until = typeof chosen._until === 'string' ? chosen._until : '';
           (listed as any).posts_left = typeof chosen._posts_left === 'number' ? chosen._posts_left : null;
+          (listed as any).chain = chosen._post_chain && typeof chosen._post_chain === 'object' ? chosen._post_chain : null;
         } catch { /* the yaml interval stands */ }
       }
       return NextResponse.json(listed);

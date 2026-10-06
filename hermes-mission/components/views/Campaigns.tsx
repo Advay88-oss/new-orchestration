@@ -78,8 +78,6 @@ export function Campaigns() {
   return (
     <div className="vanna-section">
       <div style={card}>
-        <div style={label}>For the GTM engineer</div>
-        <h2 style={{ fontSize: 24, fontWeight: 800, color: "var(--vn-ink)", margin: "4px 0 8px" }}>Campaigns</h2>
         <p style={{ fontSize: 13.5, color: "var(--vn-ink-muted)", maxWidth: 760, lineHeight: 1.5, margin: 0 }}>
           Tell the Assistant the campaign and the source. Each source keeps its own list here.
           The table is numbered by people who joined, most first. Campaigns that 0 or 1 people joined are left out.

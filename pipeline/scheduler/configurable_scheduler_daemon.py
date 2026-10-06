@@ -38,6 +38,9 @@ OUTCOMES_FILE = STATE_DIR / "outcomes.jsonl"
 for d in [STATE_DIR, PANELS_DIR, ALT_PANELS_DIR, REPO_ROOT / "registry", REPO_ROOT / "config"]:
     d.mkdir(parents=True, exist_ok=True)
 
+# The daemon runs each due job on its own thread; state writes take turns.
+_STATE_LOCK = threading.Lock()
+
 
 def ensure_spend_proxy_running():
     """Checks if :8900 spend proxy is up; if not, automatically spawns it."""
@@ -204,6 +207,33 @@ class SchedulerEngine:
             pass
         SCHEDULER_STATE_FILE.write_text(json.dumps(self.state, indent=2), encoding="utf-8")
 
+    def save_job(self, job_name: str) -> None:
+        """Write one job's record and leave every other job as it is on disk.
+
+        Jobs run side by side in the daemon. A whole-file save from one job
+        would put its stale copy of another job's status back."""
+        with _STATE_LOCK:
+            try:
+                from pipeline.gtm_os.state_sync import merge_scheduler_state_from_bucket
+                merge_scheduler_state_from_bucket()
+            except Exception:
+                pass
+            try:
+                on_disk = json.loads(SCHEDULER_STATE_FILE.read_text(encoding="utf-8")) \
+                    if SCHEDULER_STATE_FILE.exists() else {}
+            except (OSError, ValueError):
+                on_disk = {}
+            if not isinstance(on_disk, dict):
+                on_disk = {}
+            rec = dict(self.state[job_name])
+            theirs = on_disk.get(job_name) if isinstance(on_disk.get(job_name), dict) else {}
+            # A later claim on disk (another tick, another process) keeps its clock.
+            if str(theirs.get("last_run") or "") > str(rec.get("last_run") or ""):
+                rec["last_run"] = theirs["last_run"]
+            on_disk[job_name] = rec
+            self.state = on_disk
+            SCHEDULER_STATE_FILE.write_text(json.dumps(on_disk, indent=2), encoding="utf-8")
+
     def log_spend(self, job_name: str, model_id: str, input_tokens: int, output_tokens: int, cost_usd: float) -> None:
         """Logs job spend accounting to registry/spend.jsonl."""
         entry = {
@@ -253,7 +283,7 @@ class SchedulerEngine:
                 rec["status"] = "DISABLED_AUTO_BACKOFF"
                 print(f"🚨 [SCHEDULER ALERT] Job '{job_name}' disabled after 3 consecutive failures. Requires manual review.")
 
-        self.save_state()
+        self.save_job(job_name)
 
     def get_status_overview(self) -> Dict[str, Any]:
         """Provides status overview for all jobs."""
@@ -553,44 +583,82 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
     print("   Press Ctrl+C to terminate.")
     print("=" * 80)
 
-    engine = SchedulerEngine()
+    from pipeline.scheduler import cloud_cron
+
+    # One thread per running job, so a 20-minute post does not hold up a
+    # 2-minute scrape. A job never overlaps itself.
+    busy: Dict[str, threading.Thread] = {}
+    cloud, checked, pulled = False, 0.0, 0.0
+
+    def fire(name: str) -> None:
+        res = SchedulerEngine().execute_job(name)
+        if name == "gtm_cycle" and res.get("status") == "COMPLETED":
+            _consume_post()
 
     while True:
         try:
+            now = time.time()
+            # When GCP keeps the clock this machine only mirrors it. Checked
+            # every 5 minutes; the tick can be paused or resumed at any time.
+            if now - checked > 300:
+                was, cloud, checked = cloud, cloud_cron.tick_live(), now
+                if cloud != was:
+                    print("☁️  GCP keeps the clock; this machine mirrors it." if cloud
+                          else "💻 This machine keeps the clock.")
+            chosen = _read_intervals()
+            own_cron = {str(n) for n in (chosen.get("_cron") or [])}
+            if (cloud or own_cron) and now - pulled > 60:
+                pulled = now
+                cloud_cron.pull_clock()
+            if cloud:
+                time.sleep(poll_interval_s)
+                continue
+
             _expire_timeline()
+            for name, th in list(busy.items()):
+                if not th.is_alive():
+                    busy.pop(name)
             cfg = load_yaml_config()
+            state = SchedulerEngine().load_state()
             now_dt = datetime.now(timezone.utc)
 
             for j_name, j_data in cfg.get("jobs", {}).items():
-                if not j_data.get("enabled", True):
+                if j_name in busy or not j_data.get("enabled", True):
                     continue
-
-                interval_str = j_data.get("interval", "24h")
-                interval_s = parse_interval_to_seconds(interval_str)
-
-                job_st = engine.state.get(j_name, {})
-                last_run_str = job_st.get("last_run")
-
-                should_run = False
-                if not last_run_str:
-                    should_run = True
-                else:
+                # A job with its own Cloud Scheduler cron runs there, not here.
+                if j_name in own_cron:
+                    continue
+                rec = state.get(j_name, {}) or {}
+                if rec.get("status") == "DISABLED_AUTO_BACKOFF":
+                    continue
+                interval_s = parse_interval_to_seconds(j_data.get("interval", "24h"))
+                if j_name == "gtm_cycle" and _chain_where():
+                    if _chain_where() == "cloud":
+                        continue
+                    wait = CHAIN_RETRY_S if rec.get("status") == "FAILED" else 0
+                    if not _chain_due(rec, wait):
+                        continue
+                    interval_s = 0
+                last_run_str = rec.get("last_run")
+                should_run = not last_run_str
+                if last_run_str:
                     try:
                         last_dt = datetime.fromisoformat(last_run_str)
-                        if (now_dt - last_dt).total_seconds() >= interval_s:
-                            should_run = True
-                    except Exception:
+                        if last_dt.tzinfo is None:
+                            last_dt = last_dt.replace(tzinfo=timezone.utc)
+                        should_run = (now_dt - last_dt).total_seconds() >= interval_s
+                    except ValueError:
                         should_run = True
+                if not should_run:
+                    continue
 
-                if should_run:
-                    from pipeline.gtm_os.state_sync import claim_scheduler_job
-                    claimed, _why = claim_scheduler_job(j_name, interval_s)
-                    if not claimed:
-                        continue
-                    engine.state = engine.load_state()
-                    engine.execute_job(j_name)
-                    if j_name == "gtm_cycle":
-                        _consume_post()
+                from pipeline.gtm_os.state_sync import claim_scheduler_job
+                claimed, _why = claim_scheduler_job(j_name, interval_s)
+                if not claimed:
+                    continue
+                th = threading.Thread(target=fire, args=(j_name,), name="job-" + j_name, daemon=True)
+                busy[j_name] = th
+                th.start()
 
             time.sleep(poll_interval_s)
         except KeyboardInterrupt:
@@ -631,6 +699,21 @@ def run_scheduler_tick() -> dict:
             continue
         if j_name in set(_read_intervals().get("_cron") or []):
             skipped.append({"job": j_name, "why": "its own cron"})
+            continue
+        if j_name == "gtm_cycle" and _chain_where():
+            # Each counted post starts the next one. The tick only restarts
+            # a chain that stalled (a failed post starts nothing).
+            rec = engine.state.get(j_name, {}) or {}
+            if rec.get("status") != "DISABLED_AUTO_BACKOFF" and _chain_due(rec, CHAIN_STALL_S):
+                from pipeline.scheduler.cloud_cron import execute_now
+                chosen = _read_intervals()
+                chosen["_post_chain"] = {**chosen["_post_chain"], "where": "cloud",
+                                         "kicked": now_dt.isoformat()}
+                _write_intervals(chosen)
+                ok, why = execute_now(j_name)
+                fired.append({"job": j_name, "ok": ok, "chain": "restarted", "error": why})
+            else:
+                skipped.append({"job": j_name, "why": "posts by count run one after another"})
             continue
 
         interval_s = parse_interval_to_seconds(j_data.get("interval", "24h"))
@@ -934,12 +1017,13 @@ def parse_tell(text: str) -> dict:
             "Say which job that gap is for: headlines, competitor Twitter, campaigns, "
             "memes, ideas, trends, GitHub, Notion, or a post."
         )
-    floor = False
+    # "Make 10 posts" with no gap of its own: one after another, each as soon
+    # as the last one is done. A gap the owner named for posts is kept.
+    chain = False
     if posts_left:
         names.add("gtm_cycle")
         if "gtm_cycle" not in assigned:
-            assigned["gtm_cycle"] = "20m"
-            floor = True
+            chain = True
     if "notion_sync" in names and "notion_sync" not in assigned and re.search(r"\b(daily|every day|roz)\b", low):
         assigned["notion_sync"] = "24h"
     stopping = re.search(r"\b(stop|pause|ruk|roko|band|hold)\b", low)
@@ -953,7 +1037,7 @@ def parse_tell(text: str) -> dict:
         jobs = [{"job": name, "interval": assigned.get(name)} for name in _JOB_NAMES if name in names]
         if not jobs:
             raise ValueError("Say what to run: scrape, posts, memes, ideas, GitHub, or Notion.")
-        return {"action": "plan", "jobs": jobs, "until": until, "posts_left": posts_left, "floor": floor,
+        return {"action": "plan", "jobs": jobs, "until": until, "posts_left": posts_left, "chain": chain,
                 "dropped_post": "gtm_cycle" in asked and "gtm_cycle" not in names}
     if stopping:
         jobs = _JOB_NAMES if everything else (sorted(names) or ["gtm_cycle"])
@@ -976,6 +1060,56 @@ def _enforce_gap(name: str, interval: str, job: dict) -> None:
     )
 
 
+# Posts asked for by count ("make 10 posts") run one after another: the next
+# starts when the last one ends, not on a clock. `_post_chain.where` says who
+# starts them: this machine's daemon, or GCP (each post starts the next).
+CHAIN_RETRY_S = 20 * 60      # after a failed post, wait this long before the next
+CHAIN_STALL_S = 60 * 60      # on GCP: no post ended in an hour, so restart the chain
+
+
+def _chain_due(rec: dict, wait_s: int) -> bool:
+    """True when the next post of a counted run should start now."""
+    chosen = _read_intervals()
+    left = chosen.get("_posts_left")
+    if not isinstance(chosen.get("_post_chain"), dict) or not isinstance(left, int) or left <= 0:
+        return False
+    if "gtm_cycle" in {str(n) for n in (chosen.get("_paused") or [])}:
+        return False
+    if not wait_s:
+        return True
+    # The later of the last post's end and the last time a post was started.
+    stamps = [str(rec.get("last_run") or ""), str(chosen["_post_chain"].get("kicked") or "")]
+    latest = None
+    for raw in stamps:
+        try:
+            dt = datetime.fromisoformat(raw)
+        except ValueError:
+            continue
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        latest = dt if latest is None or dt > latest else latest
+    if latest is None:
+        return True
+    return (datetime.now(timezone.utc) - latest).total_seconds() >= wait_s
+
+
+def _chain_where() -> str:
+    chain = _read_intervals().get("_post_chain")
+    return str(chain.get("where") or "local") if isinstance(chain, dict) else ""
+
+
+def _cloud_clock() -> bool:
+    """GCP keeps the clock when its tick is on (always true inside GCP)."""
+    from pipeline.gtm_os.state_sync import in_cloud
+    if in_cloud():
+        return True
+    try:
+        from pipeline.scheduler.cloud_cron import tick_live
+        return tick_live()
+    except Exception:                               # noqa: BLE001 — no gcloud: this machine
+        return False
+
+
 def _consume_post() -> None:
     """A finished post counts toward the number the owner asked for."""
     chosen = _read_intervals()
@@ -988,7 +1122,19 @@ def _consume_post() -> None:
         paused = {str(n) for n in (chosen.get("_paused") or []) if str(n)}
         paused.add("gtm_cycle")
         chosen["_paused"] = sorted(paused)
+        chosen.pop("_post_chain", None)
+    chain = chosen.get("_post_chain")
+    from pipeline.gtm_os.state_sync import in_cloud
+    starts_next = left > 0 and isinstance(chain, dict) and chain.get("where") == "cloud" and in_cloud()
+    if starts_next:
+        chosen["_post_chain"] = {**chain, "kicked": datetime.now(timezone.utc).isoformat()}
     _write_intervals(chosen)
+    if starts_next:
+        # The next post is its own execution, so this one can finish and
+        # push its run. If it does not start, the tick restarts the chain.
+        from pipeline.scheduler.cloud_cron import execute_now
+        ok, why = execute_now("gtm_cycle")
+        print(json.dumps({"next_post": "started" if ok else "not started", "why": why}))
 
 
 def _expire_timeline() -> None:
@@ -1027,6 +1173,7 @@ def apply_tell(text: str) -> dict:
         if "gtm_cycle" in paused:
             chosen["_until"] = ""
             chosen.pop("_posts_left", None)
+            chosen.pop("_post_chain", None)
         lines.append("Stopped: " + ", ".join(_LABELS.get(n, n) for n in parsed.get("jobs") or ["gtm_cycle"]) + ".")
     elif parsed["action"] == "start":
         for name in parsed.get("jobs") or ["gtm_cycle"]:
@@ -1039,6 +1186,7 @@ def apply_tell(text: str) -> dict:
         paused.discard("gtm_cycle")
         on.add("gtm_cycle")
         chosen["_until"] = until
+        chosen.pop("_post_chain", None)
         lines.append("Posts keep their gap and stop at " + _clock_label(until) + ".")
     else:
         cfg = load_yaml_config()
@@ -1048,6 +1196,11 @@ def apply_tell(text: str) -> dict:
             name = item["job"]
             spec = jobs.get(name) or {}
             interval = item.get("interval")
+            if name == "gtm_cycle" and parsed.get("chain"):
+                paused.discard(name)
+                on.add(name)
+                applied.add(name)
+                continue
             if not interval:
                 existing = str(chosen.get(name) or spec.get("interval") or "")
                 floor_m = int(spec.get("min_allowed_interval_m") or 1)
@@ -1085,10 +1238,20 @@ def apply_tell(text: str) -> dict:
                 chosen["_posts_left"] = int(parsed["posts_left"])
             else:
                 chosen.pop("_posts_left", None)
-        if parsed.get("posts_left") and "gtm_cycle" in applied:
+            if parsed.get("chain"):
+                chosen["_post_chain"] = {"where": "cloud" if _cloud_clock() else "local",
+                                         "since": datetime.now(timezone.utc).isoformat()}
+            else:
+                chosen.pop("_post_chain", None)
+        if parsed.get("chain") and "gtm_cycle" in applied:
+            n = int(parsed["posts_left"])
+            total = n * 20
+            span = (str(total // 60) + "h " + str(total % 60) + "m") if total >= 60 else str(total) + " minutes"
+            lines.append(str(n) + " posts, one after another: each starts when the last one is done, "
+                         "about 20 minutes each (roughly " + span + " in all). It shows in Post History.")
+            lines.append("Each one reads the newest scrape and stops at review. Nothing is published.")
+        elif parsed.get("posts_left") and "gtm_cycle" in applied:
             lines.append(str(parsed["posts_left"]) + " posts, then posts stop. Each one reads the newest scrape.")
-        if parsed.get("floor") and "gtm_cycle" in applied:
-            lines.append("A post takes about 20 minutes, so that is the shortest post gap. The scrape keeps its own gap.")
         if parsed.get("dropped_post"):
             lines.append("A post was not scheduled. A post needs its own gap of at least 20 minutes.")
         if until and "gtm_cycle" in applied:
@@ -1111,6 +1274,22 @@ def apply_tell(text: str) -> dict:
         lines.append("Saved here. The live clock did not take the file.")
     elif landed is None:
         lines.append("Saved here. The live clock is still receiving the file.")
+    chain = chosen.get("_post_chain")
+    if parsed["action"] == "plan" and parsed.get("chain") and isinstance(chain, dict):
+        if chain.get("where") == "cloud":
+            from pipeline.scheduler.cloud_cron import execute_now
+            chosen["_post_chain"] = {**chain, "kicked": datetime.now(timezone.utc).isoformat()}
+            _write_intervals(chosen)
+            ok, why = execute_now("gtm_cycle")
+            if ok:
+                lines.append("The first post has started on GCP. Each one starts the next.")
+            else:
+                chosen["_post_chain"] = {**chain, "where": "local"}
+                _write_intervals(chosen)
+                lines.append("GCP did not start it (" + " ".join(why.split())[:120]
+                             + "), so this machine makes them. Keep it on.")
+        else:
+            lines.append("This machine makes them, so keep it on. The first one starts within a minute.")
     message = "\n".join(lines) or "Set."
     return {
         "ok": True,
