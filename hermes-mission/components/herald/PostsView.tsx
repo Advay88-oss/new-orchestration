@@ -80,7 +80,10 @@ export function PostsView({ runs, loading, brand, owner, onOpen, onAsk }: {
             const [label, cls] = STATE_LABEL[stateOf(r)];
             return (
               <button key={r.run_id} className="post-card" onClick={() => onOpen(r.run_id)}>
-                <div className="poster-frame"><Poster r={r} brand={brand.toLowerCase()} /></div>
+                <div className="poster-frame" style={{ position: "relative" }}>
+                  <Poster r={r} brand={brand.toLowerCase()} />
+                  {r.video && <span className="vid-badge"><IVideo />Video</span>}
+                </div>
                 <div className="post-info">
                   <div className="post-title">{headlineOf(r)}</div>
                   <div className="meta" style={{ justifyContent: "space-between" }}><span className={"status " + cls}>{label}</span><span>{whenOf(r.started)}</span></div>
@@ -125,6 +128,7 @@ export function PostDetail({ run, brand, brandColor, owner, onBack, onReferences
   onBack: () => void; onReferences: () => void; onChanged: () => void; flash: (t: string) => void;
 }) {
   const [ch, setCh] = useState<Channel>("x");
+  const [media, setMedia] = useState<"poster" | "video">("poster");
   const [reviseOpen, setReviseOpen] = useState(false);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
@@ -134,7 +138,7 @@ export function PostDetail({ run, brand, brandColor, owner, onBack, onReferences
 
   const id = run?.run_id as string | undefined;
   useEffect(() => {
-    setCh("x"); setReviseOpen(false); setChanging(false); setLink(null); setLinkDraft("");
+    setCh("x"); setMedia("poster"); setReviseOpen(false); setChanging(false); setLink(null); setLinkDraft("");
     if (!id) return;
     fetch("/api/gtm/learning?published=" + id, { cache: "no-store" }).then((r) => r.json())
       .then((d) => { const u = d?.record?.url || d?.published?.url || d?.url; if (typeof u === "string") setLink(u); }).catch(() => {});
@@ -267,15 +271,22 @@ export function PostDetail({ run, brand, brandColor, owner, onBack, onReferences
 
       <div className="rv-row1">
         <section className="box rv-panel" aria-label="Creative">
-          <div className="box-h">Creative <span>1080 × 1080</span></div>
+          <div className="box-h" style={run.video ? { padding: "8px 8px 8px 16px" } : undefined}>Creative
+            {run.video
+              ? <Seg label="Creative" value={media} onChange={setMedia} options={[{ key: "poster", label: "Poster" }, { key: "video", label: "Video" }]} />
+              : <span>1080 × 1080</span>}
+          </div>
           <div className="rv-creative">
-            {run.visual ? <div className="poster-frame rv-poster"><Poster r={run} brand={brand.toLowerCase()} /></div>
+            {media === "video" && run.video ? (
+              <video key={String(run.video)} className="rv-poster rv-video" src={String(run.video)} poster={run.visual || undefined}
+                     controls playsInline preload="metadata" />
+            ) : run.visual ? <div className="poster-frame rv-poster"><Poster r={run} brand={brand.toLowerCase()} /></div>
               : writing ? <div className="skel rv-poster" style={{ height: "auto", aspectRatio: "1/1", borderRadius: 12 }} />
               : <span className="meta">No poster was made for this run.</span>}
           </div>
           <div className="rv-foot">
-            <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><IVideo />{run.video ? "A short video was also made from this post." : "No video — this one is a still image."}</span>
-            {run.video && <a className="btn btn-quiet btn-sm" href={String(run.video)} target="_blank" rel="noreferrer">Play</a>}
+            <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}><IVideo />{run.video ? "A short video was also made from this post" + (run.video_mode ? " (" + String(run.video_mode).replace(/_/g, " ") + ")." : ".") : "No video — this one is a still image."}</span>
+            {run.video && <a className="btn btn-quiet btn-sm" href={String(run.video)} download={run.run_id + ".mp4"}>Download</a>}
           </div>
         </section>
 

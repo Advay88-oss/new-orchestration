@@ -224,14 +224,14 @@ class AgentBrain:
                           since=since, limit=limit) or []
 
     def search_knowledge(self, query: str, *, k: int = 8, content_types=None, sources=None,
-                         max_authority: int = 4) -> list[dict]:
+                         max_authority: int = 4, include_legal: bool = False) -> list[dict]:
         ct = list(content_types) if content_types else None
         src = list(sources) if sources else None
         return self._call("search_knowledge",
                           lambda b: b.search_knowledge(query, k=k, content_types=ct, sources=src,
-                                                       max_authority=max_authority),
+                                                       max_authority=max_authority, include_legal=include_legal),
                           query=query, k=k, content_types=ct, sources=src,
-                          max_authority=max_authority) or []
+                          max_authority=max_authority, include_legal=include_legal) or []
 
     def get_visual_refs(self, topic: str, n: int = 4, kinds=None) -> list[dict]:
         kd = list(kinds) if kinds else None

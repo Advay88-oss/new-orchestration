@@ -10,7 +10,7 @@ jobs:
     description: "Full autonomous GTM cycle: all 13 agents, selects its own topic, renders visual + video, stops at human review."
 
   research_collect:
-    interval: "1h"
+    interval: "30m"
     enabled: true
     description: "Collects live headlines into the brain. The next post reads them. Scraped Intelligence shows the list."
     model_heavy: false
@@ -31,7 +31,7 @@ jobs:
     min_allowed_interval_m: 5
 
   memes_panel:
-    interval: "2m"
+    interval: "1h"
     enabled: false
     description: "Scans crypto culture for liquidation/gas humor with strict claim & risk gating."
     model_heavy: false

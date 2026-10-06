@@ -370,7 +370,7 @@ export async function gtmRunDetail(runId?: string) {
     artifacts: {
       visual: s.visual_path ? '/api/gtm/artifact/' + rid + '/visual' : null,
       meme: s.meme_path ? '/api/gtm/artifact/' + rid + '/meme' : null,
-      video: s.video_path ? '/api/gtm/artifact/' + rid + '/video' : null,
+      video: s.video_path || (!isDeployed() && runVideoFile(rid)) ? '/api/gtm/artifact/' + rid + '/video' : null,
     },
   };
 }
@@ -413,6 +413,13 @@ export async function gtmRuns(limit = 15) {
  * needs bytes either way, so both resolve to bytes here rather than leaking
  * the difference into the route handler.
  */
+/** A finished video in the run's own folder, for runs whose summary never recorded it. */
+function runVideoFile(runId: string): string | null {
+  if (!/^GTM-\d{8}-\d{6}$/.test(runId)) return null;
+  const f = path.join(REPO_ROOT, 'pipeline', 'state', 'gtm_runs', runId, runId + '_video.mp4');
+  return fs.existsSync(f) ? f : null;
+}
+
 export async function gtmArtifact(
   runId: string,
   kind: 'visual' | 'meme' | 'video',
@@ -428,7 +435,8 @@ export async function gtmArtifact(
 
   const s = (await gtmRunSummary(runId)) ?? (await gtmRunPartial(runId));
   if (!s) return null;
-  const raw = kind === 'visual' ? s.visual_path : kind === 'meme' ? s.meme_path : s.video_path;
+  const raw = (kind === 'visual' ? s.visual_path : kind === 'meme' ? s.meme_path : s.video_path)
+    || (kind === 'video' ? runVideoFile(runId) : null);
   if (!raw) return null;
 
   // Guard against traversal: whatever the summary holds must resolve inside

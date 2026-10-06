@@ -53,9 +53,10 @@ def build(tenant: str) -> MCPServer:
                              "4 archive) and the parent section. content_types can include doc, "
                              "faq, rule, section, summary, code.")
     def search_knowledge(query: str, k: int = 8, content_types: Optional[list[str]] = None,
-                         sources: Optional[list[str]] = None, max_authority: int = 4) -> list[dict]:
+                         sources: Optional[list[str]] = None, max_authority: int = 4,
+                         include_legal: bool = False) -> list[dict]:
         return brain.search_knowledge(query, k=k, content_types=content_types, sources=sources,
-                                      max_authority=max_authority)
+                                      max_authority=max_authority, include_legal=include_legal)
 
     @server.tool(description="The company's own images closest to a topic (approved posters, "
                              "video stills, design references, logo), with caption and style tags. "

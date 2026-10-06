@@ -202,7 +202,7 @@ export function ReferencesView({ focusId, owner, onDraft }: { focusId: string; o
               {(cur.vannaMove || cur.why) && <div><div className="label">Angle</div><p style={{ margin: 0, color: "var(--muted)" }}>{cur.vannaMove || cur.why}</p></div>}
               {cur.why && cur.vannaMove && <div><div className="label">Why</div><p style={{ margin: 0, color: "var(--muted)" }}>{cur.why}</p></div>}
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", borderTop: "1px solid var(--line)", paddingTop: 18 }}>
-                {owner && cur.postIdea && (gradeOf(cur) === "DIRECT" || gradeOf(cur) === "ADJACENT") && <button className="btn btn-primary" onClick={() => onDraft("Draft a post: " + cur.postIdea)}>Draft this post</button>}
+                {owner && cur.postIdea && (gradeOf(cur) === "DIRECT" || gradeOf(cur) === "ADJACENT") && <button className="btn btn-primary" onClick={() => onDraft(cur.postIdea)}>Make this post</button>}
                 {cur.url && <a className="btn" href={cur.url} target="_blank" rel="noreferrer">Open source</a>}
               </div>
             </div>
@@ -215,7 +215,7 @@ export function ReferencesView({ focusId, owner, onDraft }: { focusId: string; o
 
 /* -------------------------------------------------------------- Inspiration */
 
-export function InspirationView({ tenant, brand, owner, onAsk }: { tenant: string; brand: string; owner: boolean; onAsk: (text: string) => void }) {
+export function InspirationView({ tenant, brand, owner, onAsk, onMake }: { tenant: string; brand: string; owner: boolean; onAsk: (text: string) => void; onMake: (text: string) => void }) {
   const { data, error } = useJson<any>(tenant ? "/api/gtm/brain/inspiration?tenant=" + encodeURIComponent(tenant) : null);
   const brands = ((data?.brands || []) as any[]);
   return (
@@ -243,7 +243,7 @@ export function InspirationView({ tenant, brand, owner, onAsk }: { tenant: strin
               <div className="insp-sec"><div className="label" style={{ color: "var(--accent)" }}>Idea for {brand}</div><p>{move.vanna_move || move.adapt || move.vanna_can || "An idea appears here once Herald has read enough."}</p></div>
               <div className="insp-foot">
                 <span className="meta">Updated {b.fetched_at ? agoOf(b.fetched_at) + " ago" : "—"}</span>
-                {owner && <button className="btn btn-quiet btn-sm" onClick={() => onAsk("Draft a post inspired by " + b.name + ": " + (move.vanna_move || move.adapt || ""))}>Draft from this<IChevR size={13} /></button>}
+                {owner && <button className="btn btn-quiet btn-sm" onClick={() => onMake("A post inspired by how " + b.name + " posts: " + (move.vanna_move || move.adapt || move.vanna_can || ""))}>Make a post from this<IChevR size={13} /></button>}
               </div>
             </article>
           );
@@ -255,7 +255,15 @@ export function InspirationView({ tenant, brand, owner, onAsk }: { tenant: strin
 
 /* ---------------------------------------------------------------- Campaigns */
 
-export function CampaignsView({ owner, onAsk, flash }: { owner: boolean; onAsk: (text: string) => void; flash: (t: string) => void }) {
+function Fact({ k, v }: { k: string; v: React.ReactNode }) {
+  return <div style={{ minWidth: 0 }}><div className="stat-l">{k}</div><div style={{ fontSize: 13.5, fontWeight: 500, marginTop: 2 }}>{v}</div></div>;
+}
+
+const WORTH_CLS: Record<string, string> = { "Worth studying": "s-approved", "Only as an idea": "s-review", Skip: "s-failed" };
+
+export function CampaignsView({ owner, brand, onAsk, onMake, flash }: {
+  owner: boolean; brand: string; onAsk: (text: string) => void; onMake: (text: string) => void; flash: (t: string) => void;
+}) {
   const { data, error, reload } = useJson<any>("/api/gtm/campaigns");
   const [limits, setLimits] = useState<Record<string, number>>({});
   const running = data?.job?.state === "running";
@@ -276,44 +284,99 @@ export function CampaignsView({ owner, onAsk, flash }: { owner: boolean; onAsk: 
   return (
     <div className="page view">
       <div className="head">
-        <div><h1 className="title">Campaigns</h1><p className="sub">Live campaigns and programs worth learning from, busiest first. Ask the Assistant to search for more.</p></div>
+        <div><h1 className="title">Campaigns</h1><p className="sub">Live campaigns from the source you name, ranked by how many people joined, with what {brand} could take from the busiest ones.</p></div>
         {owner && <button className="btn btn-sm" onClick={() => onAsk("Find campaigns on Galxe about ")}><ISearch size={14} />Find campaigns</button>}
       </div>
-      {running && <div className="banner b-neutral"><span className="status s-running">Searching</span><div>Reading the live listing, then writing notes. About a minute.</div></div>}
+      {running && <div className="banner b-neutral"><span className="status s-running">Searching</span><div>Reading the live listing, then Herald studies the busiest ones for {brand}. About a minute.</div></div>}
       {error && <Empty title="Campaigns are unavailable" text={error} />}
       {!data && !error && <Loading rows={3} />}
-      {data && !shelves.length && <Empty title="No campaigns saved" text="Ask the Assistant to find some." />}
-      <div className="stagger" style={{ display: "flex", flexDirection: "column", gap: 36 }}>
+      {data && !shelves.length && <Empty title="No campaigns saved" text="Ask the Assistant to find some — say what kind and where, for example Galxe quests about lending." />}
+      <div className="stagger" style={{ display: "flex", flexDirection: "column", gap: 40 }}>
         {shelves.map((sh) => {
           const key = (sh.source_input || sh.source || "") + sh.scraped_at;
           const list = ((sh.campaigns || []) as any[]).slice().sort((a, b) => (a.rank || 999) - (b.rank || 999));
+          const picked = list.filter((c) => c.selected);
+          const rest = list.filter((c) => !c.selected);
           const lim = limits[key] || 12;
+          const src = String(sh.source_input || sh.source || "the source");
+          const studied = Math.min(18, list.length);
           return (
-            <section key={key}>
-              <div className="sec-h" style={{ alignItems: "center" }}>
-                <h2 style={{ textTransform: "capitalize" }}>{sh.source_input || sh.source || "Campaigns"}</h2>
-                <span className="meta">{list.length} found {sh.scraped_at ? agoOf(sh.scraped_at) + " ago" : ""} for “{sh.query}”</span>
-                {owner && <button className="btn btn-quiet btn-sm" style={{ marginLeft: "auto" }} disabled={running} onClick={() => again(sh)}><IRefresh />Search again</button>}
+            <section key={key} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div className="card" style={{ padding: 18, display: "flex", flexDirection: "column", gap: 14 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, flexWrap: "wrap" }}>
+                  <div>
+                    <div className="label">How this list is made</div>
+                    <div style={{ fontWeight: 600, fontSize: 16, letterSpacing: "-.01em" }}>“{sh.query}” on <span style={{ textTransform: "capitalize" }}>{src}</span></div>
+                  </div>
+                  {owner && <button className="btn btn-sm" disabled={running} onClick={() => again(sh)}><IRefresh />Search again</button>}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 14 }}>
+                  <Fact k="Source" v={<span style={{ textTransform: "capitalize" }}>{src} · live listing</span>} />
+                  <Fact k="Searched" v={sh.scraped_at ? whenOf(sh.scraped_at) : "—"} />
+                  <Fact k="Ranked by" v="People who joined, most first" />
+                  <Fact k="Kept" v={list.length + " campaigns (0–1 joined are dropped)"} />
+                  <Fact k={"Studied for " + brand} v={"Top " + studied + " · " + picked.length + " picked"} />
+                </div>
+                <div className="meta" style={{ fontSize: 12.5 }}>
+                  A campaign with no public count is placed after the counted ones. Herald reads the {studied} busiest and picks up to 8 that teach {brand} something — close to credit, lending, margin or collateral first. Its notes use only the listing and {brand}’s own facts; numbers are the source’s.
+                  {sh.judge_error ? " The study step failed this time: " + String(sh.judge_error).slice(0, 120) : ""}
+                </div>
               </div>
+
+              {picked.length > 0 && (
+                <>
+                  <div className="sec-h"><h2>Picked for {brand}</h2><span className="meta">{picked.length} of the busiest, with what {brand} can do</span></div>
+                  <div className="insp">
+                    {picked.map((c) => (
+                      <article key={c.id} className="card insp-card">
+                        <div className="insp-top" style={{ alignItems: "flex-start" }}>
+                          <span className="logo" style={{ fontSize: 13 }}>#{c.rank}</span>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 600, fontSize: 15, letterSpacing: "-.01em", lineHeight: 1.35 }}>{c.name}</div>
+                            <div className="meta">{c.space}{c.verified ? " ✓" : ""} · {c.participants != null ? Number(c.participants).toLocaleString() + " joined" : "count not public"} · {c.related === "close" ? "Close to " + brand : "An idea to borrow"}</div>
+                          </div>
+                          {c.worth && <span className={"pill " + (WORTH_CLS[c.worth] || "")}>{c.worth}</span>}
+                        </div>
+                        <div className="insp-sec" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                          <Fact k="Reward" v={c.reward || "Not stated"} />
+                          <Fact k="Type" v={[c.type, c.chain].filter(Boolean).join(" · ") || "—"} />
+                        </div>
+                        {c.why_selected && <div className="insp-sec"><div className="label">Why it was picked</div><p>{c.why_selected}</p></div>}
+                        {c.vanna_can && <div className="insp-sec"><div className="label" style={{ color: "var(--accent)" }}>What {brand} can do</div><p>{c.vanna_can}</p></div>}
+                        {c.why_it_works && <div className="insp-sec"><div className="label">Why it would work</div><p>{c.why_it_works}</p></div>}
+                        {c.what_else && <div className="insp-sec"><div className="label">Another way to use it</div><p>{c.what_else}</p></div>}
+                        {c.worth_why && <div className="insp-sec"><div className="label">Worth it?</div><p>{c.worth_why}</p></div>}
+                        <div className="insp-foot">
+                          {c.url ? <a className="btn btn-quiet btn-sm" style={{ marginLeft: -8 }} href={c.url} target="_blank" rel="noreferrer">Open on <span style={{ textTransform: "capitalize" }}>{src}</span><IOut /></a> : <span />}
+                          {owner && c.vanna_can && <button className="btn btn-sm" onClick={() => onMake("A post on how " + brand + " could run this: " + c.vanna_can)}>Make a post from this</button>}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              <div className="sec-h" style={{ marginTop: picked.length ? 12 : 0 }}><h2>All campaigns, busiest first</h2><span className="meta">{rest.length} more · not studied for {brand}</span></div>
               <div className="camp-grid">
-                {list.slice(0, lim).map((c) => (
+                {rest.slice(0, lim).map((c) => (
                   <div key={c.id} className="card camp">
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
-                      <span className="meta" style={{ color: "var(--muted)" }}><span className="ch" style={{ width: 24, height: 24, borderRadius: 7, fontSize: 10.5 }}>{glyphOf(sh.source_input || sh.source, c.space)}</span>{c.space || sh.source}{c.verified ? " ✓" : ""}</span>
+                      <span className="meta" style={{ color: "var(--muted)" }}><span className="ch" style={{ width: 24, height: 24, borderRadius: 7, fontSize: 10.5 }}>{glyphOf(src, c.space)}</span>{c.space || src}{c.verified ? " ✓" : ""}</span>
                       <span className={"pill " + (c.status === "Active" ? "s-approved" : "")}>{c.participants != null ? Number(c.participants).toLocaleString() + " joined" : c.status || "Live"}</span>
                     </div>
                     <div className="camp-t">#{c.rank} · {c.name}</div>
-                    <div style={{ color: "var(--muted)", fontSize: 13.5, flex: 1 }}>
-                      {c.selected && c.vanna_can ? <><b style={{ color: "var(--accent)", fontWeight: 500 }}>Idea: </b>{c.vanna_can}</> : String(c.description || "").replace(/\*\*/g, "").slice(0, 150) + (String(c.description || "").length > 150 ? "…" : "")}
-                    </div>
+                    <div style={{ color: "var(--muted)", fontSize: 13.5, flex: 1 }}>{String(c.description || "No description on the listing.").replace(/\*\*/g, "").slice(0, 150)}{String(c.description || "").length > 150 ? "…" : ""}</div>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 10, borderTop: "1px solid var(--line)", gap: 8 }}>
-                      <span style={{ display: "flex", gap: 6, minWidth: 0 }}><span className="tag">{c.type || "Campaign"}</span>{c.reward && c.reward !== c.type && <span className="tag" title={c.reward} style={{ maxWidth: 130, overflow: "hidden", textOverflow: "ellipsis" }}>{c.reward}</span>}</span>
-                      {c.url && <a className="btn btn-quiet btn-sm" href={c.url} target="_blank" rel="noreferrer">View<IOut /></a>}
+                      <span style={{ display: "flex", gap: 6, minWidth: 0 }}><span className="tag">{c.type || "Campaign"}</span>{c.reward && c.reward !== c.type && <span className="tag" title={c.reward} style={{ maxWidth: 110, overflow: "hidden", textOverflow: "ellipsis" }}>{c.reward}</span>}</span>
+                      <span style={{ display: "flex", gap: 2 }}>
+                        {owner && <button className="btn btn-quiet btn-sm" title={"Ask what " + brand + " could take from it"} onClick={() => onAsk("What could " + brand + " learn from the " + src + " campaign #" + c.rank + " “" + c.name + "” (" + (c.participants ?? "?") + " joined, reward: " + (c.reward || "not stated") + ")" + (c.url ? " " + c.url : "") + "? Say what they did, why it drew people, and what " + brand + " could do.")}>Ask Herald</button>}
+                        {c.url && <a className="btn btn-quiet btn-sm" href={c.url} target="_blank" rel="noreferrer">View<IOut /></a>}
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
-              {list.length > lim && <div className="more"><button className="btn btn-sm" onClick={() => setLimits((l) => ({ ...l, [key]: lim + 24 }))}>Show more ({list.length - lim})</button></div>}
+              {rest.length > lim && <div className="more"><button className="btn btn-sm" onClick={() => setLimits((l) => ({ ...l, [key]: lim + 24 }))}>Show more ({rest.length - lim})</button></div>}
             </section>
           );
         })}

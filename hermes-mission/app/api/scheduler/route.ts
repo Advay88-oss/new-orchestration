@@ -32,6 +32,7 @@ function jobsFromPipeline(): { success: true; jobs: any[]; timestamp: string } |
       || chunk.match(/description:\s*'([^']*)'/)?.[1]
       || '';
     const modelHeavy = /model_heavy:\s*true/.test(chunk);
+    const minGap = Number(chunk.match(/min_allowed_interval_m:\s*(\d+)/)?.[1] || 1);
     const enabled = !/enabled:\s*false/.test(chunk);
     const st = stateData[name] || {};
     const last = st.last_run || null;
@@ -45,6 +46,8 @@ function jobsFromPipeline(): { success: true; jobs: any[]; timestamp: string } |
       job: name,
       description,
       interval,
+      default_interval: interval,
+      min_interval_m: minGap,
       model_heavy: modelHeavy,
       enabled: enabled && st.status !== 'DISABLED_AUTO_BACKOFF',
       status: st.status || 'IDLE',

@@ -360,3 +360,6 @@
 .side:hover{scrollbar-width:thin}
 .side:hover::-webkit-scrollbar{width:6px}
 @media (pointer:coarse){.side-btn{height:44px}}
+
+.vid-badge{position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px 0 7px;border-radius:999px;background:rgba(20,19,17,.72);color:#fff;font-size:12px;font-weight:500;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.rv-video{display:block;width:100%;aspect-ratio:1/1;object-fit:contain;background:#0d0c0b;border-radius:12px}

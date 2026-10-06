@@ -50,6 +50,16 @@ function writeUrl(view: View, run: string, ref: string) {
   } catch { /* */ }
 }
 
+/** How long one run of a job usually takes, where the job's own history is not enough. */
+const RUN_TIME: Record<string, string> = { gtm_cycle: "~20 min", research_collect: "~1–4 min", campaigns_refresh: "~1 min" };
+
+function fmtDur(s: number): string {
+  if (!s || s < 1) return "<1 s";
+  if (s < 90) return Math.round(s) + " s";
+  if (s < 5400) return "~" + Math.round(s / 60) + " min";
+  return "~" + (s / 3600).toFixed(1) + " h";
+}
+
 function Autopilot({ onClose }: { onClose: () => void }) {
   const { clock, daemon, reload } = useAutopilot(8000);
   const [line, setLine] = useState("");
@@ -133,9 +143,78 @@ function Autopilot({ onClose }: { onClose: () => void }) {
               <div className="card">{jobs.filter((j) => !isOn(j) && (j.paused || j.cron_id)).map((j) => <Row key={j.job} j={j} />)}</div>
             </>
           )}
+          <div className="side-label" style={{ padding: "6px 2px 0" }}>How often each job runs</div>
+          <div className="card" style={{ overflow: "hidden" }}>
+            <div className="ap-row" style={{ fontSize: 12, color: "var(--faint)", fontWeight: 500, padding: "8px 14px" }}>
+              <span style={{ flex: 1 }}>Job</span><span style={{ width: 66 }}>One run</span><span style={{ width: 62 }}>Default</span><span style={{ width: 62 }}>Shortest</span>
+            </div>
+            {!clock && <div className="ap-row"><span className="skel" style={{ width: "60%", height: 12 }} /></div>}
+            {jobs.map((j) => (
+              <div key={j.job} className="ap-row" style={{ fontSize: 13, padding: "9px 14px", alignItems: "center" }}>
+                <span style={{ flex: 1, minWidth: 0 }} title={j.description}>{WORK_LABEL[j.job]}
+                  {isOn(j) && <span className="meta" style={{ fontSize: 12, display: "block" }}>now every {gapLabel(j.interval)}</span>}</span>
+                <span style={{ width: 66, color: "var(--muted)" }}>{RUN_TIME[j.job] || (j.last_duration_s ? fmtDur(j.last_duration_s) : "—")}</span>
+                <span style={{ width: 62, color: "var(--muted)" }}>{gapLabel(j.default_interval || j.interval)}</span>
+                <span style={{ width: 62, color: "var(--muted)" }}>{j.min_interval_m ? gapLabel(j.min_interval_m + "m") : "—"}</span>
+              </div>
+            ))}
+          </div>
+          <div className="note" style={{ flexDirection: "column", alignItems: "flex-start", gap: 4, fontSize: 12.5 }}>
+            <span>A gap you set stays until you stop it: “research every 2 minutes” scrapes every 2 minutes, by itself, until you press Pause or say stop.</span>
+            <span>“Make 10 posts” writes them one after another — about 20 minutes each — until all 10 are done, then posts stop.</span>
+            <span>A job never runs twice at once: if one run takes longer than its gap, the next starts when it ends.</span>
+          </div>
           <div className="hint" style={{ textAlign: "left" }}>Every post stops at review, here and on Telegram. Nothing is published on its own.</div>
         </div>
       </aside>
+    </div>
+  );
+}
+
+
+/** Start a post from a topic: the agents write it, with its poster, fact check and review. */
+function MakePost({ initial, tenant, onClose, onStarted }: { initial: string; tenant: string; onClose: () => void; onStarted: (note: string) => void }) {
+  const [text, setText] = useState(initial);
+  const [video, setVideo] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", esc);
+    return () => window.removeEventListener("keydown", esc);
+  }, [onClose]);
+  const start = async () => {
+    const d = text.trim();
+    if (!d) return;
+    setBusy(true); setErr("");
+    try {
+      const r = await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ directive: d, tenant, video }) });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.success) throw new Error(j.error || "HTTP " + r.status);
+      onStarted(video ? "Writing started — with a video, about 30 minutes" : "Writing started — about 20 minutes");
+    } catch (e: any) { setErr(String(e?.message || e)); setBusy(false); }
+  };
+  return (
+    <div className="palette-wrap">
+      <button className="palette-bg" aria-label="Close" onClick={onClose} />
+      <div className="palette" role="dialog" aria-label="Make a post" style={{ maxWidth: 560 }}>
+        <div className="box-h" style={{ fontSize: 15 }}>Make a post<button className="btn btn-quiet btn-sm icon-btn" onClick={onClose} aria-label="Close"><IClose /></button></div>
+        <div className="box-b" style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div className="field">
+            <label htmlFor="mk">What should the post be about? It is kept as written — it may be declined, never swapped.</label>
+            <textarea id="mk" className="ta" autoFocus value={text} onChange={(e) => setText(e.target.value)} placeholder="One credit line that works across apps" style={{ minHeight: 96 }} />
+          </div>
+          <label className="meta" style={{ gap: 8, cursor: "pointer", color: "var(--muted)" }}>
+            <input type="checkbox" checked={video} onChange={(e) => setVideo(e.target.checked)} /> Also make a short video (takes longer)
+          </label>
+          <div className="note">Twelve agents research, write for X, LinkedIn and Reddit, design the poster and check every claim. It lands in Posts for your review. Nothing is published.</div>
+          {err && <div className="note bad-c">{err}</div>}
+          <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+            <button className="btn btn-quiet" onClick={onClose}>Cancel</button>
+            <button className="btn btn-primary" disabled={!text.trim() || busy} onClick={start}>{busy ? "Starting…" : "Start writing"}</button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -157,6 +236,7 @@ export function HeraldApp() {
   const [autopilot, setAutopilot] = useState(false);
   const [newChat, setNewChat] = useState(0);
   const [prefill, setPrefill] = useState({ text: "", n: 0 });
+  const [make, setMake] = useState<string | null>(null);
   const [runs, setRuns] = useState<Run[]>([]);
   const [runsLoading, setRunsLoading] = useState(true);
   const [ownerName, setOwnerName] = useState("");
@@ -362,15 +442,15 @@ export function HeraldApp() {
             <AssistantView company={ws} owner={owner} ownerName={ownerName} prefill={prefill} newChat={newChat}
                            onOpenRun={openRun} onAutopilot={() => setAutopilot(true)} flash={(t) => { flash(t); loadRuns(); }} />
           )}
-          {view === "history" && <PostsView runs={mine} loading={runsLoading} brand={brand} owner={owner} onOpen={openRun} onAsk={() => ask("Draft a post about ")} />}
+          {view === "history" && <PostsView runs={mine} loading={runsLoading} brand={brand} owner={owner} onOpen={openRun} onAsk={() => setMake("")} />}
           {view === "run" && (
             <PostDetail run={run} brand={brand} brandColor={ws?.color || "#2F6B5E"} owner={owner}
                         onBack={() => go("history")} onReferences={() => go("references")} onChanged={loadRuns} flash={flash} />
           )}
           {view === "scraped" && <SignalsView scrapeGap={scrapeGap} onOpenRef={openRef} onAutopilot={() => (owner ? setAutopilot(true) : null)} />}
-          {view === "references" && <ReferencesView focusId={refFocus} owner={owner} onDraft={ask} />}
-          {view === "inspiration" && <InspirationView tenant={company?.id || ""} brand={brand} owner={owner} onAsk={ask} />}
-          {view === "campaigns" && <CampaignsView owner={owner} onAsk={ask} flash={flash} />}
+          {view === "references" && <ReferencesView focusId={refFocus} owner={owner} onDraft={(t) => setMake(t)} />}
+          {view === "inspiration" && <InspirationView tenant={company?.id || ""} brand={brand} owner={owner} onAsk={ask} onMake={(t) => setMake(t)} />}
+          {view === "campaigns" && <CampaignsView owner={owner} brand={brand} onAsk={ask} onMake={(t) => setMake(t)} flash={flash} />}
 
           {toast && <div className="toast" role="status"><ICheck size={15} className="check-draw" />{toast}</div>}
         </main>
@@ -409,6 +489,10 @@ export function HeraldApp() {
         )}
 
         {autopilot && owner && <Autopilot onClose={() => setAutopilot(false)} />}
+        {make !== null && owner && (
+          <MakePost initial={make} tenant={company?.id || "vanna"} onClose={() => setMake(null)}
+                    onStarted={(note) => { setMake(null); flash(note); go("history"); setTimeout(loadRuns, 4000); setTimeout(loadRuns, 15000); }} />
+        )}
       </div>
     </div>
   );

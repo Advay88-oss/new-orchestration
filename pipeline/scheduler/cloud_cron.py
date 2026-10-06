@@ -319,8 +319,9 @@ def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[s
             row = _row(name, interval.strip(), _LABELS, _LANDS)
             row["state"] = status
             state[name] = row
-        word = "gcloud is not on this machine" if status == "local" else "Google sign-in is missing (gcloud auth login)"
-        return ["No cron was created: " + word + ". The plan is saved."], [], state
+        if status == "local":
+            return ["It runs on this machine and keeps its gap until you stop it."], [], state
+        return ["No cron was created: Google sign-in is missing (gcloud auth login). The plan is saved."], [], state
 
     for name in sorted(paused):
         interval = chosen.get(name)
@@ -330,6 +331,13 @@ def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[s
         row["state"] = "stopped"
         state[name] = row
     if not _gcloud():
+        return remember("local")
+    from pipeline.gtm_os.state_sync import in_cloud
+    if not in_cloud() and not tick_live():
+        # GCP's clock is off, so this machine's scheduler runs the plan. A
+        # cron left live in GCP would run the same job a second time there.
+        for name in list(chosen.get("_cron") or []):
+            _pause(str(name))
         return remember("local")
     if not authed():
         lines.append("No cron was changed: Google sign-in is missing (gcloud auth login). The plan is saved.")

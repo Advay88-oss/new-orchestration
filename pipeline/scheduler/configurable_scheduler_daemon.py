@@ -891,17 +891,17 @@ _LABELS = {
     "gtm_cycle": "A post",
 }
 _LANDS = {
-    "research_collect": "Scraped Intelligence",
+    "research_collect": "Signals",
     "campaigns_refresh": "Campaigns",
-    "trend_scan": "Scraped Intelligence",
-    "ideas_panel": "Post History",
+    "trend_scan": "Signals",
+    "ideas_panel": "Posts",
     "memes_panel": "Telegram",
     "github_commits": "the brand brain",
     "notion_sync": "the brand brain",
     "brain_watch": "the brand brain",
     "metrics_collect": "Learning",
     "ops_watch": "Telegram, when something breaks",
-    "gtm_cycle": "Post History",
+    "gtm_cycle": "Posts",
 }
 
 
@@ -1248,7 +1248,7 @@ def apply_tell(text: str) -> dict:
             total = n * 20
             span = (str(total // 60) + "h " + str(total % 60) + "m") if total >= 60 else str(total) + " minutes"
             lines.append(str(n) + " posts, one after another: each starts when the last one is done, "
-                         "about 20 minutes each (roughly " + span + " in all). It shows in Post History.")
+                         "about 20 minutes each (roughly " + span + " in all). It shows in Posts.")
             lines.append("Each one reads the newest scrape and stops at review. Nothing is published.")
         elif parsed.get("posts_left") and "gtm_cycle" in applied:
             lines.append(str(parsed["posts_left"]) + " posts, then posts stop. Each one reads the newest scrape.")
@@ -1270,10 +1270,12 @@ def apply_tell(text: str) -> dict:
     except Exception as exc:                        # noqa: BLE001 — the file is still the plan
         lines.append("No cron was created: " + str(exc)[:160])
     landed = _write_intervals(chosen)
-    if landed is False:
-        lines.append("Saved here. The live clock did not take the file.")
-    elif landed is None:
-        lines.append("Saved here. The live clock is still receiving the file.")
+    # Only GCP's clock reads the uploaded file; this machine's reads it locally.
+    if _cloud_clock():
+        if landed is False:
+            lines.append("Saved here. The live clock did not take the file.")
+        elif landed is None:
+            lines.append("Saved here. The live clock is still receiving the file.")
     chain = chosen.get("_post_chain")
     if parsed["action"] == "plan" and parsed.get("chain") and isinstance(chain, dict):
         if chain.get("where") == "cloud":
