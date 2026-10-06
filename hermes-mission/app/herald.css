@@ -363,3 +363,9 @@
 
 .vid-badge{position:absolute;left:10px;bottom:10px;display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 9px 0 7px;border-radius:999px;background:rgba(20,19,17,.72);color:#fff;font-size:12px;font-weight:500;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .rv-video{display:block;width:100%;aspect-ratio:1/1;object-fit:contain;background:#0d0c0b;border-radius:12px}
+
+/* Recents: past chats, newest first, like a chat app's history. */
+.recents{display:flex;flex-direction:column;gap:1px;max-height:34vh;overflow-y:auto;scrollbar-width:none}
+.recents::-webkit-scrollbar{width:0}
+.side-btn.recent{height:32px;font-size:13.5px;font-weight:400}
+.recent-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}

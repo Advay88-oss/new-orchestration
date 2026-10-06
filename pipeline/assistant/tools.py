@@ -418,11 +418,14 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
     "find_campaigns": (find_campaigns, "Search live campaigns. query is what kind. source is where: Galxe, a website, "
                        "a company name, or an X handle. Starts the search; the Campaigns page shows that source on its own.",
                        {**_p(query=S_, source=S_), "required": ["query"]}),
-    "set_post_cadence": (set_post_cadence, "Create one cron for each job the owner named: headlines, "
-                         "competitor Twitter, campaigns, memes, ideas, trends, GitHub, Notion, Reddit, "
-                         "health, or a post. Pass their sentence unchanged. Do not turn a non-post request "
-                         "into a post. A scrape or campaigns can be every 5 minutes. A post needs 20 minutes. "
-                         "Nothing is published.",
+    "set_post_cadence": (set_post_cadence, "The schedule, in the owner's own sentence: start, change, pause "
+                         "or stop any job they name — news / headlines / competitor Twitter (one scrape), "
+                         "campaigns, memes, ideas, trends, GitHub, Notion, Reddit, health, or posts — each at the "
+                         "gap they say (\"news every 4 minutes\", \"memes har 5 min\"), or a number of posts "
+                         "(\"make 10 posts\" runs them one after another). Also for \"stop\", \"pause\", \"band "
+                         "karo\", \"resume\". Pass their sentence unchanged. Each job runs on its own: news does "
+                         "not start posts or memes unless they asked. A post takes about 20 minutes. Nothing is "
+                         "published.",
                          {**_p(instruction=S_), "required": ["instruction"]}),
     "propose_action": (propose_action, "Offer the owner a button for something only they may do: launch_run "
                        "(optional directive), approve / revise / kill a run, approve_profile. It does NOT do it.",

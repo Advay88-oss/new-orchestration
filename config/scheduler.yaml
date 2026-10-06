@@ -14,67 +14,67 @@ jobs:
     enabled: true
     description: "Collects live headlines into the brain. The next post reads them. Scraped Intelligence shows the list."
     model_heavy: false
-    min_allowed_interval_m: 2
+    min_allowed_interval_m: 1
 
   trend_scan:
     interval: "12h"
     enabled: false
     description: "Zero-cost real-time trend & news monitoring (Google News RSS + Curve/Stellar news)."
     model_heavy: false
-    min_allowed_interval_m: 2
+    min_allowed_interval_m: 1
 
   ideas_panel:
     interval: "12h"
     enabled: false
     description: "Synthesizes 8-12 claim-gated actionable GTM ideas from newly scraped artefacts."
     model_heavy: true
-    min_allowed_interval_m: 5
+    min_allowed_interval_m: 2
 
   memes_panel:
     interval: "1h"
     enabled: false
     description: "Scans crypto culture for liquidation/gas humor with strict claim & risk gating."
     model_heavy: false
-    min_allowed_interval_m: 5
+    min_allowed_interval_m: 2
 
   brain_watch:
     interval: "6h"
     enabled: true
     description: "New public items about each company (its X, Reddit, news, its blog, a web summary) into its brain with sources."
     model_heavy: false
-    min_allowed_interval_m: 60
+    min_allowed_interval_m: 10
 
   github_commits:
     interval: "1h"
     enabled: true
     description: "Product docs from GitHub into the brain every 6 hours, and the last 30 days of commits every hour. Posts read those pages."
     model_heavy: false
-    min_allowed_interval_m: 30
+    min_allowed_interval_m: 5
 
   notion_sync:
     interval: "24h"
     enabled: true
     description: "Daily safety-net Notion sync for every connected tenant (webhooks and run start cover the rest)."
     model_heavy: false
-    min_allowed_interval_m: 60
+    min_allowed_interval_m: 10
 
   metrics_collect:
     interval: "6h"
     enabled: true
     description: "Reads back published posts 48h+ old: engagement into the reward events and the format / posting-slot arms."
     model_heavy: false
-    min_allowed_interval_m: 60
+    min_allowed_interval_m: 10
 
   ops_watch:
     interval: "1h"
     enabled: true
     description: "Health watch: failed jobs, the brain database, the Telegram webhook, the dashboard, the budget and new errors; alerts on Telegram."
     model_heavy: false
-    min_allowed_interval_m: 10
+    min_allowed_interval_m: 5
 
   campaigns_refresh:
     interval: "6h"
     enabled: false
     description: "Re-runs the campaign search and puts the shelf on Campaigns. It does not write a post."
     model_heavy: true
-    min_allowed_interval_m: 5
+    min_allowed_interval_m: 2

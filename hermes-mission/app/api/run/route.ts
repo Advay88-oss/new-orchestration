@@ -81,12 +81,16 @@ export async function POST(req: Request) {
   if (!withVideo) args.push('--no-video');
 
   fs.mkdirSync(LOG_DIR, { recursive: true });
-  const logFile = path.join(LOG_DIR, 'last_launch.log');
+  // One log per launch, written as it happens: a run that dies still says
+  // how far it got. last_launch.log keeps pointing at the newest one's name.
+  const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\..*$/, '');
+  const logFile = path.join(LOG_DIR, 'launch-' + stamp + '.log');
+  fs.writeFileSync(path.join(LOG_DIR, 'last_launch.log'), 'see ' + path.basename(logFile) + '\n');
   const out = fs.openSync(logFile, 'a');
 
   const child = spawn(py, args, {
     cwd: REPO_ROOT,
-    env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONIOENCODING: 'utf-8', BRAIN_TENANT: tenant },
+    env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1', BRAIN_TENANT: tenant },
     detached: true,
     stdio: ['ignore', out, out],
   });
@@ -98,8 +102,7 @@ export async function POST(req: Request) {
     directive: directive || null,
     autonomous: !directive.trim(),
     note:
-      'Cycle started. All 13 agents run; Veo makes this take 2-4 minutes. ' +
-      'Poll /api/runs — the new run appears when it finishes.',
+      'Writing started. A post takes about 20 minutes and shows in Posts as it runs.',
     log: logFile,
   });
 }

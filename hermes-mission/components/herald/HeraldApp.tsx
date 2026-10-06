@@ -234,7 +234,8 @@ export function HeraldApp() {
   const [pq, setPq] = useState("");
   const [toast, setToast] = useState("");
   const [autopilot, setAutopilot] = useState(false);
-  const [newChat, setNewChat] = useState(0);
+  const [threadId, setThreadId] = useState<string | null>(null);
+  const [threads, setThreads] = useState<{ id: string; title: string; updated_at: string }[]>([]);
   const [prefill, setPrefill] = useState({ text: "", n: 0 });
   const [make, setMake] = useState<string | null>(null);
   const [runs, setRuns] = useState<Run[]>([]);
@@ -269,6 +270,13 @@ export function HeraldApp() {
     mq.addEventListener("change", read);
     return () => mq.removeEventListener("change", read);
   }, [theme]);
+
+  const loadThreads = useCallback(() => {
+    if (!company?.id || !owner) return;
+    fetch("/api/assistant/threads?tenant=" + encodeURIComponent(company.id), { cache: "no-store" })
+      .then((r) => r.json()).then((d) => setThreads(d.ok && Array.isArray(d.threads) ? d.threads : [])).catch(() => {});
+  }, [company?.id, owner]);
+  useEffect(() => { setThreadId(null); loadThreads(); }, [loadThreads]);
 
   const loadRuns = useCallback(() => {
     fetch("/api/runs", { cache: "no-store" }).then((r) => r.json())
@@ -307,7 +315,7 @@ export function HeraldApp() {
 
   const go = useCallback((v: View) => { setView(v); setMenu(false); setPalette(false); if (v !== "run") setRunId(""); if (v !== "references") setRefFocus(""); }, []);
   const openRun = useCallback((id: string) => { setRunId(id); setView("run"); setPalette(false); setMenu(false); }, []);
-  const ask = useCallback((text: string) => { setPrefill((p) => ({ text, n: p.n + 1 })); go("assistant"); }, [go]);
+  const ask = useCallback((text: string) => { setThreadId(null); setPrefill((p) => ({ text, n: p.n + 1 })); go("assistant"); }, [go]);
   const openRef = useCallback((id: string) => { setRefFocus(id); setView("references"); }, []);
 
   const mine = useMemo(() => runs.filter((r) => !company?.id || String(r.company || "vanna").toLowerCase() === company.id), [runs, company?.id]);
@@ -372,12 +380,25 @@ export function HeraldApp() {
             )}
           </div>
 
-          {owner && <button className="side-btn" style={{ color: "var(--text)" }} onClick={() => { setNewChat((n) => n + 1); go("assistant"); }}><IEdit />New chat</button>}
+          {owner && <button className="side-btn" style={{ color: "var(--text)" }} onClick={() => { setThreadId(null); go("assistant"); }}><IEdit />New chat</button>}
           <button className="side-btn" onClick={() => { setPq(""); setPalette(true); setMenu(false); }}><ISearch />Search <span className="kbd">⌘K</span></button>
 
           <div className="side-label">Create</div>
           {owner && <NavBtn k="assistant" icon={<IChat />}>Assistant</NavBtn>}
           <NavBtn k="history" icon={<IImage />} count={runsLoading ? undefined : postCount}>Posts</NavBtn>
+          {owner && threads.length > 0 && (
+            <>
+              <div className="side-label">Recents</div>
+              <div className="recents">
+                {threads.slice(0, 15).map((t) => (
+                  <button key={t.id} className={"side-btn recent" + (view === "assistant" && threadId === t.id ? " active" : "")}
+                          title={t.title} onClick={() => { setThreadId(t.id); go("assistant"); }}>
+                    <span className="recent-t">{t.title || "Untitled chat"}</span>
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
           <div className="side-label">Research</div>
           <NavBtn k="scraped" icon={<IPulse />}>Signals</NavBtn>
           <NavBtn k="references" icon={<IBookmark />}>References</NavBtn>
@@ -439,7 +460,8 @@ export function HeraldApp() {
           </header>
 
           {view === "assistant" && owner && (
-            <AssistantView company={ws} owner={owner} ownerName={ownerName} prefill={prefill} newChat={newChat}
+            <AssistantView company={ws} owner={owner} ownerName={ownerName} prefill={prefill} threadId={threadId}
+                           onThreadChange={setThreadId} onSaved={loadThreads}
                            onOpenRun={openRun} onAutopilot={() => setAutopilot(true)} flash={(t) => { flash(t); loadRuns(); }} />
           )}
           {view === "history" && <PostsView runs={mine} loading={runsLoading} brand={brand} owner={owner} onOpen={openRun} onAsk={() => setMake("")} />}

@@ -40,6 +40,33 @@ for d in [STATE_DIR, PANELS_DIR, ALT_PANELS_DIR, REPO_ROOT / "registry", REPO_RO
 
 # The daemon runs each due job on its own thread; state writes take turns.
 _STATE_LOCK = threading.Lock()
+_HOST = __import__("socket").gethostname()
+
+
+def _pid_alive(pid: int) -> bool:
+    """True when a process with this id exists on this machine."""
+    if not pid or pid <= 0:
+        return False
+    if sys.platform == "win32":
+        import ctypes
+        k32 = ctypes.windll.kernel32
+        h = k32.OpenProcess(0x1000, False, int(pid))  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return False
+        code = ctypes.c_ulong()
+        ok = k32.GetExitCodeProcess(h, ctypes.byref(code))
+        k32.CloseHandle(h)
+        return bool(ok) and code.value == 259  # STILL_ACTIVE
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except OSError:
+        return False
+
+
+def _runner_gone(rec: dict) -> bool:
+    """A RUNNING record whose process on this machine has exited."""
+    return rec.get("host") == _HOST and bool(rec.get("pid")) and not _pid_alive(int(rec["pid"]))
 
 
 def ensure_spend_proxy_running():
@@ -266,6 +293,7 @@ class SchedulerEngine:
         
         if status == "RUNNING":
             rec["current_run_start"] = now_dt.isoformat()
+            rec["pid"], rec["host"] = os.getpid(), _HOST
         elif status == "COMPLETED":
             rec["last_run"] = now_dt.isoformat()
             rec["consecutive_failures"] = 0
@@ -331,7 +359,7 @@ class SchedulerEngine:
             return {"success": False, "status": "SKIPPED_DISABLED"}
 
         current_st = self.state.get(job_name, {})
-        if current_st.get("status") == "RUNNING" and not force:
+        if current_st.get("status") == "RUNNING" and not force and not _runner_gone(current_st):
             started = str(current_st.get("current_run_start") or current_st.get("last_run") or "")
             fresh = False
             try:
@@ -585,6 +613,24 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
 
     from pipeline.scheduler import cloud_cron
 
+    # A daemon that died mid-job left RUNNING behind; without this the job
+    # would be skipped as "still running" for half an hour.
+    with _STATE_LOCK:
+        try:
+            st = json.loads(SCHEDULER_STATE_FILE.read_text(encoding="utf-8")) if SCHEDULER_STATE_FILE.exists() else {}
+        except (OSError, ValueError):
+            st = {}
+        dirty = False
+        for name, rec in (st.items() if isinstance(st, dict) else []):
+            if isinstance(rec, dict) and rec.get("status") == "RUNNING" and (
+                    _runner_gone(rec) or (not rec.get("pid") and rec.get("host") in (None, _HOST))):
+                rec["status"] = "INTERRUPTED"
+                rec.pop("current_run_start", None)
+                dirty = True
+                print(f"↺ [SCHEDULER] '{name}' was cut off when the last scheduler stopped; it runs again when due.")
+        if dirty:
+            SCHEDULER_STATE_FILE.write_text(json.dumps(st, indent=2), encoding="utf-8")
+
     # One thread per running job, so a 20-minute post does not hold up a
     # 2-minute scrape. A job never overlaps itself.
     busy: Dict[str, threading.Thread] = {}
@@ -607,7 +653,7 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
                           else "💻 This machine keeps the clock.")
             chosen = _read_intervals()
             own_cron = {str(n) for n in (chosen.get("_cron") or [])}
-            if (cloud or own_cron) and now - pulled > 60:
+            if cloud and now - pulled > 60:
                 pulled = now
                 cloud_cron.pull_clock()
             if cloud:
@@ -802,6 +848,11 @@ def _write_intervals(chosen: dict) -> Optional[bool]:
     path.write_text(json.dumps(chosen, indent=2), encoding="utf-8")
     from pipeline.gtm_os.state_sync import in_cloud
     from pipeline.scheduler.cloud_cron import upload_clock_file
+    # This machine's scheduler reads the file it just wrote. Uploading it
+    # (a Google sign-in check and a copy) only matters when GCP keeps the
+    # clock, and made every Pause / Resume wait several seconds.
+    if not in_cloud() and not _cloud_clock():
+        return True
     if upload_clock_file():
         return True
     if in_cloud():
@@ -942,29 +993,41 @@ def _telegram_body(job_name: str, result: dict, label: str, where: str) -> str:
             latest = json.loads((STATE_DIR / "research_latest.json").read_text(encoding="utf-8"))
         except (OSError, ValueError):
             latest = {}
-        items = [row for row in (latest.get("items") or []) if isinstance(row, dict) and row.get("fresh", True)]
+        items = [row for row in (latest.get("items") or []) if isinstance(row, dict)]
+        # Each story goes to Telegram once: what was sent before is kept by
+        # its link and its headline, so the next scrape does not repeat it.
+        sent_file = STATE_DIR / "telegram_sent_news.json"
+        try:
+            sent = set(json.loads(sent_file.read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            sent = set()
         seen: set[str] = set()
         fresh = []
         for row in items:
             head = " ".join(str(row.get("headline") or "").split())
-            key = re.sub(r"[^\w\s]", " ", head).casefold()
-            key = " ".join(key.split())[:180]
+            named = re.match(r"^\[([^\]]+)\]\s*", head)
+            title = head[named.end():].strip() if named else head
+            key = " ".join(re.sub(r"[^\w\s]", " ", title).casefold().split())[:120]
             link = str(row.get("source") or "").split("?")[0].rstrip("/").casefold()
-            if not head or key in seen or (link and link in seen):
+            if not title or key in seen or key in sent or (link and (link in seen or link in sent)):
                 continue
             seen.add(key)
             if link:
                 seen.add(link)
-            fresh.append(row)
+            fresh.append((named.group(1).replace(" Telegram", "") if named else "", title, row))
         if not fresh:
             return ""
-        lines.append(str(len(fresh)) + " new.")
-        for row in fresh[:8]:
-            head = " ".join(str(row.get("headline") or "").split())
-            named = re.match(r"^\[([^\]]+)\]\s*", head)
-            title = head[named.end():].strip() if named else head
-            who = named.group(1).replace(" Telegram", "") if named else ""
+        shown = fresh[:8]
+        lines = ["News: " + str(len(fresh)) + " new " + ("story" if len(fresh) == 1 else "stories") + ". All of them are in Signals.", ""]
+        for who, title, row in shown:
             lines.append("• " + ((who + ": ") if who else "") + title[:180])
+        if len(fresh) > len(shown):
+            lines.append("… and " + str(len(fresh) - len(shown)) + " more in Signals.")
+        try:
+            keep = list(sent | seen)[-4000:]
+            sent_file.write_text(json.dumps(keep), encoding="utf-8")
+        except OSError:
+            pass
     else:
         for key in ("count", "memes_count", "ideas_count", "trends_count", "signals_ingested", "note", "source"):
             if result.get(key) not in (None, "", [], {}):
@@ -1040,7 +1103,9 @@ def parse_tell(text: str) -> dict:
         return {"action": "plan", "jobs": jobs, "until": until, "posts_left": posts_left, "chain": chain,
                 "dropped_post": "gtm_cycle" in asked and "gtm_cycle" not in names}
     if stopping:
-        jobs = _JOB_NAMES if everything else (sorted(names) or ["gtm_cycle"])
+        # "stop the cron", "sab band karo": no job named means every job the
+        # owner turned on (apply_tell reads that list), and posts.
+        jobs = _JOB_NAMES if everything else (sorted(names) or ["@owner"])
         return {"action": "stop", "jobs": jobs}
     if starting:
         return {"action": "start", "jobs": sorted(names) or ["gtm_cycle"]}
@@ -1166,6 +1231,8 @@ def apply_tell(text: str) -> dict:
     on = {str(n) for n in (chosen.get("_on") or []) if str(n)}
     until = parsed.get("until") or ""
     lines: list[str] = []
+    if parsed["action"] == "stop" and parsed.get("jobs") == ["@owner"]:
+        parsed["jobs"] = sorted(on | {"gtm_cycle"})
     if parsed["action"] == "stop":
         for name in parsed.get("jobs") or ["gtm_cycle"]:
             paused.add(name)

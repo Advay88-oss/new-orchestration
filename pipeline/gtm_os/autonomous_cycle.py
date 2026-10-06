@@ -65,6 +65,54 @@ class AlreadyRunning(RuntimeError):
     pass
 
 
+def _pid_alive(pid: int) -> bool:
+    if not pid or pid <= 0:
+        return False
+    if sys.platform == "win32":
+        import ctypes
+        k32 = ctypes.windll.kernel32
+        h = k32.OpenProcess(0x1000, False, int(pid))  # PROCESS_QUERY_LIMITED_INFORMATION
+        if not h:
+            return False
+        code = ctypes.c_ulong()
+        ok = k32.GetExitCodeProcess(h, ctypes.byref(code))
+        k32.CloseHandle(h)
+        return bool(ok) and code.value == 259     # STILL_ACTIVE
+    try:
+        os.kill(int(pid), 0)
+        return True
+    except OSError:
+        return False
+
+
+def _reclaim_dead_lock() -> None:
+    """A lock whose process has exited is released at once, not after 30
+    minutes, and the run it held is closed as stopped so Posts does not show
+    it as still being written. Local only: in GCP the holder runs elsewhere."""
+    try:
+        from pipeline.gtm_os.state_sync import in_cloud
+        if in_cloud() or not LOCK_FILE.exists():
+            return
+        holder = json.loads(LOCK_FILE.read_text(encoding="utf-8"))
+    except Exception:                               # noqa: BLE001 — the age rule still applies
+        return
+    if not isinstance(holder, dict) or _pid_alive(int(holder.get("pid") or 0)):
+        return
+    rid = str(holder.get("run_id") or "")
+    print("  [lock] " + rid + " stopped without finishing (pid " + str(holder.get("pid")) + "); releasing its lock")
+    LOCK_FILE.unlink(missing_ok=True)
+    run_dir = STATE_DIR / "gtm_runs" / rid
+    if rid and run_dir.is_dir() and not (run_dir / "summary.json").exists():
+        try:
+            (run_dir / "summary.json").write_text(json.dumps({
+                "run_id": rid, "status": "aborted", "started_at": holder.get("started"),
+                "ended_at": datetime.now(timezone.utc).isoformat(),
+                "reason": "The process stopped before the run finished (pid " + str(holder.get("pid")) + ").",
+            }, indent=2), encoding="utf-8")
+        except OSError:
+            pass
+
+
 def _claim_lock(run_id: str) -> bool:
     """Take the run lock, or report who holds it.
 
@@ -77,6 +125,7 @@ def _claim_lock(run_id: str) -> bool:
     with no window between the check and the write.
     """
     STATE_DIR.mkdir(parents=True, exist_ok=True)
+    _reclaim_dead_lock()
     try:
         age = time.time() - LOCK_FILE.stat().st_mtime
         if age > LOCK_STALE_S:

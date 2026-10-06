@@ -210,18 +210,25 @@ function Composer({ id, rows, value, onChange, onSend, onStop, busy, disabled, c
   );
 }
 
-export function AssistantView({ company, owner, ownerName, prefill, newChat, onOpenRun, onAutopilot, flash }: {
+export function AssistantView({ company, owner, ownerName, prefill, threadId, onThreadChange, onSaved, onOpenRun, onAutopilot, flash }: {
   company: { id: string; name: string; color: string } | null;
   owner: boolean;
   ownerName: string;
   prefill: { text: string; n: number };
-  newChat: number;
+  /** The open conversation; null is a new chat. The sidebar's Recents choose it. */
+  threadId: string | null;
+  onThreadChange: (id: string | null) => void;
+  /** A message was saved: the Recents list should refresh. */
+  onSaved: () => void;
   onOpenRun: (id: string) => void;
   onAutopilot: () => void;
   flash: (t: string) => void;
 }) {
   const tenant = company?.id || "";
-  const [threadId, setThreadId] = useState<string | null>(null);
+  // The conversation these messages belong to. A switch to another one
+  // replaces them; a reply still streaming into the old one is dropped.
+  const current = useRef<string | null | undefined>(undefined);
+  const cache = useRef(new Map<string, Msg[]>());
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -231,32 +238,34 @@ export function AssistantView({ company, owner, ownerName, prefill, newChat, onO
   const abort = useRef<AbortController | null>(null);
   const end = useRef<HTMLDivElement>(null);
 
-  const openThread = useCallback(async (t: string, id: string | null) => {
-    setThreadId(id);
-    try { if (id) localStorage.setItem("vn_assistant_thread_" + t, id); else localStorage.removeItem("vn_assistant_thread_" + t); } catch { /* */ }
-    if (!id) { setMsgs([]); return; }
-    setLoadingThread(true);
-    try {
-      const d = await (await fetch("/api/assistant/threads?tenant=" + t + "&id=" + id, { cache: "no-store" })).json();
-      setMsgs(d.ok && d.thread ? d.thread.messages : []);
-      if (!d.ok) setThreadId(null);
-    } catch (e) { setErr(String(e)); } finally { setLoadingThread(false); }
-  }, []);
-
   useEffect(() => {
     if (!tenant) return;
-    let last: string | null = null;
-    try { last = localStorage.getItem("vn_assistant_thread_" + tenant); } catch { /* */ }
-    openThread(tenant, last);
-  }, [tenant, openThread]);
-
-  useEffect(() => {
-    if (!newChat || !tenant) return;
+    if (current.current === threadId) return;      // the stream already named this one
+    current.current = threadId;
     abort.current?.abort();
-    openThread(tenant, null);
-    setInput("");
-    setTimeout(() => box.current?.focus(), 0);
-  }, [newChat]); // eslint-disable-line react-hooks/exhaustive-deps
+    setErr(null);
+    if (!threadId) {
+      setMsgs([]);
+      setInput("");
+      setTimeout(() => box.current?.focus(), 0);
+      return;
+    }
+    const id = threadId;
+    // A chat opened before shows at once; the saved copy replaces it when it arrives.
+    const seen = cache.current.get(id);
+    setMsgs(seen || []);
+    setLoadingThread(!seen);
+    fetch("/api/assistant/threads?tenant=" + tenant + "&id=" + id, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.ok && d.thread) cache.current.set(id, d.thread.messages);
+        if (current.current !== id) return;
+        if (d.ok && d.thread) setMsgs(d.thread.messages);
+        else { setErr("That conversation could not be opened."); onThreadChange(null); }
+      })
+      .catch((e) => { if (current.current === id) setErr(String(e)); })
+      .finally(() => { if (current.current === id) setLoadingThread(false); });
+  }, [tenant, threadId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!prefill.n) return;
@@ -275,11 +284,17 @@ export function AssistantView({ company, owner, ownerName, prefill, newChat, onO
     setBusy(true);
     const ctl = new AbortController();
     abort.current = ctl;
-    const update = (f: (m: Msg) => Msg) => setMsgs((all) => { const c = [...all]; c[c.length - 1] = f({ ...c[c.length - 1] }); return c; });
+    const startedIn = current.current;
+    let mine = startedIn;
+    // Updates land only while this conversation is still the open one.
+    const update = (f: (m: Msg) => Msg) => {
+      if (current.current !== mine) return;
+      setMsgs((all) => { const c = [...all]; c[c.length - 1] = f({ ...c[c.length - 1] }); return c; });
+    };
     try {
       const r = await fetch("/api/assistant", {
         method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
-        body: JSON.stringify({ tenant, text: q, thread_id: threadId }),
+        body: JSON.stringify({ tenant, text: q, thread_id: startedIn || null }),
       });
       if (!r.ok || !r.body) {
         const j = await r.json().catch(() => ({}));
@@ -298,9 +313,11 @@ export function AssistantView({ company, owner, ownerName, prefill, newChat, onO
           if (!chunk.startsWith("data: ")) continue;
           const ev = JSON.parse(chunk.slice(6));
           if (ev.type === "thread") {
-            if (ev.thread_id !== threadId) {
-              setThreadId(ev.thread_id);
-              try { localStorage.setItem("vn_assistant_thread_" + tenant, ev.thread_id); } catch { /* */ }
+            if (ev.thread_id !== mine && current.current === mine) {
+              mine = ev.thread_id;
+              current.current = ev.thread_id;
+              onThreadChange(ev.thread_id);
+              onSaved();
             }
           } else if (ev.type === "tool") {
             update((m) => ({ ...m, tools: [...(m.tools || []), { name: ev.name, summary: ev.summary }] }));
@@ -316,8 +333,10 @@ export function AssistantView({ company, owner, ownerName, prefill, newChat, onO
       else update((m) => ({ ...m, error: String(e?.message || e) }));
     } finally {
       update((m) => ({ ...m, pending: false }));
+      if (mine && current.current === mine) setMsgs((all) => { cache.current.set(mine as string, all); return all; });
       setBusy(false);
       abort.current = null;
+      onSaved();
       box.current?.focus();
     }
   };
@@ -398,7 +417,7 @@ export function AssistantView({ company, owner, ownerName, prefill, newChat, onO
                 </div>
               </div>
               {(m.cards || []).map((c, j) => {
-                if (c.type === "action") return <ActionCard key={j} c={c} tenant={tenant} threadId={threadId} owner={owner} onDone={flash} />;
+                if (c.type === "action") return <ActionCard key={j} c={c} tenant={tenant} threadId={current.current || null} owner={owner} onDone={flash} />;
                 if (c.type === "analysis") return <AnalysisCard key={j} c={c} />;
                 if (c.type === "competitors") return <CompetitorsCard key={j} c={c} />;
                 if (c.type === "notion") return <NotionCard key={j} c={c} />;

@@ -215,16 +215,36 @@ TICK = "vanna-gtm-tick"
 STATE_OBJECT = "gs://" + BUCKET + "/state/pipeline/state/scheduler_state.json"
 
 
-def tick_live() -> bool:
+_TICK_SEEN: dict = {}
+
+
+def tick_live(max_age_s: float = 120) -> bool:
     """True when GCP keeps the clock: the 2-minute tick exists and is enabled.
 
     Then the laptop's scheduler only mirrors the bucket, so a job never runs
-    in both places (and never sends its Telegram note twice)."""
-    if not _gcloud():
-        return False
-    code, raw = _run(["scheduler", "jobs", "describe", TICK, "--location", REGION,
-                      "--format", "value(state)"], timeout=20)
-    return code == 0 and raw.strip().splitlines()[-1:] == ["ENABLED"]
+    in both places (and never sends its Telegram note twice). The answer is
+    kept for two minutes; asking gcloud takes seconds."""
+    import time as _t
+    # Kept in memory and on disk: a tell is a fresh process each time.
+    cache = Path(__file__).resolve().parents[1] / "state" / "_tick_live.json"
+    if not _TICK_SEEN:
+        try:
+            _TICK_SEEN.update(json.loads(cache.read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            pass
+    if _TICK_SEEN and _t.time() - float(_TICK_SEEN.get("at", 0)) < max_age_s:
+        return bool(_TICK_SEEN.get("live"))
+    live = False
+    if _gcloud():
+        code, raw = _run(["scheduler", "jobs", "describe", TICK, "--location", REGION,
+                          "--format", "value(state)"], timeout=20)
+        live = code == 0 and raw.strip().splitlines()[-1:] == ["ENABLED"]
+    _TICK_SEEN.update(at=_t.time(), live=live)
+    try:
+        cache.write_text(json.dumps(_TICK_SEEN), encoding="utf-8")
+    except OSError:
+        pass
+    return live
 
 
 def pull_clock() -> bool:
@@ -320,7 +340,8 @@ def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[s
             row["state"] = status
             state[name] = row
         if status == "local":
-            return ["It runs on this machine and keeps its gap until you stop it."], [], state
+            running = [n for n in on if n not in paused]
+            return (["It runs on this machine and keeps its gap until you stop it."] if running else []), [], state
         return ["No cron was created: Google sign-in is missing (gcloud auth login). The plan is saved."], [], state
 
     for name in sorted(paused):
