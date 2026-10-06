@@ -138,13 +138,15 @@ export async function GET(req: Request) {
   const brief = String(summary.poster_brief || '');
   const headline = (brief.match(/Headline:\s*([^\n]+)/)?.[1] || '').replace(/\s*\(gradient word:.*\)\s*$/, '').trim()
     || String(posts.x?.hook || '').split('\n')[0].trim();
-  // The same rule as the Posts list (components/views/Runs.tsx), so a post
-  // never reads "Held" here and "Posted" there.
+  // The same rule as Posts (lib/herald.ts stateOf): the owner's decision
+  // first, then the reviewer's hold. Delivery to Telegram is not publishing.
   const row: any = await gtmLegacyRun(runId).catch(() => null);
-  const review = row?.dispatched === true ? 'posted'
-    : row?.publishable === true ? 'ready'
+  const verdict = String(row?.decision?.verdict || '');
+  const review = verdict === 'approve' || verdict === 'edit' ? 'approved'
+    : verdict === 'revise' ? 'revised'
+    : verdict === 'kill' ? 'killed'
     : row?.blocked_reason || summary.status === 'review_blocked' ? 'held'
-    : String(summary.status || '');
+    : 'ready';
   return NextResponse.json({
     ok: true,
     runId,

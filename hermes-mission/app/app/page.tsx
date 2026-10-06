@@ -1,5 +1,5 @@
-import { MissionControl } from "@/components/MissionControl";
+import { HeraldApp } from "@/components/herald/HeraldApp";
 
 export default function AppPage() {
-  return <MissionControl />;
+  return <HeraldApp />;
 }

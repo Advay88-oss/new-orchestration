@@ -358,6 +358,14 @@ export async function gtmRunDetail(runId?: string) {
     opportunity: s.opportunity ?? null,
     audience: s.audience ?? null,
     proofClaims: s.proof_claims ?? [],
+    factCheck: s.fact_check ?? null,
+    directive: s.directive ?? null,
+    signalSource: s.signal_url || s.signal_publisher || s.signal_excerpt ? {
+      url: typeof s.signal_url === 'string' && /^https?:\/\//.test(s.signal_url) ? s.signal_url : null,
+      publisher: s.signal_publisher ?? null,
+      excerpt: s.signal_excerpt ?? null,
+      type: s.signal_source_type ?? null,
+    } : null,
     agents,
     artifacts: {
       visual: s.visual_path ? '/api/gtm/artifact/' + rid + '/visual' : null,
@@ -440,7 +448,7 @@ export async function gtmArtifact(
  * so `core/` stops being a data source for any surface.
  */
 export async function gtmLegacyRun(runId: string): Promise<Record<string, unknown> | null> {
-  const d = await gtmRunDetail(runId);
+  const [d, fb] = await Promise.all([gtmRunDetail(runId), gtmFeedback(runId).catch(() => null)]);
   if (!d) return null;
 
   const agent_outputs: Record<string, unknown> = {};
@@ -559,6 +567,15 @@ export async function gtmLegacyRun(runId: string): Promise<Record<string, unknow
     dispatch_detail:
       d.agents.find((a) => a.id.startsWith('A11'))?.detail ?? null,
     decisions: [],
+    // The owner's latest decision (approve / revise / kill), from feedback.json.
+    decision: fb?.latest?.verdict ? {
+      verdict: String(fb.latest.verdict), note: fb.latest.note ?? '', at: fb.latest.at ?? null,
+    } : null,
+    signal_source: d.signalSource,
+    fact_check: d.factCheck,
+    asked: d.directive,
+    in_flight: d.inFlight,
+    agents: d.agents.map((a) => ({ id: a.id, name: a.name, status: a.status, detail: a.detail })),
     reasoning: {
       arc: d.pillar,
       audience: d.audience,

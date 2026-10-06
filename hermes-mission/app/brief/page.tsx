@@ -30,7 +30,9 @@ const LABEL: Record<string, string> = { x: 'X', linkedin: 'LinkedIn', reddit: 'R
 const REVIEW: Record<string, { text: string; fg: string; bg: string }> = {
   ready: { text: 'Ready for review', fg: 'var(--vn-warn)', bg: 'var(--vn-warn-soft)' },
   held: { text: 'Held at review', fg: 'var(--vn-bad)', bg: 'var(--vn-bad-soft)' },
-  posted: { text: 'Posted', fg: 'var(--vn-ok)', bg: 'var(--vn-ok-soft)' },
+  approved: { text: 'Approved', fg: 'var(--vn-ok)', bg: 'var(--vn-ok-soft)' },
+  revised: { text: 'Revision requested', fg: 'var(--vn-warn)', bg: 'var(--vn-warn-soft)' },
+  killed: { text: 'Killed', fg: 'var(--vn-bad)', bg: 'var(--vn-bad-soft)' },
   running: { text: 'Being written', fg: 'var(--vn-accent-ink)', bg: 'var(--vn-accent-soft)' },
 };
 
@@ -155,7 +157,7 @@ export default function BriefPage() {
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            <a href="/app" style={{ fontSize: 13, color: 'var(--vn-ink-body)', fontWeight: 500 }}>Open workspace</a>
+            <a href={data?.runId ? '/app?view=run&run=' + data.runId : '/app'} style={{ fontSize: 13, color: 'var(--vn-ink-body)', fontWeight: 500 }}>Open workspace</a>
             <div role="radiogroup" aria-label="Theme" style={{ display: 'flex', background: 'var(--vn-raised)', borderRadius: 8, padding: 2 }}>
               {([['light', IconSun], ['dark', IconMoon]] as const).map(([t, Icon]) => {
                 const on = (t === 'dark') === dark;

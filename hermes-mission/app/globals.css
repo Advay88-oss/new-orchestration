@@ -3,42 +3,42 @@
    brand and live state, and the pastels carry status only. */
 
 :root {
-  --vn-bg: #F9F8F6;         /* page */
+  --vn-bg: #FAF9F7;         /* page */
   --vn-surface: #FFFFFF;    /* cards */
-  --vn-raised: #F1F0EC;     /* hover, nested panels */
-  --vn-sunken: #F3F2EE;     /* sidebar, inputs and wells */
+  --vn-raised: #F5F3EF;     /* hover, nested panels */
+  --vn-sunken: #F3F1ED;     /* sidebar, inputs and wells */
   --vn-hover: rgba(28, 27, 25, 0.04);
   --vn-overlay: rgba(28, 27, 25, 0.28);
 
-  --vn-line: #E8E6E1;
-  --vn-line-strong: #D7D4CD;
+  --vn-line: #E8E4DD;
+  --vn-line-strong: #D9D4CB;
   --vn-lit: 0 0 0 0 transparent;
   --vn-shadow: 0 1px 2px rgba(28, 27, 25, 0.05), 0 0 0 1px rgba(28, 27, 25, 0.04);
   --vn-shadow-lg: 0 12px 32px rgba(28, 27, 25, 0.08), 0 1px 3px rgba(28, 27, 25, 0.06);
 
-  --vn-ink: #1C1B19;        /* headings, key figures */
-  --vn-ink-body: #3A3935;   /* running text */
-  --vn-ink-muted: #75736D;  /* labels */
-  --vn-ink-faint: #A3A09A;  /* metadata, timestamps */
+  --vn-ink: #1B1A17;        /* headings, key figures */
+  --vn-ink-body: #3A3833;   /* running text */
+  --vn-ink-muted: #5D5952;  /* labels */
+  --vn-ink-faint: #747068;  /* metadata, timestamps */
 
   /* One accent: Herald green. -ink is the same hue dark enough for text. */
-  --vn-accent: #2F6B57;
-  --vn-accent-light: #24584A;
-  --vn-accent-ink: #24584A;
-  --vn-accent-soft: #E8F1ED;
-  --vn-accent-line: #C6DBD2;
+  --vn-accent: #2F6B5E;
+  --vn-accent-light: #24564B;
+  --vn-accent-ink: #24564B;
+  --vn-accent-soft: #EAF1EF;
+  --vn-accent-line: #C3D7D2;
   --vn-rose: #B4553A;       /* live state only, never decoration */
   --vn-on-accent: #FFFFFF;
 
   /* Primary action: solid ink. */
-  --vn-cta: #1C1B19;
-  --vn-cta-hover: #34332F;
+  --vn-cta: #1B1A17;
+  --vn-cta-hover: #33312D;
 
-  --vn-ok: #2F7A4F;       --vn-ok-soft: #E7F2EA;   --vn-ok-line: #C9E0CF;
-  --vn-warn: #94660E;     --vn-warn-soft: #FAF1DC; --vn-warn-line: #EEDDB0;
-  --vn-bad: #A23B32;      --vn-bad-soft: #FBEAE7;  --vn-bad-line: #F1CCC6;
+  --vn-ok: #2E7A4D;       --vn-ok-soft: #E8F2EB;   --vn-ok-line: #C9E0CF;
+  --vn-warn: #94600F;     --vn-warn-soft: #F7EEDD; --vn-warn-line: #EEDDB0;
+  --vn-bad: #AE4128;      --vn-bad-soft: #F7E8E3;  --vn-bad-line: #F1CCC6;
 
-  --vn-header-bg: rgba(249, 248, 246, 0.86);
+  --vn-header-bg: rgba(250, 249, 247, 0.88);
   --vn-skel-hi: #EAE8E3;
   --vn-scroll: #DDDAD3;
   --vn-scroll-hover: #C9C6BE;
@@ -55,38 +55,39 @@
   --vn-space: 20px;        /* between blocks */
   --vn-card-pad: 22px;     /* inside cards */
   --vn-rail: 272px;        /* the sidebar */
+  --font-jetbrains-mono: var(--font-mono); /* old name, kept for older views */
 }
 
 /* Dark: the same warm neutrals, inverted. Chosen by the sidebar switch
    (data-theme), or by the OS when no choice is saved. */
 :root[data-theme="dark"] {
-  --vn-bg: #141413;
-  --vn-surface: #1C1C1A;
-  --vn-raised: #252523;
-  --vn-sunken: #181817;
+  --vn-bg: #1A1917;
+  --vn-surface: #21201D;
+  --vn-raised: #272623;
+  --vn-sunken: #141412;
   --vn-hover: rgba(255, 255, 255, 0.045);
   --vn-overlay: rgba(0, 0, 0, 0.55);
-  --vn-line: #2B2A27;
-  --vn-line-strong: #3A3935;
+  --vn-line: #312F2B;
+  --vn-line-strong: #3F3D38;
   --vn-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
   --vn-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  --vn-ink: #EDECE8;
-  --vn-ink-body: #CBC9C3;
-  --vn-ink-muted: #9A9892;
-  --vn-ink-faint: #6E6C67;
-  --vn-accent: #5FAE92;
-  --vn-accent-light: #8CCAB3;
-  --vn-accent-ink: #8CCAB3;
-  --vn-accent-soft: #19271F;
-  --vn-accent-line: #2A4337;
+  --vn-ink: #EEEBE5;
+  --vn-ink-body: #D3CFC8;
+  --vn-ink-muted: #ADA89F;
+  --vn-ink-faint: #959087;
+  --vn-accent: #8DB8AD;
+  --vn-accent-light: #A5CBC1;
+  --vn-accent-ink: #A5CBC1;
+  --vn-accent-soft: #24302C;
+  --vn-accent-line: #3B524B;
   --vn-rose: #E08A6E;
   --vn-on-accent: #141413;
-  --vn-cta: #EDECE8;
+  --vn-cta: #EEEBE5;
   --vn-cta-hover: #FFFFFF;
-  --vn-ok: #7FC99A;   --vn-ok-soft: #16261C;   --vn-ok-line: #24402C;
-  --vn-warn: #E1B45E; --vn-warn-soft: #2A2312; --vn-warn-line: #4A3D1E;
-  --vn-bad: #EE8C82;  --vn-bad-soft: #2D1715;  --vn-bad-line: #4E2624;
-  --vn-header-bg: rgba(20, 20, 19, 0.86);
+  --vn-ok: #7DCB98;   --vn-ok-soft: #1D2A21;   --vn-ok-line: #24402C;
+  --vn-warn: #E3B66A; --vn-warn-soft: #2E2617; --vn-warn-line: #4A3D1E;
+  --vn-bad: #F09A82;  --vn-bad-soft: #33201B;  --vn-bad-line: #4E2624;
+  --vn-header-bg: rgba(26, 25, 23, 0.88);
   --vn-skel-hi: #2C2C29;
   --vn-scroll: #34332F;
   --vn-scroll-hover: #45443F;
@@ -95,33 +96,33 @@
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="dark"]) {
-    --vn-bg: #141413;
-    --vn-surface: #1C1C1A;
-    --vn-raised: #252523;
-    --vn-sunken: #181817;
+    --vn-bg: #1A1917;
+    --vn-surface: #21201D;
+    --vn-raised: #272623;
+    --vn-sunken: #141412;
     --vn-hover: rgba(255, 255, 255, 0.045);
     --vn-overlay: rgba(0, 0, 0, 0.55);
-    --vn-line: #2B2A27;
-    --vn-line-strong: #3A3935;
+    --vn-line: #312F2B;
+    --vn-line-strong: #3F3D38;
     --vn-shadow: 0 0 0 1px rgba(255, 255, 255, 0.04);
     --vn-shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.05);
-    --vn-ink: #EDECE8;
-    --vn-ink-body: #CBC9C3;
-    --vn-ink-muted: #9A9892;
-    --vn-ink-faint: #6E6C67;
-    --vn-accent: #5FAE92;
-    --vn-accent-light: #8CCAB3;
-    --vn-accent-ink: #8CCAB3;
-    --vn-accent-soft: #19271F;
-    --vn-accent-line: #2A4337;
+    --vn-ink: #EEEBE5;
+    --vn-ink-body: #D3CFC8;
+    --vn-ink-muted: #ADA89F;
+    --vn-ink-faint: #959087;
+    --vn-accent: #8DB8AD;
+    --vn-accent-light: #A5CBC1;
+    --vn-accent-ink: #A5CBC1;
+    --vn-accent-soft: #24302C;
+    --vn-accent-line: #3B524B;
     --vn-rose: #E08A6E;
     --vn-on-accent: #141413;
-    --vn-cta: #EDECE8;
+    --vn-cta: #EEEBE5;
     --vn-cta-hover: #FFFFFF;
-    --vn-ok: #7FC99A;   --vn-ok-soft: #16261C;   --vn-ok-line: #24402C;
-    --vn-warn: #E1B45E; --vn-warn-soft: #2A2312; --vn-warn-line: #4A3D1E;
-    --vn-bad: #EE8C82;  --vn-bad-soft: #2D1715;  --vn-bad-line: #4E2624;
-    --vn-header-bg: rgba(20, 20, 19, 0.86);
+    --vn-ok: #7DCB98;   --vn-ok-soft: #1D2A21;   --vn-ok-line: #24402C;
+    --vn-warn: #E3B66A; --vn-warn-soft: #2E2617; --vn-warn-line: #4A3D1E;
+    --vn-bad: #F09A82;  --vn-bad-soft: #33201B;  --vn-bad-line: #4E2624;
+    --vn-header-bg: rgba(26, 25, 23, 0.88);
     --vn-skel-hi: #2C2C29;
     --vn-scroll: #34332F;
     --vn-scroll-hover: #45443F;
@@ -174,12 +175,12 @@ h1, h2, h3, h4 {
    Assistant's greeting only. */
 h1, h2 {
   font-family: var(--font-sans), system-ui, sans-serif;
-  font-weight: 600 !important;
+  font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1.15;
 }
-h1 { font-size: clamp(24px, 1.2vw + 14px, 30px) !important; }
-h2 { font-size: clamp(20px, 0.9vw + 13px, 24px) !important; }
+h1 { font-size: clamp(24px, 1.2vw + 14px, 30px); }
+h2 { font-size: clamp(20px, 0.9vw + 13px, 24px); }
 h3 { font-size: clamp(14px, 0.8vw + 8px, 16px); font-weight: 600; }
 h4 { font-size: clamp(13px, 0.6vw + 8px, 15px); font-weight: 600; }
 
@@ -643,7 +644,7 @@ pre, code {
 .hd-page-head p { margin: 6px 0 0; font-size: 14px; color: var(--vn-ink-muted); max-width: 72ch; }
 .hd-page-head + .vanna-section { padding-top: 18px; }
 
-code, kbd, pre { font-family: var(--font-jetbrains-mono), ui-monospace, monospace; }
+code, kbd, pre { font-family: var(--font-mono), ui-monospace, monospace; }
 main { overflow-wrap: break-word; }
 main a, main span { overflow-wrap: anywhere; }
 table td span, table td a { overflow-wrap: normal; }

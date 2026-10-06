@@ -80,5 +80,5 @@ export function companyHue(id: string): string {
   const hues = ["#2F6B57", "#8A5A2B", "#2E5E8C", "#7A3E6B", "#5B6B2F", "#8C3B3B"];
   let h = 0;
   for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-  return id === "vanna" ? hues[0] : hues[h % hues.length];
+  return id === "vanna" ? "#2F6B5E" : hues[h % hues.length];
 }
