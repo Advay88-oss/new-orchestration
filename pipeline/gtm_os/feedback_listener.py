@@ -73,6 +73,17 @@ def _authorized(chat_id: Any, user_id: Any, reviewer_chat: Optional[str]) -> boo
     return str(user_id) == str(FOUNDER_USER_ID)
 
 
+def _ack(token: str, query_id: str, text: str) -> None:
+    """Tell Telegram the button was seen. An expired button is a 400, and
+    that is not a failure: the decision is already recorded."""
+    try:
+        _call(token, "answerCallbackQuery",
+              {"callback_query_id": query_id, "text": text}, timeout=20)
+    except urllib.error.HTTPError as exc:
+        if exc.code not in (400, 403):
+            raise
+
+
 def _reply(token: str, chat_id: Any, text: str) -> None:
     try:
         _call(token, "sendMessage", {"chat_id": chat_id, "text": text}, timeout=20)
@@ -91,24 +102,19 @@ def handle(update: dict, token: str, reviewer_chat: Optional[str]) -> Optional[d
         user_id = (cq.get("from") or {}).get("id")
         who = (cq.get("from") or {}).get("username") or str(user_id)
         if not _authorized(chat_id, user_id, reviewer_chat):
-            _call(token, "answerCallbackQuery",
-                  {"callback_query_id": cq["id"], "text": "Not authorised."}, timeout=20)
+            _ack(token, cq["id"], "Not authorised.")
             return None
         verdict, _, run_id = data.partition(":")
         if verdict not in ("approve", "revise", "kill") or not run_id:
-            _call(token, "answerCallbackQuery",
-                  {"callback_query_id": cq["id"], "text": "Unknown button."}, timeout=20)
+            _ack(token, cq["id"], "Unknown button.")
             return None
         try:
             row = record(run_id, verdict, source="telegram", by=who)
         except FileNotFoundError:
-            _call(token, "answerCallbackQuery",
-                  {"callback_query_id": cq["id"], "text": "Run not found locally."}, timeout=20)
+            _ack(token, cq["id"], "Run not found locally.")
             return None
         labels = {"approve": "Approved", "revise": "Revision noted", "kill": "Killed"}
-        _call(token, "answerCallbackQuery",
-              {"callback_query_id": cq["id"], "text": labels[verdict] + " — recorded."},
-              timeout=20)
+        _ack(token, cq["id"], labels[verdict] + " — recorded.")
         if verdict == "revise":
             _save(PENDING_FILE, {"chat_id": chat_id, "run_id": run_id,
                                  "at": time.time()})

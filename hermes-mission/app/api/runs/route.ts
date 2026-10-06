@@ -21,6 +21,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     runs,
     total_runs: runs.length,
+    post_count: runs.filter((r) => r.has_post === true).length,
     source: 'GTM_RUN_JOURNAL',
     updated_at: new Date().toISOString(),
   });

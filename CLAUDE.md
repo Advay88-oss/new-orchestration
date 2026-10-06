@@ -125,6 +125,10 @@ python -m pipeline.brand_brain.notion_sync all            # the daily scheduler 
 # learning: record where a post went out; engagement is read back after 48h (scheduler: metrics_collect)
 python -m pipeline.gtm_learning.metrics_collector published GTM-... https://x.com/<handle>/status/<id>
 python -m pipeline.gtm_learning.metrics_collector collect
+
+# Context.dev research agent: search, scrape, crawl, and brand intel on competitors
+python -m pipeline.gtm_os.context_research_agent --competitor "Morpho Labs" --domain "morpho.org"
+python -m pipeline.gtm_os.context_research_agent --topic "DeFi lending liquidation mechanisms"
 ```
 
 Requires `google-cloud-storage` and valid ADC (`gcloud auth application-default login`).

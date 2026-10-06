@@ -131,6 +131,22 @@ def evidence(now: Optional[datetime] = None) -> list[tuple[str, Optional[str], f
             if hit:
                 col, sub = arm_of(hit.get("signal_id"), hit.get("query"))
                 out.append((col, sub, float(f.get("reward", 0.0)), w * FOUNDER_WEIGHT))
+    # The live scrape (Scraped Intelligence) teaches the same loop, lightly,
+    # so a source that keeps producing is remembered between full runs.
+    latest = _json(Path(__file__).resolve().parents[1] / "state" / "research_latest.json")
+    if latest:
+        w = _age_weight(str(latest.get("collected_at") or ""), now) * 0.35
+        kind_arm = {
+            "competitor": ("twitter", None),
+            "news": ("google_news", None),
+            "docs": ("docs_blogs", None),
+            "community": ("reddit", None),
+            "market": ("defillama", None),
+        }
+        for item in latest.get("items") or []:
+            arm = kind_arm.get(str(item.get("kind") or ""))
+            if arm and w > 0:
+                out.append((arm[0], arm[1], 0.55, w))
     return out
 
 

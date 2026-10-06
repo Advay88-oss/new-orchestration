@@ -19,3 +19,6 @@ The account shares risk across its positions. Health factor at or below 1.1 make
 BLUSDC, AqUSDC, and SoUSDC are different tokens. Borrowing one does not fund another protocol's USDC leg.
 
 See [Margin](/guides/margin/overview), [Spot](/guides/trade/spot-swap), and [Farm](/guides/farm/overview).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

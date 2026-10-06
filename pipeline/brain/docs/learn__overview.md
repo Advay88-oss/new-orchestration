@@ -16,3 +16,6 @@ Vanna connects liquidity providers with margin accounts that can use borrowed fu
 * [Composable Leverage](/learn/composable-leverage): deploying borrowed capital into Blend and AMMs.
 
 These pages describe the Stellar testnet code, with XLM and three distinct USDC test assets. They do not establish that configured contracts match the deployed WASM or that every external pool is available.
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

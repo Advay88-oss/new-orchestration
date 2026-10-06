@@ -326,3 +326,6 @@ pub fn exec_fn(
 ## Source reference
 
 * `Protocol_V1_Soroban_testnet/contracts/AccountManagerContract/src/account_manager.rs`
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

@@ -23,3 +23,6 @@ Health factor compares recognized collateral with debt. Debt-bearing accounts mu
 The Stellar build includes Earn, Margin, Spot, Farm, Portfolio, Analytics, and Copilot, with Pro/Lite modes. Spot is the supported trading surface; perps/options routes redirect there. Some analytics are scenarios or fixture-backed views, rather than current protocol measurements.
 
 See [Core Concepts](/learn/overview) for the accounting model.
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

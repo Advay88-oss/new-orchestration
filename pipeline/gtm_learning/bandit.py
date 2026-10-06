@@ -38,6 +38,7 @@ LENGTHS = ("short", "medium", "long")
 FORMATS = ("image", "video", "thread", "text")
 SLOTS = ("morning", "midday", "evening", "night")
 SLOT_HOURS = {"morning": "06:00-11:00", "midday": "11:00-15:00", "evening": "15:00-20:00", "night": "20:00-24:00"}
+TECHNICAL_DEPTHS = ("mechanism_grounded", "conceptual_docs", "deep_contract_bytecode")
 
 
 def _brain():
@@ -49,7 +50,8 @@ def _brain():
 
 def options() -> dict[str, list[str]]:
     from pipeline.brand_brain import context as C
-    return {"pillar": list(C.pillars()), "format": list(FORMATS), "hook_type": list(HOOK_TYPES),
+    return {"pillar": list(C.pillars()), "technical_depth": list(TECHNICAL_DEPTHS),
+            "format": list(FORMATS), "hook_type": list(HOOK_TYPES),
             "length": list(LENGTHS), "slot": list(SLOTS)}
 
 
@@ -145,10 +147,10 @@ def prompt_block(rec: dict[str, dict[str, Any]], *, for_agent: str) -> str:
     if for_agent == "A06":
         if "format" in rec:
             r = rec["format"]
-            how = {"thread": "write the X copy as a thread of 3-6 posts, each able to stand alone",
-                   "video": "write copy that works as the caption under a short video",
-                   "image": "write one post that pairs with the poster",
-                   "text": "write one post that works with no image at all"}.get(r["choice"], "")
+            how = {"thread": "write 2 or 3 short lines with a blank line between them, under 280 characters, not a thread and not a list",
+                   "video": "write a caption of 2 or 3 short lines under the video",
+                   "image": "write 2 or 3 short lines that pair with the poster",
+                   "text": "write 2 or 3 short lines that work with no image"}.get(r["choice"], "")
             lines.append("  - lead format: " + r["choice"] + " — " + r["why"] + (": " + how if how else "") + ".")
         for dim, label in (("hook_type", "hook type"), ("length", "length")):
             if dim in rec:
@@ -157,7 +159,9 @@ def prompt_block(rec: dict[str, dict[str, Any]], *, for_agent: str) -> str:
                              + (". Use it." if "locked" in r["why"] else "."))
         lines.append("    (hook types: question = ends with a question; contrarian = challenges a belief; "
                      "data = leads with a true figure; story = a short narrative; statement = a plain claim. "
-                     "Lengths: short < 400 characters, medium < 900, long beyond.)")
+                     "On X, LinkedIn, and Reddit the post is short lines a person can repeat. "
+                     "X stays under 280 characters. LinkedIn under 500. "
+                     "A long arm is still a few short lines, never one dense paragraph.)")
     return "\n".join(lines) if len(lines) > 1 else ""
 
 

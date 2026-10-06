@@ -64,7 +64,7 @@ export async function POST(req: Request) {
     if (!r.ok) return NextResponse.json({ success: false, error: r.error }, { status: 502 });
     return NextResponse.json({
       success: true, execution: r.execution, tenant, directive: directive || null, autonomous: !directive.trim(),
-      note: 'Cycle started on GCP. It appears under Live Trace and Agent History as it runs.',
+      note: 'Cycle started on GCP. It appears under Live Trace and Post History as it runs.',
     });
   }
 

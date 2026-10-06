@@ -80,6 +80,8 @@ def sync(tenant: Optional[str] = None) -> dict[str, Any]:
             out[s["name"]] = sync_llms_txt(s)
         elif s["kind"] == "notion":
             out[s["name"]] = _notion(t, s)
+        elif s["kind"] == "github":
+            out[s["name"]] = _github(t, s)
     out["ingest"] = O.ingest_knowledge(t)
     from pipeline.brand_brain.client import Brain
     Brain(t).meta("last_sync", str(time.time()))
@@ -91,6 +93,17 @@ def _notion(tenant: str, s: dict) -> dict[str, Any]:
         from pipeline.brand_brain.notion_sync import sync as notion_sync
         return notion_sync(tenant, authority=int(s.get("authority", 2)))
     except Exception as exc:                        # noqa: BLE001 — the other sources still sync
+        return {"ok": False, "error": str(exc)[:200]}
+
+
+def _github(tenant: str, s: dict) -> dict[str, Any]:
+    try:
+        from pipeline.brand_brain.github_sync import sync_github
+        org = s.get("org", "vannafinance")
+        repos = s.get("repos")
+        limit = int(s.get("limit_per_repo", 25))
+        return sync_github(org=org, tenant=tenant, repos=repos, limit_per_repo=limit)
+    except Exception as exc:                        # noqa: BLE001 — boundary
         return {"ok": False, "error": str(exc)[:200]}
 
 

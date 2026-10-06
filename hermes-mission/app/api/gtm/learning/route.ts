@@ -20,7 +20,7 @@ export const dynamic = 'force-dynamic';
  *
  * Writes are local-only; the deployed dashboard is public.
  */
-const DIMS = new Set(['pillar', 'format', 'hook_type', 'length', 'slot']);
+const DIMS = new Set(['pillar', 'format', 'hook_type', 'length', 'slot', 'technical_depth']);
 const RUN = /^GTM-\d{8}-\d{6}$/;
 
 const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;

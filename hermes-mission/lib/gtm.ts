@@ -507,6 +507,10 @@ export async function gtmLegacyRun(runId: string): Promise<Record<string, unknow
     failed: d.agents.filter((a) => a.status === 'failed').map((a) => a.id),
     agents_declared: d.agents.length,
     agents_that_reasoned: d.agents.filter((a) => a.modelCallsOk > 0).length,
+    // A run that never called a model and never made a poster is not a post.
+    // Post History and the sidebar both count this, so the two numbers match.
+    has_post: d.agents.some((a) => a.modelCallsOk > 0) || d.modelCalls > 0
+      || Boolean(d.artifacts.visual) || Boolean(d.artifacts.video),
     agent_outputs,
     spend: {
       // Cost is real now. `pipeline/state/model_rates.json` holds the
@@ -846,6 +850,7 @@ export async function gtmReferences(runId?: string) {
         relevance: (r?.relevance ?? null) as 'DIRECT' | 'ADJACENT' | 'NONE' | null,
         why: r?.why ?? null,
         vannaMove: r?.company_move || r?.vanna_move || null,
+        postIdea: r?.post_idea || null,
       };
     })
     .filter(Boolean);

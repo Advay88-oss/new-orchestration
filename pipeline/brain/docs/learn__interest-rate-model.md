@@ -17,3 +17,6 @@ The rate-model admin can change the coefficients, within an implied worst-case c
 The pool's separate 95% utilization cap limits new borrowing; it is not the interest model's maximum input. Supply yield depends on utilization and borrower interest, and displayed APR is not guaranteed realized APY.
 
 Interest accrues between updates. Reads preview it, and subsequent pool operations persist it. See [Rate Model](/developers/contracts/rate-model) and [Math Reference](/developers/math-reference).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

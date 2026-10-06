@@ -19,3 +19,6 @@ The configured markets are XLM, BLUSDC, AqUSDC, and SoUSDC. Each has separate li
 Available liquidity differs from total assets because outstanding loans count toward total assets. A single redemption pays at most 50% of total assets and available cash. Pool pause and liquidity conditions can prevent withdrawal. Displayed yield is variable.
 
 See [Supply](/guides/earn/supply), [Withdraw](/guides/earn/withdraw), and [Pool Mechanics](/learn/lending-pool-mechanics).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

@@ -22,7 +22,7 @@ import { LiveHarvest } from "./LiveHarvest";
 export function Research({ vm }: { vm: MissionVM }) {
   return (
     <section className="vanna-section">
-      <LiveHarvest />
+      <LiveHarvest onOpenReference={(id) => (vm as any).openReference?.(id)} />
     </section>
   );
 }

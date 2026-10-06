@@ -16,14 +16,17 @@ The Pro interface provides **Leverage Assets**, **Repay Loan**, and **Transfer C
 
 ## Read the metrics
 
-| Metric                             | Meaning                                                                   |
-| ---------------------------------- | ------------------------------------------------------------------------- |
-| Health Factor                      | Recognized collateral USD divided by debt USD                             |
-| Borrowed value                     | Outstanding debt, including interest                                      |
-| Net Available Collateral           | Nonnegative displayed equity; not a withdrawal quote                      |
-| Collateral Left Before Liquidation | `max(0, collateral - 1.1 × debt)`                                         |
-| Debt limit                         | Derived from collateral and threshold; not guaranteed new borrow capacity |
+| Metric | Meaning |
+| - | - |
+| Health Factor | Recognized collateral USD divided by debt USD |
+| Borrowed value | Outstanding debt, including interest |
+| Net Available Collateral | Nonnegative displayed equity; not a withdrawal quote |
+| Collateral Left Before Liquidation | `max(0, collateral - 1.1 × debt)` |
+| Debt limit | Derived from collateral and threshold; not guaranteed new borrow capacity |
 
 Health must be strictly above 1.1 for an account with debt to be healthy. A zero or placeholder P\&L figure is not proof of realized performance; the current Margin summary lacks complete cost-basis accounting.
 
 Start with [Open Account](/guides/margin/open-account), [Deposit](/guides/margin/deposit-collateral), and [Borrow](/guides/margin/borrow).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

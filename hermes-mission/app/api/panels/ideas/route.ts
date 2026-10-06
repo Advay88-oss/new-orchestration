@@ -8,8 +8,7 @@ import path from 'path';
 import { exec, spawn } from 'child_process';
 
 const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
-const IDEAS_FILE_1 = path.join(REPO_ROOT, 'state/panels/ideas.json');
-const IDEAS_FILE_2 = path.join(REPO_ROOT, 'pipeline/state/panels/ideas.json');
+const IDEAS_FILE = path.join(REPO_ROOT, 'pipeline/state/panels/ideas.json');
 const OUTCOMES_FILE = path.join(REPO_ROOT, 'pipeline/state/outcomes.jsonl');
 const PUBLIC_DIR = path.join(REPO_ROOT, 'hermes-mission/public');
 
@@ -40,11 +39,10 @@ export async function GET() {
       }
       return NextResponse.json({ success: true, ...(await withCompany(scopePanel(JSON.parse(raw), 'ideas'), 'ideas')) });
     }
-    const targetFile = fs.existsSync(IDEAS_FILE_2) ? IDEAS_FILE_2 : IDEAS_FILE_1;
-    if (!fs.existsSync(targetFile)) {
+    if (!fs.existsSync(IDEAS_FILE)) {
       return NextResponse.json({ success: false, error: 'ideas.json not found' }, { status: 404 });
     }
-    const data = JSON.parse(fs.readFileSync(targetFile, 'utf-8'));
+    const data = JSON.parse(fs.readFileSync(IDEAS_FILE, 'utf-8'));
     return NextResponse.json({ success: true, ...(await withCompany(scopePanel(data, 'ideas'), 'ideas')) });
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
@@ -84,8 +82,7 @@ export async function POST(req: Request) {
     }
 
     if (action === 'render_visual') {
-      const targetFile = fs.existsSync(IDEAS_FILE_2) ? IDEAS_FILE_2 : IDEAS_FILE_1;
-      const data = JSON.parse(fs.readFileSync(targetFile, 'utf-8'));
+      const data = JSON.parse(fs.readFileSync(IDEAS_FILE, 'utf-8'));
       const idea = (data.ideas || []).find((i: any) => i.id === idea_id);
       if (!idea) {
         return NextResponse.json({ success: false, error: 'Idea not found' }, { status: 404 });

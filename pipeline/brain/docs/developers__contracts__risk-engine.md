@@ -18,12 +18,12 @@ For a new gross borrow B, the standalone guard evaluates `(C + B) / (D + B)`. Ex
 
 Plain tokens use registered metadata, native decimal conversion, and canonical oracle feeds. Explicitly revoked collateral is excluded. Tracking positions use Registry `TrackingMeta`:
 
-| Kind              | Valuation                                                            |
-| ----------------- | -------------------------------------------------------------------- |
+| Kind | Valuation |
+| - | - |
 | `BlendUnderlying` | Receipt balance × Blend reserve b\_rate, converted to underlying USD |
-| `LpSoroswap`      | User share of conservatively valued committed pair reserves          |
-| `LpAquarius`      | User share of conservatively valued committed pool reserves          |
-| `Unpriced`        | Zero                                                                 |
+| `LpSoroswap` | User share of conservatively valued committed pair reserves |
+| `LpAquarius` | User share of conservatively valued committed pool reserves |
+| `Unpriced` | Zero |
 
 LP pool USD value is **2 × min(USD value of each reserve side)**, not the unrestricted sum of both sides. Freeze/revocation and missing data can remove collateral value. Borrow/withdraw snapshots may use cached Blend/LP values; liquidation reads its own snapshot and external positions. LP collateral is not categorically zero.
 
@@ -263,3 +263,6 @@ pub fn is_paused(env: &Env) -> bool
 ## Source reference
 
 * `Protocol_V1_Soroban_testnet/contracts/RiskEngineContract/src/risk_engine.rs`
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

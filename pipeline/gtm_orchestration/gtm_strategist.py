@@ -143,8 +143,25 @@ class GTMStrategist:
             "Decide whether a market signal is worth publishing about, and if "
             "so, formulate the strategy. Return strict JSON only.\n\n"
             "Rules:\n"
-            "- Never contradict the deployment ({deployment}). Never assert "
+            "- The profile line is the Stellar deployment. A GitHub page for Solana "
+            "is the other deployment, not a contradiction of the profile. Never assert "
             "live token trading or first-mover status.\n"
+            "- The GitHub pages name two deployments. A post is about one of them. "
+            "Solana pages (xStocks, PreStocks, borrow from one margin account, up to 5×, "
+            "no funding rate, Kamino's xStocks market) are true of the Solana program. "
+            "Do not reject a Solana subject because the profile line is Stellar, and "
+            "do not put a Stellar figure or Blend or Aquarius on a Solana post.\n"
+            "- A signal marked SCRAPED REFERENCE is a doc, post, news item or "
+            "market page the scout took. That source is the subject. The post "
+            "idea in the description is what to say. The GitHub page named "
+            "there is the only Vanna mechanism. Do not drop the source and do "
+            "not rewrite the post into Blend and Aquarius unless the source "
+            "is about those venues. Do not reject it for lacking a news hook.\n"
+            "- A signal marked PRODUCT PAGE was chosen because recent posts repeated "
+            "one story. That page is the subject. Write problem, positioning and "
+            "proof_claims about that page only. Do not rewrite it into Blend and "
+            "Aquarius unless the page itself is about those venues. Do not reject "
+            "it for lacking a news hook.\n"
             "- `proof_claims` must be claims you believe are true of {company} and "
             "checkable. Do not invent metrics. If you are unsure of a number, "
             "state the mechanism without the number.\n"
@@ -216,7 +233,7 @@ class GTMStrategist:
             try:
                 decision = _brain_json(
                     prompt, agent=_AGENT, role="reasoning", system=strategy_system,
-                    temperature=0.3, max_output_tokens=3072)
+                    temperature=0.3, max_output_tokens=8192)
             except _BrainError as exc:
                 # A strategist that could not reach its model has not formed a
                 # strategy. Returning the old canned branch here is exactly how

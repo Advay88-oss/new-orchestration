@@ -315,6 +315,7 @@ export interface MissionData {
   CAP_USD: number;
   SPENT_USD?: number | null; // null = no published rate for a model that ran
   POSTS_TOTAL?: number;      // real count of channel posts across runs
+  POST_COUNT?: number;       // runs that produced a post (sidebar and Post History)
   LEDGER_STARTED: string;
   AGENTS: Agent[];
   AGENT_BY_KEY: Record<string, string>;

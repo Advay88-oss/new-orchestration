@@ -23,3 +23,6 @@ The exchange rate is approximately total assets divided by receipt supply; exact
 Receipts support holder and allowance-based transfers, subject to authorization/freeze controls. Pool-controlled mint/burn and configurable maximum supply are part of the implementation. A receipt's existence does not imply acceptance as collateral by another protocol.
 
 Earn receipts in your wallet are separate from margin collateral and external Blend/LP tracking positions. See [Supply](/guides/earn/supply), [Withdraw](/guides/earn/withdraw), and [vToken Reference](/developers/contracts/vtokens).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

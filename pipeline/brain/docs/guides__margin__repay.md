@@ -23,3 +23,6 @@ Repaying from collateral reduces both assets and debt; check the resulting accou
 Voluntary `settle_account` is a separate contract flow that unwinds recognized external positions and attempts debt clearance. It does not automatically close the account or refund remaining collateral to the wallet.
 
 See [Transfer Collateral](/guides/margin/transfer-collateral) and [Liquidation](/guides/margin/liquidation).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

@@ -8,10 +8,10 @@
 
 Reviewed on **2026-09-12** against the local source trees:
 
-| Source                        | Git HEAD at review                         |
-| ----------------------------- | ------------------------------------------ |
+| Source | Git HEAD at review |
+| - | - |
 | `Protocol_V1_Soroban_testnet` | `1d333fb816454ea9d0c3614508b53d9bd0bae577` |
-| `mercury-stellar-backend`     | `c68077dec50ba58e11f6748dc00fd2d547581b20` |
+| `mercury-stellar-backend` | `c68077dec50ba58e11f6748dc00fd2d547581b20` |
 
 The checked-out file contents are the basis for behavior descriptions. Commit IDs identify the baseline; local changes, if any, also form part of the reviewed working tree.
 
@@ -32,3 +32,6 @@ Four distinct lending markets; conservative LP collateral valuation; live debt p
 This is a source-based documentation update. It does not verify deployed WASM, runtime permissions/fees, external pool availability, or production services. No deployment or financial transaction was performed. Selected historical screenshots are included as visual guides with captions; their rates, addresses, and labels are not proof of current UI behavior. Outdated implementation diagrams are excluded. Earlier review reports are archival, not current implementation references.
 
 Address values are labeled configuration snapshots. Existing page routes are retained where practical; new contract and application pages are linked in navigation.
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

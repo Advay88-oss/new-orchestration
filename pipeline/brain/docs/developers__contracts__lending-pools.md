@@ -288,3 +288,6 @@ pub fn upgrade(env: &Env, new_wasm_hash: BytesN<32>)
 ## Source reference
 
 * `Protocol_V1_Soroban_testnet/contracts/lending-pool/src/pool.rs`
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

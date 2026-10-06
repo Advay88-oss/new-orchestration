@@ -14,7 +14,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
-import { useViewer } from "@/lib/useViewer";
 
 type Card = { type: string; [k: string]: any };
 type Tool = { name: string; summary: string };
@@ -22,6 +21,7 @@ type Grounding = { checked: number; supported?: number; flagged?: { text: string
 type Msg = { role: "user" | "assistant"; text: string; tools?: Tool[]; cards?: Card[]; grounding?: Grounding;
              error?: string; pending?: boolean; stopped?: boolean };
 type Thread = { id: string; title: string; updated_at: string };
+
 
 // ---------------------------------------------------------------- markdown
 
@@ -124,7 +124,7 @@ function usePoll(url: string | null, done: (d: any) => boolean) {
   return d;
 }
 
-function AnalysisCard({ c, onPick, vm }: { c: Card; onPick: (t: string) => void; vm: MissionVM }) {
+function AnalysisCard({ c, onPick }: { c: Card; onPick: (t: string) => void }) {
   const d = usePoll("/api/gtm/brain/analyze?tenant=" + c.tenant, (j) => j.state && j.state !== "running");
   const state = d?.state || "running";
   return (
@@ -140,7 +140,9 @@ function AnalysisCard({ c, onPick, vm }: { c: Card; onPick: (t: string) => void;
           </div>
           <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
             <button style={cta} onClick={() => onPick(c.tenant)}>Chat about {d.name || c.tenant}</button>
-            <button style={btn} onClick={() => vm.nav.find((n) => n.id === "brain")?.go()}>Review in Brand Brain</button>
+            <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginTop: 8 }}>
+              The draft is stored in the brand brain. Read it with <code>python -m pipeline.brand_brain profile {c.tenant}</code>.
+            </div>
           </div>
         </>
       )}
@@ -185,13 +187,16 @@ function NotionCard({ c }: { c: Card }) {
   );
 }
 
-function ActionCard({ c, vm, tenant, threadId }: { c: Card; vm: MissionVM; tenant: string; threadId: string | null }) {
+function ActionCard({ c, tenant, threadId }: { c: Card; tenant: string; threadId: string | null }) {
   const [state, setState] = useState<string | null>(null);
-  const label: Record<string, string> = { launch_run: "Launch run", approve: "Approve", revise: "Send back for revision", kill: "Kill", approve_profile: "Open Brand Brain to approve" };
+  const label: Record<string, string> = { launch_run: "Launch run", approve: "Approve", revise: "Send back for revision", kill: "Kill", approve_profile: "Profile stays in the brain" };
   const go = async () => {
     setState("working");
     try {
-      if (c.action === "approve_profile") { vm.nav.find((n) => n.id === "brain")?.go(); return; }
+      if (c.action === "approve_profile") {
+        setState("Stored in the brand brain. Read it with: python -m pipeline.brand_brain profile " + (tenant || "vanna"));
+        return;
+      }
       const r = c.action === "launch_run"
         ? await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ directive: c.directive || "" }) })
         : await fetch("/api/gtm/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runId: c.run_id, verdict: c.action, note: c.note || "" }) });
@@ -216,7 +221,7 @@ function ActionCard({ c, vm, tenant, threadId }: { c: Card; vm: MissionVM; tenan
           {state === "done" ? "Done" : label[c.action] || "Confirm"}
         </button>
         {state && state.startsWith("failed") && <span style={{ fontSize: 12.5, color: "var(--vn-bad)" }}>{state}</span>}
-        {state === "done" && c.action === "launch_run" && <span style={{ fontSize: 12.5, color: "var(--vn-ink-muted)" }}>Started. Follow it in Live Trace.</span>}
+        {state === "done" && c.action === "launch_run" && <span style={{ fontSize: 12.5, color: "var(--vn-ink-muted)" }}>Started. It shows up in Post History.</span>}
       </div>
       <Asked c={c} />
     </div>
@@ -234,10 +239,10 @@ function RunCard({ c, vm }: { c: Card; vm: MissionVM }) {
 
 function CardView({ c, vm, onPick, tenant, threadId }: { c: Card; vm: MissionVM; onPick: (t: string) => void;
                                                        tenant: string; threadId: string | null }) {
-  if (c.type === "analysis") return <AnalysisCard c={c} vm={vm} onPick={onPick} />;
+  if (c.type === "analysis") return <AnalysisCard c={c} onPick={onPick} />;
   if (c.type === "competitors") return <CompetitorsCard c={c} />;
   if (c.type === "notion") return <NotionCard c={c} />;
-  if (c.type === "action") return <ActionCard c={c} vm={vm} tenant={tenant} threadId={threadId} />;
+  if (c.type === "action") return <ActionCard c={c} tenant={tenant} threadId={threadId} />;
   if (c.type === "run") return <RunCard c={c} vm={vm} />;
   return null;
 }
@@ -336,16 +341,257 @@ const TOOL_LABEL: Record<string, string> = {
   learning_overview: "Read the learning loop", add_company: "Started the website analyzer",
   analysis_status: "Checked the analysis", analyse_competitors: "Started the competitor analysis",
   notion_connect: "Made a Notion link", propose_action: "Prepared an action", list_companies: "Listed companies",
+  set_post_cadence: "Set a cron", find_campaigns: "Started a campaign search",
+  study_brand: "Studying a company",
 };
+
+function istWhen(iso: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata", month: "long", day: "numeric", year: "numeric",
+    hour: "numeric", minute: "2-digit", hour12: true,
+  }).format(d) + " IST";
+}
+
+const WORK_LABEL: Record<string, string> = {
+  gtm_cycle: "Posts",
+  research_collect: "Headlines and competitor posts",
+  campaigns_refresh: "Campaigns",
+  trend_scan: "Trends",
+  ideas_panel: "Ideas",
+  memes_panel: "Memes",
+  github_commits: "GitHub",
+  notion_sync: "Notion",
+  brain_watch: "Public listening",
+  metrics_collect: "Published-post results",
+  ops_watch: "Health check",
+};
+
+const WORK_LANDS: Record<string, string> = {
+  gtm_cycle: "Post History",
+  research_collect: "Scraped Intelligence",
+  campaigns_refresh: "Campaigns",
+  trend_scan: "Scraped Intelligence",
+  ideas_panel: "Post History",
+  memes_panel: "Telegram",
+  github_commits: "the brand brain",
+  notion_sync: "the brand brain",
+  brain_watch: "the brand brain",
+  metrics_collect: "Learning",
+  ops_watch: "Telegram when something breaks",
+};
+
+const CRON_BADGE: Record<string, string> = {
+  live: "Cron set",
+  auth: "Saved · sign-in needed",
+  clock: "On the 2-minute clock",
+  local: "Saved on this machine",
+  failed: "Saved · cron failed",
+  stopped: "Stopped",
+};
+
+const CRON_TELL: Record<string, { stop: string; start: string }> = {
+  gtm_cycle: { stop: "stop posts", start: "start posts" },
+  research_collect: { stop: "stop headlines", start: "start headlines" },
+  campaigns_refresh: { stop: "stop campaigns", start: "start campaigns" },
+  trend_scan: { stop: "stop trends", start: "start trends" },
+  ideas_panel: { stop: "stop ideas", start: "start ideas" },
+  memes_panel: { stop: "stop memes", start: "start memes" },
+  github_commits: { stop: "stop github", start: "start github" },
+  notion_sync: { stop: "stop notion", start: "start notion" },
+  brain_watch: { stop: "stop brand watch", start: "start brand watch" },
+  metrics_collect: { stop: "stop metrics", start: "start metrics" },
+  ops_watch: { stop: "stop health", start: "start health" },
+};
+
+function WorkRail({ vm }: { vm: MissionVM }) {
+  const [clock, setClock] = useState<any>(null);
+  const [shelves, setShelves] = useState<any[]>([]);
+  const [job, setJob] = useState<any>(null);
+  const [busy, setBusy] = useState("");
+  const [note, setNote] = useState("");
+  const load = useCallback(async () => {
+    try {
+      const [s, c] = await Promise.all([
+        fetch("/api/scheduler", { cache: "no-store" }).then((r) => r.json()).catch(() => null),
+        fetch("/api/gtm/campaigns", { cache: "no-store" }).then((r) => r.json()).catch(() => null),
+      ]);
+      setClock(s);
+      setShelves(Array.isArray(c?.shelves) ? c.shelves : []);
+      setJob(c?.job || null);
+    } catch { /* the chat still works */ }
+  }, []);
+  useEffect(() => {
+    let stop = false;
+    const tick = async () => {
+      if (!stop) await load();
+      if (!stop) setTimeout(tick, 8000);
+    };
+    tick();
+    return () => { stop = true; };
+  }, [load]);
+  const searching = job?.state === "running";
+  const cards = ((clock?.jobs || []) as any[]).filter((j) => {
+    if (!WORK_LABEL[j.job]) return false;
+    if (j.paused) return j.cron_state === "stopped" || Boolean(j.cron_id);
+    return j.enabled !== false;
+  });
+  const count = cards.length + shelves.length + (searching ? 1 : 0);
+  const flip = async (name: string, phrase: string) => {
+    setBusy(name);
+    setNote("");
+    try {
+      const res = await fetch("/api/scheduler", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "tell", text: phrase }),
+      });
+      const data = await res.json();
+      const line = String(data.message || data.error || "").split("\n").find(Boolean) || "";
+      setNote(data.success ? line : (line || "Could not change that cron"));
+    } catch {
+      setNote("Could not change that cron");
+    }
+    setBusy("");
+    await load();
+  };
+  const until = typeof clock?.until === "string" ? clock.until : "";
+  const left = typeof clock?.posts_left === "number" ? clock.posts_left : null;
+  return (
+    <aside className="assistant-work" style={{ width: 340, flex: "0 0 340px", borderLeft: "1px solid var(--vn-line)", display: "flex", flexDirection: "column", background: "var(--vn-sunken)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", padding: "16px 16px 12px" }}>
+        <div style={{ fontWeight: 700, fontSize: 16, color: "var(--vn-ink)" }}>Automations <span style={{ color: "var(--vn-ink-muted)", fontWeight: 500 }}>({count})</span></div>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+        {cards.map((item) => {
+          const stopped = Boolean(item.paused) || item.cron_state === "stopped";
+          const phrase = CRON_TELL[item.job];
+          return (
+          <div key={item.job} style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 14, padding: "14px 14px 12px", opacity: stopped ? 0.72 : 1 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+              <div style={{ fontWeight: 700, fontSize: 14.5, color: "var(--vn-ink)" }}>{WORK_LABEL[item.job]} every {item.interval}</div>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 99, background: stopped ? "var(--vn-sunken)" : "var(--vn-ok-soft)", color: stopped ? "var(--vn-ink-muted)" : "var(--vn-ok)" }}>{stopped ? "Stopped" : (CRON_BADGE[item.cron_state] || "Active")}</span>
+            </div>
+            {item.cron_id && (
+              <div style={{ fontFamily: MONO, fontSize: 11.5, color: "var(--vn-ink-muted)", marginTop: 8 }}>
+                {item.cron_id}{item.cron ? " · " + item.cron : ""}
+              </div>
+            )}
+            {item.job === "gtm_cycle" && !stopped && (
+              <div style={{ fontSize: 13, color: "var(--vn-ink-body)", marginTop: 10, lineHeight: 1.45 }}>
+                {left ? left + " posts left. Each one reads the newest scrape." : "When: " + (until ? istWhen(until) : "until you say stop")}
+              </div>
+            )}
+            <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginTop: 6, lineHeight: 1.45 }}>
+              Shows in {item.lands || WORK_LANDS[item.job] || "the dashboard"}.
+            </div>
+            {item.last_run && item.last_run !== "Never" && (
+              <div style={{ fontSize: 12, color: "var(--vn-ink-faint)", marginTop: 8 }}>Last activity: {istWhen(item.last_run)}</div>
+            )}
+            {phrase && (
+              <button type="button" disabled={busy === item.job}
+                onClick={() => flip(item.job, stopped ? phrase.start : phrase.stop)}
+                style={{ marginTop: 12, width: "100%", borderRadius: 10, padding: "8px 10px", cursor: busy === item.job ? "wait" : "pointer", fontWeight: 700, fontSize: 13, border: "1px solid " + (stopped ? "var(--vn-line)" : "var(--vn-bad)"), background: stopped ? "var(--vn-surface)" : "transparent", color: stopped ? "var(--vn-ink)" : "var(--vn-bad)" }}>
+                {busy === item.job ? (stopped ? "Starting…" : "Stopping…") : (stopped ? "Start again" : "Stop cron")}
+              </button>
+            )}
+          </div>
+          );
+        })}
+        {note && <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", lineHeight: 1.45, padding: "0 4px" }}>{note}</div>}
+        {searching && (
+          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 14, padding: "14px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+              <div style={{ fontWeight: 700, fontSize: 14.5, color: "var(--vn-ink)" }}>Searching {job.source || "campaigns"}</div>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 99, background: "var(--vn-ok-soft)", color: "var(--vn-ok)" }}>Active</span>
+            </div>
+            <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginTop: 8 }}>{job.query || "Reading the live listing."}</div>
+          </div>
+        )}
+        {shelves.map((s: any) => (
+          <button key={(s.source_input || s.source) + (s.scraped_at || "")} onClick={() => (vm as any).goCampaigns?.()}
+                  style={{ textAlign: "left", background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 14, padding: "14px", cursor: "pointer", color: "inherit" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+              <div style={{ fontWeight: 700, fontSize: 14.5, color: "var(--vn-ink)" }}>{s.source_input || s.source || "Campaigns"}</div>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "var(--vn-ok)" }}>{s.count || (s.campaigns || []).length}</span>
+            </div>
+            <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginTop: 8, lineHeight: 1.45 }}>{s.query}</div>
+          </button>
+        ))}
+        {count === 0 && <div style={{ fontSize: 13, color: "var(--vn-ink-muted)", lineHeight: 1.5, padding: "4px 4px" }}>Nothing on a cron. Say the job and the gap: competitor Twitter every 5 minutes, or campaigns every 5 minutes. A post still needs 20 minutes.</div>}
+      </div>
+    </aside>
+  );
+}
+
+function CheckLine({ q, k, v, bad }: { q: string; k: string; v: string; bad?: boolean }) {
+  return (
+    <div style={{ display: "flex", gap: 10, alignItems: "baseline", padding: "4px 0", fontSize: 15, lineHeight: 1.45 }}>
+      <span style={{ color: bad ? "var(--vn-bad)" : "var(--vn-ok)", fontWeight: 700, width: 16 }}>{bad ? "×" : "✓"}</span>
+      <span style={{ fontFamily: MONO, fontSize: 12, color: "var(--vn-ink-muted)", width: 26 }}>{q}</span>
+      <span style={{ color: "var(--vn-ink-muted)" }}>{k}</span>
+      <span style={{ color: "var(--vn-ink-faint)" }}>→</span>
+      <span style={{ color: "var(--vn-ink)", fontWeight: 600 }}>{v}</span>
+    </div>
+  );
+}
+
+function ToolSteps({ tools }: { tools: Tool[] }) {
+  const cadence = tools.find((t) => t.name === "set_post_cadence");
+  const camps = tools.find((t) => t.name === "find_campaigns");
+  const rest = tools.filter((t) => t !== cadence && t !== camps);
+  return (
+    <div style={{ marginBottom: 8 }}>
+      {cadence && (
+        <>
+          {cadence.summary.split("\n").filter(Boolean).map((line, i) => (
+            <CheckLine key={i} q={"Q" + (i + 1)} k="Set" v={line.replace(/\.$/, "")} bad={cadence.summary.startsWith("failed")} />
+          ))}
+          {!cadence.summary.startsWith("failed") && (
+            <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "8px 0 10px", fontSize: 14.5 }}>
+              <span style={{ color: "var(--vn-ok)", fontWeight: 700 }}>✓</span>
+              <span>Thanks. I have what I need to continue.</span>
+            </div>
+          )}
+          {!cadence.summary.startsWith("failed") && (
+            <div style={{ border: "1px solid var(--vn-line)", borderRadius: 12, padding: "12px 14px", background: "var(--vn-sunken)", fontSize: 14, lineHeight: 1.55 }}>
+              {cadence.summary.split("\n").filter(Boolean).map((line, i) => <div key={i}>{line}</div>)}
+            </div>
+          )}
+        </>
+      )}
+      {camps && (
+        <>
+          <CheckLine q="Q1" k="What" v="Campaigns" bad={camps.summary.startsWith("failed")} />
+          <CheckLine q="Q2" k="Where" v={camps.summary.replace(/^searching\s+/i, "")} bad={camps.summary.startsWith("failed")} />
+          {!camps.summary.startsWith("failed") && (
+            <div style={{ display: "flex", gap: 8, alignItems: "center", margin: "8px 0 4px", fontSize: 14.5 }}>
+              <span style={{ color: "var(--vn-ok)", fontWeight: 700 }}>✓</span>
+              <span>Thanks. I have what I need to continue.</span>
+            </div>
+          )}
+        </>
+      )}
+      {rest.map((t, j) => (
+        <div key={j} style={{ display: "flex", gap: 8, alignItems: "baseline", padding: "3px 0", fontSize: 14.5, lineHeight: 1.45 }}>
+          <span style={{ color: t.summary.startsWith("failed") ? "var(--vn-bad)" : "var(--vn-ok)", fontWeight: 700 }}>{t.summary.startsWith("failed") ? "×" : "✓"}</span>
+          <span style={{ color: "var(--vn-ink)" }}>{TOOL_LABEL[t.name] || t.name}</span>
+          <span style={{ color: "var(--vn-ink-muted)" }}>→ {t.summary}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export function Assistant({ vm }: { vm: MissionVM }) {
   // A client link talks about its own company only: no other companies, no
   // onboarding, no model checks (those are the owner's).
-  const isClient = Boolean(useViewer()?.client);
   const [tenants, setTenants] = useState<string[]>([]);
   const [names, setNames] = useState<Record<string, string>>({});
   const [tenant, setTenant] = useState<string>("");
-  const [threads, setThreads] = useState<Thread[]>([]);
+  const [, setThreads] = useState<Thread[]>([]);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
@@ -355,7 +601,6 @@ export function Assistant({ vm }: { vm: MissionVM }) {
   const scroller = useRef<HTMLDivElement>(null);
   const box = useRef<HTMLTextAreaElement>(null);
   const abort = useRef<AbortController | null>(null);
-  const [checks, setChecks] = useState(false);
 
   useEffect(() => {
     fetch("/api/gtm/brain", { cache: "no-store" }).then((r) => r.json()).then((d) => {
@@ -463,101 +708,30 @@ export function Assistant({ vm }: { vm: MissionVM }) {
 
   const stop = () => abort.current?.abort();
 
-  const remove = async (id: string) => {
-    await fetch("/api/assistant/threads?tenant=" + tenant + "&id=" + id, { method: "DELETE" }).catch(() => {});
-    if (id === threadId) openThread(tenant, null);
-    loadThreads(tenant);
-  };
-
-  const addCompany = () => {
-    setMsgs((m) => [...m, { role: "assistant", text: "Which company? Paste its website (for example `acme.com`), and optionally a short id. I'll crawl it, measure its colours and fonts, read its voice, find its competitors and draft a profile for you to approve." }]);
-    setInput("Add this company: ");
-    setTimeout(() => box.current?.focus(), 50);
-  };
-
   const name = names[tenant] || tenant;
-  const suggestions = [
-    "What's new at " + name + " lately?",
-    "Why were the last runs blocked?",
-    "How do competitors post about leverage?",
-    "Connect " + name + "'s Notion",
-  ];
+  const planned = (m: Msg) => (m.tools || []).some((t) => (t.name === "set_post_cadence" || t.name === "find_campaigns") && !t.summary.startsWith("failed"));
 
   return (
-    <section className="vanna-section" style={{ paddingBottom: 24 }}>
-      <div className="vanna-card" style={{ display: "flex", padding: 0, height: "calc(100dvh - 170px)", minHeight: 480, overflow: "hidden" }}>
-        {/* conversations of this company */}
-        <aside className="assistant-threads" style={{ width: 230, flex: "0 0 230px", borderRight: "1px solid var(--vn-line)", display: "flex", flexDirection: "column" }}>
-          <div style={{ padding: 12 }}>
-            <button style={{ ...btn, width: "100%" }} disabled={busy} onClick={() => openThread(tenant, null)}>+ New chat</button>
-          </div>
-          <div style={{ flex: 1, overflowY: "auto", padding: "0 6px 12px" }}>
-            {threads.length === 0 && <div style={{ fontSize: 12, color: "var(--vn-ink-faint)", padding: "4px 8px" }}>No conversations yet.</div>}
-            {threads.map((t) => (
-              <div key={t.id} className="assistant-thread" style={{ display: "flex", alignItems: "center", borderRadius: 6,
-                   background: t.id === threadId ? "var(--vn-raised)" : "transparent" }}>
-                <button onClick={() => !busy && openThread(tenant, t.id)} title={t.title}
-                        style={{ flex: 1, minWidth: 0, textAlign: "left", border: "none", background: "transparent", padding: "7px 8px",
-                                 fontSize: 12.5, color: t.id === threadId ? "var(--vn-ink)" : "var(--vn-ink-body)", cursor: "pointer",
-                                 whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
-                  {t.title || "New chat"}
-                </button>
-                <button aria-label="Delete conversation" onClick={() => remove(t.id)}
-                        style={{ border: "none", background: "transparent", color: "var(--vn-ink-faint)", cursor: "pointer", padding: "4px 8px", fontSize: 12 }}>✕</button>
-              </div>
-            ))}
-          </div>
-        </aside>
-
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-          {/* header: company + add */}
-          <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px", borderBottom: "1px solid var(--vn-line)", flexWrap: "wrap" }}>
-            <span style={{ fontSize: 12.5, color: "var(--vn-ink-muted)" }}>Company</span>
-            <select value={tenant} onChange={(e) => setTenant(e.target.value)} disabled={busy}
-                    style={{ background: "var(--vn-sunken)", border: "1px solid var(--vn-line-strong)", borderRadius: 6, padding: "6px 10px", fontSize: 13.5, color: "var(--vn-ink)" }}>
-              {tenants.length === 0 && <option value="">no companies yet</option>}
-              {tenants.map((t) => <option key={t} value={t}>{names[t] || t}</option>)}
-            </select>
-            {!isClient && <button style={btn} onClick={addCompany}>+ Add company</button>}
-            <span style={{ flex: 1 }} />
-            {!isClient && (
-              <button style={{ ...btn, background: checks ? "var(--vn-raised)" : "transparent" }} onClick={() => setChecks((c) => !c)}>
-                {checks ? "Back to chat" : "Checks"}
-              </button>
-            )}
-          </div>
-
-          {/* messages */}
-          {checks && <div style={{ flex: 1, overflowY: "auto", padding: "20px 18px" }}><ChecksPanel /></div>}
-          <div ref={scroller} style={{ flex: 1, overflowY: "auto", padding: "20px 18px", display: checks ? "none" : "block" }}>
-            <div style={{ maxWidth: 780, margin: "0 auto" }}>
+    <section className="vanna-section" style={{ paddingBottom: 12 }}>
+      <div className="vanna-card assistant-shell" style={{ display: "flex", padding: 0, height: "calc(100dvh - 150px)", minHeight: 520, overflow: "hidden", background: "var(--vn-surface)", color: "var(--vn-ink)" }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--vn-surface)" }}>
+          <div ref={scroller} style={{ flex: 1, overflowY: "auto", padding: "28px 22px 12px" }}>
+            <div style={{ maxWidth: 720, margin: "0 auto" }}>
               {loadingThread && <div style={{ padding: "24px 0" }}><span className="vn-skel" style={{ width: 260, height: 12 }} /></div>}
               {!loadingThread && msgs.length === 0 && (
-                <div style={{ padding: "32px 0" }}>
-                  <h2 style={{ marginBottom: 8 }}>Ask about {name || "a company"}</h2>
-                  <p style={{ maxWidth: "60ch" }}>
-                    Answers come from {name || "the company"}&rsquo;s brand brain, with their sources, and are checked against them.
-                    You can also add a company or connect its Notion from here. Conversations are kept, on every device.
-                  </p>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
-                    {suggestions.map((s) => <button key={s} style={btn} onClick={() => send(s)} disabled={!tenant || busy}>{s}</button>)}
-                    <button style={btn} onClick={addCompany}>Add a new company</button>
-                  </div>
+                <div style={{ padding: "48px 0 12px", color: "var(--vn-ink-muted)", fontSize: 15, lineHeight: 1.5 }}>
+                  One line does it. Scrape every 5 minutes and make 10 posts. Add memes, ideas, GitHub, or Notion in the same line.
                 </div>
               )}
               {msgs.map((m, i) => m.role === "user" ? (
-                <div key={i} style={{ display: "flex", justifyContent: "flex-end", margin: "14px 0" }}>
-                  <div style={{ background: "var(--vn-raised)", borderRadius: 12, padding: "10px 14px", maxWidth: "80%", fontSize: 14.5, lineHeight: 1.55, whiteSpace: "pre-wrap" }}>{m.text}</div>
+                <div key={i} style={{ display: "flex", justifyContent: "flex-end", margin: "16px 0" }}>
+                  <div style={{ background: "var(--vn-raised)", borderRadius: 14, padding: "10px 14px", maxWidth: "80%", fontSize: 15, lineHeight: 1.55, whiteSpace: "pre-wrap", color: "var(--vn-ink)" }}>{m.text}</div>
                 </div>
               ) : (
-                <div key={i} style={{ margin: "14px 0" }}>
-                  {(m.tools || []).map((t, j) => (
-                    <div key={j} style={{ fontFamily: MONO, fontSize: 11.5, color: t.summary.startsWith("failed: refused") ? "var(--vn-warn)" : "var(--vn-ink-muted)", margin: "2px 0" }}>
-                      {TOOL_LABEL[t.name] || t.name} · {t.summary}
-                    </div>
-                  ))}
-                  {m.text && <div style={{ marginTop: (m.tools || []).length ? 8 : 0 }}><Markdown text={m.text} /></div>}
-                  {m.grounding && <Grounding g={m.grounding} />}
+                <div key={i} style={{ margin: "16px 0", color: "var(--vn-ink)" }}>
+                  {(m.tools || []).length > 0 && <ToolSteps tools={m.tools || []} />}
+                  {m.text && !planned(m) && <div style={{ marginTop: (m.tools || []).length ? 8 : 0 }}><Markdown text={m.text} /></div>}
+                  {m.grounding && !planned(m) && <Grounding g={m.grounding} />}
                   {(m.cards || []).filter((c) => c.type !== "run").map((c, j) => <CardView key={j} c={c} vm={vm} onPick={pick} tenant={tenant} threadId={threadId} />)}
                   {(m.cards || []).some((c) => c.type === "run") && (
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginTop: 8 }}>
@@ -567,7 +741,7 @@ export function Assistant({ vm }: { vm: MissionVM }) {
                       ))}
                     </div>
                   )}
-                  {m.pending && !m.text && (
+                  {m.pending && !m.text && !(m.tools || []).length && (
                     <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 6 }} aria-label="thinking">
                       <span className="vn-skel" style={{ width: 120, height: 10, borderRadius: 5 }} />
                       <span style={{ fontSize: 12, color: "var(--vn-ink-faint)" }}>thinking…</span>
@@ -580,24 +754,37 @@ export function Assistant({ vm }: { vm: MissionVM }) {
             </div>
           </div>
 
-          {/* composer */}
-          <div style={{ borderTop: "1px solid var(--vn-line)", padding: "12px 18px", display: checks ? "none" : "block" }}>
-            <div style={{ maxWidth: 780, margin: "0 auto", display: "flex", gap: 8, alignItems: "flex-end" }}>
-              <textarea ref={box} value={input} rows={1} disabled={!tenant}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
-                        placeholder={tenant ? "Ask about " + name + ", or say “add acme.com”…" : "Add a company to begin"}
-                        style={{ flex: 1, resize: "none", minHeight: 44, maxHeight: 180, background: "var(--vn-sunken)", border: "1px solid var(--vn-line-strong)",
-                                 borderRadius: 10, padding: "11px 12px", fontSize: 14.5, lineHeight: 1.45, fontFamily: "inherit", color: "var(--vn-ink)" }} />
-              {busy ? (
-                <button style={{ ...btn, padding: "11px 16px" }} onClick={stop}>Stop</button>
-              ) : (
-                <button style={{ ...cta, padding: "11px 16px" }} disabled={!input.trim() || !tenant} onClick={() => send()}>Send</button>
-              )}
+          <div style={{ padding: "8px 16px 16px" }}>
+            <div style={{ maxWidth: 760, margin: "0 auto" }}>
+              <div style={{ display: "flex", gap: 8, alignItems: "flex-end", background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: 16, padding: 6 }}>
+                <textarea ref={box} value={input} rows={1} disabled={!tenant}
+                          onChange={(e) => setInput(e.target.value)}
+                          onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+                          placeholder="Ask anything"
+                          style={{ flex: 1, resize: "none", minHeight: 46, maxHeight: 160, background: "transparent", border: "none",
+                                   padding: "12px 12px", fontSize: 15, lineHeight: 1.45, fontFamily: "inherit", color: "var(--vn-ink)", outline: "none" }} />
+                {busy ? (
+                  <button style={{ background: "transparent", color: "var(--vn-ink)", border: "1px solid var(--vn-line-strong)", borderRadius: 12, padding: "12px 16px", fontWeight: 700, cursor: "pointer" }} onClick={stop}>Stop</button>
+                ) : (
+                  <button style={{ background: "var(--vn-cta)", color: "var(--vn-on-accent)", border: "none", borderRadius: 12, padding: "12px 20px", fontWeight: 700, fontSize: 15, cursor: input.trim() && tenant ? "pointer" : "default", opacity: input.trim() && tenant ? 1 : 0.45 }}
+                          disabled={!input.trim() || !tenant} onClick={() => send()}>Ask</button>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: 8, marginTop: 10, alignItems: "center" }}>
+                {tenants.length > 1 ? (
+                  <select value={tenant} onChange={(e) => setTenant(e.target.value)} disabled={busy} aria-label="Company"
+                          style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-body)", background: "var(--vn-raised)", border: "1px solid var(--vn-line)", borderRadius: 99, padding: "4px 10px" }}>
+                    {tenants.map((t) => <option key={t} value={t}>{names[t] || t}</option>)}
+                  </select>
+                ) : (
+                  <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-body)", border: "1px solid var(--vn-line)", borderRadius: 99, padding: "4px 10px", background: "var(--vn-raised)" }}>{name || "Company"}</span>
+                )}
+              </div>
+              {err && <div style={{ marginTop: 6, fontSize: 12.5, color: "var(--vn-bad)" }}>{err}</div>}
             </div>
-            {err && <div style={{ maxWidth: 780, margin: "6px auto 0", fontSize: 12.5, color: "var(--vn-bad)" }}>{err}</div>}
           </div>
         </div>
+        <WorkRail vm={vm} />
       </div>
     </section>
   );

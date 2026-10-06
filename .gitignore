@@ -73,3 +73,6 @@ pipeline/brain/tenants/*/notion_cache/
 
 # deploy_cloud.sh: the last image it built
 .last_cloud_image
+
+# Local clones of the vannafinance repos, for reading claims (not part of this repo)
+vanna-src/

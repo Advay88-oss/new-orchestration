@@ -18,6 +18,7 @@ the cycle has already done its work.
 """
 from __future__ import annotations
 
+import json
 import mimetypes
 import os
 import re
@@ -224,9 +225,16 @@ STATE_FILES = (
     "pipeline/state/recent_motion_styles.json",
     "pipeline/state/docs_watch.json",
     "pipeline/brain/knowledge/creative-rules.md",
+    "pipeline/brain/knowledge/poster-taste.md",
     "pipeline/brain/knowledge/learned-rules.json",
     "pipeline/brain/knowledge/learned-rules.md",
     "pipeline/state/scheduler_state.json",
+    # The gap chosen on the dashboard is written only by --set-interval.
+    # A tick must not upload its own copy: that put the old gap back over
+    # the one the founder just picked.
+    # research_latest.json is not here on purpose. The scout writes it and
+    # uploads that file itself. A tick or a meme run that uploaded the copy
+    # baked into the image put yesterday's headlines back over a fresh scrape.
     "pipeline/state/telegram_pending_post.json",
     "pipeline/state/telegram_pending_revise.json",
 )
@@ -379,6 +387,212 @@ def pull_state(*, overwrite: bool = False) -> dict[str, Any]:
         imported.append("failed: " + str(exc)[:120])
     return {"pulled": True, "objects": n, "kept_local": skipped, "bucket": BUCKET,
             "imported_to_postgres": imported}
+
+
+SCHEDULER_STATE_REL = "pipeline/state/scheduler_state.json"
+_LOCKS_HELD: dict[str, str] = {}
+
+
+def blend_scheduler_records(memory: dict, other: dict) -> dict:
+    """Per job, keep the later last_run and the higher run count.
+
+    A tick that started earlier must not put an older clock back over a job
+    a later tick already claimed.
+    """
+    out = {k: v for k, v in memory.items()}
+    for name, rec in other.items():
+        if not isinstance(rec, dict):
+            continue
+        cur = out.get(name)
+        if not isinstance(cur, dict):
+            out[name] = rec
+            continue
+        if str(rec.get("last_run") or "") > str(cur.get("last_run") or ""):
+            cur["last_run"] = rec["last_run"]
+        try:
+            if int(rec.get("total_runs") or 0) > int(cur.get("total_runs") or 0):
+                cur["total_runs"] = int(rec["total_runs"])
+        except (TypeError, ValueError):
+            pass
+        out[name] = cur
+    return out
+
+
+def refresh_interval_overrides() -> None:
+    """Replace the local gap file with the bucket copy. The dashboard is the writer."""
+    if not in_cloud():
+        return
+    rel = "pipeline/state/scheduler_intervals.json"
+    path = REPO_ROOT / rel
+    try:
+        blob = _client().bucket(BUCKET).blob(PREFIX_STATE + rel)
+        if not blob.exists():
+            return
+        path.parent.mkdir(parents=True, exist_ok=True)
+        blob.download_to_filename(str(path))
+    except Exception:                               # noqa: BLE001 — the yaml default stands
+        return
+
+
+def merge_scheduler_state_from_bucket() -> None:
+    """Pull a newer scheduler clock from the bucket into the local file. Never raises."""
+    if not in_cloud():
+        return
+    path = REPO_ROOT / SCHEDULER_STATE_REL
+    try:
+        blob = _client().bucket(BUCKET).blob(PREFIX_STATE + SCHEDULER_STATE_REL)
+        if not blob.exists():
+            return
+        remote = json.loads(blob.download_as_text())
+    except Exception:                               # noqa: BLE001 — the local file stands
+        return
+    if not isinstance(remote, dict):
+        return
+    try:
+        local = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except (OSError, ValueError):
+        local = {}
+    if not isinstance(local, dict):
+        local = {}
+    merged = blend_scheduler_records(local, remote)
+    if merged == local:
+        return
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(merged, indent=2), encoding="utf-8")
+    except OSError:
+        return
+
+
+def claim_scheduler_job(job_name: str, interval_s: int, *, force: bool = False) -> tuple[bool, str]:
+    """Record last_run=now if the job is due.
+
+    On GCP the write uses the object's generation, so two ticks cannot both
+    pass. The loser is told the job is not due.
+    """
+    import json
+    from datetime import datetime, timezone
+
+    path = REPO_ROOT / SCHEDULER_STATE_REL
+    now = datetime.now(timezone.utc)
+
+    def _too_soon(rec: dict) -> bool:
+        if force:
+            return False
+        last = str(rec.get("last_run") or "")
+        if not last:
+            return False
+        try:
+            dt = datetime.fromisoformat(last)
+        except ValueError:
+            return False
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return (now - dt).total_seconds() < interval_s
+
+    def _stamp(state: dict) -> dict:
+        rec = state.get(job_name) if isinstance(state.get(job_name), dict) else {}
+        rec = dict(rec)
+        rec["job"] = job_name
+        rec["last_run"] = now.isoformat()
+        state[job_name] = rec
+        return state
+
+    if not in_cloud():
+        try:
+            state = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+        except (OSError, ValueError):
+            state = {}
+        if not isinstance(state, dict):
+            state = {}
+        rec = state.get(job_name) if isinstance(state.get(job_name), dict) else {}
+        if _too_soon(rec):
+            return False, "not due"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(_stamp(state), indent=2), encoding="utf-8")
+        return True, "claimed"
+
+    try:
+        from google.api_core.exceptions import PreconditionFailed
+        blob = _client().bucket(BUCKET).blob(PREFIX_STATE + SCHEDULER_STATE_REL)
+        if blob.exists():
+            blob.reload()
+            state = json.loads(blob.download_as_text())
+            generation = blob.generation
+        else:
+            state = {}
+            generation = 0
+        if not isinstance(state, dict):
+            state = {}
+        rec = state.get(job_name) if isinstance(state.get(job_name), dict) else {}
+        if _too_soon(rec):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(state, indent=2), encoding="utf-8")
+            return False, "not due"
+        payload = json.dumps(_stamp(state), indent=2)
+        blob.upload_from_string(payload, content_type="application/json", if_generation_match=generation)
+    except PreconditionFailed:
+        return False, "another tick already claimed this job"
+    except Exception as exc:                        # noqa: BLE001 — do not start a post we could not record
+        return False, "clock claim failed: " + str(exc)[:160]
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(payload, encoding="utf-8")
+    except OSError:
+        pass
+    return True, "claimed"
+
+
+def cloud_lock_acquire(blob_name: str, stale_s: int) -> bool:
+    """Take a bucket lock. Only the holder can release it. Fail closed."""
+    if not in_cloud():
+        return True
+    import uuid
+    from datetime import datetime, timezone
+    from google.api_core.exceptions import PreconditionFailed
+
+    token = uuid.uuid4().hex
+    try:
+        blob = _client().bucket(BUCKET).blob(blob_name)
+        try:
+            blob.upload_from_string(token, content_type="text/plain", if_generation_match=0)
+            _LOCKS_HELD[blob_name] = token
+            return True
+        except PreconditionFailed:
+            pass
+        blob.reload()
+        updated = blob.updated
+        if updated is None:
+            return False
+        if updated.tzinfo is None:
+            updated = updated.replace(tzinfo=timezone.utc)
+        if (datetime.now(timezone.utc) - updated).total_seconds() < stale_s:
+            return False
+        blob.upload_from_string(token, content_type="text/plain", if_generation_match=blob.generation)
+        _LOCKS_HELD[blob_name] = token
+        return True
+    except PreconditionFailed:
+        return False
+    except Exception:
+        return False
+
+
+def cloud_lock_release(blob_name: str) -> None:
+    """Delete the lock only when it still holds the token this process wrote."""
+    token = _LOCKS_HELD.pop(blob_name, None)
+    if not token or not in_cloud():
+        return
+    try:
+        from google.api_core.exceptions import PreconditionFailed
+        blob = _client().bucket(BUCKET).blob(blob_name)
+        blob.reload()
+        if blob.download_as_text().strip() != token:
+            return
+        blob.delete(if_generation_match=blob.generation)
+    except PreconditionFailed:
+        return
+    except Exception:
+        return
 
 
 def _cli() -> None:

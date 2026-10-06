@@ -18,7 +18,7 @@ export const dynamic = 'force-dynamic';
  * able to change what the agents say about the brand.
  */
 async function py(args: string[]) {
-  const r = await runPython(['-m', 'pipeline.brand_brain.dashboard', ...args], 120_000);
+  const r = await runPython(['-m', 'pipeline.brand_brain.mcp_call', ...args], 120_000);
   if (!r.ok) {
     return NextResponse.json({ ok: false, error: r.error || r.stderr.split('\n').filter(Boolean).slice(-1)[0] }, { status: 500 });
   }

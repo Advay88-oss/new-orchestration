@@ -27,3 +27,6 @@ If the snapshot reports unpriceable plain collateral, AccountManager withholds l
 Owner-authorized `settle_account` unwinds assets into the SmartAccount and attempts repayment from its balances. It returns whether debt is cleared. Remaining collateral stays in the account until withdrawn or swept by explicit `close_account`. Settlement is not an automatic wallet refund or a guaranteed debt-clearing operation.
 
 See [Liquidation Bots](/developers/guides/liquidation-bots) for integration details.
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

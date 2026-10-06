@@ -128,15 +128,15 @@ export function MemesView({ vm }: { vm: MissionVM }) {
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "var(--vn-bad)", boxShadow: "0 0 0 3px var(--vn-hover)" }} />
-            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "var(--vn-bad)", letterSpacing: "0.1em" }}>
-              CULTURALLY GROUNDED CRYPTO & DEFI MEMES
+            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "var(--vn-ink-muted)", letterSpacing: "0.08em" }}>
+              MEMES
             </span>
           </div>
           <h2 style={{ fontSize: "22px", fontWeight: 800, color: "var(--vn-ink)", marginTop: "6px" }}>
-            Meme Engineering: Liquidation Pain & Gas Anxiety
+            The meme cron lands here
           </h2>
           <p style={{ fontSize: "14px", color: "var(--vn-ink-muted)", marginTop: "4px" }}>
-            Separate pipeline with strict claim gating and honest risk evaluations. Zero competitor attacks, zero fabricated numbers, verified format freshness.
+            Each batch is also sent to Telegram for review. Nothing is published.
           </p>
         </div>
 
@@ -200,8 +200,8 @@ export function MemesView({ vm }: { vm: MissionVM }) {
 
       {loading && memes.length === 0 && <><SkeletonCard lines={3} media /><SkeletonCard lines={3} media /></>}
       {!loading && memes.length === 0 && (
-        <EmptyState icon="idea" title="No memes on the panel yet"
-          body="The memes panel job drafts on-brand meme concepts from the latest signals. It runs on the 24/7 scheduler, or on demand from there." />
+        <EmptyState icon="idea" title="No memes yet"
+          body="When the meme cron runs, the cards show up here and the same batch goes to Telegram." />
       )}
 
       {/* Memes Cards Grid */}

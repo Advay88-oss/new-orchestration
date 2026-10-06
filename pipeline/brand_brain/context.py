@@ -194,8 +194,16 @@ def logo_description(tenant: Optional[str] = None) -> str:
 # -------------------------------------------------------------- prompt blocks
 
 def figures_block(tenant: Optional[str] = None) -> str:
-    """The true figures and the kinds of number that may never be stated."""
-    lines = ["TRUE FIGURES (the only numbers that may appear):"]
+    """The true figures and the kinds of number that may never be stated.
+
+    Stellar figures stay on a Stellar post. A Solana post uses only the
+    numbers written on the Solana GitHub pages.
+    """
+    lines = ["TRUE FIGURES — each number belongs to one deployment. "
+             "Do not move a Stellar figure onto a Solana post, or a Solana figure onto a Stellar post. "
+             "Solana numbers are only the ones written in the GitHub Solana pages in this prompt "
+             "(stock tokens, PreStocks, up to 5× long or short, no funding rate).",
+             "Stellar testnet profile:"]
     lines += ["  - " + f["value"] + " — " + f.get("meaning", "") for f in true_figures(tenant)]
     ns = never_state(tenant)
     if ns:
@@ -257,9 +265,9 @@ def whats_new_block(days: int = 21, tenant: Optional[str] = None) -> str:
 
 
 def knowledge_hits(topic: str, k: int = 8, tenant: Optional[str] = None,
-                   max_authority: int = 3) -> list[dict]:
+                   max_authority: int = 3, sources: Optional[list[str]] = None) -> list[dict]:
     try:
-        return brain(tenant).search_knowledge(topic, k=k, max_authority=max_authority)
+        return brain(tenant).search_knowledge(topic, k=k, max_authority=max_authority, sources=sources)
     except Exception:                               # noqa: BLE001 — boundary
         return []
 
@@ -267,17 +275,29 @@ def knowledge_hits(topic: str, k: int = 8, tenant: Optional[str] = None,
 def facts_block(topic: str, *, k: int = 8, excerpts: Optional[int] = None,
                 tenant: Optional[str] = None) -> str:
     """Everything an agent should know before writing about `topic`: the
-    product anchors, the knowledge base's best sections for the topic with
-    their sources, the partner list, what is new, and what is never claimed.
-    Archive material (authority 4) is left out: it predates the current
-    deployment in places and is not proof of anything."""
+    product anchors, the GitHub product pages, the knowledge base's best
+    sections for the topic with their sources, the partner list, what is new,
+    and what is never claimed. Archive material (authority 4) is left out: it
+    predates the current deployment in places and is not proof of anything."""
     k = excerpts or k
     name = company_name(tenant).upper()
     lines = [name + " — GROUND TRUTH", "", company_line(tenant), "",
              "Product anchors (use these, they are what " + company_name(tenant)
              + " concretely is):"]
     lines += ["  - " + a + ": " + v for a, v in anchors(tenant).items()]
+    try:
+        from pipeline.brand_brain.github_sync import product_brief
+        brief = product_brief(tenant or current_tenant())
+    except Exception:                               # noqa: BLE001 — topic search still runs
+        brief = ""
+    if brief:
+        lines += ["", brief]
     hits = knowledge_hits(topic, k=k, tenant=tenant)
+    seen = {h.get("id") for h in hits}
+    for h in knowledge_hits(topic, k=4, tenant=tenant, sources=["github"]):
+        if h.get("id") not in seen:
+            hits.append(h)
+            seen.add(h.get("id"))
     if hits:
         lines += ["", "From the knowledge base (" + str(len(hits)) + " sections, with sources):"]
         for h in hits:
@@ -312,17 +332,36 @@ def brand_visual_block(tenant: Optional[str] = None) -> str:
     return "\n".join(lines)
 
 
+def product_pages_block(tenant: Optional[str] = None, chars: int = 420) -> str:
+    """The GitHub product pages, for every agent that writes or judges."""
+    try:
+        from pipeline.brand_brain.github_sync import product_brief
+        from pipeline.brand_brain.client import current_tenant
+        return product_brief(tenant or current_tenant(), chars=chars)
+    except Exception:                               # noqa: BLE001 — prompt still runs
+        return ""
+
+
 def fill(text: str, tenant: Optional[str] = None) -> str:
     """Company facts into a prompt written without them. Tokens:
-    {company} {company_line} {deployment} {anchors} {house_style} {cta}."""
+    {company} {company_line} {deployment} {anchors} {house_style} {cta}
+    {product_pages}. A system prompt that names the company also receives
+    the GitHub product pages, so Solana and Stellar stay on their own pages."""
     p = profile(tenant)
     anc = "; ".join(k + ": " + v.split(" — ")[0] for k, v in anchors(tenant).items())
-    return (text.replace("{company_line}", company_line(tenant))
-            .replace("{company}", company_name(tenant))
-            .replace("{deployment}", str(p.get("company", {}).get("deployment", "")))
-            .replace("{anchors}", anc)
-            .replace("{house_style}", house_style(tenant))
-            .replace("{cta}", cta(tenant)))
+    pages = ""
+    if any(tok in text for tok in ("{company_line}", "{company}", "{anchors}", "{product_pages}")):
+        pages = product_pages_block(tenant)
+    out = (text.replace("{company_line}", company_line(tenant))
+           .replace("{company}", company_name(tenant))
+           .replace("{deployment}", str(p.get("company", {}).get("deployment", "")))
+           .replace("{anchors}", anc)
+           .replace("{house_style}", house_style(tenant))
+           .replace("{cta}", cta(tenant))
+           .replace("{product_pages}", pages))
+    if pages and "GITHUB PRODUCT PAGES" not in out:
+        out += "\n\n" + pages
+    return out
 
 
 def competitor_block(topic: str, n: int = 5, tenant: Optional[str] = None) -> str:

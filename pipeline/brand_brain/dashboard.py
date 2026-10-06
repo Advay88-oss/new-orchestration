@@ -15,6 +15,8 @@ from typing import Any
 
 from pipeline.brand_brain import store as S
 from pipeline.brand_brain.client import Brain, current_tenant
+from pipeline.brand_brain import inspiration
+from pipeline.brand_brain.github_sync import recent_commits
 
 REPO = Path(__file__).resolve().parents[2]
 RUNS = REPO / "pipeline" / "state" / "gtm_runs"
@@ -42,8 +44,19 @@ def overview(tenant: str) -> dict[str, Any]:
     with b._db() as con:
         images = [dict(r) for r in con.execute(
             "SELECT id, path, kind, caption, style_tags, score FROM images ORDER BY kind, score DESC")]
+        code = [dict(r) for r in con.execute(
+            "SELECT page_id, url, updated_at FROM chunks WHERE source='github' AND deleted=0")]
     for im in images:
         im["style_tags"] = json.loads(im["style_tags"] or "[]")
+    repos: dict[str, dict[str, Any]] = {}
+    for c in code:
+        repo, _, path = str(c["page_id"] or "").removeprefix("github:").partition("/")
+        r = repos.setdefault(repo, {"repo": repo, "files": set(), "chunks": 0, "last_synced": "",
+                                    "url": str(c["url"] or "").split("/blob/")[0]})
+        r["files"].add(path)
+        r["chunks"] += 1
+        r["last_synced"] = max(r["last_synced"], str(c["updated_at"] or ""))
+    github = [{**r, "files": len(r["files"])} for r in sorted(repos.values(), key=lambda r: -r["chunks"])]
     try:
         from pipeline.gtm_learning.source_learning import posteriors
         record = {k: v for k, v in posteriors().items() if ":" not in k}
@@ -75,7 +88,12 @@ def overview(tenant: str) -> dict[str, Any]:
         "versions": b.profile_versions(),
         "whats_new": b.get_whats_new(None, 20),
         "competitor_patterns": b.get_competitor_patterns(None, 30),
+        "inspiration": inspiration.report(tenant),
+        "github": github,
+        "commits": recent_commits(tenant, limit=15),
         "images": images,
+        "rejected": rejected_posters(tenant),
+        "outcomes": b.outcomes(40),
         "sources": {"last_scrape": _latest_harvest(), "record": record},
         "analyst_accuracy": accuracy,
         "notion": _notion_status(b),
@@ -109,6 +127,33 @@ def _notion_status(b: Brain) -> dict[str, Any]:
             "oauth_configured": bool(oauth.get("configured")), "oauth_connected": bool(oauth.get("connected")),
             "workspace": oauth.get("workspace"), "via": ("oauth" if oauth.get("connected")
                                                          else "token" if configured else None)}
+
+
+def rejected_posters(tenant: str = "vanna") -> list[dict[str, Any]]:
+    """Posters the founder killed or handed over as never-make.
+
+    These are Vanna's. Other companies do not see them. Read from their own
+    index, not the images table, so the brain never retrieves them as
+    approved references.
+    """
+    if tenant != "vanna":
+        return []
+    from pipeline.gtm_creative.taste import EX_DIR, _sent_back_rows
+    out = []
+    for r in _sent_back_rows():
+        p = EX_DIR / str(r.get("file") or "")
+        if not p.exists():
+            continue
+        out.append({
+            "run_id": r.get("run_id"),
+            "verdict": r.get("verdict") or "kill",
+            "path": p.relative_to(REPO).as_posix(),
+            "note": r.get("note"),
+            "brief": str(r.get("brief") or "")[:240],
+            "founder_ref": bool(r.get("founder_ref")),
+        })
+    out.sort(key=lambda r: (not r["founder_ref"], str(r.get("run_id") or "")))
+    return out
 
 
 def search(query: str, tenant: str) -> dict[str, Any]:

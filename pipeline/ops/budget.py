@@ -83,10 +83,10 @@ def db():
     """A connection to the ops tables: Postgres when the brain is there
     (not bound to a tenant — these rows are the owner's, not a company's)."""
     from pipeline.brand_brain import store as S
-    url = S.database_url()
+    url = S.database_url() if S.backend() == "pg" else None
     if url:
         import psycopg
-        con = psycopg.connect(url, connect_timeout=5, autocommit=True)
+        con = psycopg.connect(url, connect_timeout=20, autocommit=True)
         try:
             yield _Pg(con)
         finally:

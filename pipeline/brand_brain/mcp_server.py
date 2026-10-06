@@ -1,6 +1,6 @@
 """The Brain MCP server — the one door agents use to reach a company's brain.
 
-Six tools, from the architecture's contract. The tenant is fixed for the
+Seven tools: the architecture's six, plus the GitHub commit log. The tenant is fixed for the
 session (the `--tenant` flag or BRAIN_TENANT), never a tool argument, so no
 call can ask for another company's data and no prompt needs a company name.
 
@@ -68,10 +68,30 @@ def build(tenant: str) -> MCPServer:
     def get_competitor_patterns(topic: Optional[str] = None, n: int = 6) -> list[dict]:
         return brain.get_competitor_patterns(topic, n)
 
+    @server.tool(description="The company's newest GitHub commits (every branch, last 30 days), "
+                             "newest first: repo, short sha, author, date (UTC), message, branches, "
+                             "url. Filter by repo name or an ISO `since`. A commit message is "
+                             "engineering activity, not a shipped feature or a claim.")
+    def get_recent_commits(repo: Optional[str] = None, since: Optional[str] = None,
+                           limit: int = 20) -> dict[str, Any]:
+        from pipeline.brand_brain.github_sync import recent_commits
+        return recent_commits(tenant, repo=repo, since=since, limit=limit)
+
     @server.tool(description="Record a published post's metrics (impressions, likes, replies, "
                              "reposts, clicks, …) so the learning loop can use them.")
     def log_post_outcome(post_id: str, metrics: dict, run_id: Optional[str] = None) -> dict:
         return brain.log_post_outcome(post_id, metrics, run_id=run_id, source="mcp")
+
+    @server.tool(description="The ledger of published-post metrics recorded for this company, "
+                             "newest first. Each row is one log_post_outcome call.")
+    def list_outcomes(limit: int = 40) -> list[dict]:
+        return brain.outcomes(limit)
+
+    @server.tool(description="Posters the founder killed or handed over as never-make. "
+                             "These are not approved references; do not imitate them.")
+    def list_rejected_posters() -> list[dict]:
+        from pipeline.brand_brain.dashboard import rejected_posters
+        return rejected_posters(tenant)
 
     return server
 

@@ -24,3 +24,6 @@ Borrowing requires permitted assets, enough collateral headroom, available pool 
 The pool records gross debt. A configured origination fee reduces spendable proceeds. Current frontend code records a zero-fee setup and still applies a small rounding buffer before deploying borrowed funds; the selected pool's getter is authoritative for its fee.
 
 Account health changes with interest, prices, and external-position value. At or below 1.1, a priced debt-bearing account becomes a liquidation candidate. See [Repay](/guides/margin/repay) and [Health Factor](/guides/margin/health-factor).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

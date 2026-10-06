@@ -49,16 +49,16 @@ class ChannelReviewer:
                 reasoning="Package must adapt to all three core distribution channels."
             )
 
-        # Word set divergence calculation
-        words_x = set(x_copy.copy.lower().split())
-        words_li = set(li_copy.copy.lower().split())
-        words_rd = set(rd_copy.copy.lower().split())
-
-        overlap_x_li = len(words_x.intersection(words_li)) / max(1, len(words_x.union(words_li)))
-        overlap_li_rd = len(words_li.intersection(words_rd)) / max(1, len(words_li.union(words_rd)))
-        
-        # Distinctness score: higher when platforms have diverse vocabulary and structures
-        distinctness_score = int(100 - (overlap_x_li * 35 + overlap_li_rd * 35))
+        # The same fact should be recognizable on every channel. What is
+        # banned is one post pasted into the next. Shared words (TSLAx, 5x)
+        # are the point, not a reason to pad each channel with different jargon.
+        def _same(a: str, b: str) -> bool:
+            aa, bb = " ".join(a.lower().split()), " ".join(b.lower().split())
+            if not aa or not bb:
+                return False
+            return aa == bb or aa in bb or bb in aa
+        pasted = _same(x_copy.copy, li_copy.copy) or _same(li_copy.copy, rd_copy.copy)
+        distinctness_score = 40 if pasted else 80
 
         # 2. Check for Prohibited Strings Across All Channels
         from pipeline.brand_brain import context as C
@@ -91,8 +91,8 @@ class ChannelReviewer:
                 if not p.discussion_question:
                     ch_issues.append("Reddit post missing community discussion question")
             elif ch_name == "linkedin":
-                if "failure modes" not in text_lower and "architecture" not in text_lower:
-                    ch_issues.append("LinkedIn post lacks institutional architecture framing")
+                if len(p.copy) > 900:
+                    ch_issues.append(f"LinkedIn post is an article, not a post ({len(p.copy)} chars)")
 
             if ch_issues:
                 channel_issues[ch_name] = ch_issues

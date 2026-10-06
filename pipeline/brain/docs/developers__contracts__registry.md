@@ -572,3 +572,6 @@ pub fn get_all_tracking_symbols(env: &Env) -> Vec<Symbol>
 ## Source reference
 
 * `Protocol_V1_Soroban_testnet/contracts/RegistryContract/src/registry.rs`
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

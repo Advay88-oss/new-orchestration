@@ -82,6 +82,19 @@ def _system(tenant: str, summary: str) -> str:
         "formulas written inline like HF = collateral / debt.\n"
         "- To add a new company, use add_company with the URL the owner gave (ask for it if missing). To "
         "connect Notion, use notion_connect (for_client=true when they want a link to send someone).\n"
+        "- When the owner asks for something on a timer — headlines, competitor Twitter, campaigns, memes, "
+        "ideas, trends, GitHub, Notion, Reddit, a health check, or a post — call set_post_cadence with their "
+        "whole sentence, unchanged. Schedule only the work they named. Do not add a post they did not ask for. "
+        "A scrape or a campaign search can be every 5 minutes. A post needs 20 minutes. The tool creates one "
+        "cron per job, and the Automations panel shows that cron. Do that yourself.\n"
+        "- When the owner asks for campaigns from a site, a company, or a handle, call find_campaigns with "
+        "what they want and where to look. Do that yourself.\n"
+        "- When the owner names a company to learn from, or competitor posts, call study_brand with the "
+        "name. Do not ask for an X handle. A scrape they already set also files those competitors onto "
+        "What Vanna Can Do by itself.\n"
+        "- After one of those tools succeeds, answer in short lines: what you set, and that it waits for them. "
+        "Do not ask a second time if they already said the gap or the source. "
+        "A slow save is not a failure and is not a reason to offer a launch button.\n"
         "- You never launch a run, approve, revise, kill or approve a profile yourself: use propose_action, "
         "which shows the owner a button. Nothing is ever published by you or by the pipeline.\n"
         "- When a tool returns a card, the chat shows it; refer to it in a sentence rather than repeating it.\n"
@@ -190,6 +203,12 @@ def _summary(name: str, result: dict) -> str:
         return str(result.get("run_id")) + " · " + str(result.get("status"))
     if name == "add_company":
         return "analysing " + str(result.get("url"))
+    if name == "set_post_cadence":
+        return str(result.get("message") or "done")[:800]
+    if name == "find_campaigns":
+        return "searching " + str(result.get("source") or "the source") + " for " + str(result.get("query") or "")[:80]
+    if name == "study_brand":
+        return str(result.get("message") or "studying")[:200]
     return "done"
 
 

@@ -10,12 +10,12 @@ Earn is Vanna's wallet-to-lending-pool supply interface. Deposits receive vToken
 
 ## Markets
 
-| Display asset | Underlying market          |
-| ------------- | -------------------------- |
-| XLM           | Native Stellar asset       |
-| BLUSDC        | Blend's USDC test asset    |
-| AqUSDC        | Aquarius's USDC test asset |
-| SoUSDC        | Soroswap's USDC test asset |
+| Display asset | Underlying market |
+| - | - |
+| XLM | Native Stellar asset |
+| BLUSDC | Blend's USDC test asset |
+| AqUSDC | Aquarius's USDC test asset |
+| SoUSDC | Soroswap's USDC test asset |
 
 The three USDC variants have different addresses and independent lending markets. Use the matching wallet balance and receipt token.
 
@@ -28,3 +28,6 @@ The three USDC variants have different addresses and independent lending markets
 In Pro mode, open Earn and select a pool. Its page provides supply, withdrawal, pool information, and position/history views. Supply uses wallet funds; no margin account is required. Earnings depend on actual borrower interest and utilization.
 
 Withdrawal redeems receipts, with a per-call cap of 50% of pool total assets and available liquidity. A confirmed withdrawal may leave receipts behind. See [Supply](/guides/earn/supply) and [Withdraw](/guides/earn/withdraw).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

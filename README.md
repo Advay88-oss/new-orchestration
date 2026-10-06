@@ -56,7 +56,8 @@ Needs `google-cloud-storage`, a `GEMINI_API_KEY` in `pipeline/.env`, and
 | Document | For |
 |---|---|
 | `CLAUDE.md` | Repo map, commands, conventions, current state — **start here** |
-| `ARCHITECTURE.md` | The full 13-agent system specification |
+| `HOW-IT-WORKS.md` | Current architecture, and how to read the brand brain from the backend |
+| `ARCHITECTURE.md` | The earlier 13-agent system specification |
 | `JOURNEY.md` | How this was built |
 | `HANDOFF.md` | Operating handoff notes |
 | `WHITE-LABEL-SETUP.md`, `OKF-PACKS.md` | Running it for another company |

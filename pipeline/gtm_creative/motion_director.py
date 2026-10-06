@@ -54,14 +54,22 @@ GUARDRAILS = (
 # and the choreography change: the last few used are unavailable, the rest
 # are ordered by the founder's record, and the model picks what fits.
 LAYOUTS = {
-    "split_contrast": "two large flat glass cards side by side — the problem left, {company} right — an arrow between",
-    "hub_spokes": "one central flat card for {company} with three flat cards around it, joined by straight lines",
-    "step_flow": "three or four flat cards in a row joined by arrows, a numbered sequence",
-    "stack_checklist": "one tall glass card of 3-5 rows with check marks, and a call-to-action pill below",
-    "stat_hero": "one true figure set huge in a glass card, two small supporting cards under it",
-    "question_cards": "a question card with 2-4 answer cards beneath it and {company}'s short take",
-    "before_after": "the same flat diagram twice, stacked: 'today' above, 'with {company}' below",
-    "grid_features": "a 2x2 grid of flat glass cards, one capability each with a flat icon",
+    "split_contrast": "logo at top, big headline, grey subtitle, then two large cards side by side — the problem on the left in red (cracked, draining or stuck at zero), {company} on the right in violet (holding or rising) — one arrow between. Each card holds a readable mechanism (a meter, a chart, a crack, a flow) with short labels, not an empty card. The cards take the MATERIAL of this post",
+    "hub_spokes": "one central card for {company} with three cards around it, joined by straight lines, on the MATERIAL of this post",
+    "step_flow": "three or four cards in a row joined by arrows, a numbered sequence, on the MATERIAL of this post",
+    "stack_checklist": "one tall card of 3-5 rows with check marks, and a call-to-action pill below, on the MATERIAL of this post",
+    "stat_hero": "one true figure set huge, two small supporting cards under it, on the MATERIAL of this post",
+    "question_cards": "a question card with 2-4 answer cards beneath it and {company}'s short take, on the MATERIAL of this post",
+    "before_after": "the same diagram twice, stacked: 'today' above, 'with {company}' below, on the MATERIAL of this post",
+    "grid_features": "a 2x2 grid of cards, one capability each with a flat icon, on the MATERIAL of this post",
+}
+# The founder stopped glassmorphism (2026-10-06). Cards are opaque.
+# Frost, blur, a see-through fill, and a glowing glass border do not appear.
+MATERIALS = {
+    "solid": "opaque matte cards in the brand ink, a hairline border, no blur, no frost, nothing glowing through the fill",
+    "editorial": "no panels. The headline carries the poster. One diagram is thin lines, marks and a single arrow on the open ground",
+    "line": "a technical drawing: hairline rules, open shapes, small labels. No filled slabs, no blur, no glow",
+    "print": "hard-edged ink blocks like a magazine spread. Flat colour, no glow, no transparency",
 }
 MOTION_STYLES = {
     "sequential_slide": "cards slide in one after another from below and settle",
@@ -152,7 +160,7 @@ def _fill(text: str) -> str:
                      + ("; no " + " or ".join(avoid) if avoid else "") + "."))
 
 
-def _brief_faults(out: dict) -> list[str]:
+def _brief_faults(out: dict, animated: bool = True) -> list[str]:
     """Rule breaks a model reliably makes in a brief, found in code."""
     import re
     faults = []
@@ -164,6 +172,21 @@ def _brief_faults(out: dict) -> list[str]:
         faults.append("headline is Title Case; use sentence case")
     if len(str(out.get("subtitle") or "").split()) > 14:
         faults.append("subtitle is over 14 words")
+    from pipeline.gtm_creative.taste import jargon, overclaims
+    said = head + " " + str(out.get("subtitle") or "") + " " + str(out.get("footer") or "")
+    spec = jargon(said)
+    if spec:
+        faults.append("headline/subtitle uses protocol jargon (" + ", ".join(spec)
+                      + "); say it the way a trader would, in plain words")
+    promised = overclaims(said)
+    if promised:
+        faults.append("promises more than the facts (" + ", ".join(promised)
+                      + "); say what the mechanism does, not that risk is gone")
+    labels_l = [str(l).strip().lower() for l in (out.get("labels") or []) if str(l).strip()]
+    twice = sorted({l for l in labels_l if labels_l.count(l) > 1})
+    if twice:
+        faults.append("the same label appears twice (" + ", ".join(twice)
+                      + "); every label is printed once")
     labels = out.get("labels") or []
     if len(labels) > 6:
         faults.append(str(len(labels)) + " labels; at most 6")
@@ -177,7 +200,7 @@ def _brief_faults(out: dict) -> list[str]:
     if any(m in str(v) for v in out.values() for m in ("**", "__", "`")):
         faults.append("contains markdown (** __ `); write plain text, emphasis is the gradient word")
     diag = str(out.get("diagram") or "").lower()
-    if any(w in diag for w in ("isometric", " 3d", "3-d", "perspective")):
+    if animated and any(w in diag for w in ("isometric", " 3d", "3-d", "perspective")):
         faults.append("diagram is isometric/3D; keep every element flat and face-on so Veo "
                       "does not tilt the camera")
     from pipeline.brand_brain import context as C
@@ -188,36 +211,82 @@ def _brief_faults(out: dict) -> list[str]:
                       "logos or currency, and keep to the brand palette")
     if "─" in str(out.get("diagram") or "") or "-->" in str(out.get("diagram") or ""):
         faults.append("diagram is a text flowchart; describe it visually")
+    material = str(out.get("material") or "")
+    if material not in MATERIALS:
+        faults.append("material must be one of: " + ", ".join(MATERIALS) + ". Glass is not a material")
+    blob_l = " ".join(str(v) for v in out.values()).lower()
+    glass_words = [w for w in ("glass", "frost", "blur", "translucent", "glassmorphism", "see-through")
+                   if w in blob_l]
+    if glass_words:
+        faults.append("glassmorphism is banned (" + ", ".join(glass_words)
+                      + "). Cards are opaque. No frost, no blur, no see-through fill, no glowing glass border")
     return faults
 
 
 def poster_brief(query: str, hook: str = "", body: str = "", *,
-                 run_id: Optional[str] = None) -> dict[str, Any]:
+                 run_id: Optional[str] = None, animated: bool = True) -> dict[str, Any]:
     """The brief the image model draws from. Raises on model failure."""
     from pipeline.gtm_os import agent_runtime as R
     from pipeline.brand_brain.context import facts_block as prompt_block
 
+    from pipeline.gtm_creative import taste
+
     approved = _approved_posters()
     fixes = _corrections()
+    sent_back = [p for p in taste.piles(approved=0, sent_back=4)["sent_back"] if p["brief"]]
     record = ""
-    if approved or fixes:
+    if approved or fixes or sent_back:
         record = "FOUNDER'S RECORD — learn from it:\n"
         if approved:
             record += "Posters the founder APPROVED (the level and the kind of idea):\n"
             record += "\n".join("  - " + r["brief"] + (" — " + r["note"] if r.get("note") else "")
                                 for r in approved) + "\n"
+        if sent_back:
+            record += ("Posters the founder KILLED or sent back — do not make posters like "
+                       "these:\n")
+            record += "\n".join("  - (" + p["verdict"] + ") " + p["brief"] for p in sent_back) + "\n"
         if fixes:
             record += "Corrections from revisions and kills:\n"
             record += "\n".join("  - " + f for f in fixes) + "\n"
+    taste_text = taste.rubric()
+    if taste_text:
+        record += "\n" + taste_text + "\n"
 
+    if animated:
+        shape = (
+            "The poster will be ANIMATED by Veo, building itself element by "
+            "element, so design it to build cleanly: headline and subtitle on "
+            "top, then 2-4 large, clearly separated cards, each holding one "
+            "simple diagram, short plain-text labels, a footer. Distinct elements "
+            "with space between them animate well; crowded, overlapping or "
+            "text-dense layouts come out garbled. Keep everything FLAT and "
+            "face-on: flat icons, straight arrows. No isometric "
+            "or 3D objects (chips, cubes, platforms seen at an angle) — Veo turns "
+            "them into a moving 3D scene and the camera tilts. "
+            "Cards are opaque. Never ask for glass, frost, blur, a translucent fill, "
+            "or a glowing glass border. ")
+    else:
+        shape = (
+            "The poster is a STILL (no video this run): headline and subtitle on "
+            "top, then the cards the layout describes, short plain-text "
+            "labels, a footer. Cards are opaque and flat. Never ask for glass, "
+            "frost, blur, a translucent fill, or a glowing glass border. ")
     system = _fill(
         "You are {company}'s Motion Director, briefing the poster that will be "
-        "drawn and then animated. {company_line} Write a brief an image model can draw "
-        "from: ONE idea, as a diagram of glass cards, icons and arrows.\n"
-        "First choose the FORMAT the query is asking for — do not force every "
-        "poster into the same shape:\n"
+        "drawn" + (" and then animated" if animated else "") + ". {company_line} "
+        "Write a brief an image model can draw "
+        "from: ONE idea, as a diagram of cards, icons and arrows, on ONE material.\n"
+        "The diagram depicts the mechanism in the post body. Draw those names "
+        "and those figures. Do not add Blend, Aquarius, a SmartAccount sandbox, "
+        "or 1.10× unless the post body names them. A Solana post draws the "
+        "Solana mechanism (a stock token, one margin account, a borrow), not "
+        "the Stellar diagram.\n"
+        "Pick the layout from LAYOUT FAMILIES below. Consecutive posts must "
+        "not share a layout. Logo at top, one headline, one subtitle, then "
+        "the cards that layout describes, then a footer.\n"
+        "First choose the FORMAT the query is asking for:\n"
         "  announcement — something is live, launched or open to try (e.g. "
-        "'testnet is live', 'check it now'): one bold message, 2-4 glass "
+        "'testnet is live', 'check it now'): one bold message, 2-4 "
         "cards of what the reader can do or test right now, and a clear call "
         "to action. No problem-versus-{company} comparison.\n"
         "  explainer / hot take — how something works or a belief to "
@@ -226,16 +295,9 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         "  metric — one true figure is the whole point.\n"
         "Never draw coins, token logos, currency symbols or any protocol's "
         "logo. {palette_rule}\n"
-        "The poster will be ANIMATED by Veo, building itself element by "
-        "element, so design it to build cleanly: headline and subtitle on "
-        "top, then 2-4 large, clearly separated glass cards, each holding one "
-        "simple diagram, short plain-text labels, a footer. Distinct elements "
-        "with space between them animate well; crowded, overlapping or "
-        "text-dense layouts come out garbled. Keep everything FLAT and "
-        "face-on: 2D glass cards, flat icons, straight arrows. No isometric "
-        "or 3D objects (chips, cubes, platforms seen at an angle) — Veo turns "
-        "them into a moving 3D scene and the camera tilts. "
-        "Every figure must be true of {company} ({figures}) — invent none. "
+        + shape +
+        "A figure is drawn only when the post body already states it. The "
+        "profile figures ({figures}) belong to Stellar testnet posts. Invent none. "
         "Other protocols ({venues}) appear as plain text names.\n"
         "Rules:\n"
         "- Cover EVERY subject the founder's query names. If it asks about "
@@ -250,6 +312,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         "flows), not as a text flowchart.\n"
         "Return strict JSON.")
     layouts = _options(LAYOUTS, "recent_layouts.json", 3, "poster_layout")
+    materials = _options(MATERIALS, "recent_materials.json", 2, "poster_material")
     rules = _rules_block()
     prompt = (
         prompt_block((query or hook)[:300], excerpts=4) + "\n\n----\n\n"
@@ -260,11 +323,15 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
           "prefer higher when two fit):\n"
         + "\n".join("  " + k + ": " + how + (" [" + rec + "]" if rec else "")
                     for k, how, rec in layouts) + "\n\n"
+        + "MATERIALS open this run (the last two used are held back). "
+          "Glassmorphism is banned. Do not write glass, frost, blur, or translucent:\n"
+        + "\n".join("  " + k + ": " + how for k, how, _rec in materials) + "\n\n"
         + "THE FOUNDER'S QUERY: " + " ".join(str(query).split())[:800] + "\n"
         + ("THE POST — hook: " + hook[:300] + "\nbody: " + " ".join(body.split())[:1200] + "\n"
            if hook or body else "")
         + '\nReturn JSON: {"format": "announcement"|"explainer"|"question"|"metric", '
         '"layout": str (one id from LAYOUT FAMILIES), '
+        '"material": str (one id from MATERIALS), '
         '"idea": str, "headline": str (under 9 words), '
         '"gradient_word": str (1-2 words from the headline), "subtitle": str '
         '(under 14 words), "problem_side": str, "brand_side": str, '
@@ -276,7 +343,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
     # The rules are checked, not only stated: in testing, both Flash and Pro
     # broke one (a competitor named, eight labels, a 16-word subtitle). A
     # broken brief is sent back once with exactly what to fix.
-    faults = _brief_faults(out)
+    faults = _brief_faults(out, animated)
     if faults:
         out = R.brain_json(prompt + "\n\nYOUR PREVIOUS BRIEF BROKE THESE RULES — fix "
                            "every one and return the whole JSON again:\n- "
@@ -302,7 +369,13 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
     if layout not in open_ids:
         layout = open_ids[0]
     _remember("recent_layouts.json", layout)
-    text = "Layout: " + layout + " — " + _fill(LAYOUTS[layout]) + "\n" + text
+    open_materials = [k for k, _, _ in materials]
+    material = str(out.get("material") or "")
+    if material not in open_materials:
+        material = open_materials[0]
+    _remember("recent_materials.json", material)
+    text = ("Material: " + material + " — " + MATERIALS[material] + "\n"
+            + "Layout: " + layout + " — " + _fill(LAYOUTS[layout]) + "\n" + text)
     return {"brief": text, "raw": out, "layout": layout}
 
 
@@ -327,8 +400,9 @@ def motion_plan(poster: str | Path, brief: str, *,
         "never change after. Every text element appears in its FINAL "
         "position and size — never slide, grow or move text. Describe every "
         "element as flat and face-on; never use the words isometric, 3D, "
-        "perspective or depth, which make Veo tilt the camera. Return strict "
-        "JSON.")
+        "perspective or depth, which make Veo tilt the camera. "
+        "Never say glass, frost, blur, translucent, or glassmorphism, and do not "
+        "add a glass slab. Cards stay opaque. Return strict JSON.")
     styles = _options(MOTION_STYLES, "recent_motion_styles.json", 2, "motion_style")
     rules = _rules_block()
     prompt = (
@@ -361,5 +435,7 @@ def motion_plan(poster: str | Path, brief: str, *,
         style = open_styles[0]
     _remember("recent_motion_styles.json", style)
     plan = "MOTION STYLE: " + style + " — " + MOTION_STYLES[style] + "\n" + plan
+    plan += ("\nSURFACE: no glassmorphism. Do not add frost, blur, a see-through fill, "
+             "or a glowing glass border. Move only the opaque shapes already drawn.")
     return {"plan": plan, "raw": out, "motion_style": style,
             "prompt": _fill(GUARDRAILS) + "\n\n" + plan + ("\n\n" + learned if learned else "")}

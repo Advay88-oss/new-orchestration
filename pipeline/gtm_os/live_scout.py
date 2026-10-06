@@ -23,9 +23,11 @@ API, so the scrape runs anywhere — no browser bridge. Two rules:
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Callable
 
 from pipeline.gtm_orchestration.schemas import MarketSignal
@@ -330,6 +332,31 @@ def scout(limit: int = 12, *, include_archive: bool = True) -> list[MarketSignal
         pass
 
     out = list(live)
+    # Headlines the research job stored. The selector can pick one. The
+    # harvest then shows it on Scraped Intelligence, and the post is the use.
+    try:
+        raw = json.loads((Path(__file__).resolve().parents[1] / "state" / "research_latest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        raw = {}
+    seen_h = {s.headline.lower()[:90] for s in out}
+    for i, item in enumerate((raw.get("items") or [])[:6]):
+        headline = str(item.get("headline") or "").strip()
+        if not headline or headline.lower()[:90] in seen_h:
+            continue
+        seen_h.add(headline.lower()[:90])
+        out.insert(0, MarketSignal(
+            signal_id="SIG-RESEARCH-%02d" % i,
+            headline=headline[:240],
+            description=headline[:240],
+            market_category="LENDING",
+            source=str(item.get("source") or "research_collect"),
+            source_type="LIVE_OBSERVED",
+            dataset="research_collect",
+            record_id="research-%02d" % i,
+            observed_at=str(item.get("at") or scraped_at),
+            confidence="MEDIUM",
+            evidence_status="OBSERVED",
+        ))
 
     # The archive is Vanna's research brain (opportunities.jsonl), not per
     # company: another tenant's run must not be offered Vanna's history.

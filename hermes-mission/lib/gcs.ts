@@ -70,6 +70,40 @@ export async function getText(name: string): Promise<string | null> {
   return res.text();
 }
 
+let laptopToken: { value: string; expires: number } | null = null;
+
+/** The cron runs in GCP. On the laptop, read the same object with the logged-in gcloud account. */
+export async function getTextFromLaptop(name: string): Promise<string | null> {
+  if (laptopToken && Date.now() >= laptopToken.expires) laptopToken = null;
+  if (!laptopToken) {
+    try {
+      const { execFile } = await import('node:child_process');
+      const { promisify } = await import('node:util');
+      const run = promisify(execFile);
+      const bin = process.platform === 'win32' ? 'gcloud.cmd' : 'gcloud';
+      const { stdout } = await run(bin, ['auth', 'print-access-token'], {
+        timeout: 20000,
+        windowsHide: true,
+      });
+      const value = String(stdout || '').trim();
+      if (!value || /\s/.test(value)) return null;
+      laptopToken = { value, expires: Date.now() + 40 * 60 * 1000 };
+    } catch {
+      return null;
+    }
+  }
+  const res = await fetch(`${api(`o/${encodeURIComponent(name)}`)}?alt=media`, {
+    headers: { Authorization: `Bearer ${laptopToken.value}` },
+    cache: 'no-store',
+  });
+  if (res.status === 401) {
+    laptopToken = null;
+    return null;
+  }
+  if (!res.ok) return null;
+  return res.text();
+}
+
 /** One object's contents as bytes — used to serve artifacts. */
 export async function getBytes(
   name: string,

@@ -216,25 +216,43 @@ def brain(
     if json_out:
         payload["generationConfig"]["responseMimeType"] = "application/json"
 
-    try:
-        res = _post(url, payload, timeout)
-    except urllib.error.HTTPError as exc:
-        body = ""
+    # Gemini's thinking tokens come out of maxOutputTokens, so a long think
+    # can leave a few dozen tokens for the answer: a reply cut mid-string.
+    # That is retried once with twice the budget, and never returned as text.
+    for attempt in (1, 2):
         try:
-            body = exc.read().decode("utf-8", "replace")[:300]
-        except Exception:
-            pass
-        note = "HTTP " + str(exc.code) + ": " + body
-        record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
-                         note=note, transport=transport), run_id)
-        raise BrainError(note) from exc
-    except Exception as exc:                        # noqa: BLE001 — boundary
-        note = (type(exc).__name__ + ": " + str(exc))[:300]
-        record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
-                         note=note, transport=transport), run_id)
-        raise BrainError(note) from exc
+            res = _post(url, payload, timeout)
+        except urllib.error.HTTPError as exc:
+            body = ""
+            try:
+                body = exc.read().decode("utf-8", "replace")[:300]
+            except Exception:
+                pass
+            note = "HTTP " + str(exc.code) + ": " + body
+            record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
+                             note=note, transport=transport), run_id)
+            raise BrainError(note) from exc
+        except Exception as exc:                        # noqa: BLE001 — boundary
+            note = (type(exc).__name__ + ": " + str(exc))[:300]
+            record(AgentCall(agent, role, model, False, round(time.time() - started, 2),
+                             note=note, transport=transport), run_id)
+            raise BrainError(note) from exc
 
-    usage = res.get("usageMetadata") or {}
+        usage = res.get("usageMetadata") or {}
+        finish = ((res.get("candidates") or [{}])[0] or {}).get("finishReason")
+        if finish != "MAX_TOKENS":
+            break
+        note = ("cut off at maxOutputTokens=" + str(payload["generationConfig"]["maxOutputTokens"])
+                + " (thinking " + str(usage.get("thoughtsTokenCount", 0)) + ", answer "
+                + str(usage.get("candidatesTokenCount", 0)) + " tokens)")
+        record(AgentCall(agent, role, model, False, round(time.time() - started, 2), note=note,
+                         transport=transport, input_tokens=usage.get("promptTokenCount", 0),
+                         output_tokens=usage.get("candidatesTokenCount", 0)), run_id)
+        if attempt == 2:
+            raise BrainError(note)
+        payload["generationConfig"]["maxOutputTokens"] = min(
+            2 * payload["generationConfig"]["maxOutputTokens"], 32768)
+
     try:
         text = res["candidates"][0]["content"]["parts"][0]["text"]
     except (KeyError, IndexError, TypeError):

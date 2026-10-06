@@ -9,7 +9,7 @@
 #   service   vanna-gtm-mission    Cloud Run: the dashboard (owner actions via OWNER_KEY)
 #   job       vanna-gtm-pipeline   Cloud Run Job: a GTM cycle, or the scheduler's tick
 #   job       vanna-gtm-admin      Cloud Run Job: Cloud SQL schema + brain migration
-#   schedule  vanna-gtm-tick       Cloud Scheduler: the tick, hourly (Notion sync, metrics)
+#   schedule  vanna-gtm-tick       Cloud Scheduler: the tick, hourly (every job in config/scheduler.yaml)
 #   database  brand-brain          Cloud SQL, Postgres 17, db-f1-micro
 #
 # Secrets go from pipeline/.env to Secret Manager through a pipe — never
@@ -30,7 +30,11 @@ PY="${ROOT}/.venv/Scripts/python.exe"; [ -x "$PY" ] || PY="${ROOT}/.venv/bin/pyt
 GCLOUD="$(command -v gcloud)"
 TOKEN_FILE="$(mktemp -t gcloud_token.XXXXXX)"
 trap 'rm -f "${TOKEN_FILE}"' EXIT
-"${GCLOUD}" auth application-default print-access-token > "${TOKEN_FILE}"
+# User login (anand@vanna.finance) is the credential that can deploy.
+# Application-default is only a fallback, and on this machine it goes stale.
+if ! "${GCLOUD}" auth print-access-token > "${TOKEN_FILE}" 2>/dev/null; then
+  "${GCLOUD}" auth application-default print-access-token > "${TOKEN_FILE}"
+fi
 gc() { "${GCLOUD}" "$@" --project "${PROJECT}" --access-token-file="${TOKEN_FILE}"; }
 say() { printf '\n== %s\n' "$*"; }
 
@@ -111,13 +115,17 @@ secrets_flag() {
   echo "$out"
 }
 COMMON_ENV="VANNA_STATE_BUCKET=${BUCKET},VANNA_CLOUD=1,GOOGLE_CLOUD_PROJECT=${PROJECT},VANNA_MEDIA_PROJECT=${PROJECT},VANNA_IMAGE_VIA=apikey,DASHBOARD_URL=${URL},VANNA_REGION=${REGION}"
+# Jobs with their own Cloud Scheduler cron stay off this list so the 2-minute
+# tick does not run them as well. Posts stay off until that cron is resumed.
+SCHEDULER_ONLY="brain_watch,github_commits,notion_sync,metrics_collect,ops_watch,campaigns_refresh"
 
 step_jobs() {
   local img; img="$(image)"
   say "jobs: ${JOB} (cycle / tick) and ${ADMIN_JOB} (schema / migration)"
   gc run jobs deploy "$JOB" --image "$img" --region "$REGION" --service-account "$SA" \
     --command=//app/docker-entrypoint.sh --args=job,tick \
-    --set-cloudsql-instances "$CONN" --set-secrets "$(secrets_flag job)" --set-env-vars "$COMMON_ENV" \
+    --set-cloudsql-instances "$CONN" --set-secrets "$(secrets_flag job)" \
+    --set-env-vars "^|^VANNA_STATE_BUCKET=${BUCKET}|VANNA_CLOUD=1|GOOGLE_CLOUD_PROJECT=${PROJECT}|VANNA_MEDIA_PROJECT=${PROJECT}|VANNA_IMAGE_VIA=apikey|DASHBOARD_URL=${URL}|VANNA_REGION=${REGION}|SCHEDULER_ONLY=${SCHEDULER_ONLY}" \
     --cpu 2 --memory 4Gi --task-timeout 3600 --max-retries 0
   gc run jobs deploy "$ADMIN_JOB" --image "$img" --region "$REGION" --service-account "$SA" \
     --command=//app/docker-entrypoint.sh --args=job,admin-schema \
@@ -197,16 +205,16 @@ step_service() {
 }
 
 step_scheduler() {
-  say "Cloud Scheduler ${TICK}: the pipeline tick, hourly"
+  say "Cloud Scheduler ${TICK}: the pipeline tick, every 2 minutes"
   local uri="https://run.googleapis.com/v2/projects/${PROJECT}/locations/${REGION}/jobs/${JOB}:run"
   if gc scheduler jobs describe "$TICK" --location "$REGION" >/dev/null 2>&1; then
-    gc scheduler jobs update http "$TICK" --location "$REGION" --schedule "0 * * * *" --uri "$uri" \
+    gc scheduler jobs update http "$TICK" --location "$REGION" --schedule "*/2 * * * *" --uri "$uri" \
       --http-method POST --oauth-service-account-email "$SA" >/dev/null
   else
-    gc scheduler jobs create http "$TICK" --location "$REGION" --schedule "0 * * * *" --uri "$uri" \
+    gc scheduler jobs create http "$TICK" --location "$REGION" --schedule "*/2 * * * *" --uri "$uri" \
       --http-method POST --oauth-service-account-email "$SA" --time-zone "Etc/UTC" >/dev/null
   fi
-  echo "  hourly -> ${JOB} (tick: notion_sync, metrics_collect, ops_watch)"
+  echo "  every 2 minutes -> ${JOB} (tick: every job in config/scheduler.yaml, each on its own interval)"
 }
 
 step_telegram() {

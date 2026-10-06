@@ -21,3 +21,6 @@ The owner wallet starts with G; the deployed SmartAccount starts with C. They ho
 An account cannot be closed in the same ledger in which it was activated. Closing later requires debt clearance and external-position unwind. Liquidation does not automatically close it.
 
 Continue with [Deposit Collateral](/guides/margin/deposit-collateral).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

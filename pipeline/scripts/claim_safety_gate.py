@@ -393,9 +393,21 @@ def check(text: str, platform: str = "x", require_testnet: bool = True) -> dict:
             )
         )
 
-    # Any leverage or credit claim should disclose testnet status
-    if require_testnet and re.search(r"\b10\s*[x×]\b|\bcredit line\b|\bborrow\b", text, re.I):
-        if not TESTNET_DISCLOSURE.search(text):
+    # Any leverage or credit claim should say which deployment it is on.
+    if require_testnet and re.search(r"\b10\s*[x×]\b|\b5\s*[x×]\b|\bcredit line\b|\bborrow\b", text, re.I):
+        solana = re.search(r"\bsolana\b|\bxstocks?\b|\bprestocks?\b|\btslax\b", text, re.I)
+        if solana:
+            if not re.search(r"\b(devnet|surfpool|fork|not mainnet)\b", text, re.I):
+                violations.append(
+                    Violation(
+                        "A-missing-solana-fork",
+                        WARN,
+                        "Solana leverage claim without the fork disclosure",
+                        "The Solana program runs on a Surfpool mainnet fork, not mainnet.",
+                        "Say it is on the Solana devnet fork.",
+                    )
+                )
+        elif not TESTNET_DISCLOSURE.search(text):
             violations.append(
                 Violation(
                     "A-missing-testnet",

@@ -37,3 +37,6 @@ Connect your wallet, select Pro mode, and obtain the exact token for the chosen 
 The deposited asset moves to the pool. The receipt quantity depends on the pool conversion rate and rounding; it is not always numerically identical to the underlying deposit. Your receipts remain in the wallet and do not automatically become margin collateral.
 
 History can lag behind a confirmed transaction. Use its hash and refreshed balances to verify the result. Continue with [Withdraw](/guides/earn/withdraw).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

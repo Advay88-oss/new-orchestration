@@ -4,7 +4,7 @@
  * Brand Brain — the one place a company's knowledge lives, as the agents see it.
  *
  * Every agent reads the brand through the brain (profile, knowledge search,
- * visual memory, What's new, competitor patterns), so this view shows exactly
+ * visual memory, What's new), so this view shows exactly
  * that: what is in it, how fresh it is, what still needs the founder's review,
  * and how well each scrape source is feeding it. Read-only — approving a
  * profile version stays a deliberate founder action.
@@ -16,7 +16,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
 import { ErrorState, ViewSkeleton } from "@/components/States";
 import { useViewer } from "@/lib/useViewer";
-
+import { COMPANY_EVENT, readCompany, writeCompany } from "@/lib/company";
 type Hit = {
   id: string; text: string; section: string; title: string; source: string;
   authority: number; url: string | null; content_type: string; score: number;
@@ -242,93 +242,145 @@ function NotionConnect({ tenant, notion, onChange }: { tenant: string; notion: a
   );
 }
 
-/** Competitors: web-searched suggestions to confirm, and each confirmed one's
- *  website and recent X posts turned into pattern summaries (never their text). */
-function Competitors({ tenant }: { tenant: string }) {
-  const [d, setD] = useState<any | null>(null);
-  const [err, setErr] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    try {
-      setD(await (await fetch("/api/gtm/brain/competitors?tenant=" + tenant, { cache: "no-store" })).json());
-    } catch (e) {
-      setErr(String(e));
-    }
-  }, [tenant]);
-
-  useEffect(() => { load(); }, [load]);
+/** The code the brain knows (GitHub chunks, authority 2) and the reviewer's
+ *  record on the runs that followed. Counted from the brain and the reward
+ *  events; a repo that was never synced is simply absent. */
+function CodeToMarket({ repos, commits }: { repos: any[]; commits?: any }) {
+  const log: any[] = commits?.commits || [];
+  const [events, setEvents] = useState<any[] | null>(null);
   useEffect(() => {
-    if (d?.state !== "running") return;
-    const t = setInterval(load, 5000);
-    return () => clearInterval(t);
-  }, [d?.state, load]);
-
-  const start = async (suggest: boolean) => {
-    setErr(null);
-    const r = await (await fetch("/api/gtm/brain/competitors", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tenant, suggest }),
-    })).json();
-    if (r.ok) load(); else setErr(r.error || "could not start");
-  };
-
-  const running = d?.state === "running";
-  const rep = d?.report;
-  const btn2: React.CSSProperties = { border: "1px solid var(--vn-line-strong)", background: "transparent",
-    color: "var(--vn-ink)", borderRadius: 6, padding: "7px 12px", fontSize: 12.5, cursor: "pointer" };
+    fetch("/api/gtm/learning", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => setEvents(j.ok ? j.events || [] : []))
+      .catch(() => setEvents([]));
+  }, []);
+  const reviewed = (events || []).filter((e) => e.reviewer_ok === 0 || e.reviewer_ok === 1);
+  const passed = reviewed.filter((e) => e.reviewer_ok === 1).length;
+  const decided = (events || []).filter((e) => e.human != null);
+  const approved = decided.filter((e) => Number(e.human) >= 0.8).length;
+  const th: React.CSSProperties = { padding: "8px 12px", fontWeight: 600 };
+  const td: React.CSSProperties = { padding: "10px 12px", fontFamily: MONO, color: "var(--vn-ink)" };
   return (
-    <div style={card}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, flexWrap: "wrap" }}>
-        <div style={label}>Competitors</div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button disabled={running} onClick={() => start(false)}
-                  style={{ ...btn2, background: "var(--vn-cta)", color: "var(--vn-on-accent)", border: "none" }}>
-            {running ? "Analysing…" : "Analyse competitors"}
-          </button>
-          <button disabled={running} onClick={() => start(true)} style={btn2}>Analyse + find new ones</button>
+    <>
+      <div style={card}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div style={label}>Codebase to market — the code the brain knows</div>
+          <span style={{ fontFamily: MONO, fontSize: 11, padding: "3px 8px", borderRadius: 6,
+                         color: repos.length ? "var(--vn-ok)" : "var(--vn-warn)",
+                         background: repos.length ? "var(--vn-ok-soft)" : "transparent",
+                         border: repos.length ? "none" : "1px solid var(--vn-warn)" }}>
+            {repos.length ? "● GITHUB SYNCED" : "GITHUB NOT SYNCED"}
+          </span>
         </div>
-      </div>
-      <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", margin: "6px 0 12px", lineHeight: 1.5 }}>
-        For each competitor in the profile: its website and its last 30 days of X posts, summarised into patterns
-        (formats, hooks, topics, cadence). The strategist and the copywriter learn the shape from these; the brain
-        keeps no competitor text. New suggestions come from a web search and wait for you to add them to the profile.
-      </div>
-      {running && <div style={{ fontFamily: MONO, fontSize: 12, color: "var(--vn-ink-muted)" }}>Reading websites and posts — a few minutes.</div>}
-      {d?.state === "failed" && <div style={{ fontSize: 12.5, color: "var(--vn-bad)" }}>Failed: {d.job?.error}</div>}
-      {rep?.analysed?.length > 0 && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 10 }}>
-          {rep.analysed.map((c: any) => (
-            <div key={c.competitor} style={{ border: "1px solid var(--vn-line)", borderRadius: 8, padding: "10px 12px" }}>
-              <div style={{ fontWeight: 600, fontSize: 13.5 }}>{c.competitor}</div>
-              <div style={{ fontSize: 12, color: "var(--vn-ink-muted)", marginTop: 2 }}>
-                {c.ok
-                  ? c.patterns + " patterns · " + (c.website_read ? "website" : "no website") + " · " + c.x_posts_read + " X posts"
-                  : "not analysed: " + (c.errors || []).join("; ")}
-              </div>
-              {c.stats?.posts > 0 && (
-                <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-faint)", marginTop: 4 }}>
-                  {c.stats.per_week}/week · best: {c.stats.best_format} · median {c.stats.median_length} chars
-                </div>
-              )}
-            </div>
-          ))}
+        <div style={{ fontSize: 12.5, color: "var(--vn-ink-body)", margin: "4px 0 14px", lineHeight: 1.5 }}>
+          Repositories indexed into the brain as authority-2 knowledge, so posts about a shipped feature can be checked
+          against the code.
         </div>
-      )}
-      {rep?.suggested?.length > 0 && (
-        <div style={{ marginTop: 14 }}>
-          <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 6 }}>Suggested by web search — not in the profile yet</div>
-          {rep.suggested.map((c: any) => (
-            <div key={c.name} style={{ fontSize: 12.5, color: "var(--vn-ink-body)", padding: "4px 0", borderTop: "1px solid var(--vn-line)" }}>
-              <b>{c.name}</b>{c.website ? " · " + c.website : ""}{c.handle ? " · @" + c.handle : ""} — {c.focus}
-            </div>
-          ))}
-          <div style={{ fontSize: 11.5, color: "var(--vn-ink-muted)", marginTop: 6 }}>
-            Check each one is a live competitor, not a partner or a closed protocol, then add it under competitors in the profile.
+        {repos.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", lineHeight: 1.6 }}>
+            No repository has been synced yet, so the brain holds no code. Run{" "}
+            <code style={{ fontFamily: MONO, fontSize: 11.5 }}>python -m pipeline.brand_brain.github_sync sync --tenant vanna</code>{" "}
+            (a <code style={{ fontFamily: MONO, fontSize: 11.5 }}>GITHUB_TOKEN</code> in pipeline/.env reads private repos).
           </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ color: "var(--vn-ink-muted)", textAlign: "left", borderBottom: "1px solid var(--vn-line)" }}>
+                  <th style={{ ...th, paddingLeft: 0 }}>Repository</th><th style={th}>Files</th>
+                  <th style={th}>Chunks</th><th style={th}>Last synced</th>
+                </tr>
+              </thead>
+              <tbody>
+                {repos.map((r) => (
+                  <tr key={r.repo} style={{ borderBottom: "1px solid var(--vn-line)" }}>
+                    <td style={{ ...td, paddingLeft: 0, fontWeight: 700 }}>
+                      {r.url ? <a href={r.url} target="_blank" rel="noreferrer" style={{ color: "inherit" }}>{r.repo}</a> : r.repo}
+                    </td>
+                    <td style={td}>{r.files}</td>
+                    <td style={td}>{r.chunks}</td>
+                    <td style={{ ...td, color: "var(--vn-ink-muted)" }}>{r.last_synced ? ago(r.last_synced) : "—"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div style={card}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <div style={label}>Latest commits — every branch, last 30 days</div>
+          {commits?.synced_at && (
+            <span style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-muted)" }}>synced {ago(commits.synced_at)}</span>
+          )}
         </div>
-      )}
-      {err && <div style={{ color: "var(--vn-bad)", fontSize: 12.5, marginTop: 8 }}>{err}</div>}
-    </div>
+        {log.length === 0 ? (
+          <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", lineHeight: 1.6 }}>
+            No commits synced yet. Run{" "}
+            <code style={{ fontFamily: MONO, fontSize: 11.5 }}>python -m pipeline.brand_brain.github_sync commits --tenant vanna</code>{" "}
+            (the scheduler&apos;s hourly github_commits job does this).
+          </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ color: "var(--vn-ink-muted)", textAlign: "left", borderBottom: "1px solid var(--vn-line)" }}>
+                  <th style={{ ...th, paddingLeft: 0 }}>When</th><th style={th}>Repository</th>
+                  <th style={th}>Commit</th><th style={th}>Author</th><th style={th}>Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                {log.map((c) => (
+                  <tr key={c.sha} style={{ borderBottom: "1px solid var(--vn-line)" }}>
+                    <td style={{ ...td, paddingLeft: 0, color: "var(--vn-ink-muted)", whiteSpace: "nowrap" }}
+                        title={new Date(c.date).toLocaleString()}>{ago(c.date)}</td>
+                    <td style={{ ...td, whiteSpace: "nowrap" }}>{c.repo}</td>
+                    <td style={td}>
+                      <a href={c.url} target="_blank" rel="noreferrer" style={{ color: "inherit" }}>{c.short}</a>
+                    </td>
+                    <td style={{ ...td, whiteSpace: "nowrap" }}>{c.author}</td>
+                    <td style={{ ...td, fontFamily: "inherit" }}>
+                      {c.message}
+                      <span style={{ color: "var(--vn-ink-muted)", fontFamily: MONO, fontSize: 10.5 }}>
+                        {"  "}{(c.branches || []).slice(0, 2).join(", ")}{(c.branches || []).length > 2 ? " +" + (c.branches.length - 2) : ""}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+        {(commits?.errors || []).map((e: string) => (
+          <div key={e} style={{ fontSize: 11.5, color: "var(--vn-warn)", marginTop: 6 }}>{e}</div>
+        ))}
+      </div>
+
+      <div style={card}>
+        <div style={label}>Reviewer firewall — claim safety on real runs</div>
+        {events === null ? (
+          <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)" }}>Loading…</div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12, marginTop: 4 }}>
+            {[
+              { k: "Passed the reviewer", v: reviewed.length ? passed + " / " + reviewed.length : "—",
+                d: "runs whose claims passed the hard gate" },
+              { k: "Blocked", v: reviewed.length ? String(reviewed.length - passed) : "—",
+                d: "runs stopped for an unsupported or unsafe claim" },
+              { k: "Founder approved", v: decided.length ? approved + " / " + decided.length : "—",
+                d: "approved or edited, of the runs you decided" },
+            ].map((s) => (
+              <div key={s.k} style={{ background: "var(--vn-sunken)", padding: 14, borderRadius: 8, border: "1px solid var(--vn-line)" }}>
+                <div style={{ fontFamily: MONO, fontSize: 10, color: "var(--vn-ink-muted)", textTransform: "uppercase" }}>{s.k}</div>
+                <div style={{ fontFamily: MONO, fontSize: 20, fontWeight: 700, color: "var(--vn-ink)", marginTop: 4 }}>{s.v}</div>
+                <div style={{ fontSize: 11, color: "var(--vn-ink-muted)", marginTop: 4 }}>{s.d}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -403,6 +455,17 @@ export function BrandBrain() {
   const [q, setQ] = useState("");
   const [hits, setHits] = useState<Hit[] | null>(null);
   const [searching, setSearching] = useState(false);
+  const [ledger, setLedger] = useState(false);
+
+  useEffect(() => {
+    const apply = () => {
+      const saved = readCompany();
+      if (saved) setTenant(saved);
+    };
+    apply();
+    window.addEventListener(COMPANY_EVENT, apply);
+    return () => window.removeEventListener(COMPANY_EVENT, apply);
+  }, []);
 
   useEffect(() => {
     fetch("/api/gtm/brain" + (tenant ? "?tenant=" + tenant : ""), { cache: "no-store" })
@@ -443,9 +506,9 @@ export function BrandBrain() {
     <div className="vanna-section">
       {(data.tenants || []).length > 1 && (
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <span style={{ fontSize: 12, color: "var(--vn-ink-muted)" }}>Tenant</span>
+          <span style={{ fontSize: 12, color: "var(--vn-ink-muted)" }}>Company</span>
           {(data.tenants as string[]).map((t) => (
-            <button key={t} onClick={() => { setHits(null); setTenant(t); }}
+            <button key={t} onClick={() => { setHits(null); setLedger(false); writeCompany(t); setTenant(t); }}
                     style={{ fontFamily: MONO, fontSize: 12, padding: "6px 12px", borderRadius: 6, cursor: "pointer",
                              border: "1px solid " + (t === data.tenant ? "var(--vn-accent)" : "var(--vn-line)"),
                              background: t === data.tenant ? "var(--vn-accent-soft)" : "transparent", color: "var(--vn-ink)" }}>
@@ -456,28 +519,38 @@ export function BrandBrain() {
       )}
       {/* Identity and freshness */}
       <div style={card}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "baseline" }}>
-          <div>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", alignItems: "flex-start" }}>
+          <div style={{ flex: "1 1 280px", minWidth: 0 }}>
             <div style={{ fontSize: 18, fontWeight: 600, color: "var(--vn-ink)" }}>{p.company?.name ?? data.tenant}</div>
             <div style={{ fontSize: 13, color: "var(--vn-ink-body)", marginTop: 4, maxWidth: 760, lineHeight: 1.5 }}>
               {p.company?.what_it_is}
             </div>
             <div style={{ fontSize: 12, color: "var(--vn-ink-muted)", marginTop: 6 }}>{p.company?.deployment}</div>
           </div>
-          <span style={{
-            fontFamily: MONO, fontSize: 11, padding: "4px 10px", borderRadius: 6,
-            color: p.status === "approved" ? "var(--vn-ok)" : "var(--vn-warn)",
-            border: "1px solid " + (p.status === "approved" ? "var(--vn-ok)" : "var(--vn-warn)"),
-          }}>
-            profile v{p.version} · {p.status}
-          </span>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flex: "0 0 auto" }}>
+            <span style={{
+              fontFamily: MONO, fontSize: 11, padding: "4px 10px", borderRadius: 6,
+              color: p.status === "approved" ? "var(--vn-ok)" : "var(--vn-warn)",
+              border: "1px solid " + (p.status === "approved" ? "var(--vn-ok)" : "var(--vn-warn)"),
+            }}>
+              profile v{p.version} · {p.status}
+            </span>
+            <button type="button" onClick={() => setLedger((v) => !v)} aria-expanded={ledger}
+                    style={{
+                      border: "1px solid " + (ledger ? "var(--vn-accent)" : "var(--vn-line-strong)"),
+                      background: ledger ? "var(--vn-accent)" : "transparent",
+                      color: ledger ? "#fff" : "var(--vn-ink)",
+                      borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer",
+                    }}>
+              {ledger ? "Hide post outcomes" : "Post outcomes · " + (st.outcomes ?? 0)}
+            </button>
+          </div>
         </div>
         <div style={{ display: "flex", gap: 24, marginTop: 18, flexWrap: "wrap" }}>
           <Stat v={st.chunks} l="knowledge chunks" />
           <Stat v={st.images} l="images" />
-          <Stat v={st.competitor_patterns} l="competitor patterns" />
+          <Stat v={(data.inspiration || []).length} l="brands Vanna learns from" />
           <Stat v={st.events} l="what's new" />
-          <Stat v={st.outcomes} l="post outcomes" />
           <Stat v={ago(st.last_ingest)} l="last ingest" />
         </div>
         <div style={{ display: "flex", gap: 8, marginTop: 14, flexWrap: "wrap" }}>
@@ -489,6 +562,33 @@ export function BrandBrain() {
           ))}
         </div>
       </div>
+
+      {ledger && (
+        <div style={card}>
+          <div style={label}>Post outcomes ledger</div>
+          {(data.outcomes || []).length === 0 ? (
+            <div style={{ fontSize: 13, color: "var(--vn-ink-muted)" }}>No published-post metrics recorded yet.</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {(data.outcomes as any[]).map((o: any, i: number) => (
+                <div key={o.id ?? i} style={{ borderTop: "1px solid var(--vn-line)", paddingTop: 8 }}>
+                  <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink)" }}>
+                    {o.post_id || o.run_id || "post"}
+                    <span style={{ color: "var(--vn-ink-muted)" }}> · {String(o.at || "").slice(0, 16).replace("T", " ")} · {o.source || "recorded"}</span>
+                  </div>
+                  <div style={{ fontSize: 12.5, color: "var(--vn-ink-body)", marginTop: 4 }}>
+                    {o.metrics && typeof o.metrics === "object"
+                      ? Object.entries(o.metrics).map(([k, v]) => k + " " + String(v)).join(" · ")
+                      : "no metrics"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <CodeToMarket repos={data.github || []} commits={data.commits} />
 
       {/* Needs the founder */}
       {(p.status !== "approved" || (p.open_questions || []).length > 0) && (
@@ -614,17 +714,36 @@ export function BrandBrain() {
         ))}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
-        <div style={card}>
-          <div style={label}>Competitor patterns (summaries, never their text)</div>
-          {(data.competitor_patterns || []).map((c: any, i: number) => (
-            <div key={i} style={{ borderTop: "1px solid var(--vn-line)", padding: "7px 0" }}>
-              <div style={{ fontSize: 12, color: "var(--vn-ink)" }}>{c.competitor} · <span style={{ color: "var(--vn-ink-muted)" }}>{c.topic}</span></div>
-              <div style={{ fontSize: 12.5, color: "var(--vn-ink-body)", marginTop: 2, lineHeight: 1.45 }}>{c.pattern}</div>
-            </div>
-          ))}
+      {data.tenant === "vanna" && <div style={card}>
+        <div style={label}>Rejected — the agent was told not to make these</div>
+        <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginBottom: 12, lineHeight: 1.5 }}>
+          Kept in their own list. They stay out of the approved visual memory the designer is shown.
         </div>
-        <div style={card}>
+        {(data.rejected || []).length === 0 ? (
+          <div style={{ fontSize: 13, color: "var(--vn-ink-muted)" }}>No rejected posters on file.</div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12 }}>
+            {(data.rejected as any[]).map((im: any) => (
+              <figure key={im.path} style={{ margin: 0 }} title={im.brief || ""}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={"/api/gtm/brain/image?path=" + encodeURIComponent(im.path)} alt={im.note || "rejected poster"}
+                     loading="lazy" style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: 8,
+                                              border: "1px solid var(--vn-bad)" }} />
+                <figcaption style={{ fontSize: 11, color: "var(--vn-ink-body)", marginTop: 6, lineHeight: 1.4 }}>
+                  <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 0.4, textTransform: "uppercase",
+                                 color: "var(--vn-bad)" }}>
+                    rejected{im.verdict && im.verdict !== "kill" ? " · " + im.verdict : ""}
+                  </span>
+                  {im.note ? <div style={{ marginTop: 3 }}>{im.note}</div> : null}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        )}
+      </div>}
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 16 }}>
+        <div style={{ ...card, gridColumn: "1 / -1" }}>
           <div style={label}>What's new</div>
           <NotionConnect tenant={data.tenant} notion={data.notion} onChange={() => setTick((x) => x + 1)} />
           <div style={{ fontFamily: MONO, fontSize: 11, color: data.notion?.configured ? "var(--vn-ok)" : "var(--vn-warn)", marginBottom: 8 }}>
@@ -665,10 +784,9 @@ export function BrandBrain() {
         </div>
       </div>
 
-      {data?.tenant && <Competitors tenant={data.tenant} />}
       {data?.tenant && viewer?.owner && <ClientLink tenant={data.tenant} />}
       {/* A new company is the owner's decision; a client works on their own. */}
-      {!isClient && <Onboard onDone={(t) => { setTenant(t); setTick((x) => x + 1); }} />}
+      {!isClient && <Onboard onDone={(t) => { writeCompany(t); setTenant(t); setTick((x) => x + 1); }} />}
     </div>
   );
 }

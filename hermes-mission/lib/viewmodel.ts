@@ -64,7 +64,7 @@ type RelayState = "unknown" | "trying" | "live" | "failed";
 
 export type ExpandedMap = Record<string, boolean>;
 
-const OWNER_VIEWS = new Set(["assistant", "scheduler", "brain"]);
+const OWNER_VIEWS = new Set(["assistant", "scheduler", "brain", "campaigns"]);
 // A company's client has everything for their own company except the
 // scheduler (global jobs and the budget are the owner's).
 const CLIENT_HIDDEN = new Set(["scheduler"]);
@@ -72,21 +72,24 @@ const CLIENT_HIDDEN = new Set(["scheduler"]);
 export function useMissionControl(props: MissionControlProps) {
   const [data, setData] = useState<MissionData | null>(null);
   const [view, setView] = useState<string>("assistant");
-  // A visitor to the public link has no Assistant, Scheduler or Brand Brain
-  // (all the owner's; their routes answer 403), so those leave the nav and
-  // the page opens on the Live Trace instead.
+  // A visitor to the public link has no Assistant (the owner's; that route
+  // answers 403), so it leaves the nav and the page opens on Post History.
   const viewer = useViewer();
   const client = viewer?.client || null;
   const visitor = viewer ? !viewer.owner && !client : false;
   const hidden = visitor ? OWNER_VIEWS : client ? CLIENT_HIDDEN : new Set<string>();
   useEffect(() => {
-    if (hidden.has(view)) setView(visitor ? "trace" : "assistant");
+    if (hidden.has(view)) setView(visitor ? "runs" : "assistant");
   }, [visitor, client, view]);
+  useEffect(() => {
+    if (view === "scheduler" || view === "trace" || view === "learning" || view === "memes") setView(visitor ? "runs" : "assistant");
+  }, [view, visitor]);
   // `?view=brain` opens a view directly (the Notion OAuth callback lands there).
   useEffect(() => {
     try {
       const v = new URLSearchParams(window.location.search).get("view");
-      if (v && /^[a-z]+$/.test(v)) setView(v);
+      const moved: Record<string, string> = { live: "assistant", agents: "assistant", ideas: "runs", memes: "assistant", brain: "assistant", scheduler: "assistant", trace: "assistant", learning: "assistant" };
+      if (v && /^[a-z_]+$/.test(v)) setView(moved[v] || v);
     } catch {
       /* no window during prerender */
     }
@@ -102,6 +105,7 @@ export function useMissionControl(props: MissionControlProps) {
   const [relay, setRelay] = useState<RelayState>("unknown");
   const [liveKey, setLiveKey] = useState<string | null>(null);
   const [postFilter, setPostFilter] = useState("All");
+  const [referenceFocus, setReferenceFocus] = useState("");
   const [, setFrame] = useState(0);
 
   /* ---------------------------------------------------------- componentDidMount & Polling */
@@ -232,16 +236,10 @@ export function useMissionControl(props: MissionControlProps) {
     // are decorated and six are not is not a set.
     const nav = [
       { id: "assistant", label: "Assistant" },
-      { id: "trace", label: "Live Trace" },
-      { id: "live", label: "Agent Decisions" },
-      { id: "scheduler", label: "24/7 Scheduler" },
-      { id: "ideas", label: "Ideas Panel" },
-      { id: "memes", label: "Crypto Memes" },
-      { id: "runs", label: "Agent History" },
-      { id: "agents", label: "GTM Agents" },
+      { id: "runs", label: "Post History" },
       { id: "research", label: "Scraped Intelligence" },
-      { id: "brain", label: "Brand Brain" },
-      { id: "learning", label: "Learning" },
+      { id: "vanna_plays", label: "What Vanna Can Do" },
+      { id: "campaigns", label: "Campaigns" },
       { id: "references", label: "References" },
     ].filter((n) => !hidden.has(n.id)).map((n) => {
       const on = view === n.id;
@@ -249,16 +247,7 @@ export function useMissionControl(props: MissionControlProps) {
         on,
         id: n.id,
         label: n.label,
-        count:
-          n.id === "runs"
-            ? String(runs().length)
-            : n.id === "agents"
-              ? String(AGENT_COUNT)
-              : n.id === "live"
-                  ? runs().some((r) => r.outcome === "running")
-                    ? "●"
-                    : ""
-                  : "",
+        count: n.id === "runs" ? String(data?.POST_COUNT ?? runs().filter((r: any) => r?.has_post === true).length) : "",
         go: () => setView(n.id),
         dot: {
           width: "6px",
@@ -329,6 +318,9 @@ export function useMissionControl(props: MissionControlProps) {
       isBrain: view === "brain",
       isAssistant: view === "assistant",
       isLearning: view === "learning",
+      isCampaigns: view === "campaigns",
+      isVannaPlays: view === "vanna_plays",
+      goVannaPlays: () => setView("vanna_plays"),
       isScheduler: view === "scheduler",
       isIdeas: view === "ideas",
       isMemes: view === "memes",
@@ -344,8 +336,15 @@ export function useMissionControl(props: MissionControlProps) {
       goRuns: () => setView("runs"),
       goLive: () => setView("live"),
       goResearch: () => setView("research"),
+      referenceFocus,
+      openReference: (id: string) => {
+        setReferenceFocus(id || "");
+        setView("references");
+      },
       goScheduler: () => setView("scheduler"),
+      goCampaigns: () => setView("campaigns"),
       goIdeas: () => setView("ideas"),
+      goTrace: () => setView("runs"),
       goMemes: () => setView("memes"),
       runKey,
       openRun: (key?: string) => {
@@ -390,7 +389,7 @@ export function useMissionControl(props: MissionControlProps) {
         ...base,
         // The loading state announced a different page than the one that
         // arrives a moment later, and named a Telegram channel while doing it.
-        pageTitle: "Agent History",
+        pageTitle: "Post History",
         pageSub: "Loading…",
         runRows: [],
         d: null,
@@ -430,7 +429,7 @@ export function useMissionControl(props: MissionControlProps) {
     const titles: Record<string, [string, string]> = {
       trace: [
         "Live Trace",
-        "Each agent, each model call and each judgement, as it is recorded.",
+        "Where the run is, and what it decided. The agents stay closed until you open them.",
       ],
       // Was titled "Live debate — whether the three arcs are actually
       // arguing". These 13 agents do not debate; they run in sequence, and
@@ -453,10 +452,8 @@ export function useMissionControl(props: MissionControlProps) {
         + "kind of fault rather than by the run it happened in.",
       ],
       runs: [
-        "Agent History",
-        // The Telegram channel id was in this line, truncated to eight
-        // characters. It identified nothing a reader could act on.
-        "Every run the agents have completed, newest first.",
+        "Post History",
+        "Each post the pipeline made: the line, the visual, and where review left it.",
       ],
       run: [
         "Run detail",
@@ -489,16 +486,19 @@ export function useMissionControl(props: MissionControlProps) {
       ],
       references: [
         "References",
-        "Every scraped post, doc and article with its source, what the market "
-        + "analyst read in it, and the strategies it supports.",
+        "The same docs, posts and articles as Scraped Intelligence, each with the post idea the agents will write from it.",
       ],
       assistant: [
         "Assistant",
-        "Ask anything about a company, add a new one from its website, or connect its Notion.",
+        "Tell the agents any gap, and a time to stop. They follow that.",
       ],
       research: [
         "Scraped Intelligence",
         "Deep web research, discovered ecosystem players, and canonical claims from public sources.",
+      ],
+      vanna_plays: [
+        "What Vanna Can Do",
+        "Each campaign from the research: what they did, the reward, who took part, why it might have worked, and what Vanna could adapt.",
       ],
       scheduler: [
         "24/7 Autonomous Scheduler",
@@ -1720,8 +1720,8 @@ export function useMissionControl(props: MissionControlProps) {
           setRunKey(r.key);
         },
         watch: () => {
-          setView("live");
-          setLiveKey(r.key);
+          setView("run");
+          setRunKey(r.key);
         },
         reached:
           r.stages.filter(

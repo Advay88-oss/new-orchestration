@@ -72,7 +72,7 @@ function Cite({ c }: { c: { id: string; headline: string; url: string | null; ch
     : <span style={style}>{text}</span>;
 }
 
-export function VannaReferences() {
+export function VannaReferences({ focusId = "" }: { focusId?: string }) {
   const [data, setData] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
   const [runId, setRunId] = useState<string>("");
@@ -93,6 +93,12 @@ export function VannaReferences() {
     return () => clearInterval(t);
   }, [load]);
 
+  useEffect(() => {
+    if (!focusId || !data) return;
+    const el = document.getElementById("ref-" + focusId);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [focusId, data]);
+
   const items: any[] = data?.items ?? [];
   const read = items.some((i) => i.relevance);
 
@@ -101,9 +107,9 @@ export function VannaReferences() {
       .filter((i) => kind === "all" || i.kind === kind)
       // "Relevant only" means relevant by A02's reading. On an unread run
       // there is no reading to filter by, so everything is shown.
-      .filter((i) => !relevantOnly || !read || i.relevance === "DIRECT" || i.relevance === "ADJACENT")
+      .filter((i) => i.id === focusId || !relevantOnly || !read || i.relevance === "DIRECT" || i.relevance === "ADJACENT")
       .sort((a, b) => (ORDER[a.relevance] ?? 3) - (ORDER[b.relevance] ?? 3));
-  }, [items, kind, relevantOnly, read]);
+  }, [items, kind, relevantOnly, read, focusId]);
 
   if (err) {
     return (
@@ -128,6 +134,9 @@ export function VannaReferences() {
             <span style={{ display: "flex", alignItems: "center", gap: 8, fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>
               <CompanyChip company={(data.company || "vanna").toLowerCase()} /> SCOUT HARVEST × ANALYST READING
             </span>
+            <p style={{ margin: "8px 0 0", fontSize: 13.5, color: "var(--vn-ink-body)", lineHeight: 1.45, maxWidth: 640 }}>
+              Same docs, posts and articles as Scraped Intelligence. The post idea on each one is what the strategist, copywriter and poster write from.
+            </p>
             <h3 style={{ fontSize: 19, fontWeight: 700, color: "var(--vn-ink)", margin: "4px 0 0" }}>
               {items.length} live references
               {read && <> · {items.filter((i) => i.relevance === "DIRECT").length} direct, {items.filter((i) => i.relevance === "ADJACENT").length} adjacent</>}
@@ -261,8 +270,9 @@ export function VannaReferences() {
         )}
         {shown.map((i) => {
           const g = i.relevance ? GRADE[i.relevance] : null;
+          const focused = focusId && focusId === i.id;
           return (
-            <div key={i.id} style={{ ...CARD, borderRadius: 12, padding: "16px 20px", minWidth: 0 }}>
+            <div id={"ref-" + i.id} key={i.id} style={{ ...CARD, borderRadius: 12, padding: "16px 20px", minWidth: 0, outline: focused ? "2px solid var(--vn-accent)" : "none" }}>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 8, alignItems: "center", fontFamily: MONO, fontSize: 11 }}>
                 <span style={{ color: "var(--vn-accent-ink)", fontWeight: 700 }}>{i.channel.toUpperCase()}</span>
                 {i.publisher && <span style={{ color: DIM }}>· {i.publisher}</span>}
@@ -280,6 +290,12 @@ export function VannaReferences() {
 
               {i.whatItIs && (
                 <p style={{ fontSize: 13, color: "var(--vn-ink-body)", lineHeight: 1.5, margin: "6px 0 0" }}>{i.whatItIs}</p>
+              )}
+              {i.postIdea && (
+                <div style={{ marginTop: 10, background: "var(--vn-sunken)", borderLeft: "3px solid var(--vn-ok)", borderRadius: 6, padding: "8px 12px", fontSize: 13.5, color: "var(--vn-ink)", lineHeight: 1.5 }}>
+                  <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vn-ok)", fontWeight: 700, marginRight: 8 }}>POST IDEA</span>
+                  {i.postIdea}
+                </div>
               )}
               {i.vannaMove && (
                 <div style={{ marginTop: 10, background: "var(--vn-accent-soft)", borderLeft: "3px solid var(--vn-accent)", borderRadius: 6, padding: "8px 12px", fontSize: 13, color: "var(--vn-ink)", lineHeight: 1.5 }}>

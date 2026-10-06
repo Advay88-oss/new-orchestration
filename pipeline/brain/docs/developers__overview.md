@@ -12,18 +12,21 @@ Start with [Architecture](/developers/architecture), [Configured Contracts](/dev
 
 ## Repository map
 
-| Directory or file                             | Responsibility                                              |
-| --------------------------------------------- | ----------------------------------------------------------- |
-| `Protocol_V1_Soroban_testnet/contracts`       | Core contracts, controllers, deployers, shared library      |
+| Directory or file | Responsibility |
+| - | - |
+| `Protocol_V1_Soroban_testnet/contracts` | Core contracts, controllers, deployers, shared library |
 | `Protocol_V1_Soroban_testnet/integrated_test` | Lifecycle, controller, risk, registry, and regression tests |
-| `Protocol_V1_Soroban_testnet/deploy`          | Deployment and verification scripts                         |
-| `mercury-stellar-backend/app`                 | Next.js pages and server API routes                         |
-| `mercury-stellar-backend/lib/*-utils.ts`      | Stellar transaction and read services                       |
-| `mercury-stellar-backend/hooks`               | Query, mutation, wallet, and snapshot hooks                 |
-| `mercury-stellar-backend/lib/copilot`         | Copilot planning, authentication, approval, execution       |
+| `Protocol_V1_Soroban_testnet/deploy` | Deployment and verification scripts |
+| `mercury-stellar-backend/app` | Next.js pages and server API routes |
+| `mercury-stellar-backend/lib/*-utils.ts` | Stellar transaction and read services |
+| `mercury-stellar-backend/hooks` | Query, mutation, wallet, and snapshot hooks |
+| `mercury-stellar-backend/lib/copilot` | Copilot planning, authentication, approval, execution |
 
 ## Current scope
 
 Four lending markets, per-trader SmartAccounts, Blend supply, and Soroswap/Aquarius controller integrations are implemented. External availability remains pool/configuration dependent. Perpetuals and options are not enabled in this Stellar application. Read the [frontend reference](/developers/frontend) for routes and data limitations.
 
 The TypeScript integration is application-local service code, not a published `@vanna/sdk` package. Use [Getting Started](/developers/sdk/getting-started) and [Transaction Flow](/developers/sdk/transaction-flow).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

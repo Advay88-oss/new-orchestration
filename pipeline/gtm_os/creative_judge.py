@@ -68,11 +68,13 @@ _JUDGE_SYSTEM = (
 def judge_system() -> str:
     """The judge's brief for the tenant this run serves, from its profile."""
     from pipeline.brand_brain import context as C
-    return (_JUDGE_SYSTEM.replace("{company_line}", C.company_line())
+    text = (_JUDGE_SYSTEM.replace("{company_line}", C.company_line())
             .replace("{company}", C.company_name())
             .replace("{anchors}", "\n".join("  - " + k + ": " + v for k, v in C.anchors().items()))
             .replace("{house_style}", C.house_style())
             .replace("{prohibited}", C.prohibited_visual()))
+    pages = C.product_pages_block()
+    return text if not pages or "GITHUB PRODUCT PAGES" in text else text + "\n\n" + pages
 
 
 SCHEMA_HINT = (

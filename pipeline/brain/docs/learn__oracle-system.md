@@ -19,3 +19,6 @@ The fallback is not a permanent peg or a live external feed. If no usable price 
 Blend receipts are converted to underlying using the reserve b\_rate. AMM LP valuation uses committed reserves and a conservative smaller-side USD calculation. USDC feed aliases can value BLUSDC, AqUSDC, and SoUSDC without making those tokens interchangeable.
 
 RiskEngine has distinct handling for operational checks and liquidation snapshots. AccountManager refuses liquidation when plain collateral cannot be priced. Read [Oracle Service](/developers/contracts/oracle) and [Risk Engine](/developers/contracts/risk-engine).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

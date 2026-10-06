@@ -10,23 +10,23 @@ Despite its directory name, `mercury-stellar-backend` contains the complete Next
 
 ## Screens
 
-| Route                                                                          | Implemented behavior                                              |
-| ------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
-| `/`                                                                            | Margin interface in Pro; Lite strategy home in Lite mode          |
-| `/margin`                                                                      | Margin account detail, balances, collateral, borrowing, repayment |
-| `/portfolio`                                                                   | Aggregated wallet/account/Earn/Farm portfolio views               |
-| `/earn`, `/earn/[id]`                                                          | Four lending markets, supply, receipt redemption                  |
-| `/trade/spot`                                                                  | Soroswap/Aquarius spot UI and wallet or margin service paths      |
-| `/trade/perps`, `/trade/options`                                               | Redirect to `/trade/spot`                                         |
-| `/farm`, `/farm/[id]`                                                          | Blend single-asset and AMM LP interfaces                          |
-| `/analytics/overview2`                                                         | Protocol/account risk overview                                    |
-| `/analytics/positions`, `/analytics/positions/[address]`                       | Position discovery and detail                                     |
-| `/analytics/liquidations`                                                      | Liquidation history and candidate accounts                        |
-| `/analytics/risk-explorer`                                                     | Scenario hub; individual scenarios vary in data source            |
-| `/analytics/oracles`, `/analytics/alerts`                                      | Live/fixture fallback views                                       |
-| `/analytics/whales`, `/analytics/stress-test`, `/analytics/positions-advanced` | Additional monitoring and stress views                            |
-| `/copilot`                                                                     | Conversation, planning, approval, and execution UI                |
-| `/stats`                                                                       | Separately gated Hubble/mainnet stats                             |
+| Route | Implemented behavior |
+| - | - |
+| `/` | Margin interface in Pro; Lite strategy home in Lite mode |
+| `/margin` | Margin account detail, balances, collateral, borrowing, repayment |
+| `/portfolio` | Aggregated wallet/account/Earn/Farm portfolio views |
+| `/earn`, `/earn/[id]` | Four lending markets, supply, receipt redemption |
+| `/trade/spot` | Soroswap/Aquarius spot UI and wallet or margin service paths |
+| `/trade/perps`, `/trade/options` | Redirect to `/trade/spot` |
+| `/farm`, `/farm/[id]` | Blend single-asset and AMM LP interfaces |
+| `/analytics/overview2` | Protocol/account risk overview |
+| `/analytics/positions`, `/analytics/positions/[address]` | Position discovery and detail |
+| `/analytics/liquidations` | Liquidation history and candidate accounts |
+| `/analytics/risk-explorer` | Scenario hub; individual scenarios vary in data source |
+| `/analytics/oracles`, `/analytics/alerts` | Live/fixture fallback views |
+| `/analytics/whales`, `/analytics/stress-test`, `/analytics/positions-advanced` | Additional monitoring and stress views |
+| `/copilot` | Conversation, planning, approval, and execution UI |
+| `/stats` | Separately gated Hubble/mainnet stats |
 
 Pro is the default persisted application mode. Lite guards hide or redirect advanced screens such as Earn. A visible pool card is not proof of an enabled controller route: Aquarius configuration also contains an XLM/USDT pool for display, whereas configured lending markets remain the four documented assets.
 
@@ -38,15 +38,15 @@ Zustand stores hold wallet, UI mode, selections, and transaction progress. TanSt
 
 ## APIs
 
-| Route family                                                | Purpose                                       |
-| ----------------------------------------------------------- | --------------------------------------------- |
-| `/api/pools`                                                | Cached shared pool reads; 502 on read failure |
-| `/api/account/[addr]`                                       | Cached account snapshot                       |
-| `/api/mercury`, `/api/mercury/events`                       | Server-side indexed-history proxies           |
-| `/api/faucet/blend`                                         | Configured Blend faucet integration           |
-| `/api/copilot`, `/api/copilot/guardian`, `/api/copilot/log` | Copilot request, guard, and logging routes    |
-| `/api/auth/*`                                               | Optional user login/session/logout flow       |
-| `/api/analytics/*`                                          | Server-gated Hubble queries                   |
+| Route family | Purpose |
+| - | - |
+| `/api/pools` | Cached shared pool reads; 502 on read failure |
+| `/api/account/[addr]` | Cached account snapshot |
+| `/api/mercury`, `/api/mercury/events` | Server-side indexed-history proxies |
+| `/api/faucet/blend` | Configured Blend faucet integration |
+| `/api/copilot`, `/api/copilot/guardian`, `/api/copilot/log` | Copilot request, guard, and logging routes |
+| `/api/auth/*` | Optional user login/session/logout flow |
+| `/api/analytics/*` | Server-gated Hubble queries |
 
 ## Data limitations
 
@@ -63,3 +63,6 @@ Do not label every Analytics chart live. Single-asset, multi-asset crash, and le
 * `mercury-stellar-backend/lib/lite-positions.ts`
 * `mercury-stellar-backend/lib/wallet-adapter.ts`
 * `mercury-stellar-backend/lib/copilot/config.ts`
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

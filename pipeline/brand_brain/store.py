@@ -434,7 +434,38 @@ def database_url() -> Optional[str]:
 
 
 def backend() -> str:
-    return "pg" if database_url() else "sqlite"
+    global OVERRIDE
+    if OVERRIDE == "sqlite" or os.environ.get("BRAIN_BACKEND") == "sqlite":
+        return "sqlite"
+    u = database_url()
+    if not u:
+        return "sqlite"
+    if "127.0.0.1:5433" in u:
+        import socket
+        try:
+            with socket.create_connection(("127.0.0.1", 5433), timeout=0.5):
+                return "pg"
+        except OSError:
+            OVERRIDE = "sqlite"
+            return "sqlite"
+    if "/cloudsql/" in u:
+        return "pg"
+    # The laptop's Cloud SQL address often does not answer. Chat must still work.
+    try:
+        from pipeline.gtm_os.state_sync import in_cloud
+        remote = not in_cloud()
+    except Exception:                               # noqa: BLE001 — treat an unknown host as local
+        remote = True
+    if remote:
+        import psycopg
+        try:
+            con = psycopg.connect(u, connect_timeout=3)
+            con.close()
+        except Exception:                           # noqa: BLE001 — the file brain is the fallback
+            OVERRIDE = "sqlite"
+            os.environ["BRAIN_BACKEND"] = "sqlite"
+            return "sqlite"
+    return "pg"
 
 
 class TenantError(ValueError):
@@ -449,8 +480,32 @@ def tenant_dir(tenant: str) -> Path:
 
 
 def _pg_raw():
+    global OVERRIDE
+    import time
     import psycopg
-    return psycopg.connect(database_url(), connect_timeout=10)
+
+    url = database_url()
+    # Cloud SQL's socket is often not ready in the first few seconds of a
+    # cold job. Three seconds was turning that wait into a failed post.
+    timeout = 20 if url and "/cloudsql/" in url else 10
+    last_err = None
+    for attempt in range(1, 4):
+        try:
+            return psycopg.connect(
+                url,
+                connect_timeout=timeout,
+                keepalives=1,
+                keepalives_idle=30,
+                keepalives_interval=10,
+                keepalives_count=5,
+            )
+        except Exception as exc:
+            last_err = exc
+            if attempt < 3:
+                time.sleep(attempt)
+    if url and "127.0.0.1:5433" in url:
+        OVERRIDE = "sqlite"
+    raise last_err
 
 
 def exists(tenant: str) -> bool:

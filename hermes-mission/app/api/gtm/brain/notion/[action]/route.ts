@@ -33,6 +33,6 @@ export async function POST(req: Request, { params }: { params: { action: string 
   } else {
     return NextResponse.json({ ok: false, error: 'unknown action' }, { status: 404 });
   }
-  const r = await runPython(['-m', 'pipeline.brand_brain.notion_oauth', ...args], 30_000);
+  const r = await runPython(['-m', 'pipeline.brand_brain.mcp_call', 'notion', ...args], 30_000);
   return NextResponse.json(lastJson(r.stdout) ?? { ok: false, error: r.stderr.slice(-300) || r.error });
 }

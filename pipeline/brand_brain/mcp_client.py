@@ -36,7 +36,8 @@ from typing import Any, Optional
 
 REPO = Path(__file__).resolve().parents[2]
 TOOLS = ("get_brand_profile", "get_whats_new", "search_knowledge", "get_visual_refs",
-         "get_competitor_patterns", "log_post_outcome")
+         "get_competitor_patterns", "log_post_outcome", "get_recent_commits",
+         "list_outcomes", "list_rejected_posters")
 CALL_TIMEOUT_S = 90.0
 CONNECT_TIMEOUT_S = 45.0
 
@@ -196,7 +197,7 @@ def _close_all() -> None:
 
 
 class AgentBrain:
-    """What agents hold: the six tools over MCP, and nothing else.
+    """What agents hold: the brain tools over MCP, and nothing else.
 
     Writes and bookkeeping (ingest, meta, rewards) are pipelines, not agents,
     and use `client.Brain` directly.
@@ -246,3 +247,10 @@ class AgentBrain:
         return self._call("log_post_outcome",
                           lambda b: b.log_post_outcome(post_id, metrics, run_id=run_id, source=source),
                           post_id=post_id, metrics=metrics, run_id=run_id) or {}
+
+    def list_outcomes(self, limit: int = 40) -> list[dict]:
+        return self._call("list_outcomes", lambda b: b.outcomes(limit), limit=limit) or []
+
+    def list_rejected_posters(self) -> list[dict]:
+        from pipeline.brand_brain.dashboard import rejected_posters
+        return self._call("list_rejected_posters", lambda _b: rejected_posters(self.tenant)) or []

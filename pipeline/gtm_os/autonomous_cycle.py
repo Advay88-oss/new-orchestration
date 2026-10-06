@@ -103,10 +103,27 @@ def _claim_lock(run_id: str) -> bool:
     with os.fdopen(fd, "w", encoding="utf-8") as f:
         json.dump({"run_id": run_id, "pid": os.getpid(),
                    "started": datetime.now(timezone.utc).isoformat()}, f)
+    # Each Cloud Run execution has its own disk, so the file above does not
+    # stop a second execution. The bucket lock does.
+    try:
+        from pipeline.gtm_os.state_sync import cloud_lock_acquire, in_cloud
+        if in_cloud() and not cloud_lock_acquire("state/gtm_cycle.lock", LOCK_STALE_S):
+            LOCK_FILE.unlink(missing_ok=True)
+            raise AlreadyRunning("another cycle is already running")
+    except AlreadyRunning:
+        raise
+    except Exception as exc:                        # noqa: BLE001 — fail closed
+        LOCK_FILE.unlink(missing_ok=True)
+        raise AlreadyRunning("could not take the cycle lock: " + str(exc)[:160])
     return True
 
 
 def _release_lock() -> None:
+    try:
+        from pipeline.gtm_os.state_sync import cloud_lock_release
+        cloud_lock_release("state/gtm_cycle.lock")
+    except Exception:                               # noqa: BLE001 — the lock ages out
+        pass
     LOCK_FILE.unlink(missing_ok=True)
 
 
@@ -141,7 +158,7 @@ def _stage(agent: str, fn, *, required: bool = True, detail: str = "",
 # --------------------------------------------------------------------------
 
 def render_visual(strategy, content_pkg, blueprint, run_id: str,
-                  subject: str = "") -> Optional[dict]:
+                  subject: str = "", animated: bool = True) -> Optional[dict]:
     """A08 renders the post visual through the archetype system.
 
     The old path called VisualPipelineEngine, which chose its composition from
@@ -175,7 +192,7 @@ def render_visual(strategy, content_pkg, blueprint, run_id: str,
             renderer = "direct_model"
 
     if renderer == "direct_model":
-        direct = _render_direct(hook, body, subject, run_id)
+        direct = _render_direct(hook, body, subject, run_id, animated=animated)
         if direct:
             return direct
         R.record_stage("A08_visual_synthesis", "degraded",
@@ -200,7 +217,7 @@ def render_visual(strategy, content_pkg, blueprint, run_id: str,
 
 
 def _render_direct(hook: str, body: str, subject: str,
-                   run_id: str) -> Optional[dict]:
+                   run_id: str, *, animated: bool = True) -> Optional[dict]:
     """The poster from the image model itself, shown the founder's approved
     posters and the design references. None when it did not pass its own
     judge, so the caller can fall back."""
@@ -213,7 +230,7 @@ def _render_direct(hook: str, body: str, subject: str,
     layout = None
     try:
         from pipeline.gtm_creative.motion_director import poster_brief
-        pb = poster_brief(subject or hook, hook, body)
+        pb = poster_brief(subject or hook, hook, body, animated=animated)
         director_brief, layout = pb["brief"], pb.get("layout")
         R.record_stage("A14_motion_director", "ok",
                        "wrote the poster brief (layout " + str(layout) + ")")
@@ -224,7 +241,7 @@ def _render_direct(hook: str, body: str, subject: str,
                                + "\nThe post: " + " ".join(body.split())[:1400])
     try:
         out = make(brief, run_id + "_visual",
-                   out_dir=Path(__file__).resolve().parents[1] / "state")
+                   out_dir=Path(__file__).resolve().parents[1] / "state", animated=animated)
     except Exception as exc:                        # noqa: BLE001 — boundary
         R.record_stage("A08_visual_synthesis", "degraded",
                        "direct-model poster failed: " + str(exc)[:200])
@@ -730,13 +747,51 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 # the run proceeded on an unrelated scraped topic while
                 # reporting that it had honoured the directive.
                 return _directive_signal(directive, signals)
-            return _select_signal(signals)
+            # The scout's own sources come first. A02 has already read them
+            # and written a post idea on each relevant one. That source is
+            # the subject. A GitHub page is only the mechanism, and it
+            # rotates so the post does not become Blend and Aquarius again.
+            chosen = _reference_choice(signals, rid)
+            if chosen is not None:
+                summary["reference_id"] = chosen[1]
+                return chosen[0]
+            from pipeline.gtm_os.subject_rotation import next_subject
+            subject = next_subject()
+            summary["product_subject"] = subject["id"]
+            return _product_signal(subject, signals)
         signal = _stage("A02_opportunity_selector", pick,
                         detail="chose a signal to pursue")
         summary["signal"] = str(signal.headline)
         summary["signal_source_type"] = str(signal.source_type)
         summary["signal_source"] = str(getattr(signal, "source", "") or "")
         summary["signal_observed_at"] = str(signal.observed_at)
+        _src = summary["signal_source"]
+        summary["signal_url"] = _src if _src.startswith(("http://", "https://")) else None
+        summary["signal_excerpt"] = str(getattr(signal, "description", "") or "")[:600]
+        summary["signal_publisher"] = str(getattr(signal, "source_root", "") or "")
+        # The brief chat names the sources this request must stay attached to.
+        # The dashboard passes them in BRIEF_SOURCES_JSON (works for a Cloud
+        # Run job, which does not share the dashboard's disk) and also writes
+        # brief_context.json for a local spawn. Read once, then remove the
+        # file so the next run does not inherit them.
+        try:
+            _rows = None
+            _env = (os.environ.get("BRIEF_SOURCES_JSON") or "").strip()
+            if directive and _env:
+                _parsed = json.loads(_env)
+                _rows = _parsed.get("sources") if isinstance(_parsed, dict) else _parsed
+            _pending = R.RUNS_DIR.parent / "brief_context.json"
+            if directive and _rows is None and _pending.exists():
+                _ctx = json.loads(_pending.read_text(encoding="utf-8"))
+                _rows = _ctx.get("sources") if isinstance(_ctx, dict) else None
+            if directive and _pending.exists():
+                _pending.unlink()
+            if _rows:
+                summary["brief_sources"] = [
+                    s for s in _rows if isinstance(s, dict)
+                ][:6]
+        except Exception:                            # noqa: BLE001 — the run still proceeds
+            pass
         SIGNALS.clear()
         SIGNALS.extend(signals)
         summary["candidate_signals"] = [
@@ -810,6 +865,29 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
 
         attempts = 1
         tried = {str(signal.headline)}
+        if summary.get("product_subject") and strategy.action_status != "ACTION":
+            from pipeline.gtm_os.subject_rotation import others
+            for alt in others(summary["product_subject"]):
+                if attempts >= 3:
+                    break
+                attempts += 1
+                print("  [retry] A03 said " + str(strategy.action_status)
+                      + "; trying the next product page (" + alt["id"] + ")")
+                summary["product_subject"] = alt["id"]
+                signal = _product_signal(alt, SIGNALS)
+                tried.add(str(signal.headline))
+                strategy = _stage(
+                    "A03_gtm_strategist",
+                    lambda s=signal: strategist.evaluate_and_formulate_strategy(s),
+                    detail="formulated strategy on the next product page")
+                summary["signal"] = str(signal.headline)[:300]
+                summary["action_status"] = strategy.action_status
+                summary["pillar"] = strategy.narrative_pillar
+                summary["problem"] = str(strategy.problem)[:600]
+                summary["opportunity"] = str(strategy.strategic_opportunity)[:600]
+                _emit_strategy(strategy, signal)
+                if strategy.action_status == "ACTION":
+                    break
         # The runner-ups must respect topic memory too. Walking raw SIGNALS
         # here re-selected a subject A02 had just suppressed — the retry
         # quietly undid the no-repeat rule it was meant to work alongside.
@@ -819,7 +897,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         # is producing nothing: a subject covered four cycles ago beats an
         # off-domain listicle A03 will decline anyway.
         retry_pool = fresh_pool + recent_pool
-        while strategy.action_status != "ACTION" and attempts < 3:
+        while (not summary.get("product_subject")
+               and strategy.action_status != "ACTION" and attempts < 3):
             nxt = next((s for s in retry_pool if str(s.headline) not in tried), None)
             if nxt is None:
                 break
@@ -848,6 +927,10 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             # or a retried topic never enters the memory and can repeat.
             _TM.remember(str(nxt.headline), rid)
         summary["strategy_attempts"] = attempts
+
+        if summary.get("product_subject") and strategy.action_status == "ACTION":
+            from pipeline.gtm_os.subject_rotation import remember as _remember_subject
+            _remember_subject(summary["product_subject"], rid)
 
         if strategy.action_status != "ACTION":
             summary["status"] = strategy.action_status
@@ -922,7 +1005,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         # A08 — Visual Synthesis Engine (nano banana)
         visual = None if not wanted["visual"] else _stage("A08_visual_synthesis",
                         lambda: render_visual(strategy, content_pkg, blueprint, rid,
-                              str(signal.headline)),
+                              str(signal.headline),
+                              animated=bool(with_video and wanted["video"])),
                         required=False, self_recorded=True)
         if visual:
             summary["visual_path"] = visual.get("path") or visual.get("filename")
@@ -1208,6 +1292,125 @@ def _directive_signal(directive: str, signals):
     )
 
 
+def _reference_choice(signals, run_id: str):
+    """The scraped doc or post A02 said is worth a post, with its idea.
+
+    Returns (signal, signal_id, product_page_id) or None when the reading
+    has no relevant source. The headline stays the scraped headline so the
+    post and References point at the same item.
+    """
+    from pipeline.gtm_os import agent_runtime as R
+    from pipeline.gtm_os import topic_memory as TM
+    from pipeline.gtm_os.subject_rotation import next_subject, remember
+
+    path = Path(R.RUNS_DIR) / run_id / "analysis.json"
+    if not path.exists():
+        return None
+    try:
+        analysis = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    readings = {
+        str(r.get("signal_id")): r
+        for r in (analysis.get("signals") or [])
+        if isinstance(r, dict)
+    }
+    ranked = []
+    blocked = TM.recent_fingerprints()
+    for sig in signals:
+        reading = readings.get(str(getattr(sig, "signal_id", "")))
+        if not reading:
+            continue
+        grade = str(reading.get("relevance") or "").upper()
+        idea = str(reading.get("post_idea") or reading.get("company_move") or "").strip()
+        if grade not in ("DIRECT", "ADJACENT") or not idea:
+            continue
+        fresh = TM.fingerprint(str(sig.headline)) not in blocked
+        ranked.append((0 if grade == "DIRECT" else 1, 0 if fresh else 1, sig, idea))
+    if not ranked:
+        return None
+    ranked.sort(key=lambda row: (row[0], row[1]))
+    _, _, sig, idea = ranked[0]
+    page = next_subject()
+    remember(page["id"], run_id)
+    url = str(getattr(sig, "source", "") or "")
+    description = (
+        "SCRAPED REFERENCE. The post is about this source.\n"
+        "Headline: " + str(sig.headline) + "\n"
+        "URL: " + url + "\n"
+        "Post idea: " + idea + "\n"
+        "Vanna's mechanism for this post, from the GitHub pages, and no other: "
+        + page["text"] + "\n"
+        "Do not change the source. Do not rewrite the post into Blend and "
+        "Aquarius unless this source is about those venues."
+    )
+    R.record_decision("A02_opportunity_selector", "chose", {
+        "chosen": str(sig.headline)[:200],
+        "why": idea[:400],
+        "chosen_source": "SCRAPED_REFERENCE",
+        "reference_id": str(sig.signal_id),
+        "product_subject": page["id"],
+        "url": url[:300],
+    })
+    data = sig.model_dump() if hasattr(sig, "model_dump") else sig.dict()
+    data["description"] = description[:1400]
+    return type(sig)(**data), str(sig.signal_id), page["id"]
+
+
+def _product_signal(subject: dict, signals):
+    """The clock's subject: one GitHub product page, not the last story again.
+
+    A scraped headline may ride along when it is actually about the same
+    thing. It does not replace the page.
+    """
+    from pipeline.gtm_orchestration.schemas import MarketSignal
+
+    text = " ".join(str(subject.get("text") or "").split())
+    words = set(re.findall(r"[a-z0-9]{4,}", text.lower()))
+
+    def overlap(s) -> int:
+        head = set(re.findall(r"[a-z0-9]{4,}", str(getattr(s, "headline", "")).lower()))
+        return len(words & head)
+
+    support = max(signals, key=overlap, default=None) if signals else None
+    if support is not None and overlap(support) < 2:
+        support = None
+
+    R.record_decision("A02_opportunity_selector", "chose", {
+        "chosen": text[:200],
+        "why": "next GitHub product page — recent posts had repeated one story",
+        "chosen_source": "PRODUCT_PAGE",
+        "product_subject": subject.get("id"),
+        "candidates": len(signals),
+        "supporting_signal": str(getattr(support, "headline", ""))[:160] if support else None,
+    })
+    now = datetime.now(timezone.utc).isoformat()
+    return MarketSignal(
+        signal_id="SIG-PRODUCT-" + datetime.now(timezone.utc).strftime("%H%M%S"),
+        headline=text[:600],
+        description=(
+            "PRODUCT PAGE. This run's subject is this GitHub page, because the "
+            "last posts repeated one story. Write about this page only. "
+            "Subject: " + text
+            + (" — possibly related market signal (context only; it does not "
+               "change the subject): " + str(support.headline)[:200]
+               if support is not None else "")
+        )[:1400],
+        market_category="LENDING",
+        entities_involved=[_C().company_name()],
+        observed_metric_change="PRODUCT_PAGE",
+        source="github-product-page",
+        source_root="github",
+        dataset="product_page",
+        source_type="LIVE_OBSERVED",
+        record_id="SIG-PRODUCT-" + str(subject.get("id") or ""),
+        observed_at=now,
+        data_as_of=now[:10],
+        confidence="HIGH",
+        evidence_status="OBSERVED",
+    )
+
+
 def _emit_strategy(strategy, signal) -> None:
     """Publish A03's verdict to the live journal as soon as it has one."""
     R.record_decision(
@@ -1267,7 +1470,8 @@ def _select_signal(signals):
         "anything its deployment does not support, so A03 rejects those outright and "
         "the cycle produces nothing — pick a mechanism, risk, architecture or "
         "incident story instead.\n"
-        "Return strict JSON and keep every rationale under 30 words.")
+        "Return strict JSON and keep every rationale under 30 words.\n\n"
+        + (_C().product_pages_block() or ""))
     # What the founder approved and killed before. Empty until a run has been
     # reviewed; after that the choice leans toward subjects that worked.
     try:

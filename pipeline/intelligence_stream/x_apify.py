@@ -44,7 +44,8 @@ def search(terms: list[str], *, max_items: int = 20, timeout_s: int = 90,
         items = json.loads(r.read().decode("utf-8"))
     out = []
     for it in items if isinstance(items, list) else []:
-        if "noResults" in it:
+        # The actor pads an empty result with "mock_tweet" rows so it can bill a minimum.
+        if "noResults" in it or it.get("type") == "mock_tweet":
             continue
         author = (it.get("author") or {}).get("userName") or it.get("username") or ""
         out.append({

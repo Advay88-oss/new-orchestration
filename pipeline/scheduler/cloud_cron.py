@@ -1,0 +1,312 @@
+"""Turn a plan the Assistant accepted into Cloud Scheduler cron jobs.
+
+One sentence can name several gaps (a scrape every 5 minutes, posts every
+20). One cron expression cannot say both, so each job gets its own cron,
+named vanna-cron-<job>, firing only that job. The 2-minute tick leaves those
+jobs alone so they are not run twice.
+"""
+from __future__ import annotations
+
+import json
+import shutil
+import subprocess
+from pathlib import Path
+
+PROJECT = "sales-agent-504607"
+REGION = "us-central1"
+JOB = "vanna-gtm-pipeline"
+SA = "114262736718-compute@developer.gserviceaccount.com"
+URI = ("https://run.googleapis.com/v2/projects/" + PROJECT
+       + "/locations/" + REGION + "/jobs/" + JOB + ":run")
+
+
+def interval_to_cron(interval: str) -> str | None:
+    """A Cloud Scheduler cron for 5m, 20m, 2h. None when cron cannot say it."""
+    from pipeline.scheduler.configurable_scheduler_daemon import parse_interval_to_seconds
+    try:
+        seconds = parse_interval_to_seconds(interval)
+    except Exception:                               # noqa: BLE001 — not a gap we can schedule
+        return None
+    if seconds < 60 or seconds % 60:
+        return None
+    minutes = seconds // 60
+    if minutes < 60 and 60 % minutes == 0:
+        return "*/" + str(minutes) + " * * * *"
+    if minutes % 60 == 0:
+        hours = minutes // 60
+        if hours == 24:
+            return "0 0 * * *"
+        if 0 < hours < 24 and 24 % hours == 0:
+            return "0 */" + str(hours) + " * * *"
+    return None
+
+
+def _gcloud() -> str | None:
+    return shutil.which("gcloud") or shutil.which("gcloud.cmd")
+
+
+def _run(args: list[str], timeout: float = 20, limit: int = 300) -> tuple[int, str]:
+    exe = _gcloud()
+    if not exe:
+        return 1, "gcloud is not installed"
+    try:
+        proc = subprocess.run(
+            [exe, *args, "--project", PROJECT],
+            capture_output=True, text=True, timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        return 1, "gcloud timed out"
+    except OSError as exc:
+        return 1, str(exc)[:160]
+    text = ((proc.stderr or "") + "\n" + (proc.stdout or "")).strip()
+    return proc.returncode, text[:limit]
+
+
+def authed() -> bool:
+    """True when the user login can call Google. The token is never returned."""
+    exe = _gcloud()
+    if not exe:
+        return False
+    try:
+        proc = subprocess.run(
+            [exe, "auth", "print-access-token"],
+            capture_output=True, text=True, timeout=30,
+        )
+    except (subprocess.TimeoutExpired, OSError):
+        return False
+    return proc.returncode == 0
+
+
+def _job_id(name: str) -> str:
+    return "vanna-cron-" + name.replace("_", "-")
+
+
+def _body(name: str) -> dict:
+    return {"overrides": {"containerOverrides": [
+        {"args": ["job", "sched", "--job", name]}]}}
+
+
+def _list_schedules() -> dict[str, str] | None:
+    """Job id -> schedule for crons that already exist. None when the list failed."""
+    code, raw = _run(
+        ["scheduler", "jobs", "list", "--location", REGION, "--format", "json(name,schedule)"],
+        timeout=15, limit=20000,
+    )
+    if code != 0:
+        return None
+    try:
+        rows = json.loads(raw[raw.find("["):] if "[" in raw else raw)
+    except ValueError:
+        return None
+    out = {}
+    for row in rows if isinstance(rows, list) else []:
+        name = str(row.get("name") or "").rstrip("/").split("/")[-1]
+        if name:
+            out[name] = str(row.get("schedule") or "")
+    return out
+
+
+def _upsert(name: str, cron: str, existing: dict[str, str] | None) -> tuple[bool, str]:
+    job_id = _job_id(name)
+    body = json.dumps(_body(name))
+    common = [
+        "--location", REGION,
+        "--schedule", cron,
+        "--uri", URI,
+        "--http-method", "POST",
+        "--message-body", body,
+        "--oauth-service-account-email", SA,
+    ]
+    if existing is not None and job_id in existing and existing[job_id] == cron:
+        _run(["scheduler", "jobs", "resume", job_id, "--location", REGION], timeout=12)
+        return True, ""
+    if existing is not None and job_id in existing:
+        code, detail = _run(["scheduler", "jobs", "update", "http", job_id,
+                             "--update-headers", "Content-Type=application/json", *common], timeout=20)
+        if code == 0:
+            _run(["scheduler", "jobs", "resume", job_id, "--location", REGION], timeout=12)
+        return code == 0, detail
+    code, detail = _run([
+        "scheduler", "jobs", "create", "http", job_id,
+        "--headers", "Content-Type=application/json", *common,
+        "--time-zone", "Etc/UTC",
+    ], timeout=20)
+    if code != 0 and "already exists" in detail.lower():
+        code, detail = _run(["scheduler", "jobs", "update", "http", job_id,
+                             "--update-headers", "Content-Type=application/json", *common], timeout=20)
+    return code == 0, detail
+
+
+def _pause(name: str) -> None:
+    _run(["scheduler", "jobs", "pause", _job_id(name), "--location", REGION], timeout=15)
+
+
+def _containers(payload: dict) -> list:
+    """Find the container list that actually carries env, whichever shape describe returns."""
+    found: list = []
+
+    def walk(node: object) -> None:
+        if isinstance(node, dict):
+            containers = node.get("containers")
+            if isinstance(containers, list) and containers and isinstance(containers[0], dict) and "env" in containers[0]:
+                found.append(containers)
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+
+    walk(payload)
+    return found[0] if found else []
+
+
+def _narrow_tick(live: list[str]) -> None:
+    """The 2-minute tick must not also fire a job that now has its own cron."""
+    if not live:
+        return
+    code, raw = _run(
+        ["run", "jobs", "describe", JOB, "--region", REGION, "--format", "json"],
+        timeout=25, limit=500000,
+    )
+    if code != 0:
+        return
+    start = raw.find("{")
+    try:
+        payload = json.loads(raw[start:] if start >= 0 else raw)
+        containers = _containers(payload)
+        env = containers[0].get("env") or [] if containers else []
+    except (ValueError, AttributeError, IndexError):
+        return
+    current = ""
+    for item in env:
+        if isinstance(item, dict) and item.get("name") == "SCHEDULER_ONLY":
+            current = str(item.get("value") or "")
+    if not current:
+        return
+    keep = [n for n in current.split(",") if n.strip() and n.strip() not in set(live)]
+    previous = [n.strip() for n in current.split(",") if n.strip()]
+    if keep == previous:
+        return
+    flag = Path(__file__).resolve().parents[1] / "state" / "_tick_flags.json"
+    flag.write_text(json.dumps({
+        "--update-env-vars": "^:^SCHEDULER_ONLY=" + ",".join(keep),
+    }), encoding="utf-8")
+    try:
+        _run(["run", "jobs", "update", JOB, "--region", REGION,
+              "--flags-file", str(flag)], timeout=50, limit=500)
+    finally:
+        flag.unlink(missing_ok=True)
+
+
+BUCKET = "vanna-gtm-state-504607"
+CLOCK_OBJECT = "gs://" + BUCKET + "/state/pipeline/state/scheduler_intervals.json"
+
+
+def upload_clock_file() -> bool:
+    """Copy the interval file with the user login. Application-default is stale."""
+    src = Path(__file__).resolve().parents[1] / "state" / "scheduler_intervals.json"
+    if not src.exists() or not authed():
+        return False
+    code, _ = _run(["storage", "cp", str(src), CLOCK_OBJECT], timeout=25, limit=400)
+    return code == 0
+
+
+def _row(name: str, interval: str, labels: dict, lands: dict) -> dict:
+    return {
+        "id": _job_id(name), "cron": interval_to_cron(interval) or "",
+        "interval": interval, "label": labels.get(name, name),
+        "lands": lands.get(name, "the dashboard"),
+    }
+
+
+def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[str], dict]:
+    """Create or pause one cron per job in the plan.
+
+    Returns (lines for the owner, job names whose cron is live, per-job status).
+    One login check, then one list, then the creates in parallel. The tick
+    allow-list update can run after the caller already has the result.
+    """
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+    from pipeline.scheduler.configurable_scheduler_daemon import _LABELS, _LANDS
+    paused = {str(n) for n in (chosen.get("_paused") or [])}
+    on = [str(n) for n in (chosen.get("_on") or []) if not str(n).startswith("_")]
+    live: list[str] = []
+    lines: list[str] = []
+    state: dict = {}
+
+    def remember(status: str) -> tuple[list[str], list[str], dict]:
+        for name in on:
+            if name in paused:
+                continue
+            interval = chosen.get(name)
+            if not isinstance(interval, str):
+                continue
+            row = _row(name, interval.strip(), _LABELS, _LANDS)
+            row["state"] = status
+            state[name] = row
+        word = "gcloud is not on this machine" if status == "local" else "Google sign-in is missing (gcloud auth login)"
+        return ["No cron was created: " + word + ". The plan is saved."], [], state
+
+    for name in sorted(paused):
+        interval = chosen.get(name)
+        if not isinstance(interval, str) or not interval.strip():
+            continue
+        row = _row(name, interval.strip(), _LABELS, _LANDS)
+        row["state"] = "stopped"
+        state[name] = row
+    if not _gcloud():
+        return remember("local")
+    if not authed():
+        lines.append("No cron was changed: Google sign-in is missing (gcloud auth login). The plan is saved.")
+        return lines, [], state
+
+    existing = _list_schedules()
+    pending = []
+    for name in sorted(paused):
+        _pause(name)
+    for name in on:
+        if name in paused:
+            _pause(name)
+            continue
+        interval = chosen.get(name)
+        if not isinstance(interval, str) or not interval.strip():
+            continue
+        row = _row(name, interval.strip(), _LABELS, _LANDS)
+        if not row["cron"]:
+            row["state"] = "clock"
+            state[name] = row
+            lines.append(row["label"] + " every " + interval + " stays on the 2-minute clock. Cron cannot say that gap.")
+            continue
+        pending.append((name, row))
+
+    def one(item: tuple[str, dict]) -> tuple[str, dict, bool, str]:
+        name, row = item
+        ok, detail = _upsert(name, row["cron"], existing)
+        return name, row, ok, detail
+
+    if pending:
+        with ThreadPoolExecutor(max_workers=min(4, len(pending))) as pool:
+            for name, row, ok, detail in pool.map(one, pending):
+                if ok:
+                    row["state"] = "live"
+                    live.append(name)
+                    lines.append("Cron " + row["id"] + " is " + row["cron"] + " (" + row["label"] + " every " + row["interval"] + "). It shows in " + row["lands"] + ".")
+                elif "Reauthentication" in detail or "auth login" in detail:
+                    row["state"] = "auth"
+                    lines.append("Cron for " + row["label"] + " needs a Google sign-in on this machine (gcloud auth login). The plan is saved and shows in " + row["lands"] + ".")
+                else:
+                    row["state"] = "failed"
+                    useful = next((ln for ln in detail.splitlines() if ln.strip().startswith("ERROR")), "")
+                    lines.append("Cron for " + row["label"] + " was not created. " + (useful or "gcloud failed")[:180])
+                state[name] = row
+    owned = set(live)
+    for name in list(chosen.get("_cron") or []):
+        if name not in owned and name not in on:
+            _pause(str(name))
+    if live:
+        if wait_narrow:
+            _narrow_tick(live)
+        else:
+            threading.Thread(target=_narrow_tick, args=(list(live),), daemon=True).start()
+    return lines, live, state

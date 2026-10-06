@@ -125,6 +125,9 @@ class ChannelAdapter:
         patterns = C.competitor_block(str(title) + " " + str(strategy.problem or ""))
         if patterns:
             ground_truth = ground_truth + "\n\n" + patterns
+        traveling = _traveling_shapes()
+        if traveling:
+            ground_truth = ground_truth + "\n\n" + traveling
 
         # -------------------------------------------------------------
         # Call Gemini 3.8 Flash for Bespoke Copy Generation
@@ -168,29 +171,44 @@ Write native social copy for the following strategy:
 - Core Objective: "{objective}"
 - Call to Action: "{cta}"
 
-Stay on the subject. If the founder asked for a concept, explain THAT concept; never swap it for a neighbouring one (liquidity is not liquidation). If the request names a structure (problem, how it works, why it matters, where {name} fits) or a quality (simple language, saveable, shareable), the X post follows that structure in that order.
+Stay on the subject. If the founder asked for a concept, explain THAT concept in a few plain sentences; never swap it for a neighbouring one (liquidity is not liquidation). If the subject is a scraped reference, the post is about that doc, post or article, and the last line may be its URL. Do not replace that source with Blend and Aquarius.
 {learned_section}
-Editorial & Algorithmic Rules to Follow Strictly (HERMES HUMANIZER SKILL):
-1. Voice: Speak as an authentic engineer/builder. Write with real opinions, natural sentence variation, and zero marketing fluff.
-2. Ban AI Clichés: Never use "introduces", "features include", "revolutionary", "game-changing", "seamlessly", "stands as", "is a testament to", "in today's evolving landscape".
-3. Ban Structural Slop: Never use em dashes (—), exclamation marks (!), or negative parallelisms ("Not only X, but Y").
-4. Ban Robotic Lists: Never write "- **Feature:** description" bullet lists. Write natural prose.
-5. Specifics Over Adjectives: {name}'s real figures are {figures}. Use a figure ONLY when it is about the subject; a figure bolted on to look technical is filler. These are {name}'s figures: never attribute them to other protocols or to the category as a whole.
-6. X/Twitter: First 7 words must hook the target audience. Never put links in Tweet 1. Put the CTA link only at the end.
-7. LinkedIn: Thought leadership focusing on architecture and execution latency over pooled risk.
-8. Reddit: Honest technical forum breakdown with personal disclosure.
+How the posts that travel are written, and how you write:
+People stop for one picture and one fact. They scroll past a mechanism paragraph.
+The headlines above are the length and the shape to match. Learn that shape from competitors and from the news. Never reuse their sentences, their numbers, or their brand names.
+
+Do not write like a spec. This is the failure, do not produce it:
+"Why are traders still treating this as one pool? On our devnet fork, the protocol isolates assets into dedicated lending reserves while unifying margin. Borrowers take positions through swaps with no funding rate."
+That stacks jargon. Nobody reposts it.
+
+Write like this instead. Blank line between lines. Words a person would say out loud:
+"One bad asset used to drag the whole pool down.
+
+Now each one sits on its own.
+
+One account. The cap the docs state. No extra fee to hold it."
+Use the real subject from this run. Only a figure the ground truth states. If the ground truth does not state a number, do not invent one.
+
+1. One idea. Then stop.
+2. Short lines, separated by a blank line. No threads, no numbered points, no bullets, no bold labels.
+3. Simple words. No "introduces", "revolutionary", "game-changing", "seamlessly", "isolates assets", "dedicated lending reserves", "unifying margin", "devnet fork", "uniform risk pool".
+4. No em dashes and no exclamation marks.
+5. A figure only when a GitHub product page in the ground truth states it for this subject. A Solana page's figures stay on a Solana post. The profile figures ({figures}) are the Stellar testnet figures and stay on a Stellar post. Never give either set to the other deployment, and never give them to another protocol.
+6. X: 2 or 3 short lines, under 280 characters. The first line is the picture. The link, if any, is the last line.
+7. LinkedIn: the same picture in 3 or 4 short lines, under 500 characters. Not an article. Do not say "architecture" or "failure modes" unless the subject is those words.
+8. Reddit: the same picture in short lines, under 700 characters, then the disclosure. The title is a plain sentence, not "Technical analysis".
 
 Return STRICT JSON matching this schema:
 {{
-  "x_hook": "Sharp, scroll-stopping opening hook under 120 characters without any links",
-  "x_post_body": "Full multi-paragraph post for X that can be split into a thread: under 600 characters, or up to 1100 when the founder asked for an explainer. Do not put links in the first paragraph. Include only the proof points that are about the subject. End with the CTA link.",
-  "linkedin_hook": "Opening headline hook for institutional readers",
-  "linkedin_copy": "3-paragraph institutional thought leadership article with institutional architecture framing. Zero em dashes.",
-  "reddit_hook": "Technical discussion title for r/defi or r/stellar",
-  "reddit_copy": "Markdown technical breakdown detailing smart contract architecture, risk parameters, and testnet deployment instructions. Must end with disclosure. Zero em dashes."
+  "x_hook": "The first line, under 80 characters, no link",
+  "x_post_body": "2 or 3 short lines separated by a blank line. Under 280 characters.",
+  "linkedin_hook": "The first line for LinkedIn",
+  "linkedin_copy": "3 or 4 short lines separated by a blank line. Under 500 characters. No bullets.",
+  "reddit_hook": "A plain title a person would click",
+  "reddit_copy": "The same picture in short lines, then the disclosure. No headings."
 }}"""
 
-        sys_inst = "You are a core Web3 protocol builder writing for developers and traders. Write naturally like a human. Avoid all AI marketing buzzwords, em dashes, and robotic bullet formats. Output only valid JSON."
+        sys_inst = "You write one short social post per channel. Plain sentences, one idea, no threads and no lists. Output only valid JSON."
         # Routed through the shared runtime so this call lands in the run
         # journal. Previously it used a private client whose failure path
         # returned None and fell through to canned "humanizer synthesis" — the
@@ -248,37 +266,28 @@ Return STRICT JSON matching this schema:
             subject = clean_title = str(title).split("(")[0].strip()
             problem = str(getattr(strategy, "problem", "") or "").strip()
             opportunity = str(getattr(strategy, "strategic_opportunity", "") or "").strip()
-            proof = [str(c).strip() for c in (getattr(strategy, "proof", []) or []) if str(c).strip()][:3]
-            proof_block = "\n".join("- " + c for c in proof)
-
-            body_parts = [p for p in (problem, opportunity) if p]
-            body = "\n\n".join(body_parts) or (name + "'s position on " + subject + ".")
+            proof = [str(c).strip() for c in (getattr(strategy, "proof", []) or []) if str(c).strip()][:1]
+            sentence = " ".join(p for p in (problem, opportunity, proof[0] if proof else "") if p)
+            body = sentence or (name + " on " + subject + ".")
 
             parsed_data = {
                 "x_hook": (opportunity.split(".")[0].strip() or subject)[:120],
-                "x_post_body": (body + ("\n\n" + proof_block if proof_block else "")
-                                + "\n\n" + cta),
+                "x_post_body": ((opportunity.split(".")[0].strip() or subject) + ". " + cta).strip(),
                 "linkedin_hook": subject,
-                "linkedin_copy": body + ("\n\n" + proof_block if proof_block else "")
-                                 + "\n\n" + cta,
+                "linkedin_copy": (body + " " + cta).strip(),
                 "reddit_hook": subject,
-                "reddit_copy": (body + ("\n\n" + proof_block if proof_block else "")
-                                + "\n\n" + cta
-                                + "\n\n*(" + _disclosure() + ")*"),
+                "reddit_copy": (body + "\n\n" + cta + "\n\n*(" + _disclosure() + ")*").strip(),
                 # Carried through so the reviewer and the dashboard can see the
                 # model did not write this.
                 "_synthesised": True,
             }
 
+        parsed_data = _simplify_if_dense(parsed_data, ground_truth)
+
         x_hook = parsed_data.get("x_hook", title)
         x_copy = parsed_data.get("x_post_body", f"{title}\n\n{cta}")
-        # This was a hard cut at 790 characters. An explainer asked for four
-        # sections lost the third mid-sentence and the fourth entirely — the
-        # "how Vanna fits" part — and nothing recorded it; the creative judge
-        # caught it as a copy REJECT. X copy ships as a thread, so the ceiling
-        # only guards against a runaway reply, and when it bites it cuts at a
-        # paragraph or sentence boundary and says so.
-        X_MAX = 1600
+        # One short post. A reply that runs long is cut at a sentence.
+        X_MAX = 280
         if len(x_copy) > X_MAX:
             head = x_copy[:X_MAX]
             cut = max(head.rfind("\n\n"), head.rfind(". "))
@@ -289,7 +298,7 @@ Return STRICT JSON matching this schema:
         post_x = ChannelPostPayload(
             content_id=f"POST-X-{pkg_id}",
             channel="X",
-            format="thread_lead",
+            format="single_post",
             objective=objective,
             audience=audience,
             source_claims=valid_claims,
@@ -308,12 +317,12 @@ Return STRICT JSON matching this schema:
         # -------------------------------------------------------------
         linkedin_hook = parsed_data.get("linkedin_hook", f"Strategic Update: {title}")
         linkedin_copy = parsed_data.get("linkedin_copy", f"{title}\n\n{cta}")
-        if "architecture" not in linkedin_copy.lower():
-            linkedin_copy += "\n\n" + cta
+        if cta and cta not in linkedin_copy:
+            linkedin_copy = (linkedin_copy.rstrip() + " " + cta).strip()
         post_linkedin = ChannelPostPayload(
             content_id=f"POST-LI-{pkg_id}",
             channel="LinkedIn",
-            format="institutional_article",
+            format="short_post",
             objective=objective,
             audience=audience,
             source_claims=valid_claims,
@@ -346,7 +355,7 @@ Return STRICT JSON matching this schema:
             hook=reddit_hook,
             copy=reddit_copy,
             call_to_action=cta,
-            discussion_question="How does your protocol handle liquidation execution uncertainty on testnet?",
+            discussion_question=(reddit_hook or "What would you want this to do next?"),
             risk_flags=["Requires testnet disclosure"],
             confidence="HIGH",
             provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id},
@@ -364,6 +373,96 @@ Return STRICT JSON matching this schema:
                 "reddit": post_reddit
             }
         )
+
+
+def _traveling_shapes() -> str:
+    """How the last scrape's posts are built. The shape to learn, not the words."""
+    path = Path(__file__).resolve().parents[2] / "pipeline" / "state" / "research_latest.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return ""
+    items = [i for i in (data.get("items") or []) if isinstance(i, dict) and i.get("headline")]
+
+    def line(item: dict) -> str:
+        headline = " ".join(str(item.get("headline") or "").split())[:140]
+        style = " ".join(str(item.get("style") or "").split())
+        reach = item.get("engagement")
+        extra = style
+        if isinstance(reach, int) and reach > 0:
+            extra = (extra + ", " if extra else "") + str(reach) + " views or likes on the source"
+        return "- " + headline + ((" (" + extra + ")") if extra else "")
+
+    competitors = [i for i in items if i.get("kind") == "competitor"][:4]
+    traveled = [i for i in items if i.get("kind") in ("news", "docs", "community")][:4]
+    if not competitors and not traveled:
+        competitors = items[:6]
+    parts: List[str] = []
+    if competitors:
+        parts.append("HOW COMPETITORS WRITE (their latest posts). Match this length and hook. "
+                     "Do not copy their words, names, or numbers:\n"
+                     + "\n".join(line(i) for i in competitors))
+    if traveled:
+        parts.append("HOW NEWS, DOCS, AND COMMUNITY POSTS THAT GET READ ARE SHAPED. "
+                     "Match this shortness. Do not copy their words, names, or numbers:\n"
+                     + "\n".join(line(i) for i in traveled))
+    return "\n\n".join(parts)
+
+
+_DENSE = (
+    "dedicated lending", "unifying margin", "devnet fork", "uniform risk",
+    "isolates assets", "while unifying", "mechanism", "parameters are configured",
+)
+
+
+def _too_dense(text: str, *, max_chars: int, max_words_in_a_line: int) -> bool:
+    body = " ".join(str(text or "").split())
+    if not body:
+        return True
+    if len(body) > max_chars:
+        return True
+    low = body.lower()
+    if any(phrase in low for phrase in _DENSE):
+        return True
+    for line in body.replace("!", ".").replace("?", ".").split("."):
+        if len(line.split()) > max_words_in_a_line:
+            return True
+    return False
+
+
+def _simplify_if_dense(parsed: dict, ground_truth: str) -> dict:
+    """One rewrite when the draft still reads like a spec."""
+    if not isinstance(parsed, dict):
+        return parsed
+    x = str(parsed.get("x_post_body") or "")
+    li = str(parsed.get("linkedin_copy") or "")
+    if not (_too_dense(x, max_chars=280, max_words_in_a_line=16) or _too_dense(li, max_chars=500, max_words_in_a_line=18)):
+        return parsed
+    try:
+        raw = _brain(
+            "Rewrite these three posts so a person scrolling would stop and repeat the first line. "
+            "Keep every fact that is already here. Add no new fact and no number that is not already in the draft or the ground truth. "
+            "Short lines. A blank line between lines. No spec language, no 'devnet fork', no 'dedicated reserves', no 'unifying margin'.\n\n"
+            "GROUND TRUTH:\n" + ground_truth[:1500] + "\n\nDRAFT:\n" + json.dumps({
+                "x_hook": parsed.get("x_hook"),
+                "x_post_body": parsed.get("x_post_body"),
+                "linkedin_hook": parsed.get("linkedin_hook"),
+                "linkedin_copy": parsed.get("linkedin_copy"),
+                "reddit_hook": parsed.get("reddit_hook"),
+                "reddit_copy": parsed.get("reddit_copy"),
+            }) + "\n\nReturn ONLY the same JSON keys.",
+            agent=_AGENT, role="reasoning",
+            system="You rewrite a spec into a short post. Output only JSON.",
+            temperature=0.4, max_output_tokens=2048)
+        cleaned = re.sub(r"^```(?:json)?\s*", "", str(raw).strip())
+        cleaned = re.sub(r"\s*```$", "", cleaned)
+        fresh = json.loads(cleaned)
+    except Exception:                               # noqa: BLE001 — the first draft stands
+        return parsed
+    if isinstance(fresh, dict) and fresh.get("x_post_body"):
+        _record_stage(_AGENT, "degraded", "first draft was a spec; rewritten into short lines")
+        return fresh
+    return parsed
 
 
 def _disclosure() -> str:

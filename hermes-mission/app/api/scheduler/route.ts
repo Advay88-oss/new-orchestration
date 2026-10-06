@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { runPython, lastJson, pythonPath } from '@/lib/python';
-import { exec, spawn } from 'child_process';
+import { spawn } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import { cloudMode, localOnly } from '@/lib/local-only';
+import { isDeployed, getText } from '@/lib/gcs';
 import { runPipelineJob } from '@/lib/cloudrun';
 
 const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
@@ -13,60 +14,92 @@ const CONFIG_FILE = path.join(REPO_ROOT, 'config/scheduler.yaml');
 
 export const dynamic = 'force-dynamic';
 
+/** The jobs as the pipeline config and its state file describe them. */
+function jobsFromPipeline(): { success: true; jobs: any[]; timestamp: string } | null {
+  if (!fs.existsSync(CONFIG_FILE)) return null;
+  const yamlRaw = fs.readFileSync(CONFIG_FILE, 'utf-8').replace(/\r\n/g, '\n');
+  const body = yamlRaw.split(/^jobs:\s*$/m)[1];
+  if (!body) return null;
+  let stateData: Record<string, any> = {};
+  if (fs.existsSync(SCHEDULER_STATE_FILE)) {
+    try { stateData = JSON.parse(fs.readFileSync(SCHEDULER_STATE_FILE, 'utf-8')); } catch { stateData = {}; }
+  }
+  const jobs = body.split(/\n(?=  [a-z0-9_]+:\s*$)/m).flatMap((chunk) => {
+    const name = chunk.match(/^  ([a-z0-9_]+):/m)?.[1];
+    if (!name) return [];
+    const interval = (chunk.match(/interval:\s*["']?([^"'\n]+)/)?.[1] || '24h').trim();
+    const description = chunk.match(/description:\s*"([^"]*)"/)?.[1]
+      || chunk.match(/description:\s*'([^']*)'/)?.[1]
+      || '';
+    const modelHeavy = /model_heavy:\s*true/.test(chunk);
+    const enabled = !/enabled:\s*false/.test(chunk);
+    const st = stateData[name] || {};
+    const last = st.last_run || null;
+    let next = 'Overdue / Pending';
+    if (last) {
+      const sec = interval.endsWith('m') ? parseInt(interval, 10) * 60 : parseInt(interval, 10) * 3600;
+      const t = new Date(last).getTime();
+      if (!Number.isNaN(t) && sec) next = new Date(t + sec * 1000).toISOString();
+    }
+    return [{
+      job: name,
+      description,
+      interval,
+      model_heavy: modelHeavy,
+      enabled: enabled && st.status !== 'DISABLED_AUTO_BACKOFF',
+      status: st.status || 'IDLE',
+      last_run: last || 'Never',
+      next_run: next,
+      consecutive_failures: st.consecutive_failures || 0,
+      total_runs: st.total_runs || 0,
+      last_duration_s: st.last_duration_s || 0,
+    }];
+  });
+  return { success: true, jobs, timestamp: new Date().toISOString() };
+}
+
 export async function GET() {
   const blocked = localOnly('the scheduler');
   if (blocked) return blocked;
 
   try {
-    // 1. First try reading directly from state file & config for sub-millisecond response
-    if (fs.existsSync(SCHEDULER_STATE_FILE) && fs.existsSync(CONFIG_FILE)) {
-      try {
-        const stateRaw = fs.readFileSync(SCHEDULER_STATE_FILE, 'utf-8');
-        const stateData = JSON.parse(stateRaw);
-        
-        // Simple YAML parse for job intervals
-        const yamlRaw = fs.readFileSync(CONFIG_FILE, 'utf-8');
-        const jobsList: any[] = [];
-        
-        const jobDefs: Record<string, { desc: string; defaultInt: string; isModel: boolean }> = {
-          research_collect: { desc: "Full research collection across the free news, community and on-chain sources.", defaultInt: "12h", isModel: true },
-          trend_scan: { desc: "Zero-cost real-time trend & news monitoring (Google News RSS + Curve/Stellar news).", defaultInt: "2m", isModel: false },
-          ideas_panel: { desc: "Synthesizes 8-12 claim-gated actionable GTM ideas from newly scraped artefacts.", defaultInt: "6h", isModel: true },
-          memes_panel: { desc: "Scans crypto culture for liquidation/gas humor with strict claim & risk gating.", defaultInt: "2h", isModel: true },
-          notion_sync: { desc: "Daily safety-net Notion sync for every connected tenant (webhooks and run start cover the rest).", defaultInt: "24h", isModel: false },
-          metrics_collect: { desc: "Reads back published posts 48h+ old: engagement into the reward events and the format / posting-slot arms.", defaultInt: "6h", isModel: false }
-        };
-
-        for (const [jKey, meta] of Object.entries(jobDefs)) {
-          const st = stateData[jKey] || {};
-          let currentInterval = meta.defaultInt;
-          const matchInt = yamlRaw.match(new RegExp(`${jKey}:[\\s\\S]*?interval:\\s*["']?([^"'\n\r]+)["']?`));
-          if (matchInt && matchInt[1]) {
-            currentInterval = matchInt[1].trim();
-          }
-
-          jobsList.push({
-            job: jKey,
-            description: meta.desc,
-            interval: currentInterval,
-            enabled: st.status !== "DISABLED_AUTO_BACKOFF",
-            status: st.status || "COMPLETED",
-            last_run: st.last_run || "Never",
-            next_run: st.last_run ? new Date(new Date(st.last_run).getTime() + (currentInterval.endsWith('m') ? parseInt(currentInterval)*60000 : parseInt(currentInterval)*3600000)).toISOString() : "Pending Tick",
-            consecutive_failures: st.consecutive_failures || 0,
-            total_runs: st.total_runs || 1,
-            last_duration_s: st.last_duration_s || 0.5
-          });
-        }
-
-        return NextResponse.json({
-          success: true,
-          jobs: jobsList,
-          timestamp: new Date().toISOString()
-        });
-      } catch (err: any) {
-        console.warn("[Scheduler API] File read notice, falling back to python CLI:", err);
+    const listed = jobsFromPipeline();
+    if (listed) {
+      let raw: string | null = null;
+      if (isDeployed()) raw = await getText('state/pipeline/state/scheduler_intervals.json');
+      else {
+        const p = path.join(REPO_ROOT, 'pipeline', 'state', 'scheduler_intervals.json');
+        try { raw = fs.readFileSync(p, 'utf-8'); } catch { raw = null; }
       }
+      if (raw) {
+        try {
+          const chosen = JSON.parse(raw) as Record<string, unknown>;
+          const paused = new Set((Array.isArray(chosen._paused) ? chosen._paused : []).map(String));
+          const on = new Set((Array.isArray(chosen._on) ? chosen._on : []).map(String));
+          for (const job of listed.jobs) {
+            if (typeof chosen[job.job] === 'string') job.interval = chosen[job.job];
+            if (on.has(job.job)) job.enabled = true;
+            if (paused.has(job.job)) {
+              job.paused = true;
+              job.enabled = false;
+              if (job.status !== 'RUNNING') job.status = 'STOPPED';
+            }
+          }
+          const cronState = (chosen._cron_state && typeof chosen._cron_state === 'object')
+            ? chosen._cron_state as Record<string, any> : {};
+          for (const job of listed.jobs) {
+            const st = cronState[job.job] || {};
+            job.cron = typeof st.cron === 'string' ? st.cron : '';
+            job.cron_id = typeof st.id === 'string' ? st.id : '';
+            job.cron_state = typeof st.state === 'string' ? st.state : '';
+            job.lands = typeof st.lands === 'string' ? st.lands : '';
+          }
+          (listed as any).posts = paused.has('gtm_cycle') ? 'stopped' : 'on';
+          (listed as any).until = typeof chosen._until === 'string' ? chosen._until : '';
+          (listed as any).posts_left = typeof chosen._posts_left === 'number' ? chosen._posts_left : null;
+        } catch { /* the yaml interval stands */ }
+      }
+      return NextResponse.json(listed);
     }
 
     // 2. Fallback to executing python CLI
@@ -94,6 +127,35 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { action, job, interval } = body;
+
+    if (action === 'tell') {
+      const text = String(body.text || '').trim().slice(0, 240);
+      if (!text) return NextResponse.json({ success: false, error: 'say what you want' }, { status: 400 });
+      const py = pythonPath();
+      if (!py) return NextResponse.json({ success: false, error: 'no python interpreter' }, { status: 503 });
+      return new Promise<Response>((resolve) => {
+        const child = spawn(py, [SCHEDULER_SCRIPT, '--tell', text], {
+          cwd: REPO_ROOT,
+          env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8' },
+        });
+        let stdout = '';
+        let stderr = '';
+        child.stdout.on('data', (d) => { stdout += d.toString(); });
+        child.stderr.on('data', (d) => { stderr += d.toString(); });
+        child.on('close', (code) => {
+          if (code === 0) {
+            try {
+              const last = stdout.trim().split('\n').filter(Boolean).pop() || '{}';
+              resolve(NextResponse.json({ success: true, ...JSON.parse(last) }));
+            } catch {
+              resolve(NextResponse.json({ success: true, message: stdout.trim() }));
+            }
+          } else {
+            resolve(NextResponse.json({ success: false, error: (stderr || stdout).trim().slice(-300) || 'that did not stick' }, { status: 400 }));
+          }
+        });
+      });
+    }
 
     if (action === 'set_interval') {
       if (!job || !interval) {
@@ -123,45 +185,41 @@ export async function POST(req: Request) {
     }
 
     if (action === 'run_now') {
-      if (!job) {
+      if (!job || !/^[a-z0-9_]+$/.test(job)) {
         return NextResponse.json({ success: false, error: 'job required' }, { status: 400 });
       }
-      // On GCP a GTM cycle is a Cloud Run Job execution, never a child of
-      // this web container (it would be throttled and lost on scale-down).
-      if (cloudMode() && job === 'gtm_cycle') {
-        const r = await runPipelineJob(['cycle']);
-        return NextResponse.json(r.ok ? { success: true, message: 'Cycle started on GCP (' + r.execution + ')' }
-                                      : { success: false, error: r.error }, { status: r.ok ? 200 : 502 });
+      const known = jobsFromPipeline();
+      if (known && !known.jobs.some((j) => j.job === job)) {
+        return NextResponse.json({ success: false, error: 'unknown job: ' + job }, { status: 400 });
       }
-            
-      const rawArgs = ['pipeline/scheduler/configurable_scheduler_daemon.py', '--run-now', job];
-      const spawnArgs = rawArgs;
-
-      return new Promise<Response>((resolve) => {
-        const py = spawn(pythonPath() as string, spawnArgs, {
-          cwd: REPO_ROOT,
-          env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONUNBUFFERED: '1' }
-        });
-        let stdout = '';
-        let stderr = '';
-        py.stdout.on('data', (d) => { stdout += d.toString(); });
-        py.stderr.on('data', (d) => { stderr += d.toString(); });
-        py.on('close', (code) => {
-          const jsonMatch = stdout.match(/\{[\s\S]*\}/);
-          if (jsonMatch) {
-            try {
-              const data = JSON.parse(jsonMatch[0]);
-              resolve(NextResponse.json({ success: true, result: data }));
-              return;
-            } catch {}
-          }
-          if (code === 0) {
-            resolve(NextResponse.json({ success: true, output: stdout.trim() }));
-          } else {
-            resolve(NextResponse.json({ success: false, error: stderr || stdout || `Process exited with code ${code}` }, { status: 500 }));
-          }
-        });
+      const running = known?.jobs.find((j) => j.job === job && j.status === 'RUNNING');
+      if (running) {
+        return NextResponse.json({ success: false, error: job + ' is already running on the pipeline' }, { status: 409 });
+      }
+      // The page only asks. The job runs on the pipeline and reports back
+      // through the scheduler state file, which this view already polls.
+      if (cloudMode()) {
+        const args = job === 'gtm_cycle' ? ['cycle'] : ['sched', '--job', job];
+        const r = await runPipelineJob(args);
+        return NextResponse.json(r.ok
+          ? { success: true, started: true, job, execution: r.execution }
+          : { success: false, error: r.error }, { status: r.ok ? 200 : 502 });
+      }
+      const py = pythonPath();
+      if (!py) {
+        return NextResponse.json({ success: false, error: 'no python interpreter for the pipeline' }, { status: 503 });
+      }
+      const logFile = path.join(REPO_ROOT, 'pipeline', 'state', 'scheduler_run_now.log');
+      fs.mkdirSync(path.dirname(logFile), { recursive: true });
+      const out = fs.openSync(logFile, 'a');
+      const child = spawn(py, [SCHEDULER_SCRIPT, '--run-now', job], {
+        cwd: REPO_ROOT,
+        env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONIOENCODING: 'utf-8' },
+        detached: true,
+        stdio: ['ignore', out, out],
       });
+      child.unref();
+      return NextResponse.json({ success: true, started: true, job, pid: child.pid });
     }
 
     return NextResponse.json({ success: false, error: `Unknown action: ${action}` }, { status: 400 });

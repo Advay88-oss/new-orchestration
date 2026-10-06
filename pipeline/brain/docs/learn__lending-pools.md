@@ -21,3 +21,6 @@ Rates respond to utilization under an admin-configurable polynomial curve. New b
 Redemption burns receipts at their current conversion rate. A single call pays at most 50% of total assets and the available cash, so a withdrawal can partially fill. The remaining receipts continue to represent a claim on the pool. No cash available means the redemption fails.
 
 Pools have pause controls. Pool pause stops deposit, redemption, and new borrow; repayment accounting remains available. See [Pool Mechanics](/learn/lending-pool-mechanics).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

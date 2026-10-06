@@ -27,3 +27,6 @@ Debt reads include pending pool interest. Existing borrowed proceeds are already
 Equity is collateral minus debt. The UI labels a nonnegative equity value as Net Available Collateral; it is not a promise that this amount can be withdrawn. Liquidation collateral headroom is `max(0, C-1.1*D)`. Market prices, interest, LP reserve changes, and oracle/configuration changes can move these figures.
 
 There is no universal guaranteed maximum leverage or time to liquidation. Read [Liquidation](/learn/liquidation) and [Math Reference](/developers/math-reference).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

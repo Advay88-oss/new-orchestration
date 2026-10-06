@@ -306,6 +306,61 @@ def notion_connect(tenant: str, for_client: bool = False) -> dict:
                      "connected": st.get("connected")}}
 
 
+def find_campaigns(tenant: str, query: str, source: str = "galxe") -> dict:
+    """Start a campaign search. The Campaigns page keeps each source in its own list."""
+    q = " ".join(str(query or "").split())[:400]
+    src = " ".join(str(source or "galxe").split())[:300] or "galxe"
+    if not q:
+        return {"error": "say what kind of campaign you want"}
+    if not TENANT.match(tenant):
+        return {"error": "bad company"}
+    subprocess.Popen(
+        [sys.executable, "-m", "pipeline.gtm_os.campaigns", "run", tenant, q, src],
+        cwd=str(REPO),
+        env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONPATH": str(REPO)},
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        creationflags=getattr(subprocess, "DETACHED_PROCESS", 0) if os.name == "nt" else 0,
+        start_new_session=os.name != "nt",
+    )
+    return {"started": True, "query": q, "source": src,
+            "message": "Searching " + src + ". It lands in its own list on Campaigns."}
+
+
+def study_brand(tenant: str, name: str, where: str = "") -> dict:
+    """Put a company on What Vanna Can Do. A name is enough; a link is optional."""
+    who = " ".join(str(name or "").split())[:80]
+    src = " ".join(str(where or "").split())[:200]
+    if not who:
+        return {"error": "say which company"}
+    if not TENANT.match(tenant):
+        return {"error": "bad company"}
+    args = [sys.executable, "-m", "pipeline.brand_brain.inspiration", "add", tenant, who]
+    handle = re.search(r"(?:x|twitter)\.com/([A-Za-z0-9_]{1,30})", src, re.I)
+    if handle:
+        args += ["--x", handle.group(1)]
+    elif re.fullmatch(r"@?[A-Za-z0-9_]{1,30}", src):
+        args += ["--x", src.lstrip("@")]
+    subprocess.Popen(
+        args, cwd=str(REPO),
+        env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONPATH": str(REPO)},
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        creationflags=getattr(subprocess, "DETACHED_PROCESS", 0) if os.name == "nt" else 0,
+        start_new_session=os.name != "nt",
+    )
+    return {"started": True, "name": who,
+            "message": "Studying " + who + ". It lands on What Vanna Can Do, with what a post from it could be."}
+
+
+def set_post_cadence(tenant: str, instruction: str) -> dict:
+    """The owner says how often a post should appear, or says stop, or start."""
+    from pipeline.scheduler.configurable_scheduler_daemon import apply_tell
+    try:
+        out = apply_tell(instruction)
+    except Exception as exc:                       # noqa: BLE001 — the chat shows the sentence
+        return {"error": str(exc)[:240]}
+    return out
+
+
 def propose_action(tenant: str, action: str, run_id: str = "", directive: str = "", note: str = "") -> dict:
     """An action the OWNER confirms with a button: nothing happens until then."""
     action = action.lower()
@@ -356,6 +411,19 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
                             "into patterns). find_new also web-searches for new ones.", _p(find_new=B_)),
     "notion_connect": (notion_connect, "A Notion connection link for the selected company: a Connect button for the "
                        "owner, or with for_client an invite link to send to the client.", _p(for_client=B_)),
+    "study_brand": (study_brand, "Study a company for What Vanna Can Do. name is the company. "
+                     "where is optional (an X link or handle). The agents find the handle when it is missing. "
+                     "Call this when the owner names a company to learn from. Do it yourself.",
+                     {**_p(name=S_, where=S_), "required": ["name"]}),
+    "find_campaigns": (find_campaigns, "Search live campaigns. query is what kind. source is where: Galxe, a website, "
+                       "a company name, or an X handle. Starts the search; the Campaigns page shows that source on its own.",
+                       {**_p(query=S_, source=S_), "required": ["query"]}),
+    "set_post_cadence": (set_post_cadence, "Create one cron for each job the owner named: headlines, "
+                         "competitor Twitter, campaigns, memes, ideas, trends, GitHub, Notion, Reddit, "
+                         "health, or a post. Pass their sentence unchanged. Do not turn a non-post request "
+                         "into a post. A scrape or campaigns can be every 5 minutes. A post needs 20 minutes. "
+                         "Nothing is published.",
+                         {**_p(instruction=S_), "required": ["instruction"]}),
     "propose_action": (propose_action, "Offer the owner a button for something only they may do: launch_run "
                        "(optional directive), approve / revise / kill a run, approve_profile. It does NOT do it.",
                        {**_p(action=S_, run_id=S_, directive=S_, note=S_), "required": ["action"]}),
@@ -364,7 +432,7 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
 
 # A company's own client (a client link, not the owner) talks about their
 # company only: no list of the other companies, no onboarding a new one.
-CLIENT_BLOCKED = {"list_companies", "add_company"}
+CLIENT_BLOCKED = {"list_companies", "add_company", "set_post_cadence", "find_campaigns", "study_brand"}
 
 
 def declarations(client: bool = False) -> list[dict]:

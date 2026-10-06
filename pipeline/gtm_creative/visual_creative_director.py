@@ -574,7 +574,7 @@ class VisualCreativeDirector:
         Strictly enforces the Image 2 and Image 3 Web3 product process explainer style:
         - Clean horizontal process pipeline (A -> B -> C)
         - Big bold metrics and numbers (~320ms, 1.10x, 10x Multiplier, 0.00014 XLM)
-        - Dark frosted-glass squircle cards with glowing neon borders
+        - Opaque matte cards with a hairline border. No frosted glass, no blur, no glowing glass border
         - Sleek horizontal directional vector arrows
         - Bold titles and clean subtitles beneath each node
         - Deep space obsidian #080310 with Vanna dual ambient blooms (#C73770 top-right, #7430CC bottom-left)

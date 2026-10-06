@@ -63,7 +63,8 @@ def _facts() -> str:
     C = _c()
     lines = [C.company_name().upper() + " — the only facts you may use:", "- " + C.company_line()]
     lines += ["- " + k + ": " + v for k, v in C.anchors().items()]
-    lines += ["- " + f["value"] + ": " + f.get("meaning", "") for f in C.true_figures()]
+    lines += ["- " + f["value"] + ": " + f.get("meaning", "") + " (Stellar testnet only)" for f in C.true_figures()]
+    lines.append("- Solana only, when the post is about Solana: xStocks and PreStocks, one margin account, up to 5x, no funding rate. Do not draw a Stellar figure on that poster.")
     ns = C.never_state()
     if ns:
         lines.append("- Never state any other number: no " + ", no ".join(ns) + ".")
@@ -115,19 +116,55 @@ def _learned_rules() -> str:
             + "\n".join("- " + r for r in rules[-12:])) if rules else ""
 
 
+def _taste_rules() -> str:
+    from pipeline.gtm_creative.taste import rubric
+    text = rubric()
+    return ("\n\n" + text) if text else ""
+
+
 # The founder's rulebook forbids these, and the creative judge rejects on
 # them, but neither the image prompt nor this file's own judge said so. Run
 # GTM-20260925-104259 drew an isometric safe with a dial and a 3D cardboard
 # box, passed its own judge as SHIP, and was rejected at the end of a
 # 14-minute run, after its video had been built from it.
 FLAT_RULE = (
-    "FLAT, FACE-ON ONLY: every element is drawn flat and straight-on (2D "
-    "glass cards, flat boundaries and enclosures, straight arrows). Never "
+    "FLAT, FACE-ON ONLY: every element is drawn flat and straight-on "
+    "(cards, boundaries, straight arrows). Never "
     "isometric, 3D, angled or perspective objects; never safes, vaults, "
     "combination dials, boxes or crates, coins, tokens or piles of wealth.")
+# Flat is for Veo: an angled object makes it tilt the camera.
+STILL_RULE = (
+    "FLAT AND FACE-ON. Cards are opaque. Never safes, vaults, "
+    "combination dials, boxes or crates, coins, tokens or piles of wealth.")
+
+NO_GLASS = (
+    "NO GLASSMORPHISM. This is binding and overrides the attached posters. "
+    "Do not draw frosted glass, blur, a translucent or see-through card, "
+    "a glow bleeding through a fill, or a neon glass border. "
+    "Cards are solid and opaque, with a hairline edge. "
+    "The attached posters are the bar for type, spacing, logo, and contrast only. "
+    "Do not copy their glass.")
 
 
-def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
+def _material_rule(brief: str) -> str:
+    """The brief names one opaque surface. Glass is not one of them."""
+    line = next((ln for ln in brief.splitlines() if ln.lower().startswith("material:")), "")
+    name = line.split("—", 1)[0].replace("Material:", "").strip().lower()
+    if name == "editorial":
+        return "SURFACE: no cards and no panels. Type and one thin-line diagram on the open ground. " + NO_GLASS
+    if name == "line":
+        return "SURFACE: a hairline technical drawing. Open shapes, no filled slabs. " + NO_GLASS
+    if name == "print":
+        return "SURFACE: hard-edged flat ink blocks, like a printed page. No transparency. " + NO_GLASS
+    return "SURFACE: opaque matte cards, a hairline border, nothing showing through the fill. " + NO_GLASS
+
+
+def _shape_rule(animated: bool) -> str:
+    return FLAT_RULE if animated else STILL_RULE
+
+
+def _prompt(brief: str, correction: str = "", approved: int = 0,
+            animated: bool = True) -> str:
     has_logo = _logo() is not None
     last = " The LAST image is the official logo." if has_logo else ""
     ground = _ground()
@@ -136,10 +173,11 @@ def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
         + _c().company_name() + ".\n\n"
         + ("ATTACHED IMAGES: the FIRST " + str(approved) + " are posters the "
            "founder APPROVED — the quality bar, and the way to compose one: an "
-           "explanatory diagram built from glass UI elements, icons and "
+           "explanatory diagram built from clear cards, icons and "
            "arrows, clearly contrasting the problem with " + _c().company_name() + "'s answer. Match "
-           "that level and that approach; do NOT copy their text or their "
-           "exact layout. The images after them" + (", except the last," if has_logo else "")
+           "that level and that density. Follow the layout and the MATERIAL named in this brief. "
+           "Do not copy their frosted glass, blur, or glowing translucent borders. "
+           "Do NOT copy their text or redraw the same diagram. The images after them" + (", except the last," if has_logo else "")
            + " are further STYLE REFERENCES." + last + "\n\n"
            if approved else
            "ATTACHED IMAGES: " + ("all images except the last" if has_logo else "the images")
@@ -149,7 +187,8 @@ def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
         + ("BRAND COLOURS (use these, not others): " + _palette_line() + ".\n\n" if _palette_line() else "")
         + "Match the references' house style exactly: " + _c().house_style()
         + ". Generous spacing, nothing overlapping, everything aligned.\n\n"
-        + FLAT_RULE + "\n\n"
+        + _shape_rule(animated) + "\n\n"
+        + _material_rule(brief) + "\n\n"
         + ("LOGO: use the logo from the LAST attached image, exactly as it is: "
            + _c().logo_description() + ". Same mark, same wordmark, drawn once, in a tone that "
            "reads on the ground (dark on a light ground, light on a dark one). Do NOT invent a "
@@ -167,7 +206,11 @@ def _prompt(brief: str, correction: str = "", approved: int = 0) -> str:
         + ("; avoid " + " and ".join(_c().avoid_colors()) if _c().avoid_colors() else "")
         + ". " + _facts()
         + _learned_rules()
+        + _taste_rules()
         + "\n\nTHE POST THIS IMAGE IS FOR:\n" + " ".join(brief.split())
+        + "\n\nDraw the mechanism this post describes. Do not add Blend, "
+          "Aquarius, or a SmartAccount sandbox unless the post text names them. "
+          "A Solana post does not use the Stellar diagram."
         + ("\n\nFIX FROM THE PREVIOUS ATTEMPT (it was rejected): " + correction
            if correction else "")
     )
@@ -182,13 +225,57 @@ JUDGE_SCHEMA = (
     '{"spelling_errors": [str], "invented_figures": [str], '
     '"logo_correct": bool, "overlapping_or_clipped": [str], '
     '"matches_brief": bool, "matches_reference_style": bool, '
+    '"taste_score": int (1-10, would the founder approve it), '
+    '"closer_to": "approved"|"sent_back", "taste_faults": [str], '
     '"verdict": "SHIP"|"REVISE"|"REJECT", "fix": str}'
 )
+TASTE_BAR = 7
 
 
-def judge(image: Path, brief: str) -> dict[str, Any]:
+def _taste_section(n_ok: int, n_bad: int, first: int) -> str:
+    from pipeline.gtm_creative.taste import rubric
+
+    if not (n_ok or n_bad):
+        return ""
+    lines = ["\n\nTASTE — the founder's own decisions, attached after the poster"
+             + (" and the logo" if _logo() else "") + ":"]
+    if n_ok:
+        lines.append("  images " + str(first) + "-" + str(first + n_ok - 1)
+                     + ": posters the founder APPROVED.")
+    if n_bad:
+        lines.append("  images " + str(first + n_ok) + "-" + str(first + n_ok + n_bad - 1)
+                     + ": posters the founder KILLED or sent back, although each passed "
+                     "every check above.")
+    lines.append("Score `taste_score` 1-10 for how surely the founder approves the poster "
+                 "under review, set `closer_to` to the pile it resembles in headline, idea "
+                 "and composition (not colours, which all share), and list `taste_faults` "
+                 "in the words of the taste rules below. A poster under " + str(TASTE_BAR)
+                 + " or closer to the sent-back pile is not SHIP, and `fix` names what to "
+                 "change.\n" + rubric())
+    return "\n".join(lines)
+
+
+def judge(image: Path, brief: str, *, animated: bool = True) -> dict[str, Any]:
+    from pipeline.gtm_creative.taste import jargon, overclaims, piles
     from pipeline.gtm_os import agent_runtime as R
 
+    import hashlib
+
+    def _digest(p: Path) -> str:
+        return hashlib.sha1(Path(p).read_bytes()).hexdigest()
+
+    pile = piles(approved=2, sent_back=5)
+    me = _digest(image)
+    # The approved side is the founder's approved posters closest to this
+    # topic (the same ones the image model was shown), the newest as fallback.
+    # A poster is never compared with a copy of itself.
+    ok = [p for p in _refs(brief, ["approved_poster"], 3, min_score=0.7)
+          if _digest(p) != me] or [
+        p["path"] for p in pile["approved"] if _digest(p["path"]) != me]
+    bad = [p["path"] for p in pile["sent_back"] if _digest(p["path"]) != me]
+    said = " ".join(line for line in brief.splitlines()
+                    if line.lower().startswith(("headline", "subtitle", "footer")))
+    first = 3 if _logo() else 2
     prompt = (
         ("The FIRST image is the poster to review. The SECOND is the official "
          + _c().company_name() + " logo.\n\n" if _logo() else
@@ -197,20 +284,69 @@ def judge(image: Path, brief: str) -> dict[str, Any]:
         "Check: every word spelled correctly and not garbled; no figure that "
         "is not in the facts list; the logo matches the official one (not a "
         "cube); nothing overlaps or is cut off; the image is about the brief; "
+        "NO GLASSMORPHISM: frosted, blurred, see-through, or neon-bordered glass "
+        "cards are a REJECT, even if an approved poster looks like that. "
+        "matches_reference_style means type, spacing, logo, contrast and density, "
+        "not a frosted fill. "
         "no logo or brand mark of ANY other protocol (" + _venues() + " and "
         "others appear as plain text names only — an invented "
         "icon for them is a fake brand mark); no markdown characters "
-        "(asterisks, underscores, hashes) rendered as text; " + FLAT_RULE + " "
+        "(asterisks, underscores, hashes) rendered as text; " + _shape_rule(animated) + " "
+        "BASIC ERRORS the founder never wants: the same label, name or figure "
+        "printed twice (a card titled \"~320ms\" that also holds \"~320ms\"; a "
+        "container and the card inside it both named \"Isolated SmartAccount\"; "
+        "the venue names drawn twice); an arrow that leaves the frame, ends at "
+        "nothing or goes through a card; a figure written on an arrow as its "
+        "label; an icon or chart that explains nothing (radar rings, a random "
+        "spike line, a progress bar, bars or brackets clamped on a card); a card "
+        "that is empty or holds only a title; a grid of cards that are each just a "
+        "figure; a sentence left hanging (ends on a dash or comma); a promise the "
+        "facts do not support (eliminates, cannot, never, guaranteed, bank-grade, "
+        "stays safe); a drawing that contradicts the headline (isolated accounts "
+        "wired into a shared pool in the middle); filler status text (\"Calm "
+        "status\", \"Healthy\") standing in for a mechanism. Count every figure "
+        "on the poster, subtitle and labels included: a figure that appears more "
+        "than once (\"1.10x floor\" in a title and \"1.10x\" beside its meter) is a "
+        "BASIC ERROR. "
         "REJECT on any spelling error, invented figure, wrong logo, another "
-        "protocol's logo, markdown characters, overlap, or any isometric/3D "
-        "object, safe, vault, box or coin. A colour outside the palette is "
+        "protocol's logo, markdown characters, overlap, any BASIC ERROR above, "
+        + ("any isometric/3D object, " if animated else "")
+        + "or any safe, vault, box or coin. A colour outside the palette is "
         "NOT a reason to reject on its own, but name it in `fix` if present. `fix` says exactly what to change, "
         "in one or two sentences." + _learned_rules()
+        + _taste_section(len(ok), len(bad), first)
         + "\n\nReturn JSON exactly:\n" + JUDGE_SCHEMA
     )
-    return R.brain_vision(prompt, [image] + ([_logo()] if _logo() else []), agent="A15_creative_judge",
-                          system=JUDGE_SYSTEM, role="reasoning",
-                          temperature=0.1, max_output_tokens=2048)
+    v = R.brain_vision(prompt, [image] + ([_logo()] if _logo() else []) + ok + bad,
+                       agent="A15_creative_judge", system=JUDGE_SYSTEM, role="reasoning",
+                       temperature=0.1, max_output_tokens=4096)
+    # The model's own verdict can still say SHIP beside a low taste score;
+    # the bar is applied here so a poster like the killed ones is redrawn.
+    try:
+        score = int(v.get("taste_score"))
+    except (TypeError, ValueError):
+        score = None
+    spec = jargon(said)
+    if spec:
+        v["taste_faults"] = list(v.get("taste_faults") or []) + [
+            "protocol jargon in the headline or subtitle: " + ", ".join(spec)]
+    promised = overclaims(said)
+    if promised:
+        v["taste_faults"] = list(v.get("taste_faults") or []) + [
+            "headline or subtitle promises more than the facts: " + ", ".join(promised)]
+        spec = spec + promised
+    if str(v.get("verdict")).upper() == "SHIP" and (
+            spec or ((ok or bad) and (
+                (score is not None and score < TASTE_BAR)
+                or str(v.get("closer_to")).lower() == "sent_back"))):
+        faults = "; ".join(str(f) for f in (v.get("taste_faults") or []) if f)
+        why = ("taste " + str(score) + "/10" if score is not None else "taste unscored")
+        if str(v.get("closer_to")).lower() == "sent_back":
+            why += ", closer to the posters the founder sent back"
+        v["verdict"] = "REVISE"
+        v["fix"] = (why[0].upper() + why[1:] + (": " + faults if faults else "") + ". "
+                    + str(v.get("fix") or "")).strip()
+    return v
 
 
 def _find_lockup(inked, x0: int, x1: int, y0: int, y1: int):
@@ -319,7 +455,8 @@ def fix_logo(path: Path) -> bool:
 
 
 def make(brief: str, name: str, *, out_dir: Optional[Path] = None,
-         attempts: int = 3, extra_refs: Optional[list] = None) -> dict[str, Any]:
+         attempts: int = 3, extra_refs: Optional[list] = None,
+         animated: bool = True) -> dict[str, Any]:
     from pipeline.scripts.gemini_flash_image import generate_gemini_image
 
     out_dir = Path(out_dir or OUT_DIR)
@@ -341,17 +478,20 @@ def make(brief: str, name: str, *, out_dir: Optional[Path] = None,
     correction = ""
     for n in range(1, attempts + 1):
         path = out_dir / f"{name}_try{n}.png"
-        generate_gemini_image(prompt=_prompt(brief, correction, len(approved)),
+        generate_gemini_image(prompt=_prompt(brief, correction, len(approved), animated),
                               output_path=path,
                               model=MODEL, temperature=0.7, images=imgs,
                               aspect_ratio="1:1")
         # The real lockup replaces the drawn one before the judge looks, so a
         # wrong mark costs nothing instead of a whole attempt.
         fix_logo(path)
-        try:
-            v = judge(path, brief)
-        except Exception as exc:                    # noqa: BLE001 — boundary
-            v = {"verdict": "UNJUDGED", "fix": str(exc)[:200]}
+        v = {}
+        for _ in range(2):                          # a transient model error is not a verdict
+            try:
+                v = judge(path, brief, animated=animated)
+                break
+            except Exception as exc:                # noqa: BLE001 — boundary
+                v = {"verdict": "UNJUDGED", "fix": str(exc)[:200]}
         history.append({"path": str(path), **v})
         if str(v.get("verdict")).upper() == "SHIP":
             break

@@ -125,6 +125,19 @@ def _decision_keyboard(run_id: str) -> dict:
     ]]}
 
 
+def send_note(text: str) -> dict[str, Any]:
+    """A short note to the reviewer. A missing token does not fail the job."""
+    try:
+        token, chat = _token(), _chat_id()
+    except NotConfigured as exc:
+        return {"sent": False, "reason": str(exc)[:160]}
+    try:
+        _post_json("sendMessage", {"chat_id": chat, "text": text[:MESSAGE_MAX]}, token)
+    except Exception as exc:                       # noqa: BLE001 — the page still has the result
+        return {"sent": False, "reason": str(exc)[:200]}
+    return {"sent": True}
+
+
 def send_review(summary: dict[str, Any], run_id: str, *,
                 markdown: Optional[str] = None,
                 dry_run: bool = False) -> dict[str, Any]:

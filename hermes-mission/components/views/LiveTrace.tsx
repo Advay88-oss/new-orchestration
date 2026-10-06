@@ -18,6 +18,8 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { MONO } from "@/lib/colors";
 import { EmptyState } from "@/components/States";
 import { CompanyChip } from "@/components/CompanyChip";
+import { AgentReasoning } from "@/components/views/AgentReasoning";
+import { GtmAgents } from "@/components/views/GtmAgents";
 
 const DIM = "var(--vn-ink-muted)";
 
@@ -44,7 +46,29 @@ function clock(iso?: string): string {
 }
 
 
-/** A payload value as text. Most are strings; the bandit's are {choice, why}. */
+/** One line a manager can read. The full payload stays on the floor below. */
+function reportLine(e: any): string {
+  const p = e.payload || {};
+  if (e.kind === "bandit") {
+    return Object.keys(p).map((k) => {
+      const v = p[k];
+      const choice = v && typeof v === "object" && v.choice != null ? String(v.choice) : txt(v);
+      return k.replace(/_/g, " ") + ": " + choice;
+    }).join(" · ");
+  }
+  if (e.kind === "source_learning") return txt(p.record);
+  if (e.kind === "landscape") return txt(p.summary);
+  if (e.kind === "brain_context") return "Profile " + (p.profile_status || "loaded") + (p.tenant ? " · " + p.tenant : "");
+  if (e.kind === "poster_brief") return txt(p.brief && (p.brief.headline || p.brief.idea));
+  if (e.kind === "motion_plan") return txt(p.why);
+  if (e.kind === "preferences") return "Reviewed " + (p.reviewed_runs || 0) + " runs";
+  if (e.kind === "declined" || (e.kind === "reviewed" && p.passed != null)) {
+    return p.passed === false ? "Held for a person to review" : "Cleared";
+  }
+  const lead = p.chosen || p.signal || p.concept || p.overall || p.verdict || p.why;
+  return txt(lead) || String(e.kind || "");
+}
+
 function txt(v: any): string {
   if (v == null) return "";
   if (typeof v !== "object") return String(v);
@@ -61,6 +85,31 @@ export function LiveTrace({ runId }: { runId?: string }) {
   });
   const cursor = useRef(-1);
   const seenRun = useRef<string | null>(null);
+  const [floor, setFloor] = useState(false);
+  const [floorTab, setFloorTab] = useState<"work" | "decisions" | "agents">("work");
+
+  useEffect(() => {
+    const apply = () => {
+      let tab: string | null = null;
+      try { tab = sessionStorage.getItem("vn_floor_tab"); } catch { tab = null; }
+      if (tab === "brain") tab = "work";
+      if (tab === "work" || tab === "decisions" || tab === "agents") {
+        setFloor(true);
+        setFloorTab(tab);
+        try { sessionStorage.removeItem("vn_floor_tab"); } catch { /* private mode */ }
+      }
+      try {
+        const url = new URL(window.location.href);
+        if (url.searchParams.get("view") === "brain") {
+          url.searchParams.delete("view");
+          window.history.replaceState({}, "", url.pathname + url.search);
+        }
+      } catch { /* prerender */ }
+    };
+    apply();
+    window.addEventListener("vn-floor", apply);
+    return () => window.removeEventListener("vn-floor", apply);
+  }, []);
 
   const poll = useCallback(async () => {
     try {
@@ -97,6 +146,10 @@ export function LiveTrace({ runId }: { runId?: string }) {
   }, [poll, meta.finished]);
 
   const live = !meta.finished && events.length > 0;
+  const stages = events.filter((e) => e.type === "stage");
+  const calls = events.filter((e) => e.type === "call");
+  const decisions = events.filter((e) => e.type === "decision");
+  const current = stages.filter((s) => s.status === "running").pop() || stages[stages.length - 1];
 
   return (
     <section className="vanna-section">
@@ -121,18 +174,68 @@ export function LiveTrace({ runId }: { runId?: string }) {
           <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--vn-ink)", marginTop: 6 }}>
             Live Trace
           </h2>
-          <p style={{ fontSize: 14, color: "var(--vn-ink-muted)", marginTop: 4 }}>
-            Each agent, each model call and each judgement, as it is recorded.
+          <p style={{ fontSize: 14, color: "var(--vn-ink-muted)", marginTop: 4, maxWidth: "62ch" }}>
+            Where this run is, and what it decided. The agents, their decisions, and the step-by-step work stay closed until you open them.
           </p>
         </div>
+        <button type="button" onClick={() => setFloor((v) => !v)}
+          style={{ background: floor ? "var(--vn-sunken)" : "var(--vn-cta)", color: floor ? "var(--vn-ink)" : "var(--vn-on-accent)",
+            border: floor ? "1px solid var(--vn-line-strong)" : "none", borderRadius: 8, padding: "8px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+          {floor ? "Back to the report" : "See how it was done"}
+        </button>
       </div>
 
-      {events.length === 0 && (
+      {events.length === 0 && !floor && (
         <EmptyState icon="trace" title="Nothing running right now"
-          body="When a run starts, each agent, model call and judgement appears here as it is recorded." />
+          body="When a run starts, its status appears here. The agents' notes stay closed unless you open them." />
       )}
 
+      {events.length > 0 && !floor ? (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "var(--vn-card-pad)" }}>
+            <div style={{ fontFamily: MONO, fontSize: 11, color: DIM, letterSpacing: "0.06em" }}>NOW</div>
+            <div style={{ fontSize: 18, color: "var(--vn-ink)", marginTop: 6 }}>{current ? current.name : "Waiting for the first step"}</div>
+            {current && current.detail ? <p style={{ fontSize: 14, color: "var(--vn-ink-body)", margin: "8px 0 0" }}>{current.detail}</p> : null}
+            <div style={{ fontFamily: MONO, fontSize: 12, color: DIM, marginTop: 10 }}>
+              {stages.length} steps · {calls.length} model calls · {decisions.length} decisions
+            </div>
+          </div>
+          {decisions.map((e, i) => (
+            <div key={i} style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "16px 18px" }}>
+              <div style={{ fontFamily: MONO, fontSize: 11, color: KIND_TONE[e.kind] || "var(--vn-accent-ink)", letterSpacing: "0.06em", textTransform: "uppercase" }}>{e.kind}</div>
+              <div style={{ fontSize: 15, color: "var(--vn-ink)", marginTop: 6, lineHeight: 1.5 }}>{reportLine(e)}</div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
+      {floor ? (
+      <div className="backend-floor" style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {([
+            ["work", "The work"],
+            ["decisions", "Decisions"],
+            ["agents", "Agents"],
+          ] as const).map(([id, label]) => (
+            <button key={id} type="button" onClick={() => setFloorTab(id)}
+              style={{
+                background: floorTab === id ? "var(--vn-raised)" : "transparent",
+                color: floorTab === id ? "var(--vn-ink)" : "var(--vn-ink-muted)",
+                border: "1px solid " + (floorTab === id ? "var(--vn-line-strong)" : "var(--vn-line)"),
+                borderRadius: 8, padding: "7px 12px", fontSize: 13, fontWeight: 600, cursor: "pointer",
+              }}>
+              {label}
+            </button>
+          ))}
+        </div>
+        {floorTab === "decisions" ? <AgentReasoning /> : null}
+        {floorTab === "agents" ? <GtmAgents /> : null}
+        {floorTab === "work" ? (
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {events.length === 0 && (
+          <EmptyState icon="trace" title="No step-by-step notes yet"
+            body="When a run is underway, each agent and each model call is recorded here." />
+        )}
         {events.map((e, i) => {
           if (e.type === "stage") {
             const tone = TONE[e.status] ?? DIM;
@@ -234,6 +337,9 @@ export function LiveTrace({ runId }: { runId?: string }) {
           );
         })}
       </div>
+      ) : null}
+      </div>
+      ) : null}
     </section>
   );
 }

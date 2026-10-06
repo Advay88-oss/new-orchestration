@@ -531,10 +531,9 @@ def premium(img: Image.Image) -> Image.Image:
 # The clause that asks nano banana pro for material rather than shape alone.
 # Without it the figures come back as flat silhouettes: correct, and lifeless.
 MATERIAL_CLAUSE = (
-    "MATERIAL AND LIGHT, restrained: every shape is a softly translucent "
-    "frosted surface, not a flat cut-out. Each carries ONE hairline lighter "
-    "edge along a single side where light grazes it, and a faint interior "
-    "luminance that falls away toward the opposite side. Edges are crisp and "
+    "MATERIAL AND LIGHT, restrained: use the surface the brief names. Frosted "
+    "glass only when that surface is glass. Otherwise the shapes are opaque "
+    "and matte, with ONE hairline edge and no blur. Edges are crisp and "
     "true. "
     "TONALITY: keep everything close in value. The subject sits only slightly "
     "brighter than the background — a quiet, tonal, low-contrast image. Never "

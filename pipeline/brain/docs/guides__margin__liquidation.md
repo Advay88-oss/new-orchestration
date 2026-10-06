@@ -23,3 +23,6 @@ Owner-authorized settlement unwinds assets into the SmartAccount and attempts re
 The manager refuses liquidation when its snapshot identifies unpriceable plain collateral. Other valuation failures have their own handling. A dashboard label is not a guarantee that a bot can execute at that moment.
 
 See [Repay](/guides/margin/repay), [Health Factor](/guides/margin/health-factor), and the [technical liquidation reference](/learn/liquidation).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

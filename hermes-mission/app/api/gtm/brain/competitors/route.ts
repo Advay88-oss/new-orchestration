@@ -56,7 +56,7 @@ export async function POST(req: Request) {
   if (readJson(f)?.state === 'running') {
     return NextResponse.json({ ok: false, error: 'a competitor analysis is already running' }, { status: 409 });
   }
-  const args = ['-m', 'pipeline.brand_brain.analyzer', 'competitors', '--tenant', tenant, '--status-file', f];
+  const args = ['-m', 'pipeline.brand_brain.mcp_call', 'competitors', '--tenant', tenant, '--status-file', f];
   if (body.suggest) args.push('--suggest');
   const child = spawn(py, args, {
     cwd: REPO_ROOT, detached: true, stdio: 'ignore',

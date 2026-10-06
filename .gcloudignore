@@ -34,6 +34,8 @@ pipeline/state/veo_videos/
 pipeline/state/direct_posters/
 pipeline/state/visuals/
 pipeline/state/*.png
+pipeline/state/research_latest.json
+pipeline/state/research_seen.json
 # ...except the brand's own logos, which the poster agents read from here
 # (without logo.png the approved-style poster fails and falls back to a template).
 !pipeline/state/logo.png

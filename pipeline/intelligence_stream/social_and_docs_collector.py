@@ -22,6 +22,8 @@ scrape runs the same on a laptop, on another machine and in a container:
   twitter          the protocols' X accounts through an Apify actor, with
                    engagement counts; needs APIFY_TOKEN (paid per tweet,
                    inside Apify's free monthly credit at this volume)
+  context.dev      web search for the same news queries, beside Apify.
+                   Needs CONTEXT_DEV_API_KEY. Apify still reads X.
 
 The old X collector (OpenCLI driving the founder's logged-in Chrome) is gone:
 it could not run anywhere but one laptop. Two rules carried over:
@@ -204,6 +206,61 @@ class SocialAndDocsCollector:
             "confidence": "HIGH",
             "data": {"title": it["title"], "url": it["link"], "query": query},
         } for it in items[:limit]]
+
+    def collect_context_signals(self, limit: int = 6) -> List[Dict[str, Any]]:
+        """Recent pages from Context.dev for this cycle's news queries.
+
+        Apify still reads X. This is an extra source for headlines. A missing
+        key or a failed search returns nothing. Nothing is invented.
+        """
+        try:
+            from pipeline.intelligence_stream.context_dev_service import ContextDevService
+            service = ContextDevService.get_instance()
+        except Exception:                           # noqa: BLE001 — the other sources still run
+            return []
+        signals: List[Dict[str, Any]] = []
+        seen: set[str] = set()
+        junk = ("upwork.com", "facebook.com", "pinterest.com", "instagram.com", "tiktok.com")
+        for query in _source_config.news_queries(2):
+            if len(signals) >= limit:
+                break
+            found = service.search_web(query, num_results=10, freshness="last_24_hours")
+            rows = found.get("results") or []
+            window = "last_24_hours"
+            if not rows:
+                found = service.search_web(query, num_results=10, freshness="last_week")
+                rows = found.get("results") or []
+                window = "last_week"
+            words = [w for w in re.findall(r"[a-z0-9]{4,}", query.lower())]
+            for row in rows:
+                if len(signals) >= limit:
+                    break
+                title = " ".join(str(row.get("title") or "").split())
+                url = str(row.get("url") or "").split("?")[0].rstrip("/")
+                host = urllib.parse.urlparse(url).netloc.lower().removeprefix("www.")
+                blurb = " ".join(str(row.get("description") or "").split())
+                title_low = title.lower()
+                hits = [w for w in words if w in title_low]
+                if (not title or not url or url.casefold() in seen
+                        or any(host == j or host.endswith("." + j) for j in junk)
+                        or "price prediction" in title_low or "price today" in title_low
+                        or title_low.startswith("hire ") or "/jobs/" in url.lower()
+                        or "software engineer" in title_low
+                        or len(hits) < (2 if len(words) >= 2 else 1)):
+                    continue
+                seen.add(url.casefold())
+                signals.append({
+                    "signal_id": _sid("SIG-CTX", title + url),
+                    "headline": "[Context.dev] " + title[:200],
+                    "description": blurb or title,
+                    "source": url,
+                    "source_type": "PRIMARY_NEWS_OBSERVED",
+                    "derivation_provenance": "CONTEXT_DEV:" + window + ":" + query[:60],
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "confidence": "HIGH",
+                    "data": {"query": query, "title": title, "url": url, "summary": blurb[:400]},
+                })
+        return signals
 
     def collect_gdelt_signals(self, queries: List[str], limit: int = 8) -> List[Dict[str, Any]]:
         """GDELT article search: one combined request a run (its limit is one

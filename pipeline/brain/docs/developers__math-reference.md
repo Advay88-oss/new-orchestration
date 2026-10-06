@@ -122,3 +122,6 @@ Shared constants are 6,307,200 and 63,072,000 ledgers for refresh threshold and 
 * `Protocol_V1_Soroban_testnet/contracts/RateModelContract/src/rate_model.rs`
 * `Protocol_V1_Soroban_testnet/contracts/vanna-common/src/math.rs`
 * `mercury-stellar-backend/lib/margin-health.ts`
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

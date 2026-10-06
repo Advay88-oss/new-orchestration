@@ -21,10 +21,14 @@ import os
 import sys
 from typing import Any
 
-# Jobs the cloud scheduler runs by default. The autonomous GTM cycle and the
-# model-heavy panels spend money on every tick, so they are opt-in:
-# SCHEDULER_ONLY=notion_sync,metrics_collect,gtm_cycle,... on the job.
-DEFAULT_CLOUD_JOBS = "notion_sync,metrics_collect,ops_watch,brain_watch"
+# Jobs the hourly Cloud Scheduler tick is allowed to run. Every job in
+# config/scheduler.yaml is on this list. Each one still waits for its own
+# interval (the content cycle is 6h). A run still stops for human review.
+# Set SCHEDULER_ONLY on the job to a shorter list to leave some of them off.
+DEFAULT_CLOUD_JOBS = (
+    "gtm_cycle,research_collect,trend_scan,ideas_panel,memes_panel,"
+    "brain_watch,github_commits,notion_sync,metrics_collect,ops_watch,campaigns_refresh"
+)
 
 
 def _restore() -> dict[str, Any]:
@@ -118,14 +122,54 @@ def admin_tidy() -> int:
     return 0
 
 
+def _tick_lock(hold: bool) -> bool:
+    """One tick at a time. The clock starts every 2 minutes; a post takes
+    longer than that, and a second start would spend twice.
+
+    The lock is a bucket object created only if it is absent. Releasing it
+    deletes that object only when this process still owns it, so a tick that
+    finishes first cannot clear the lock of the tick that is still running.
+    """
+    from pipeline.gtm_os.state_sync import cloud_lock_acquire, cloud_lock_release
+    if not hold:
+        cloud_lock_release("state/tick.lock")
+        return True
+    return cloud_lock_acquire("state/tick.lock", 1200)
+
+
 def tick() -> int:
     os.environ.setdefault("SCHEDULER_ONLY", DEFAULT_CLOUD_JOBS)
+    if not _tick_lock(True):
+        print(json.dumps({"skipped": "a tick is already running"}))
+        return 0
+    try:
+        _restore()
+        from pipeline.scheduler.configurable_scheduler_daemon import run_scheduler_tick
+        out = run_scheduler_tick()
+        _save()
+        print(json.dumps(out, default=str)[:4000])
+        return 0
+    finally:
+        _tick_lock(False)
+
+
+def sched(job_name: str) -> int:
+    """One job, fired by its own cron. A paused job does not run."""
     _restore()
-    from pipeline.scheduler.configurable_scheduler_daemon import run_scheduler_tick
-    out = run_scheduler_tick()
+    from pipeline.scheduler.configurable_scheduler_daemon import (
+        SchedulerEngine, _consume_post, load_yaml_config,
+    )
+    job = (load_yaml_config().get("jobs") or {}).get(job_name) or {}
+    if not job.get("enabled", True):
+        print(json.dumps({"job": job_name, "skipped": "paused"}))
+        return 0
+    res = SchedulerEngine().execute_job(job_name, force=True)
+    if job_name == "gtm_cycle" and (res.get("success") or res.get("status") == "COMPLETED"):
+        _consume_post()
     _save()
-    print(json.dumps(out, default=str)[:4000])
-    return 0
+    print(json.dumps(res, default=str)[:4000])
+    ok = bool(res.get("success")) or res.get("status") == "COMPLETED"
+    return 0 if ok else 1
 
 
 def admin_schema() -> int:
@@ -156,6 +200,7 @@ def telegram() -> int:
     """One update from Telegram's webhook, on stdin: a button or a reply."""
     from pipeline.gtm_os.feedback_listener import handle
     from pipeline.gtm_os.telegram_sender import NotConfigured, _chat_id, _token
+    import urllib.error
     update = json.loads(sys.stdin.read() or "{}")
     try:
         reviewer = _chat_id()
@@ -163,7 +208,16 @@ def telegram() -> int:
         reviewer = None
     # The web container restored the state at start; only the two pending
     # notes (revise, posted) change here, so only they are pushed back.
-    row = handle(update, _token(), reviewer)
+    try:
+        row = handle(update, _token(), reviewer)
+    except urllib.error.HTTPError as exc:
+        # An expired Approve button is a 400. Recording it as a job failure
+        # makes Telegram retry the same tap, which is how one press became
+        # six warnings.
+        if exc.code not in (400, 403):
+            raise
+        print(json.dumps({"ok": True, "skipped": "telegram HTTP " + str(exc.code)}))
+        return 0
     from pipeline.gtm_os.state_sync import push_state_files
     push_state_files(["pipeline/state/telegram_pending_revise.json",
                       "pipeline/state/telegram_pending_post.json"])
@@ -187,15 +241,21 @@ def _guarded_main(argv: list[str]) -> int:
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["cycle", "tick", "admin-schema", "admin-migrate", "admin-tidy", "telegram", "watch", "video"])
+    ap.add_argument("cmd", choices=["cycle", "tick", "sched", "admin-schema", "admin-migrate", "admin-tidy", "telegram", "watch", "video"])
     ap.add_argument("--directive", default=None)
     ap.add_argument("--no-video", action="store_true")
     ap.add_argument("--run", default=None, help="video: the run whose poster to animate")
+    ap.add_argument("--job", default=None, help="sched: which scheduler job to run")
     a = ap.parse_args(argv)
     if a.cmd == "video":
         return video(a.run or "")
     if a.cmd == "cycle":
         return cycle(a.directive, not a.no_video)
+    if a.cmd == "sched":
+        if not a.job:
+            print(json.dumps({"ok": False, "error": "--job is required"}))
+            return 2
+        return sched(a.job)
     if a.cmd == "watch":
         from pipeline.ops.watch import run as watch
         print(json.dumps(watch(), default=str)[:4000])

@@ -75,3 +75,6 @@ pub fn get_utilisation_ratio(
 ## Source reference
 
 * `Protocol_V1_Soroban_testnet/contracts/RateModelContract/src/rate_model.rs`
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

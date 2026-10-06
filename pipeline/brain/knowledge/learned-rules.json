@@ -1,0 +1,327 @@
+[
+ {
+  "id": "r1",
+  "text": "Ensure video clips feature continuous visual progression and dynamic scene changes across timestamps rather than remaining static text slides. — founder kill:",
+  "source": "founder via coach",
+  "at": "2026-09-25T10:56:44.287592+00:00",
+  "alpha": 24.866666666666674,
+  "beta": 24.133333333333333,
+  "n": 33,
+  "status": "active"
+ },
+ {
+  "id": "r2",
+  "text": "Animate video clips by progressively revealing poster elements in their exact final positions rather than scripting dynamic multi-scene narrative transitions. — seen: Prompting for dynamic scene progression caused intermediate frames at 2s and 5s to invent garbled text paragraphs, wandering looped arrows, and misplaced badges",
+  "source": "coach GTM-20260925-104259",
+  "at": "2026-09-25T10:57:06.077870+00:00",
+  "alpha": 24.866666666666674,
+  "beta": 24.133333333333333,
+  "n": 33,
+  "status": "active"
+ },
+ {
+  "id": "r3",
+  "text": "Never use sequential flow arrows (step_flow) to link segregated architectures, risks, and solutions across cards. — founder kill:",
+  "source": "founder via coach",
+  "at": "2026-09-27T16:53:39.296409+00:00",
+  "alpha": 18.266666666666666,
+  "beta": 18.733333333333334,
+  "n": 26,
+  "status": "active"
+ },
+ {
+  "id": "r4",
+  "text": "Do not connect metric cards with hierarchical tree or org-chart branching lines unless representing a literal parent-child hierarchy; keep supporting cards as detached, modular tiles in a grid. — founder revise:",
+  "source": "founder via coach",
+  "at": "2026-09-27T18:12:31.800720+00:00",
+  "alpha": 14.016666666666664,
+  "beta": 17.983333333333334,
+  "n": 23,
+  "status": "active"
+ },
+ {
+  "id": "r5",
+  "text": "Specify an explicit visual interaction or mechanism to diagram whenever presenting parameter specifications, preventing the generator from outputting bare typographic text columns. — seen: The asset rendered 'Collateral', 'Borrow', and 'Terms' as plain floating text without illustrating the underlying lending mechanism.",
+  "source": "coach GTM-20260928-065124",
+  "at": "2026-09-28T06:56:18.617784+00:00",
+  "alpha": 13.516666666666664,
+  "beta": 17.483333333333334,
+  "n": 22,
+  "status": "active"
+ },
+ {
+  "id": "r6",
+  "text": "Bind visual prompts strictly to the target brand's primary color palette rather than carrying over gradient glows from other brand templates. — seen: The Morpho asset was generated using magenta and violet background glows instead of Morpho's standard blue palette.",
+  "source": "coach GTM-20260928-065124",
+  "at": "2026-09-28T06:56:18.663565+00:00",
+  "alpha": 13.516666666666664,
+  "beta": 17.483333333333334,
+  "n": 22,
+  "status": "active"
+ },
+ {
+  "id": "r7",
+  "text": "Frame meme concepts around clean protocol mechanics and abstract architectural schematics, explicitly forbidding hand-drawn comic styles and literal physical metaphors like pipes or safes. — seen: The creative judge rejected the meme for using a playful hand-drawn comic style depicting physical analogies (leaking pipes and safes) instead of precise protoc",
+  "source": "coach GTM-20260928-072105",
+  "at": "2026-09-28T07:27:00.201679+00:00",
+  "alpha": 13.016666666666664,
+  "beta": 16.983333333333334,
+  "n": 21,
+  "status": "active"
+ },
+ {
+  "id": "r8",
+  "text": "Do not place connector or transition arrows between separate cards; keep problem and solution containers strictly detached with clear negative space between them. — seen: A horizontal transition arrow was drawn directly linking the 'Priority gas spikes' problem card to the 'Isolated SmartAccount' solution card.",
+  "source": "coach GTM-20260929-103038",
+  "at": "2026-09-29T10:36:48.922051+00:00",
+  "alpha": 5.916666666666668,
+  "beta": 14.083333333333336,
+  "n": 14,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 4.9 of 14 runs)"
+ },
+ {
+  "id": "r9",
+  "text": "Do not repeat a card's title or header text inside its nested diagram elements; child components must label specific internal mechanics rather than duplicating the container title. — seen: 'Isolated SmartAccount' was rendered as the card header and then duplicated verbatim inside the nested diagram container directly below it.",
+  "source": "coach GTM-20260929-103038",
+  "at": "2026-09-29T10:36:48.955935+00:00",
+  "alpha": 5.916666666666668,
+  "beta": 14.083333333333336,
+  "n": 14,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 4.9 of 14 runs)"
+ },
+ {
+  "id": "r10",
+  "text": "In split-contrast comparison layouts, ensure the two opposing cards maintain balanced, equal outer dimensions and shared baseline alignment rather than mismatched widths and heights. — founder revise:",
+  "source": "founder via coach",
+  "at": "2026-09-29T11:02:58.768568+00:00",
+  "alpha": 2.6666666666666665,
+  "beta": 7.333333333333334,
+  "n": 5,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 1.7 of 5 runs)"
+ },
+ {
+  "id": "r11",
+  "text": "Represent technical concepts like storage, isolation, and security using flat abstract architectural schematics and nested geometric containers, never literal physical objects like bank safes, vaults, or pipes. — seen: The 'Isolated storage' card rendered a literal physical bank safe with hinges, bevels, and rubber feet instead of a 2D smart contract container schematic.",
+  "source": "coach GTM-20260929-104951",
+  "at": "2026-09-29T11:03:17.195195+00:00",
+  "alpha": 2.6666666666666665,
+  "beta": 7.333333333333334,
+  "n": 5,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 1.7 of 5 runs)"
+ },
+ {
+  "id": "r12",
+  "text": "Do not use bent or elbow connector lines between cards; depict card relationships using direct, straight single-headed arrows or completely detached cards. — seen: The 90-degree elbow connector paths between the central sandbox and the bottom cards rendered with contradictory dual arrowheads pointing simultaneously inward",
+  "source": "coach GTM-20261001-103559",
+  "at": "2026-10-01T10:48:21.395125+00:00",
+  "alpha": 2.0,
+  "beta": 7.0,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 1.0 of 4 runs)"
+ },
+ {
+  "id": "r13",
+  "text": "Explicitly specify every named asset, token, or entity requested by the prompt as its own distinct badge or label rather than grouping them under a generic category tag. — seen: The prompt requested coverage of TSLAx alongside pre-IPO OpenAI and Anthropic, but the diagram collapsed OpenAI and Anthropic into a single generic 'Pre-IPO' pi",
+  "source": "coach GTM-20261001-103559",
+  "at": "2026-10-01T10:48:21.425120+00:00",
+  "alpha": 2.0,
+  "beta": 7.0,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 1.0 of 4 runs)"
+ },
+ {
+  "id": "r14",
+  "text": "In stacked before/after diagrams, enforce strict 1:1 node geometry across both cards—keep node positions, bounding boxes, and destination coordinates identical, showing the problem solely through connection states (e.g., severed lines, lock badges) rather than shifting layout positions or introducing illustrative props. — founder kill:",
+  "source": "founder via coach",
+  "at": "2026-10-01T12:20:57.192058+00:00",
+  "alpha": 1.6666666666666667,
+  "beta": 4.333333333333334,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 0.7 of 4 runs)"
+ },
+ {
+  "id": "r15",
+  "text": "In technical before-and-after diagrams, maintain identical schematic syntax across both states; express blockers and failure states using abstract diagram primitives (e.g., severed or red flowlines) rather than literal illustrative metaphors like jail bars, cages, or physical padlocks. — founder kill:",
+  "source": "founder via coach",
+  "at": "2026-10-01T12:21:05.602117+00:00",
+  "alpha": 1.6666666666666667,
+  "beta": 4.333333333333334,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 0.7 of 4 runs)"
+ },
+ {
+  "id": "r16",
+  "text": "Ensure sibling cards, rows, or list items within a container feature distinct labels and mechanics, never repeating identical text across multiple elements. — seen: The right chamber rendered two stacked sub-cards that repeated the exact text 'Contagion blocked' verbatim.",
+  "source": "coach GTM-20261001-121428",
+  "at": "2026-10-01T12:21:15.411497+00:00",
+  "alpha": 1.6666666666666667,
+  "beta": 4.333333333333334,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 0.7 of 4 runs)"
+ },
+ {
+  "id": "r17",
+  "text": "Confine all diagram labels, annotations, and pointer arrows strictly inside card boundaries, never placing floating callout text in the canvas margins. — seen: An unrequested 'Defensive trigger' callout and arrow were drawn floating in the right margin outside the glass card.",
+  "source": "coach GTM-20261001-121428",
+  "at": "2026-10-01T12:21:15.442413+00:00",
+  "alpha": 1.6666666666666667,
+  "beta": 4.333333333333334,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 0.7 of 4 runs)"
+ },
+ {
+  "id": "r18",
+  "text": "In multi-step flow diagrams, enforce uniform internal structure across all cards (icon, label, and metric/subtext) and ensure all connector paths terminate at defined nodes rather than bleeding off into empty space. — founder kill:",
+  "source": "founder via coach",
+  "at": "2026-10-02T19:05:25.920429+00:00",
+  "alpha": 1.6666666666666667,
+  "beta": 4.333333333333333,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 0.7 of 4 runs)"
+ },
+ {
+  "id": "r19",
+  "text": "Represent collateral, debt, and liquidity assets using flat 2D metric bars or unadorned outline boxes, explicitly barring 3D isometric layer stacks, coin discs, and embossed cryptocurrency emblems. — seen: The generator drew 3D isometric layer stacks stamped with the Ethereum diamond glyph to represent collateral inside both the 'Siloed pool' and 'SmartAccount' ca",
+  "source": "coach GTM-20261004-160750",
+  "at": "2026-10-04T16:25:58.659557+00:00",
+  "alpha": 1.6666666666666667,
+  "beta": 4.333333333333334,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 0.7 of 4 runs)"
+ },
+ {
+  "id": "r20",
+  "text": "Never draw connector arrows or flowlines that bridge across card boundaries; keep all cards completely detached with generous negative space and confine any directional arrows strictly within a single card's interior. — seen: A transition arrow directly bridged across the gap between the 'Siloed pool' and 'SmartAccount' cards, and curved connector lines crossed out of 'SmartAccount'",
+  "source": "coach GTM-20261004-160750",
+  "at": "2026-10-04T16:25:58.839030+00:00",
+  "alpha": 1.6666666666666667,
+  "beta": 4.333333333333334,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 0.7 of 4 runs)"
+ },
+ {
+  "id": "r21",
+  "text": "Never draw arrows that point outward toward card edges or bridge container margins; keep cards completely detached and confine all directional paths strictly between internal nodes inside a single card. — seen: The middle card rendered horizontal arrows pointing outward toward the neighboring card boundaries, which the visual reviewer rejected as connector arrows bridg",
+  "source": "coach GTM-20261004-184818",
+  "at": "2026-10-04T18:55:35.517273+00:00",
+  "alpha": 1.6666666666666667,
+  "beta": 4.333333333333334,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 0.7 of 4 runs)"
+ },
+ {
+  "id": "r22",
+  "text": "Do not insert intermediary question pills, filter bars, or secondary header banners between the subtitle and the card grid; maintain clear negative space directly between subtitle and cards. — seen: A redundant dark glass banner ('How should autonomous agents deploy margin?') was placed between the subtitle and the diagram cards, cluttering the layout.",
+  "source": "coach GTM-20261004-184818",
+  "at": "2026-10-04T18:55:35.545275+00:00",
+  "alpha": 1.6666666666666667,
+  "beta": 4.333333333333334,
+  "n": 4,
+  "status": "retired",
+  "retired_why": "runs kept coming out badly while it applied (good in 0.7 of 4 runs)"
+ },
+ {
+  "id": "r23",
+  "text": "Do not depict protocol costs, yields, or positions using zigzag financial chart trendlines or directional market graph arrows; represent mechanics using flat schematic nodes or static balance containers. — seen: The problem card rendered a jagged downward red stock chart arrow for funding bleed, and the solution card rendered an upward chart trendline for the leveraged",
+  "source": "coach GTM-20261004-194441",
+  "at": "2026-10-04T19:52:51.353466+00:00",
+  "alpha": 2.166666666666667,
+  "beta": 3.8333333333333335,
+  "n": 4,
+  "status": "active"
+ },
+ {
+  "id": "r24",
+  "text": "Supply all requested prompt copy and caveat strings as completely unformatted plain text, stripping any markdown asterisks or backticks so text is not rendered with literal markdown syntax. — seen: The footer text rendered literal double asterisks around '**Testnet only.**' directly onto the poster canvas.",
+  "source": "coach GTM-20261004-194441",
+  "at": "2026-10-04T19:52:51.397672+00:00",
+  "alpha": 2.166666666666667,
+  "beta": 3.8333333333333335,
+  "n": 4,
+  "status": "active"
+ },
+ {
+  "id": "r25",
+  "text": "Animate video clips strictly through static opacity reveals of final poster elements in place, explicitly barring physical destruction effects, stress cracks, and glowing energy conduits that trigger garbled text and wandering artifacts. — seen: Prompting problem strain with cracking glass and electrical conduits caused Veo at 2s and 5s to render duplicate garbled headlines, wild bridging tentacles, and",
+  "source": "coach GTM-20261005-074959",
+  "at": "2026-10-05T08:08:04.763133+00:00",
+  "alpha": 2.0,
+  "beta": 3.0,
+  "n": 3,
+  "status": "active"
+ },
+ {
+  "id": "r26",
+  "text": "Render all token, equity, and protocol asset identifiers strictly as plain text or flat rectangular pills, explicitly barring circular badge housings, corporate trademarks, and company logos. — seen: The visual diagram placed circular token badges containing official Tesla and OpenAI corporate logos inside the shared pool card instead of plain text labels.",
+  "source": "coach GTM-20261005-074959",
+  "at": "2026-10-05T08:08:04.825230+00:00",
+  "alpha": 2.0,
+  "beta": 3.0,
+  "n": 3,
+  "status": "active"
+ },
+ {
+  "id": "r27",
+  "text": "Enforce a top-to-bottom layout with a centered headline and subtitle positioned strictly above the card grid, explicitly forbidding asymmetric split compositions where header copy sits beside an illustration. — seen: The generator placed the headline and subtitle in a right-aligned column beside large floating circles on the left instead of anchoring a centered header above",
+  "source": "coach GTM-20261006-054315",
+  "at": "2026-10-06T05:48:19.735022+00:00",
+  "alpha": 2.0,
+  "beta": 2.0,
+  "n": 2,
+  "status": "active"
+ },
+ {
+  "id": "r28",
+  "text": "Diagram comparative or contrasting protocol architectures across distinct, separated glass cards rather than using overlapping geometric silhouettes, intersecting bubbles, or Venn diagrams. — seen: The visual rendered two giant intersecting circles labeled 'V' and 'S' like an ambiguous Venn diagram rather than illustrating the two mechanisms inside separat",
+  "source": "coach GTM-20261006-054315",
+  "at": "2026-10-06T05:48:19.763023+00:00",
+  "alpha": 2.0,
+  "beta": 2.0,
+  "n": 2,
+  "status": "active"
+ },
+ {
+  "id": "r29",
+  "text": "Depict liquidity and protocol deposits using abstract schematic containers, explicitly barring paper banknotes, cash stacks, and fiat bill illustrations. — seen: The Depositor funds container rendered stacked fiat banknotes instead of an abstract geometric node.",
+  "source": "coach GTM-20261006-055304",
+  "at": "2026-10-06T06:08:23.160455+00:00",
+  "alpha": 1.5,
+  "beta": 1.5,
+  "n": 1,
+  "status": "active"
+ },
+ {
+  "id": "r30",
+  "text": "Prohibit intermediate text banners and decorative circuit paths in motion prompts, keeping builds restricted to direct in-place reveals of final poster assets. — seen: Frames at 2s and 5s introduced garbled temporary paragraphs and wandering circuit traces.",
+  "source": "coach GTM-20261006-055304",
+  "at": "2026-10-06T06:08:23.186174+00:00",
+  "alpha": 1.5,
+  "beta": 1.5,
+  "n": 1,
+  "status": "active"
+ },
+ {
+  "id": "r31",
+  "text": "Always specify footer copy with two distinct segments—a bold white lead phrase followed by an explicit testnet caveat—barring bare deployment statements that omit testnet qualification. — seen: The generator rendered a uniform grey footer reading 'Spot-routed margin leverage. Built on Solana.' without the required bold white lead phrase and completely",
+  "source": "coach GTM-20261006-060841",
+  "at": "2026-10-06T06:17:31.827797+00:00",
+  "alpha": 1.0,
+  "beta": 1.0,
+  "n": 0,
+  "status": "active"
+ }
+]

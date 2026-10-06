@@ -19,7 +19,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { MONO } from "@/lib/colors";
 import { ErrorState, ViewSkeleton } from "@/components/States";
 import { CompanyChip } from "@/components/CompanyChip";
-import { useViewer } from "@/lib/useViewer";
+import { COMPANY_EVENT, readCompany, writeCompany } from "@/lib/company";
 
 const card: React.CSSProperties = {
   background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: 18,
@@ -28,159 +28,103 @@ const label: React.CSSProperties = {
   fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.8, textTransform: "uppercase",
   color: "var(--vn-ink-muted)", marginBottom: 10,
 };
-const DIM_LABEL: Record<string, string> = { pillar: "Narrative pillar", format: "Format (as published)", hook_type: "Hook type", length: "Post length", slot: "Posting slot (as published)" };
+const DIM_LABEL: Record<string, string> = {
+  pillar: "Narrative pillar",
+  technical_depth: "Technical Grounding Level (Code vs Docs)",
+  format: "Format (as published)",
+  hook_type: "Hook type",
+  length: "Post length",
+  slot: "Posting slot (as published)"
+};
 
-function Bar({ v }: { v: number }) {
-  return (
-    <div style={{ width: 120, height: 6, borderRadius: 3, background: "var(--vn-sunken)", overflow: "hidden" }}>
-      <div style={{ width: Math.round(v * 100) + "%", height: "100%", background: "var(--vn-accent-light)" }} />
-    </div>
-  );
+function said(e: any) {
+  if (e.reviewer_ok === 0) return "The reviewer blocked it.";
+  const h = Number(e.human);
+  if (h === 1) return "You approved it.";
+  if (h === 0.8) return "You edited it, then approved.";
+  if (h === 0.3) return "You sent it back.";
+  if (h === 0) return "You stopped it.";
+  return "Recorded. Waiting on your decision.";
 }
 
 export function Learning() {
   const [d, setD] = useState<any | null>(null);
   const [err, setErr] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [metrics, setMetrics] = useState<Record<string, string>>({});
-  const [runId, setRunId] = useState("");
-  const [msg, setMsg] = useState<string | null>(null);
-  // Locks and logging change the loop: the owner's only (their POSTs answer 403).
-  const owner = useViewer()?.owner ?? false;
+  const [tenant, setTenant] = useState("");
+  const [companies, setCompanies] = useState<string[]>([]);
+
+  useEffect(() => {
+    const apply = () => setTenant(readCompany());
+    apply();
+    window.addEventListener(COMPANY_EVENT, apply);
+    return () => window.removeEventListener(COMPANY_EVENT, apply);
+  }, []);
 
   const load = useCallback(() => {
-    fetch("/api/gtm/learning", { cache: "no-store" })
+    const q = tenant ? "?tenant=" + encodeURIComponent(tenant) : "";
+    fetch("/api/gtm/learning" + q, { cache: "no-store" })
       .then((r) => r.json())
       .then((j) => (j.ok ? setD(j) : setErr(j.error || "unavailable")))
       .catch((e) => setErr(String(e)));
-  }, []);
+    fetch("/api/gtm/brain/inspiration" + q, { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => { if (Array.isArray(j.tenants)) setCompanies(j.tenants); })
+      .catch(() => {});
+  }, [tenant]);
   useEffect(() => { load(); }, [load]);
-
-  const post = async (body: any) => {
-    setBusy(true);
-    setMsg(null);
-    try {
-      const j = await (await fetch("/api/gtm/learning", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
-      })).json();
-      if (!j.ok) setMsg(j.error || "failed");
-      else {
-        if (body.action === "outcome") setMsg(j.event ? "Recorded. Reward now " + j.event.total : "Recorded (no reward yet: needs a baseline of 3 posts).");
-        load();
-      }
-    } finally {
-      setBusy(false);
-    }
-  };
 
   if (err) return <section className="vanna-section"><ErrorState title="The learning loop is unavailable" detail={err} /></section>;
   if (!d) return <ViewSkeleton cards={3} label="Loading the learning loop" />;
 
-  const input: React.CSSProperties = { background: "var(--vn-sunken)", border: "1px solid var(--vn-line)",
-    borderRadius: 8, padding: "8px 10px", color: "var(--vn-ink)", fontSize: 13, width: 110 };
+  const leans: string[] = [];
+  for (const [dim, rows] of Object.entries((d.arms || {}) as Record<string, any[]>)) {
+    const tried = (rows || []).filter((r) => r.n);
+    if (!tried.length) continue;
+    const top = tried.slice().sort((a, b) => b.mean - a.mean)[0];
+    leans.push((DIM_LABEL[dim] || dim) + ": " + top.option + ", from " + top.n + (top.n === 1 ? " run" : " runs"));
+  }
 
   return (
     <div className="vanna-section">
       <div style={card}>
-        <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 8, fontSize: 12.5, color: "var(--vn-ink-muted)" }}>
-          <CompanyChip company={d.company || "vanna"} size="md" /> this company's learning record
+        <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", fontSize: 12.5, color: "var(--vn-ink-muted)" }}>
+          <CompanyChip company={d.company || tenant || "vanna"} size="md" /> this company's learning record
+          {companies.length > 1 && companies.map((t) => (
+            <button key={t} onClick={() => { writeCompany(t); setTenant(t); }}
+                    style={{ fontFamily: MONO, fontSize: 11, padding: "4px 10px", borderRadius: 6, cursor: "pointer",
+                             border: "1px solid " + ((d.company || tenant) === t ? "var(--vn-accent)" : "var(--vn-line)"),
+                             background: (d.company || tenant) === t ? "var(--vn-accent-soft)" : "transparent", color: "var(--vn-ink)" }}>
+              {t}
+            </button>
+          ))}
         </div>
-        <div style={{ fontSize: 13, color: "var(--vn-ink-body)", lineHeight: 1.6 }}>
-          Every run earns one reward: <b>0 if the reviewer blocked it</b> (the hard gate), otherwise the founder's
-          decision (approve 1, edit 0.8, revise 0.3, kill 0) weighted 0.6 and engagement against the brand's own
-          baseline weighted 0.4. The strategist's bandit reads these records by context and explores{" "}
-          {Math.round((d.explore || 0) * 100)}% of the time. {d.n_events} reward events so far.
+        <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--vn-ink)", margin: "8px 0" }}>What the agents remember</h2>
+        <div style={{ fontSize: 14.5, color: "var(--vn-ink-body)", lineHeight: 1.6, maxWidth: 720 }}>
+          This runs on its own. When you approve a post, send it back, or stop it, that decision is stored.
+          The next post uses it. You do not set a gap or a score on this page.
+          {d.n_events ? " They have " + d.n_events + " decisions so far." : " Nothing is stored yet."}
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: 16 }}>
-        {Object.entries(d.arms as Record<string, any[]>).map(([dim, rows]) => (
-          <div key={dim} style={card}>
-            <div style={label}>{DIM_LABEL[dim] ?? dim}</div>
-            {rows.length === 0 && (
-              <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", padding: "7px 0", borderTop: "1px solid var(--vn-line)" }}>
-                No runs recorded yet.
-              </div>
-            )}
-            {rows.map((r) => {
-              const locked = d.locks?.[dim] === r.option;
-              return (
-                <div key={r.option} style={{ display: "flex", alignItems: "center", gap: 12, padding: "7px 0",
-                                             borderTop: "1px solid var(--vn-line)" }}>
-                  <div style={{ flex: 1, fontSize: 12.5, color: "var(--vn-ink)" }}>{r.option}</div>
-                  <Bar v={r.mean} />
-                  <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-muted)", width: 78, textAlign: "right" }}>
-                    {r.mean.toFixed(2)} · {r.n}
-                  </div>
-                  {owner && <button disabled={busy}
-                          onClick={() => post(locked ? { action: "unlock", dim } : { action: "lock", dim, option: r.option })}
-                          style={{ fontFamily: MONO, fontSize: 10.5, padding: "2px 8px", borderRadius: 6, cursor: "pointer",
-                                   border: "1px solid " + (locked ? "var(--vn-warn)" : "var(--vn-line)"),
-                                   color: locked ? "var(--vn-warn)" : "var(--vn-ink-muted)", background: "transparent" }}>
-                    {locked ? "locked" : "lock"}
-                  </button>}
-                </div>
-              );
-            })}
-            <div style={{ fontSize: 11, color: "var(--vn-ink-faint)", marginTop: 8 }}>mean reward · runs. A lock makes the bandit use that option every run.</div>
-          </div>
+      <div style={card}>
+        <div style={label}>What they lean toward</div>
+        {leans.length === 0 && (
+          <div style={{ fontSize: 14, color: "var(--vn-ink-muted)" }}>No pattern yet. It appears after a few decisions.</div>
+        )}
+        {leans.map((line) => (
+          <div key={line} style={{ fontSize: 14.5, color: "var(--vn-ink)", padding: "8px 0", borderTop: "1px solid var(--vn-line)", lineHeight: 1.45 }}>{line}</div>
         ))}
       </div>
 
-      {owner && <div style={card}>
-        <div style={label}>Log a published post's engagement</div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <input value={runId} onChange={(e) => setRunId(e.target.value)} placeholder="GTM-20260925-154856"
-                 style={{ ...input, width: 200, fontFamily: MONO }} />
-          {["impressions", "likes", "reposts", "replies", "clicks"].map((k) => (
-            <input key={k} value={metrics[k] ?? ""} onChange={(e) => setMetrics({ ...metrics, [k]: e.target.value })}
-                   placeholder={k} inputMode="numeric" style={input} />
-          ))}
-          <button disabled={busy || !/^GTM-\d{8}-\d{6}$/.test(runId)}
-                  onClick={() => post({ action: "outcome", runId, metrics })}
-                  style={{ background: "var(--vn-accent)", color: "#fff", border: "none", borderRadius: 8, padding: "8px 14px", fontWeight: 600, cursor: "pointer" }}>
-            Record
-          </button>
-        </div>
-        {msg && <div style={{ fontSize: 12.5, color: "var(--vn-ink-body)", marginTop: 8 }}>{msg}</div>}
-      </div>}
-
       <div style={card}>
-        <div style={label}>Reward trend — latest runs</div>
-        <table style={{ width: "100%", fontSize: 12, borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ color: "var(--vn-ink-muted)", textAlign: "left" }}>
-              <th style={{ padding: "4px 0", fontWeight: 500 }}>run</th><th>reward</th><th>reviewer</th>
-              <th>founder</th><th>engagement</th><th>arms</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(d.events as any[]).map((e) => (
-              <tr key={e.run_id} style={{ borderTop: "1px solid var(--vn-line)" }}>
-                <td style={{ fontFamily: MONO, padding: "6px 0", color: "var(--vn-ink-body)" }}>{e.run_id}</td>
-                <td style={{ fontFamily: MONO, color: e.total >= 0.6 ? "var(--vn-ok)" : e.total > 0 ? "var(--vn-warn)" : "var(--vn-bad)" }}>{Number(e.total).toFixed(2)}</td>
-                <td style={{ color: e.reviewer_ok === 0 ? "var(--vn-bad)" : "var(--vn-ink-muted)" }}>{e.reviewer_ok === 0 ? "blocked" : e.reviewer_ok === 1 ? "passed" : "—"}</td>
-                <td style={{ fontFamily: MONO, color: "var(--vn-ink-muted)" }}>{e.human ?? "—"}</td>
-                <td style={{ fontFamily: MONO, color: "var(--vn-ink-muted)" }}>{e.engagement ?? "—"}</td>
-                <td style={{ color: "var(--vn-ink-muted)" }}>{[e.arms.format, e.arms.hook_type, e.arms.length, e.arms.slot].filter(Boolean).join(" · ")}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div style={card}>
-        <div style={label}>Preference pairs (draft vs your edit) · {d.n_pairs}</div>
-        {d.n_pairs === 0 ? (
-          <div style={{ fontSize: 13, color: "var(--vn-ink-muted)" }}>
-            None yet. Use "Edit & approve" on a run: your version is recorded as the approved one and the pair is kept
-            as a training example for a later tuning step.
-          </div>
-        ) : (d.pairs as any[]).map((p) => (
-          <div key={p.id} style={{ borderTop: "1px solid var(--vn-line)", padding: "8px 0", fontSize: 12.5 }}>
-            <div style={{ fontFamily: MONO, color: "var(--vn-ink-muted)" }}>{p.run_id} · {String(p.at).slice(0, 10)}</div>
-            <div style={{ color: "var(--vn-ink-faint)", textDecoration: "line-through", marginTop: 4 }}>{String(p.rejected).slice(0, 220)}</div>
-            <div style={{ color: "var(--vn-ink-body)", marginTop: 4 }}>{String(p.chosen).slice(0, 220)}</div>
+        <div style={label}>Recent decisions</div>
+        {(d.events as any[]).length === 0 && (
+          <div style={{ fontSize: 14, color: "var(--vn-ink-muted)" }}>None yet. Approve, revise, or stop a post and it shows up here.</div>
+        )}
+        {(d.events as any[]).map((e) => (
+          <div key={e.run_id} style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap", padding: "10px 0", borderTop: "1px solid var(--vn-line)" }}>
+            <div style={{ fontSize: 14.5, color: "var(--vn-ink)" }}>{said(e)}</div>
+            <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-ink-muted)" }}>{e.run_id}</div>
           </div>
         ))}
       </div>

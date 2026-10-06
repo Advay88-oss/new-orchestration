@@ -23,3 +23,6 @@ Creating an account deploys or reactivates a contract. Closing requires no debt 
 Collateral value includes recognized external positions, but those positions must be withdrawn or converted before their underlying is spendable. The account's risk ledger can also conservatively credit less than its raw token balance after swaps. Use the UI's current free balance and transaction simulation for actions.
 
 See [AccountManager](/developers/contracts/account-manager) and [SmartAccount](/developers/contracts/smart-account).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

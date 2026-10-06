@@ -163,6 +163,13 @@ def learn_from_decisions() -> dict[str, int]:
         if not imgs:
             continue
         verdict, note = r.get("verdict"), r.get("note") or ""
+        if verdict in ("kill", "revise") and s.get("visual_path"):
+            try:
+                from pipeline.gtm_creative.taste import remember_sent_back
+                remember_sent_back(s["visual_path"], run_id=r["run_id"], verdict=verdict,
+                                   brief=str(s.get("poster_brief") or ""), note=note)
+            except Exception:                       # noqa: BLE001 — boundary
+                pass
         if verdict in ("approve", "edit"):
             ask = ("The founder APPROVED this. Say concretely what makes it work — "
                    "layout, hierarchy, how the idea is shown, and (for a clip) how it "

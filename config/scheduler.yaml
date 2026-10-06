@@ -3,36 +3,36 @@
 
 jobs:
   gtm_cycle:
-    interval: "6h"
+    interval: "2h"
     enabled: true
     model_heavy: true
-    min_allowed_interval_m: 60
+    min_allowed_interval_m: 20
     description: "Full autonomous GTM cycle: all 13 agents, selects its own topic, renders visual + video, stops at human review."
 
   research_collect:
-    interval: "12h"
+    interval: "1h"
     enabled: true
-    description: "Full research collection across all 8 sources via OpenCLI & on-chain RPC."
-    model_heavy: true
-    min_allowed_interval_m: 60
+    description: "Collects live headlines into the brain. The next post reads them. Scraped Intelligence shows the list."
+    model_heavy: false
+    min_allowed_interval_m: 2
 
   trend_scan:
     interval: "12h"
-    enabled: true
+    enabled: false
     description: "Zero-cost real-time trend & news monitoring (Google News RSS + Curve/Stellar news)."
     model_heavy: false
     min_allowed_interval_m: 2
 
   ideas_panel:
     interval: "12h"
-    enabled: true
+    enabled: false
     description: "Synthesizes 8-12 claim-gated actionable GTM ideas from newly scraped artefacts."
     model_heavy: true
     min_allowed_interval_m: 5
 
   memes_panel:
-    interval: "12h"
-    enabled: true
+    interval: "2m"
+    enabled: false
     description: "Scans crypto culture for liquidation/gas humor with strict claim & risk gating."
     model_heavy: false
     min_allowed_interval_m: 5
@@ -43,6 +43,13 @@ jobs:
     description: "New public items about each company (its X, Reddit, news, its blog, a web summary) into its brain with sources."
     model_heavy: false
     min_allowed_interval_m: 60
+
+  github_commits:
+    interval: "1h"
+    enabled: true
+    description: "Product docs from GitHub into the brain every 6 hours, and the last 30 days of commits every hour. Posts read those pages."
+    model_heavy: false
+    min_allowed_interval_m: 30
 
   notion_sync:
     interval: "24h"
@@ -64,3 +71,10 @@ jobs:
     description: "Health watch: failed jobs, the brain database, the Telegram webhook, the dashboard, the budget and new errors; alerts on Telegram."
     model_heavy: false
     min_allowed_interval_m: 10
+
+  campaigns_refresh:
+    interval: "6h"
+    enabled: false
+    description: "Re-runs the campaign search and puts the shelf on Campaigns. It does not write a post."
+    model_heavy: true
+    min_allowed_interval_m: 5

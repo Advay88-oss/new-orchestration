@@ -27,3 +27,6 @@ The fee is computed from gross borrowing and sent to treasury. Gross borrowing b
 Requested receipt value is capped by 50% of total assets and available liquidity. Partial execution burns the corresponding receipt quantity. This is not a queued withdrawal request or an automatic promise to send the remainder later.
 
 See [exact formulas](/developers/math-reference) and [pool signatures](/developers/contracts/lending-pools).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

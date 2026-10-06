@@ -14,12 +14,12 @@ Initialization is per symbol. The contract has admin and deployer roles, with ad
 
 Registry metadata, not a fixed list in RiskEngine, determines what a symbol represents. Blend receipts track b-token units. AMM position accounting also consults actual LP token balances and synchronizes tracking membership; do not assume every LP operation mints synthetic receipts by the legacy `execute()` return value.
 
-| Configured symbol | Position               |
-| ----------------- | ---------------------- |
-| `BLEND_XLM`       | Blend XLM supply       |
-| `BLEND_USDC`      | Blend's USDC supply    |
-| `AQ_XLM_USDC`     | Aquarius XLM/AqUSDC LP |
-| `SS_XLM_USDC`     | Soroswap XLM/SoUSDC LP |
+| Configured symbol | Position |
+| - | - |
+| `BLEND_XLM` | Blend XLM supply |
+| `BLEND_USDC` | Blend's USDC supply |
+| `AQ_XLM_USDC` | Aquarius XLM/AqUSDC LP |
+| `SS_XLM_USDC` | Soroswap XLM/SoUSDC LP |
 
 Blend and registered AMM LP positions can contribute collateral value. `Unpriced` metadata and frozen/revoked positions are treated differently. See [Risk Engine](/developers/contracts/risk-engine).
 
@@ -187,3 +187,6 @@ pub fn upgrade(env: Env, new_wasm_hash: BytesN<32>)
 ## Source reference
 
 * `Protocol_V1_Soroban_testnet/contracts/TrackingTokenContract/src/tracking_token.rs`
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

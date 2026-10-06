@@ -12,7 +12,7 @@ const STATUS_FILE = path.join(REPO_ROOT, 'pipeline/state/daemon_status.json');
 
 export const dynamic = 'force-dynamic';
 
-const CLOUD_NOTE = 'On GCP the schedule is Cloud Scheduler: an hourly tick runs the due jobs (Notion sync, metrics).';
+const CLOUD_NOTE = 'On GCP the schedule is Cloud Scheduler: an hourly tick runs every due job, including the content cycle. Nothing publishes on its own.';
 
 export async function GET() {
   if (cloudMode()) {

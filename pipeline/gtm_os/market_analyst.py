@@ -67,7 +67,15 @@ _SYSTEM = (
     "   company_move — for DIRECT and ADJACENT only: ONE concrete thing {company} "
     "can do in response, in one sentence starting with a verb (explain, "
     "position against, watch, benchmark, open a conversation with...). Empty "
-    "string for NONE.\n\n"
+    "string for NONE.\n"
+    "   post_idea — for DIRECT and ADJACENT only: ONE sentence the later agents "
+    "will post, under 25 words. It names this signal's real subject and one "
+    "mechanism from the GitHub product pages that fits that subject. A Solana "
+    "or tokenized-stock signal uses a Solana page (xStocks, one margin account, "
+    "up to 5×, no funding rate, or the Kamino earn line). A Stellar signal uses "
+    "a Stellar page. Do not mention Blend or Aquarius unless this signal is "
+    "about those venues. Empty string for NONE. This sentence is the post idea "
+    "References shows on this source.\n\n"
     "   MOST SIGNALS ARE NONE OR ADJACENT. A harvest where everything is "
     "DIRECT is not a good harvest, it is a dishonest reading, and it makes "
     "the grade worthless. Expect roughly two to five DIRECT out of twenty.\n\n"
@@ -120,15 +128,17 @@ _SYSTEM = (
 def _system() -> str:
     """The analyst's brief, for the tenant this run serves."""
     from pipeline.brand_brain import context as C
-    return (_SYSTEM.replace("{company_line}", C.company_line())
+    text = (_SYSTEM.replace("{company_line}", C.company_line())
             .replace("{company}", C.company_name())
             .replace("{mechanisms}", ", ".join(C.relevance_terms()[:16]))
             .replace("{deployment}", str(C.profile().get("company", {}).get("deployment", ""))))
+    pages = C.product_pages_block()
+    return text if not pages or "GITHUB PRODUCT PAGES" in text else text + "\n\n" + pages
 
 SCHEMA_HINT = (
     '{"signals": [{"signal_id": str, "what_it_is": str, '
     '"relevance": "DIRECT"|"ADJACENT"|"NONE", "why": str, '
-    '"company_move": str}], '
+    '"company_move": str, "post_idea": str}], '
     '"landscape": {"summary": str, '
     '"themes": [{"theme": str, "what_is_happening": str, '
     '"signal_ids": [str], "matters_to_company": bool, '
@@ -238,6 +248,8 @@ def analyse(signals: Iterable[Any], run_id: Optional[str] = None) -> dict[str, A
         # A move for a signal graded NONE contradicts its own grade.
         r["company_move"] = ("" if r["relevance"] == "NONE"
                              else str(r.get("company_move") or r.get("vanna_move") or "").strip())
+        r["post_idea"] = ("" if r["relevance"] == "NONE"
+                          else str(r.get("post_idea") or "").strip()[:240])
 
     # A strategy must cite signals that were actually harvested. Unknown ids
     # are dropped, and a strategy left with no evidence is dropped with them:

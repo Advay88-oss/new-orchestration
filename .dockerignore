@@ -51,6 +51,8 @@ pipeline/state/veo_videos/
 pipeline/state/direct_posters/
 pipeline/state/visuals/
 pipeline/state/*.png
+pipeline/state/research_latest.json
+pipeline/state/research_seen.json
 # ...except the brand's logos, which the poster agents read (see .gcloudignore).
 !pipeline/state/logo.png
 !pipeline/state/vanna_official_master_logo.png

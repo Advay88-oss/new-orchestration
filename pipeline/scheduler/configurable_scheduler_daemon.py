@@ -17,6 +17,7 @@ import json
 import os
 import re
 import sys
+import threading
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -125,7 +126,30 @@ def load_yaml_config() -> Dict[str, Any]:
             elif v_clean.isdigit():
                 v_clean = int(v_clean)
             jobs[current_job][k] = v_clean
-            
+
+    # The deployed clock reads this file from the shared bucket. The yaml in
+    # the image stays the default; a pill on the dashboard overrides it.
+    overrides = STATE_DIR / "scheduler_intervals.json"
+    if overrides.exists():
+        try:
+            chosen = json.loads(overrides.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            chosen = {}
+        if isinstance(chosen, dict):
+            paused = {str(n) for n in (chosen.get("_paused") or [])}
+            turned_on = {str(n) for n in (chosen.get("_on") or []) if not str(n).startswith("_")}
+            for name, interval in chosen.items():
+                if str(name).startswith("_"):
+                    continue
+                if name in jobs and isinstance(interval, str) and interval.strip():
+                    jobs[name]["interval"] = interval.strip()
+            for name in turned_on:
+                if name in jobs and name not in paused:
+                    jobs[name]["enabled"] = True
+            for name in paused:
+                if name in jobs:
+                    jobs[name]["enabled"] = False
+
     return {"jobs": jobs}
 
 
@@ -167,7 +191,17 @@ class SchedulerEngine:
         return {}
 
     def save_state(self) -> None:
-        """Persists state to disk."""
+        """Persists state to disk. A newer last_run already on disk or in the bucket stays."""
+        try:
+            from pipeline.gtm_os.state_sync import blend_scheduler_records, merge_scheduler_state_from_bucket
+            merge_scheduler_state_from_bucket()
+            on_disk = {}
+            if SCHEDULER_STATE_FILE.exists():
+                on_disk = json.loads(SCHEDULER_STATE_FILE.read_text(encoding="utf-8"))
+            if isinstance(on_disk, dict):
+                self.state = blend_scheduler_records(self.state, on_disk)
+        except Exception:
+            pass
         SCHEDULER_STATE_FILE.write_text(json.dumps(self.state, indent=2), encoding="utf-8")
 
     def log_spend(self, job_name: str, model_id: str, input_tokens: int, output_tokens: int, cost_usd: float) -> None:
@@ -268,8 +302,18 @@ class SchedulerEngine:
 
         current_st = self.state.get(job_name, {})
         if current_st.get("status") == "RUNNING" and not force:
-            print(f"⏸️ [SCHEDULER] Job '{job_name}' is still running. Logging SKIPPED_STILL_RUNNING.")
-            return {"success": False, "status": "SKIPPED_STILL_RUNNING"}
+            started = str(current_st.get("current_run_start") or current_st.get("last_run") or "")
+            fresh = False
+            try:
+                started_dt = datetime.fromisoformat(started)
+                if started_dt.tzinfo is None:
+                    started_dt = started_dt.replace(tzinfo=timezone.utc)
+                fresh = (datetime.now(timezone.utc) - started_dt).total_seconds() < 1800
+            except ValueError:
+                fresh = True
+            if fresh:
+                print(f"⏸️ [SCHEDULER] Job '{job_name}' is still running. Logging SKIPPED_STILL_RUNNING.")
+                return {"success": False, "status": "SKIPPED_STILL_RUNNING"}
 
         # Validate interval sanity
         validate_interval_sanity(
@@ -302,11 +346,20 @@ class SchedulerEngine:
                 result = self._run_notion_sync()
             elif job_name == "brain_watch":
                 result = self._run_brain_watch()
+            elif job_name == "github_commits":
+                from pipeline.brand_brain.github_sync import refresh_product_docs, sync_commits
+                docs = refresh_product_docs(verbose=False)
+                out = sync_commits(verbose=False)
+                if out.get("error"):
+                    raise RuntimeError(out["error"])
+                result = {"success": True, "docs": docs, **out}
             elif job_name == "metrics_collect":
                 result = self._run_metrics_collect()
             elif job_name == "ops_watch":
                 from pipeline.ops.watch import run as _watch
                 result = {"success": True, **_watch()}
+            elif job_name == "campaigns_refresh":
+                result = self._run_campaigns_refresh()
             else:
                 raise ValueError(f"No execution handler for job '{job_name}'")
 
@@ -315,6 +368,7 @@ class SchedulerEngine:
             print(f"✅ [SCHEDULER] Job '{job_name}' completed in {t_elapsed:.2f}s.")
             result["status"] = "COMPLETED"
             result["duration_s"] = t_elapsed
+            _telegram_result(job_name, result)
             return result
         except Exception as e:
             t_elapsed = time.time() - t_start
@@ -326,7 +380,9 @@ class SchedulerEngine:
                 alerts.capture("scheduler " + job_name, e)
             except Exception:
                 pass
-            return {"success": False, "status": "FAILED", "error": err_msg}
+            failed = {"success": False, "status": "FAILED", "error": err_msg}
+            _telegram_result(job_name, failed)
+            return failed
 
     # -------------------------------------------------------------------------
     # JOB HANDLERS
@@ -448,7 +504,7 @@ class SchedulerEngine:
             p.write_text(json.dumps(memes_data, indent=2), encoding="utf-8")
 
         self.log_spend("memes_panel", "gemini-3.8-flash", 1400, 680, 0.0025)
-        return {"memes_count": len(memes_data.get("memes", [])), "output_file": str(PANELS_DIR / "memes.json")}
+        return {"memes_count": len(memes_data.get("memes", [])), "output_file": str(PANELS_DIR / "memes.json"), "memes": memes_data.get("memes") or []}
 
     def _run_research_collect(self) -> Dict[str, Any]:
         """Runs full research collection across 8 channels simultaneously."""
@@ -466,6 +522,27 @@ class SchedulerEngine:
         self.log_spend("research_collect", "gemini-3.8-flash", 3100, 1450, 0.0058)
         return poll_res
 
+    def _run_campaigns_refresh(self) -> Dict[str, Any]:
+        """Re-run the campaign search the owner already asked for."""
+        from pipeline.brand_brain.client import current_tenant
+        from pipeline.gtm_os.campaigns import latest, run
+        tenant = current_tenant() or "vanna"
+        spec = _read_intervals().get("_campaigns")
+        spec = spec if isinstance(spec, dict) else {}
+        query = str(spec.get("query") or "").strip()
+        source = str(spec.get("source") or "").strip()
+        if not query:
+            shelves = (latest(tenant).get("shelves") or [])
+            if not shelves:
+                return {"success": True, "note": "no campaign search saved yet"}
+            shelf = shelves[0]
+            query = str(shelf.get("query") or "live campaigns")
+            source = str(shelf.get("source_input") or shelf.get("source") or "galxe")
+        out = run(tenant, query, source or "galxe")
+        if not out.get("ok"):
+            raise RuntimeError(str(out.get("error") or "campaign search failed")[:240])
+        return {"success": True, "count": out.get("count"), "source": source or "galxe"}
+
 
 def run_scheduler_daemon_loop(poll_interval_s: int = 15):
     """Main daemon loop running 24/7, checking next run times and executing overdue jobs."""
@@ -480,6 +557,7 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
 
     while True:
         try:
+            _expire_timeline()
             cfg = load_yaml_config()
             now_dt = datetime.now(timezone.utc)
 
@@ -505,7 +583,14 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
                         should_run = True
 
                 if should_run:
+                    from pipeline.gtm_os.state_sync import claim_scheduler_job
+                    claimed, _why = claim_scheduler_job(j_name, interval_s)
+                    if not claimed:
+                        continue
+                    engine.state = engine.load_state()
                     engine.execute_job(j_name)
+                    if j_name == "gtm_cycle":
+                        _consume_post()
 
             time.sleep(poll_interval_s)
         except KeyboardInterrupt:
@@ -526,6 +611,9 @@ def run_scheduler_tick() -> dict:
     (or systemd, or a container restart policy) the OS owns the cadence and a
     crashed tick costs one cycle rather than the whole schedule.
     """
+    from pipeline.gtm_os.state_sync import refresh_interval_overrides
+    refresh_interval_overrides()
+    _expire_timeline()
     engine = SchedulerEngine()
     cfg = load_yaml_config()
     now_dt = datetime.now(timezone.utc)
@@ -540,6 +628,9 @@ def run_scheduler_tick() -> dict:
         # the autonomous cycle spends on every tick and is opt-in there.
         if only and j_name not in only:
             skipped.append({"job": j_name, "why": "not enabled in this environment"})
+            continue
+        if j_name in set(_read_intervals().get("_cron") or []):
+            skipped.append({"job": j_name, "why": "its own cron"})
             continue
 
         interval_s = parse_interval_to_seconds(j_data.get("interval", "24h"))
@@ -560,8 +651,21 @@ def run_scheduler_tick() -> dict:
             skipped.append({"job": j_name, "why": "not due"})
             continue
 
+        # Claim the slot before any work. Two overlapping ticks both read an
+        # old last_run; only the write that lands first may start the job.
+        # The other is told it is not due, and a later save cannot move the
+        # clock backwards.
+        from pipeline.gtm_os.state_sync import claim_scheduler_job
+        claimed, why = claim_scheduler_job(j_name, interval_s)
+        if not claimed:
+            skipped.append({"job": j_name, "why": why})
+            continue
+        engine.state = engine.load_state()
+
         try:
             res = engine.execute_job(j_name)
+            if j_name == "gtm_cycle":
+                _consume_post()
             fired.append({"job": j_name, "overdue_s": overdue_s, "ok": True,
                           "result": res})
         except Exception as exc:
@@ -572,11 +676,464 @@ def run_scheduler_tick() -> dict:
     return {"ts": now_dt.isoformat(), "fired": fired, "skipped": skipped}
 
 
+def _interval_file() -> Path:
+    return STATE_DIR / "scheduler_intervals.json"
+
+
+def _read_intervals() -> dict:
+    path = _interval_file()
+    try:
+        chosen = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+    except (OSError, ValueError):
+        chosen = {}
+    return chosen if isinstance(chosen, dict) else {}
+
+
+def _push_clock(wait_s: float = 8) -> Optional[bool]:
+    """Upload the interval file. True when the live clock has it, False when
+    the upload failed, None when it is still going. A dead login used to sit
+    here for more than a minute, and the chat then called the whole step a
+    failure after the file was already saved."""
+    from pipeline.gtm_os.state_sync import push_state_files
+    rels = ["pipeline/state/scheduler_intervals.json"]
+    done = threading.Event()
+    box: dict[str, int] = {"n": -1}
+
+    def go() -> None:
+        try:
+            box["n"] = push_state_files(rels)
+        except Exception:                           # noqa: BLE001 — the local file still applies
+            box["n"] = 0
+        finally:
+            done.set()
+
+    threading.Thread(target=go, name="clock-upload", daemon=True).start()
+    if not done.wait(wait_s):
+        return None
+    return box["n"] > 0
+
+
+def _write_intervals(chosen: dict) -> Optional[bool]:
+    path = _interval_file()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(chosen, indent=2), encoding="utf-8")
+    from pipeline.gtm_os.state_sync import in_cloud
+    from pipeline.scheduler.cloud_cron import upload_clock_file
+    if upload_clock_file():
+        return True
+    if in_cloud():
+        landed = _push_clock(20)
+        if not landed:
+            raise RuntimeError("could not save the instruction where the clock reads it")
+        return True
+    return False
+
+
+IST = timezone(timedelta(hours=5, minutes=30))
+
+
+def _clock_label(iso: str) -> str:
+    try:
+        dt = datetime.fromisoformat(iso).astimezone(IST)
+    except ValueError:
+        return iso
+    return dt.strftime("%d %b, %I:%M %p IST")
+
+
+def _next_clock(hour: int, minute: int) -> str:
+    now = datetime.now(IST)
+    cand = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if cand <= now:
+        cand = cand + timedelta(days=1)
+    return cand.astimezone(timezone.utc).isoformat()
+
+
+def _parse_until(low: str) -> str | None:
+    """A stop time in the sentence: until 8pm, stop at 18:30, 8 baje."""
+    m = re.search(
+        r"(?:until|till|stop at|stops at|band at|roko at)\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm|baje)?",
+        low,
+    )
+    if not m:
+        m = re.search(r"(?:by|tak)\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm|baje)\b", low)
+    if not m:
+        m = re.search(r"\b(\d{1,2})(?::(\d{2}))?\s*baje\b", low)
+    if not m:
+        return None
+    hour = int(m.group(1))
+    minute = int(m.group(2) or 0)
+    mer = (m.group(3) or "").lower() if m.lastindex and m.lastindex >= 3 else ""
+    if minute > 59 or hour > 23:
+        return None
+    if mer == "pm" and hour < 12:
+        hour += 12
+    elif mer == "am" and hour == 12:
+        hour = 0
+    elif mer == "pm" and hour == 12:
+        hour = 12
+    if hour > 23:
+        return None
+    return _next_clock(hour, minute)
+
+
+_GAP = r"(\d+)\s*(minutes|minute|mins|min|minut|m|hours|hour|hrs|hr|h|ghante|ghanta)\b"
+# Order matters: a post's "idea" must not turn on the ideas panel.
+# A gap with no recognised job used to become a post. Each phrase here is a
+# real pipeline job. "post" is the only phrase that schedules a post.
+_JOB_WORDS = (
+    ("research_collect", re.compile(r"\b(scrape|scraping|scraped|fresh data|headlines|news|research|competitors?|twitter|tweets?)\b")),
+    ("campaigns_refresh", re.compile(r"\b(campaigns?|galxe)\b")),
+    ("trend_scan", re.compile(r"\btrends?\b")),
+    ("ideas_panel", re.compile(r"\bideas\b")),
+    ("memes_panel", re.compile(r"\bmemes?\b")),
+    ("github_commits", re.compile(r"\b(github|commits?)\b")),
+    ("notion_sync", re.compile(r"\bnotion\b")),
+    ("brain_watch", re.compile(r"\b(reddit|brand watch|listens?)\b")),
+    ("metrics_collect", re.compile(r"\b(metrics|engagement|impressions)\b")),
+    ("ops_watch", re.compile(r"\b(health|ops)\b")),
+    ("gtm_cycle", re.compile(r"\bposts?\b")),
+)
+_JOB_NAMES = [name for name, _ in _JOB_WORDS]
+_LABELS = {
+    "research_collect": "Headlines and competitor posts",
+    "campaigns_refresh": "Campaigns",
+    "trend_scan": "Trends",
+    "ideas_panel": "Ideas",
+    "memes_panel": "Memes",
+    "github_commits": "GitHub",
+    "notion_sync": "Notion",
+    "brain_watch": "Public listening",
+    "metrics_collect": "Published-post results",
+    "ops_watch": "Health check",
+    "gtm_cycle": "A post",
+}
+_LANDS = {
+    "research_collect": "Scraped Intelligence",
+    "campaigns_refresh": "Campaigns",
+    "trend_scan": "Scraped Intelligence",
+    "ideas_panel": "Post History",
+    "memes_panel": "Telegram",
+    "github_commits": "the brand brain",
+    "notion_sync": "the brand brain",
+    "brain_watch": "the brand brain",
+    "metrics_collect": "Learning",
+    "ops_watch": "Telegram, when something breaks",
+    "gtm_cycle": "Post History",
+}
+
+
+def _telegram_result(job_name: str, result: dict) -> None:
+    """Every finished cron sends its result to Telegram. A post already does, inside the cycle."""
+    if job_name == "gtm_cycle":
+        return
+    label = _LABELS.get(job_name, job_name)
+    where = _LANDS.get(job_name, "the dashboard")
+    failed = result.get("status") == "FAILED" or result.get("success") is False
+    if failed:
+        text = label + " failed.\n" + " ".join(str(result.get("error") or "").split())[:800]
+    else:
+        text = _telegram_body(job_name, result, label, where)
+    if not text:
+        return
+    try:
+        from pipeline.gtm_os.telegram_sender import send_note
+        send_note(text[:3500])
+    except Exception:                               # noqa: BLE001 — the job result is already saved
+        pass
+
+
+def _telegram_body(job_name: str, result: dict, label: str, where: str) -> str:
+    lines = [label + ".", "Shown in " + where + ".", "Nothing is published."]
+    if job_name == "memes_panel":
+        rows = [m for m in (result.get("memes") or []) if isinstance(m, dict)][:4]
+        for meme in rows:
+            lines.append("")
+            lines.append(str(meme.get("vanna_angle") or "Meme")[:180])
+            copy = " ".join(str(meme.get("copy") or "").split())
+            if copy:
+                lines.append(copy[:280])
+        if not rows:
+            lines.append("No meme text came back.")
+    elif job_name == "research_collect":
+        try:
+            latest = json.loads((STATE_DIR / "research_latest.json").read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            latest = {}
+        items = [row for row in (latest.get("items") or []) if isinstance(row, dict) and row.get("fresh", True)]
+        seen: set[str] = set()
+        fresh = []
+        for row in items:
+            head = " ".join(str(row.get("headline") or "").split())
+            key = re.sub(r"[^\w\s]", " ", head).casefold()
+            key = " ".join(key.split())[:180]
+            link = str(row.get("source") or "").split("?")[0].rstrip("/").casefold()
+            if not head or key in seen or (link and link in seen):
+                continue
+            seen.add(key)
+            if link:
+                seen.add(link)
+            fresh.append(row)
+        if not fresh:
+            return ""
+        lines.append(str(len(fresh)) + " new.")
+        for row in fresh[:8]:
+            head = " ".join(str(row.get("headline") or "").split())
+            named = re.match(r"^\[([^\]]+)\]\s*", head)
+            title = head[named.end():].strip() if named else head
+            who = named.group(1).replace(" Telegram", "") if named else ""
+            lines.append("• " + ((who + ": ") if who else "") + title[:180])
+    else:
+        for key in ("count", "memes_count", "ideas_count", "trends_count", "signals_ingested", "note", "source"):
+            if result.get(key) not in (None, "", [], {}):
+                lines.append(key.replace("_", " ") + ": " + " ".join(str(result.get(key)).split())[:240])
+    return "\n".join(lines)
+
+
+def _gap_of(n: int, unit: str) -> tuple[int, str]:
+    if unit.startswith("h") or unit.startswith("gh"):
+        return n * 60, f"{n}h"
+    return n, f"{n}m"
+
+
+def parse_tell(text: str) -> dict:
+    """One sentence into the jobs it names, each with its own gap, plus a post count."""
+    low = " ".join(str(text or "").lower().split())
+    until = _parse_until(low)
+    intervals = []
+    for m in re.finditer(_GAP, low):
+        minutes, interval = _gap_of(int(m.group(1)), m.group(2))
+        if minutes > 24 * 60:
+            raise ValueError("The longest gap is 24 hours.")
+        intervals.append((m.start(), minutes, interval))
+    hour = re.search(r"\bevery hour\b", low)
+    if hour and not any(unit.endswith("h") for _, _, unit in intervals):
+        intervals.append((hour.start(), 60, "1h"))
+    mentioned = []
+    for name, cre in _JOB_WORDS:
+        for m in cre.finditer(low):
+            mentioned.append((m.start(), name))
+    asked = {name for _, name in mentioned}
+    count_m = re.search(r"\b(\d+)\s*posts?\b", low)
+    posts_left = int(count_m.group(1)) if count_m else None
+    if posts_left is not None and not 1 <= posts_left <= 50:
+        raise ValueError("Ask for between 1 and 50 posts.")
+    names = {name for _, name in mentioned}
+    assigned: dict[str, str] = {}
+    mentioned.sort()
+    if mentioned and intervals:
+        for pos, _minutes, interval in intervals:
+            before = [item for item in mentioned if item[0] <= pos]
+            after = [item for item in mentioned if item[0] > pos]
+            name = before[-1][1] if before else after[0][1]
+            assigned.setdefault(name, interval)
+        # A gap belongs to the job named next to it. Other words in the
+        # sentence do not get a schedule, and a post is not added for them.
+        names = set(assigned)
+    elif intervals and not names:
+        raise ValueError(
+            "Say which job that gap is for: headlines, competitor Twitter, campaigns, "
+            "memes, ideas, trends, GitHub, Notion, or a post."
+        )
+    floor = False
+    if posts_left:
+        names.add("gtm_cycle")
+        if "gtm_cycle" not in assigned:
+            assigned["gtm_cycle"] = "20m"
+            floor = True
+    if "notion_sync" in names and "notion_sync" not in assigned and re.search(r"\b(daily|every day|roz)\b", low):
+        assigned["notion_sync"] = "24h"
+    stopping = re.search(r"\b(stop|pause|ruk|roko|band|hold)\b", low)
+    starting = re.search(r"\b(start|resume|chalu|shuru|continue)\b", low)
+    everything = re.search(r"\b(everything|sab kuch|sab)\b", low)
+    if until and not names and not intervals:
+        return {"action": "until", "until": until}
+    if stopping and names and not intervals and posts_left is None:
+        return {"action": "stop", "jobs": sorted(names)}
+    if names or intervals or posts_left:
+        jobs = [{"job": name, "interval": assigned.get(name)} for name in _JOB_NAMES if name in names]
+        if not jobs:
+            raise ValueError("Say what to run: scrape, posts, memes, ideas, GitHub, or Notion.")
+        return {"action": "plan", "jobs": jobs, "until": until, "posts_left": posts_left, "floor": floor,
+                "dropped_post": "gtm_cycle" in asked and "gtm_cycle" not in names}
+    if stopping:
+        jobs = _JOB_NAMES if everything else (sorted(names) or ["gtm_cycle"])
+        return {"action": "stop", "jobs": jobs}
+    if starting:
+        return {"action": "start", "jobs": sorted(names) or ["gtm_cycle"]}
+    raise ValueError(
+        "Say it in one line. For example: scrape every 5 minutes and make 10 posts, "
+        "plus memes, ideas, GitHub, and Notion."
+    )
+
+
+def _enforce_gap(name: str, interval: str, job: dict) -> None:
+    minutes = parse_interval_to_seconds(interval) / 60
+    floor_m = int(job.get("min_allowed_interval_m") or 1)
+    if minutes < floor_m:
+        raise ValueError(_LABELS.get(name, name) + " needs at least " + str(floor_m) + " minutes.")
+    validate_interval_sanity(
+        name, interval, bool(job.get("model_heavy")), floor_m,
+    )
+
+
+def _consume_post() -> None:
+    """A finished post counts toward the number the owner asked for."""
+    chosen = _read_intervals()
+    left = chosen.get("_posts_left")
+    if not isinstance(left, int) or left <= 0:
+        return
+    left -= 1
+    chosen["_posts_left"] = left
+    if left <= 0:
+        paused = {str(n) for n in (chosen.get("_paused") or []) if str(n)}
+        paused.add("gtm_cycle")
+        chosen["_paused"] = sorted(paused)
+    _write_intervals(chosen)
+
+
+def _expire_timeline() -> None:
+    """When the stop time has passed, posts stop on their own."""
+    chosen = _read_intervals()
+    until = str(chosen.get("_until") or "")
+    if not until:
+        return
+    try:
+        end = datetime.fromisoformat(until)
+    except ValueError:
+        return
+    if end.tzinfo is None:
+        end = end.replace(tzinfo=timezone.utc)
+    if datetime.now(timezone.utc) < end:
+        return
+    paused = {str(n) for n in (chosen.get("_paused") or []) if str(n)}
+    paused.add("gtm_cycle")
+    chosen["_paused"] = sorted(paused)
+    chosen["_until"] = ""
+    _write_intervals(chosen)
+
+
+def apply_tell(text: str) -> dict:
+    """The owner says the whole plan in one sentence. Each named job follows its own gap."""
+    parsed = parse_tell(text)
+    chosen = _read_intervals()
+    paused = {str(n) for n in (chosen.get("_paused") or []) if str(n)}
+    on = {str(n) for n in (chosen.get("_on") or []) if str(n)}
+    until = parsed.get("until") or ""
+    lines: list[str] = []
+    if parsed["action"] == "stop":
+        for name in parsed.get("jobs") or ["gtm_cycle"]:
+            paused.add(name)
+            on.discard(name)
+        if "gtm_cycle" in paused:
+            chosen["_until"] = ""
+            chosen.pop("_posts_left", None)
+        lines.append("Stopped: " + ", ".join(_LABELS.get(n, n) for n in parsed.get("jobs") or ["gtm_cycle"]) + ".")
+    elif parsed["action"] == "start":
+        for name in parsed.get("jobs") or ["gtm_cycle"]:
+            paused.discard(name)
+            on.add(name)
+        if "gtm_cycle" in (parsed.get("jobs") or ["gtm_cycle"]):
+            chosen["_until"] = ""
+        lines.append("On again: " + ", ".join(_LABELS.get(n, n) for n in parsed.get("jobs") or ["gtm_cycle"]) + ".")
+    elif parsed["action"] == "until":
+        paused.discard("gtm_cycle")
+        on.add("gtm_cycle")
+        chosen["_until"] = until
+        lines.append("Posts keep their gap and stop at " + _clock_label(until) + ".")
+    else:
+        cfg = load_yaml_config()
+        jobs = cfg.get("jobs") or {}
+        applied: set[str] = set()
+        for item in parsed["jobs"]:
+            name = item["job"]
+            spec = jobs.get(name) or {}
+            interval = item.get("interval")
+            if not interval:
+                existing = str(chosen.get(name) or spec.get("interval") or "")
+                floor_m = int(spec.get("min_allowed_interval_m") or 1)
+                try:
+                    if existing and parse_interval_to_seconds(existing) < floor_m * 60:
+                        interval = f"{floor_m}m"
+                except Exception:                    # noqa: BLE001 — a bad saved gap is left for the check below
+                    pass
+            if interval:
+                try:
+                    _enforce_gap(name, interval, spec)
+                except ValueError as exc:
+                    lines.append(str(exc).split(":", 1)[-1].strip())
+                    continue
+                chosen[name] = interval
+            paused.discard(name)
+            on.add(name)
+            applied.add(name)
+            label = _LABELS.get(name, name)
+            gap = interval or str(chosen.get(name) or spec.get("interval") or "")
+            lands = _LANDS.get(name, "the dashboard")
+            lines.append(label + (" every " + gap if gap else " is on") + ". It shows in " + lands + ".")
+        if "campaigns_refresh" in applied:
+            source = "galxe" if re.search(r"\bgalxe\b", text.lower()) else ""
+            prev = chosen.get("_campaigns") if isinstance(chosen.get("_campaigns"), dict) else {}
+            chosen["_campaigns"] = {
+                "query": str(prev.get("query") or "live campaigns"),
+                "source": source or str(prev.get("source") or "galxe"),
+            }
+        if not applied:
+            raise ValueError(lines[0] if lines else "Nothing was set.")
+        if "gtm_cycle" in applied:
+            chosen["_until"] = until
+            if parsed.get("posts_left"):
+                chosen["_posts_left"] = int(parsed["posts_left"])
+            else:
+                chosen.pop("_posts_left", None)
+        if parsed.get("posts_left") and "gtm_cycle" in applied:
+            lines.append(str(parsed["posts_left"]) + " posts, then posts stop. Each one reads the newest scrape.")
+        if parsed.get("floor") and "gtm_cycle" in applied:
+            lines.append("A post takes about 20 minutes, so that is the shortest post gap. The scrape keeps its own gap.")
+        if parsed.get("dropped_post"):
+            lines.append("A post was not scheduled. A post needs its own gap of at least 20 minutes.")
+        if until and "gtm_cycle" in applied:
+            lines.append("Stops at " + _clock_label(until) + ".")
+        elif "gtm_cycle" in applied and not parsed.get("posts_left"):
+            lines.append("Posts stop when you say stop.")
+    chosen["_paused"] = sorted(paused)
+    chosen["_on"] = sorted(on)
+    cron_state: dict = {}
+    try:
+        from pipeline.scheduler.cloud_cron import sync_plan
+        cron_lines, live, cron_state = sync_plan(chosen, wait_narrow=False)
+        chosen["_cron"] = live
+        chosen["_cron_state"] = cron_state
+        lines.extend(cron_lines)
+    except Exception as exc:                        # noqa: BLE001 — the file is still the plan
+        lines.append("No cron was created: " + str(exc)[:160])
+    landed = _write_intervals(chosen)
+    if landed is False:
+        lines.append("Saved here. The live clock did not take the file.")
+    elif landed is None:
+        lines.append("Saved here. The live clock is still receiving the file.")
+    message = "\n".join(lines) or "Set."
+    return {
+        "ok": True,
+        "message": message,
+        "interval": chosen.get("gtm_cycle") or "2h",
+        "until": chosen.get("_until") or "",
+        "until_label": _clock_label(chosen["_until"]) if chosen.get("_until") else "",
+        "posts_left": chosen.get("_posts_left") if isinstance(chosen.get("_posts_left"), int) else None,
+        "posts": "stopped" if "gtm_cycle" in paused else "on",
+        "on": chosen.get("_on") or [],
+        "crons": [
+            {"job": name, **row} for name, row in (chosen.get("_cron_state") or cron_state).items()
+            if isinstance(row, dict)
+        ],
+    }
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Vanna Configurable Scheduler Daemon")
     parser.add_argument("--status", action="store_true", help="Display status overview of all jobs")
     parser.add_argument("--run-now", type=str, help="Execute a specific job immediately")
     parser.add_argument("--set-interval", nargs=2, metavar=("JOB", "INTERVAL"), help="Set interval for a job (e.g. --set-interval trend_scan 2m)")
+    parser.add_argument("--tell", type=str, help="A sentence for the post gap, or stop, or start")
     parser.add_argument("--daemon", action="store_true", help="Start the continuous 24/7 background scheduler loop")
     parser.add_argument("--tick", action="store_true", help="Fire all due jobs once and exit (for a supervised scheduler)")
 
@@ -589,6 +1146,12 @@ if __name__ == "__main__":
     elif args.run_now:
         res = engine.execute_job(args.run_now, force=True)
         print(json.dumps(res, indent=2))
+    elif args.tell:
+        try:
+            print(json.dumps(apply_tell(args.tell), ensure_ascii=False))
+        except Exception as exc:                    # noqa: BLE001 — the page shows the sentence
+            print(str(exc))
+            sys.exit(1)
     elif args.set_interval:
         j_name, new_int = args.set_interval[0], args.set_interval[1]
         cfg = load_yaml_config()
@@ -600,6 +1163,26 @@ if __name__ == "__main__":
             validate_interval_sanity(j_name, new_int, j_data.get("model_heavy", False), j_data.get("min_allowed_interval_m", 1))
             j_data["interval"] = new_int
             save_yaml_config(cfg)
+            path = STATE_DIR / "scheduler_intervals.json"
+            try:
+                chosen = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+            except (OSError, ValueError):
+                chosen = {}
+            if not isinstance(chosen, dict):
+                chosen = {}
+            chosen[j_name] = new_int
+            path.write_text(json.dumps(chosen, indent=2), encoding="utf-8")
+            from pipeline.gtm_os.state_sync import in_cloud, push_state_files
+            if in_cloud():
+                saved = push_state_files(["pipeline/state/scheduler_intervals.json"])
+                if saved < 1:
+                    print("could not save the interval where the clock reads it")
+                    sys.exit(1)
+            else:
+                try:
+                    push_state_files(["pipeline/state/scheduler_intervals.json"])
+                except Exception as exc:           # noqa: BLE001 — local file still applies
+                    print(f"interval saved locally; bucket upload skipped: {exc}")
             print(f"✅ Updated interval for '{j_name}' to '{new_int}'.")
         except Exception as e:
             print(str(e))

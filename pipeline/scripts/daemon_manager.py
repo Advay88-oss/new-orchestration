@@ -25,8 +25,11 @@ PID_FILE = STATE_DIR / "daemon.pid"
 STATUS_FILE = STATE_DIR / "daemon_status.json"
 LOG_FILE = LOGS_DIR / "daemon.log"
 
-MASTER_SCRIPT = REPO_ROOT / "pipeline" / "scripts" / "run_autonomous_gtm_master.py"
+# The 24/7 clock. The old master script is retired and its --continuous flag
+# exits immediately, which is why the sidebar stayed on "Not scheduled".
+SCHEDULER_SCRIPT = REPO_ROOT / "pipeline" / "scheduler" / "configurable_scheduler_daemon.py"
 SPEND_PROXY_URL = "http://127.0.0.1:8900/_spend"
+DAEMON_LABEL = "Active · scheduler"
 
 
 def is_process_running(pid: int) -> bool:
@@ -57,8 +60,12 @@ def get_spend_remaining() -> float:
         return 10.0  # Default safe assumption if proxy unreachable
 
 
-def start_daemon(interval_seconds: int = 1800) -> dict:
-    """Starts the 24/7 continuous autonomous GTM daemon in background."""
+def start_daemon(interval_seconds: int = 15) -> dict:
+    """Starts the configurable scheduler in the background.
+
+    Intervals come from config/scheduler.yaml. The process checks every few
+    seconds and runs a job only when that job's own interval has elapsed.
+    """
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -87,26 +94,27 @@ def start_daemon(interval_seconds: int = 1800) -> dict:
 
     # Spawn background daemon process
     log_fp = open(LOG_FILE, "a", encoding="utf-8")
-    cmd = [
-        sys.executable,
-        str(MASTER_SCRIPT),
-        "--continuous",
-        "--interval",
-        str(interval_seconds)
-    ]
+    cmd = [sys.executable, str(SCHEDULER_SCRIPT), "--daemon"]
 
-    # Windows creation flags for detached background execution
+    # Windows creation flags for detached background execution.
+    # BREAKAWAY so the scheduler keeps running after the shell that started it exits.
     creationflags = 0
     if sys.platform == "win32":
         creationflags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+        breakaway = creationflags | getattr(subprocess, "CREATE_BREAKAWAY_FROM_JOB", 0)
+    else:
+        breakaway = 0
 
-    proc = subprocess.Popen(
-        cmd,
+    popen_kwargs = dict(
         cwd=str(REPO_ROOT),
         stdout=log_fp,
         stderr=subprocess.STDOUT,
-        creationflags=creationflags
+        env={**os.environ, "PYTHONPATH": str(REPO_ROOT), "PYTHONUNBUFFERED": "1"},
     )
+    try:
+        proc = subprocess.Popen(cmd, creationflags=breakaway or creationflags, **popen_kwargs)
+    except OSError:
+        proc = subprocess.Popen(cmd, creationflags=creationflags, **popen_kwargs)
 
     pid = proc.pid
     PID_FILE.write_text(str(pid), encoding="utf-8")
@@ -116,16 +124,19 @@ def start_daemon(interval_seconds: int = 1800) -> dict:
         "pid": pid,
         "started_at": datetime.now(timezone.utc).isoformat(),
         "interval_seconds": interval_seconds,
+        "label": DAEMON_LABEL,
         "last_health_check": datetime.now(timezone.utc).isoformat()
     }
     STATUS_FILE.write_text(json.dumps(status_data, indent=2), encoding="utf-8")
 
-    print(f"✅ Started Vanna 24/7 Continuous GTM Daemon (PID: {pid}, Interval: {interval_seconds}s)")
+    print(f"✅ Started Vanna scheduler (PID: {pid}). Intervals come from config/scheduler.yaml.")
     return {
         "success": True,
-        "message": f"Daemon started with PID {pid}.",
+        "message": f"Scheduler started with PID {pid}.",
         "pid": pid,
         "status": "RUNNING",
+        "running": True,
+        "label": DAEMON_LABEL,
         "interval_seconds": interval_seconds
     }
 
@@ -193,8 +204,9 @@ def get_status() -> dict:
             "status": "RUNNING",
             "pid": pid,
             "running": True,
+            "label": status_info.get("label") or DAEMON_LABEL,
             "started_at": status_info.get("started_at"),
-            "interval_seconds": status_info.get("interval_seconds", 1800),
+            "interval_seconds": status_info.get("interval_seconds", 15),
             "spend_remaining": get_spend_remaining()
         }
     except Exception as e:
@@ -204,7 +216,7 @@ def get_status() -> dict:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Manage Vanna 24/7 Autonomous GTM Daemon.")
     parser.add_argument("action", choices=["start", "stop", "status", "restart"], help="Lifecycle action")
-    parser.add_argument("--interval", type=int, default=1800, help="Interval in seconds between cycles (default: 1800s)")
+    parser.add_argument("--interval", type=int, default=15, help="Unused by the scheduler; intervals live in config/scheduler.yaml")
     args = parser.parse_args()
 
     if args.action == "start":

@@ -24,7 +24,7 @@ const INVITE = 'vn_ninvite';
 const COOKIE = { httpOnly: true, sameSite: 'lax' as const, path: '/', maxAge: 900 };
 
 async function py(args: string[], input?: object) {
-  const r = await runPython(['-m', 'pipeline.brand_brain.notion_oauth', ...args], 60_000,
+  const r = await runPython(['-m', 'pipeline.brand_brain.mcp_call', 'notion', ...args], 60_000,
                             input ? JSON.stringify(input) : undefined);
   return (lastJson(r.stdout) as any) ?? { ok: false, error: 'the connection service did not answer' };
 }

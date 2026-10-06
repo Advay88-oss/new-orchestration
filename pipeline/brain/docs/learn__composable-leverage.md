@@ -19,3 +19,6 @@ All positions in an account share its health factor and debt. A single profitabl
 Some same-asset Blend openings have an atomic contract path. Lite Mode can fall back to multiple transactions, and LP/cross-asset strategies generally involve multiple steps. Earlier confirmed actions survive a later failure.
 
 Controller support does not establish external pool availability. The configured Aquarius gauge-enabled pool has a documented smart-contract trustline limitation. See [Farm](/guides/farm/overview), [Lite Mode](/guides/farm/leveraged-yield), and [Controllers](/developers/contracts/controller-facade).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

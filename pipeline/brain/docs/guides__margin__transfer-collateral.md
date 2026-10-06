@@ -21,3 +21,6 @@ A withdrawal with outstanding debt must leave the account strictly above the 1.1
 Net Available Collateral is displayed equity, not a maximum withdrawal amount. Prices, interest, and cached valuations can change between the preview and execution.
 
 Verify both wallet and margin balances after confirmation. See [Deposit Collateral](/guides/margin/deposit-collateral) and [Health Factor](/guides/margin/health-factor).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

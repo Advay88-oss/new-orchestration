@@ -120,14 +120,15 @@ class NoDirectReads(unittest.TestCase):
 
 
 class McpServer(unittest.TestCase):
-    def test_exposes_the_six_tools(self):
+    def test_exposes_the_brain_tools(self):
         if not S.exists("vanna"):
             raise unittest.SkipTest("vanna brain not onboarded")
         from pipeline.brand_brain.mcp_server import build
         tools = asyncio.run(build("vanna").list_tools())
         names = {t.name for t in tools}
         self.assertEqual(names, {"get_brand_profile", "get_whats_new", "search_knowledge",
-                                 "get_visual_refs", "get_competitor_patterns", "log_post_outcome"})
+                                 "get_visual_refs", "get_competitor_patterns", "log_post_outcome",
+                                 "get_recent_commits", "list_outcomes", "list_rejected_posters"})
 
 
 if __name__ == "__main__":

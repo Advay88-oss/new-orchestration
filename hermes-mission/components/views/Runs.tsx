@@ -1,11 +1,39 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { CompanyChip, CompanyFilter } from "@/components/CompanyChip";
+import { CompanyFilter } from "@/components/CompanyChip";
 import { MONO } from "@/lib/colors";
 import type { MissionVM } from "@/lib/viewmodel";
 import { EmptyState, SkeletonRows } from "@/components/States";
 import { sinceLabel, useViewer } from "@/lib/useViewer";
+
+function postHeadline(r: any): string {
+  const brief = String(r.poster_brief || "");
+  const match = brief.match(/Headline:\s*([^\n]+)/);
+  if (match) return match[1].replace(/\s*\(gradient word:.*\)\s*$/, "").trim();
+  const hook = r.posts?.x?.hook || r.reasoning?.hook;
+  if (hook) return String(hook);
+  if (r.title && r.title !== r.run_id) return String(r.title);
+  return "Untitled post";
+}
+
+function dayLabel(r: any): string {
+  if (!r.started) return "Undated";
+  return new Date(r.started * 1000).toLocaleDateString(undefined, {
+    weekday: "short", day: "numeric", month: "short", year: "numeric",
+  });
+}
+
+function groupByDay(rows: any[]): { day: string; items: any[] }[] {
+  const groups: { day: string; items: any[] }[] = [];
+  for (const r of rows) {
+    const day = dayLabel(r);
+    const last = groups[groups.length - 1];
+    if (last && last.day === day) last.items.push(r);
+    else groups.push({ day, items: [r] });
+  }
+  return groups;
+}
 
 export function Runs({ vm }: { vm: MissionVM }) {
   const [runs, setRuns] = useState<any[]>([]);
@@ -17,7 +45,6 @@ export function Runs({ vm }: { vm: MissionVM }) {
   const [showEmpty, setShowEmpty] = useState(false);
   const [sessionRunIds, setSessionRunIds] = useState<string[]>([]);
 
-  const [daemonRunning, setDaemonRunning] = useState(false);
   const viewer = useViewer();
 
   const syncSessionRuns = () => {
@@ -57,21 +84,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
   useEffect(() => {
     fetchRuns();
     const interval = setInterval(fetchRuns, 5000);
-
-    const checkDaemon = async () => {
-      try {
-        const res = await fetch("/api/daemon", { cache: "no-store" });
-        const data = await res.json();
-        setDaemonRunning(Boolean(data.running));
-      } catch {}
-    };
-    checkDaemon();
-    const dItv = setInterval(checkDaemon, 8000);
-
-    return () => {
-      clearInterval(interval);
-      clearInterval(dItv);
-    };
+    return () => clearInterval(interval);
   }, []);
 
 
@@ -89,20 +102,20 @@ export function Runs({ vm }: { vm: MissionVM }) {
     : runs;
 
   const filteredRuns = targetPool.filter((r) => {
-    const title = r.title || r.winner_hook || r.run_id || "";
-    const aud = r.agent_outputs?.agent_03_strategist?.audience || "Quantitative Traders";
-    const mach = r.agent_outputs?.agent_04_machine?.name || "Telemetry Series";
-
-    const matchesSearch =
-      title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (r.run_id && r.run_id.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      aud.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      mach.toLowerCase().includes(searchQuery.toLowerCase());
+    const headline = postHeadline(r);
+    const copy = [r.posts?.x?.copy, r.posts?.linkedin?.copy, r.posts?.reddit?.copy].filter(Boolean).join(" ");
+    const q = searchQuery.toLowerCase();
+    const matchesSearch = !q
+      || headline.toLowerCase().includes(q)
+      || copy.toLowerCase().includes(q)
+      || String(r.run_id || "").toLowerCase().includes(q)
+      || String(r.reasoning?.audience || "").toLowerCase().includes(q);
 
     const matchesStatus =
       statusFilter === "ALL" ||
-      (statusFilter === "PUBLISHED" && r.dispatched === true) ||
-      (statusFilter === "BLOCKED" && r.publishable !== true);
+      (statusFilter === "POSTED" && r.dispatched === true) ||
+      (statusFilter === "READY" && r.publishable === true) ||
+      (statusFilter === "HELD" && (Boolean(r.blocked_reason) || r.status === "review_blocked"));
 
     const matchesCompany = company === "all" || (r.company || "vanna") === company;
 
@@ -110,57 +123,24 @@ export function Runs({ vm }: { vm: MissionVM }) {
   });
 
   const emptyCount = targetPool.filter(neverStarted).length;
+  const readyCount = targetPool.filter((r) => r.publishable === true).length;
+  const heldCount = targetPool.filter((r) => r.blocked_reason || r.status === "review_blocked").length;
 
   return (
     <section className="vanna-section">
-      {/* Telemetry Header Strip */}
-      <div
-        className="vanna-banner"
-        style={{
-          background: "var(--vn-surface)",
-          border: "1px solid var(--vn-accent-line)",
-        }}
-      >
-        {/* Once the repeated title came out, this card was one word on the
-            left and two figures on the right with a third of the row empty
-            between them. It is a stats strip, so it is laid out as one. */}
+      <div className="vanna-banner">
         <div style={{ display: "flex", alignItems: "center", gap: "32px", flexWrap: "wrap" }}>
           <div>
-            <div style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>Runs recorded</div>
-            <div style={{ fontFamily: MONO, fontSize: "27px", fontWeight: 600, color: "var(--vn-ink)", letterSpacing: "-0.02em" }}>{runs.length}</div>
+            <div style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>Posts</div>
+            <div style={{ fontFamily: MONO, fontSize: "27px", fontWeight: 600, color: "var(--vn-ink)", letterSpacing: "-0.02em" }}>{targetPool.filter((r) => r.has_post === true).length}</div>
           </div>
           <div>
-            <div style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>Showing</div>
-            <div style={{ fontFamily: MONO, fontSize: "27px", fontWeight: 600, color: "var(--vn-ink)", letterSpacing: "-0.02em" }}>{filteredRuns.length}</div>
+            <div style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>Ready for review</div>
+            <div style={{ fontFamily: MONO, fontSize: "27px", fontWeight: 600, color: "var(--vn-ok)", letterSpacing: "-0.02em" }}>{readyCount}</div>
           </div>
-          {emptyCount > 0 && (
-            <div>
-              <div style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>Never started</div>
-              <button
-                onClick={() => setShowEmpty((v) => !v)}
-                style={{
-                  background: "transparent", border: "none", padding: 0,
-                  cursor: "pointer", fontFamily: MONO, fontSize: "22px",
-                  fontWeight: 600, letterSpacing: "-0.02em",
-                  color: showEmpty ? "var(--vn-ink)" : "var(--vn-ink-muted)",
-                }}
-                title={showEmpty ? "Hide runs that never started" : "Show runs that never started"}
-              >
-                {emptyCount}
-                <span style={{ fontSize: "12px", fontWeight: 500, marginLeft: "8px", color: "var(--vn-accent-light)" }}>
-                  {showEmpty ? "hide" : "show"}
-                </span>
-              </button>
-            </div>
-          )}
           <div>
-            <div style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>Autonomous daemon</div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: daemonRunning ? "var(--vn-ok)" : "var(--vn-ink-muted)" }} />
-              <span style={{ fontFamily: MONO, fontSize: "22px", fontWeight: 600, color: daemonRunning ? "var(--vn-ok)" : "var(--vn-ink-muted)", letterSpacing: "-0.02em" }}>
-                {daemonRunning ? "Active" : "Standby"}
-              </span>
-            </div>
+            <div style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>Held</div>
+            <div style={{ fontFamily: MONO, fontSize: "27px", fontWeight: 600, color: "var(--vn-warn)", letterSpacing: "-0.02em" }}>{heldCount}</div>
           </div>
         </div>
       </div>
@@ -172,7 +152,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search runs by keyword, title, audience, or machine..."
+            placeholder="Search by the headline, the post line, or the run id"
             style={{
               flex: 1,
               background: "var(--vn-surface)",
@@ -221,7 +201,7 @@ export function Runs({ vm }: { vm: MissionVM }) {
                 cursor: "pointer"
               }}
             >
-              Global Archive ({runs.length})
+              All posts
             </button>
             {sessionRunIds.length > 0 && (
               <button
@@ -249,10 +229,26 @@ export function Runs({ vm }: { vm: MissionVM }) {
 
           <CompanyFilter companies={targetPool.map((r) => r.company || "vanna")} value={company} onChange={setCompany} />
 
+          {emptyCount > 0 && (
+            <button
+              onClick={() => setShowEmpty((v) => !v)}
+              style={{
+                background: "transparent",
+                border: "none",
+                color: "var(--vn-ink-muted)",
+                padding: "8px 4px",
+                fontSize: "12px",
+                cursor: "pointer",
+              }}
+            >
+              {showEmpty ? "Hide" : "Show"} {emptyCount} with no post
+            </button>
+          )}
           {[
-            { id: "ALL", label: `All (${targetPool.length})` },
-            { id: "PUBLISHED", label: "Published" },
-            { id: "BLOCKED", label: "Blocked by review" }
+            { id: "ALL", label: "All" },
+            { id: "READY", label: "Ready" },
+            { id: "HELD", label: "Held" },
+            { id: "POSTED", label: "Posted" },
           ].map((t) => (
             <button
               key={t.id}
@@ -274,222 +270,74 @@ export function Runs({ vm }: { vm: MissionVM }) {
         </div>
       </div>
 
-      {/* Production Runs Table */}
-      <div
-        style={{
-          background: "var(--vn-surface)",
-          border: "1px solid var(--vn-line)",
-          borderRadius: "12px",
-          overflow: "hidden",
-          boxShadow: "0 2px 8px rgba(17,17,17,0.04)"
-        }}
-      >
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-            <thead>
-              <tr style={{ background: "var(--vn-sunken)", borderBottom: "1px solid var(--vn-line)" }}>
-                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Run</th>
-                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Audience</th>
-                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Gate</th>
-                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Artifacts</th>
-                <th style={{ padding: "16px 20px", fontSize: "11px", color: "var(--vn-ink-faint)", fontWeight: 500 }}>Duration & cost</th>
-                <th style={{ padding: "16px 20px", fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", textTransform: "uppercase", textAlign: "right" }}>&nbsp;</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredRuns.length === 0 ? (
-                <tr>
-                  <td colSpan={6} style={{ padding: 0 }}>
-                    {loading ? (
-                      <SkeletonRows rows={4} cols={5} />
-                    ) : runs.length > 0 ? (
-                      <EmptyState compact icon="search" title="No runs match these filters"
-                        body="Clear the search or switch to Global Archive and All to see every run." />
-                    ) : viewer && !viewer.owner ? (
-                      <EmptyState compact icon="runs" title="No new runs since you opened this page"
-                        body={<>This view starts at {sinceLabel(viewer.since)}. Each run the agents finish from now on appears here, with its copy, visual and review.</>} />
-                    ) : (
-                      <EmptyState compact icon="runs" title="No runs recorded yet"
-                        body="Press Launch Run, or enter a directive above. Leaving it empty runs the autonomous path, where the agents pick the topic themselves." />
-                    )}
-                  </td>
-                </tr>
-              ) : (
-                filteredRuns.map((r, i) => {
-                const title = r.title || r.winner_hook || r.run_id || "Autonomous Run";
-                // These read the v2 journal. They previously fell back to
-                // "A2: Quantitative Traders" / "MACH_04: Technical Telemetry
-                // Series" / "96/100" on keys (agent_03_strategist,
-                // agent_10_reviewer) that this pipeline does not emit — so
-                // every row showed the same three fabricated values.
-                const aud = r.reasoning?.audience ?? "—";
-                const mach = r.machine ?? r.reasoning?.playbook ?? "—";
-                const dur = r.duration_s ? `${r.duration_s}s` : "—";
-                const agentsRatio = r.agents_declared
-                  ? `${r.agents_that_reasoned}/${r.agents_declared}`
-                  : null;
-                const blocked = r.blocked_reason;
-                const gate = r.publishable === true
-                  ? { label: "GATE PASSED", tone: "var(--vn-ok)" }
-                  : blocked || r.status === "review_blocked"
-                    ? { label: "GATE BLOCKED", tone: "var(--vn-warn)" }
-                    : r.status === "aborted" || r.status === "failed"
-                      ? { label: "RUN ABORTED", tone: "var(--vn-bad)" }
-                      : r.status === "NO_ACTION" || r.status === "KILL"
-                        ? { label: "NO ACTION", tone: "var(--vn-ink-muted)" }
-                        : { label: "NOT REVIEWED", tone: "var(--vn-ink-muted)" };
-                const dateStr = r.started ? new Date(r.started * 1000).toLocaleString() : `Run #${runs.length - i}`;
-
-                return (
-                  <tr
-                    key={r.run_id || i}
-                    // The row already declared a background transition and had
-                    // nothing to transition to. Fifty static rows with no
-                    // response to the cursor is most of why the table read as
-                    // a printout rather than a list you can act on.
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "var(--vn-line)")}
-                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                    style={{
-                      borderBottom: "1px solid var(--vn-line)",
-                      transition: "background 0.15s ease",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => { if (r.run_id) vm.openRun(r.run_id); }}
-                  >
-                    {/* Column 1: Run ID & Title. The title is what a reader
-                        scans for, so it leads; the id and the timestamp are
-                        reference and sit under it, quieter. Before, all three
-                        lines competed at roughly the same weight. */}
-                    <td style={{ padding: "16px 22px" }}>
-                      <div style={{ fontSize: "14.5px", fontWeight: 600,
-                                    color: neverStarted(r) ? "var(--vn-ink-muted)" : "var(--vn-ink)",
-                                    lineHeight: 1.35 }}>
-                        {neverStarted(r) ? "Never started" : title}
-                      </div>
-                      <div style={{ display: "flex", gap: "12px", marginTop: "5px", alignItems: "center" }}>
-                        <CompanyChip company={r.company || "vanna"} />
-                        <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-faint)" }}>{r.run_id}</span>
-                        <span style={{ fontSize: "11px", color: "var(--vn-ink-faint)" }}>{dateStr}</span>
-                      </div>
-                    </td>
-
-                    {/* Column 2: Audience & Machine */}
-                    <td style={{ padding: "20px 24px" }}>
-                      <div style={{ fontSize: "13px", fontWeight: 600, color: "var(--vn-accent-ink)" }}>{aud}</div>
-                      <div style={{ fontSize: "11px", color: "var(--vn-ink-muted)", marginTop: "3px" }}>{mach}</div>
-                    </td>
-
-                    {/* Column 3: gate outcome — there is no reviewer score in
-                        this pipeline; publication is decided by the claim gate. */}
-                    <td style={{ padding: "20px 24px" }}>
-                      <span
-                        style={{
-                          fontFamily: MONO, fontSize: "11.5px", fontWeight: 700,
-                          color: gate.tone,
-                          background: `color-mix(in srgb, ${gate.tone} 12%, transparent)`,
-                          border: `1px solid color-mix(in srgb, ${gate.tone} 30%, transparent)`,
-                          padding: "4px 10px", borderRadius: "6px", whiteSpace: "nowrap",
-                        }}
-                      >
-                        {gate.label}
-                      </span>
-                      {agentsRatio && (
-                        <div style={{ fontSize: "10.5px", color: "var(--vn-ink-muted)", marginTop: "5px", fontFamily: MONO }}>
-                          {agentsRatio} agents reasoned
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Column 4: Dynamic Media Badges */}
-                    <td style={{ padding: "20px 24px" }}>
-                      {/* Render what the run produced, rather than badges
-                          describing it. A badge reading "41s Video" was shown
-                          for any run with a video key, whatever its length. */}
-                      <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", alignItems: "flex-start" }}>
-                        {r.visual && (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={r.visual}
-                            alt="rendered visual"
-                            style={{ width: 96, height: 96, objectFit: "cover", borderRadius: 8,
-                                     border: "1px solid var(--vn-line)" }}
-                          />
-                        )}
-                        {r.video && (
-                          <video
-                            src={r.video}
-                            muted
-                            loop
-                            playsInline
-                            onMouseEnter={(e) => (e.currentTarget as HTMLVideoElement).play()}
-                            onMouseLeave={(e) => (e.currentTarget as HTMLVideoElement).pause()}
-                            style={{ width: 128, height: 96, objectFit: "cover", borderRadius: 8,
-                                     border: "1px solid var(--vn-accent-line)", background: "var(--vn-sunken)" }}
-                          />
-                        )}
-                        {!r.visual && !r.video && (
-                          <span style={{ fontSize: "11px", color: "var(--vn-ink-muted)" }}>no media</span>
-                        )}
-                      </div>
-                    </td>
-
-                    {/* Column 5: Duration & measured token usage.
-                        The dollar figure that was here came from
-                        `0.008 + duration_s * 0.0006 + …` — a cost invented from
-                        wall-clock time, which is not what anything costs. No
-                        rate table is wired for Model Garden or the API key, so
-                        this shows what is actually measured: tokens. */}
-                    <td style={{ padding: "20px 24px" }}>
-                      <div style={{ fontFamily: MONO, fontSize: "12px", color: "var(--vn-ink)" }}>{dur}</div>
-                      <div style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", marginTop: "2px" }}>
-                        {(r.spend?.input_tokens || r.spend?.output_tokens)
-                          ? `${(((r.spend?.input_tokens ?? 0) + (r.spend?.output_tokens ?? 0)) / 1000).toFixed(1)}k tok · ${r.spend?.calls ?? 0} calls`
-                          : "no model calls"}
-                      </div>
-                      {/* Real now: pipeline/state/model_rates.json holds the
-                          published rates and the summary holds a per-model
-                          tally, so the image and video calls — which carry no
-                          tokens and are most of a full run's cost — are
-                          priced rather than silently skipped. Still blank,
-                          never $0.00, when a model has no published rate. */}
-                      {typeof r.spend?.cost_usd === "number" && (
-                        <div style={{ fontFamily: MONO, fontSize: "12px",
-                                      color: r.spend.cost_usd >= 1 ? "var(--vn-warn)" : "var(--vn-ink-muted)",
-                                      marginTop: "3px" }}>
-                          ${r.spend.cost_usd < 1
-                            ? r.spend.cost_usd.toFixed(3)
-                            : r.spend.cost_usd.toFixed(2)}
-                          {r.spend.cost_complete === false ? " +" : ""}
-                        </div>
-                      )}
-                    </td>
-
-                    {/* Column 6: Action */}
-                    <td style={{ padding: "20px 24px", textAlign: "right" }}>
-                      <button
-                        onClick={() => {
-                          if (r.run_id) vm.openRun(r.run_id);
-                        }}
-                        style={{
-                          background: "transparent",
-                          border: "none",
-                          color: "var(--vn-accent-ink)",
-                          padding: "8px 0",
-                          fontSize: "13px",
-                          fontWeight: 500,
-                          cursor: "pointer",
-                        }}
-                      >
-                        Inspect
-                      </button>
-                    </td>
-                  </tr>
-                );
-              }))}
-            </tbody>
-          </table>
+      {filteredRuns.length === 0 ? (
+        loading ? (
+          <SkeletonRows rows={4} cols={1} />
+        ) : runs.length > 0 ? (
+          <EmptyState icon="search" title="No posts match these filters"
+            body="Clear the search, or switch to Global Archive and All." />
+        ) : viewer && !viewer.owner ? (
+          <EmptyState icon="runs" title="No new posts since you opened this page"
+            body={<>This view starts at {sinceLabel(viewer.since)}. Each post the pipeline finishes from now on appears here, with its line, visual and review.</>} />
+        ) : (
+          <EmptyState icon="runs" title="No posts yet"
+            body="Tell the Assistant to make a post. It lands here, with its headline, its line and its visual." />
+        )
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+          {groupByDay(filteredRuns).map((group) => (
+          <div key={group.day} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: "0.06em", color: "var(--vn-ink-muted)" }}>
+              {group.day}
+            </div>
+          {group.items.map((r, i) => {
+            const headline = neverStarted(r) ? "No post from this run" : postHeadline(r);
+            const status = r.dispatched === true
+              ? { label: "Posted", tone: "var(--vn-ok)" }
+              : r.publishable === true
+                ? { label: "Ready for review", tone: "var(--vn-ok)" }
+                : r.blocked_reason || r.status === "review_blocked"
+                  ? { label: "Held", tone: "var(--vn-warn)" }
+                  : r.status === "aborted" || r.status === "failed"
+                    ? { label: "Stopped", tone: "var(--vn-bad)" }
+                    : r.status === "running"
+                      ? { label: "In progress", tone: "var(--vn-accent-ink)" }
+                      : neverStarted(r) || r.status === "NO_ACTION" || r.status === "KILL"
+                        ? { label: "No post", tone: "var(--vn-ink-muted)" }
+                        : { label: "Waiting", tone: "var(--vn-ink-muted)" };
+            return (
+              <article
+                key={r.run_id || i}
+                className="post-card"
+                onClick={() => { if (r.run_id) vm.openRun(r.run_id); }}
+              >
+                <div className="post-visual">
+                  {r.visual ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={r.visual} alt="" />
+                  ) : (
+                    <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vn-ink-faint)" }}>—</span>
+                  )}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+                  <span style={{
+                    flex: "0 0 auto",
+                    fontFamily: MONO, fontSize: 10, fontWeight: 700, letterSpacing: "0.04em",
+                    color: status.tone,
+                  }}>{status.label}</span>
+                  <h3 style={{
+                    margin: 0, minWidth: 0, fontWeight: 500,
+                    fontSize: 15, lineHeight: 1.35, color: "var(--vn-ink)",
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  }}>{headline}</h3>
+                </div>
+              </article>
+            );
+          })}
+          </div>
+          ))}
         </div>
-      </div>
+      )}
     </section>
   );
 }

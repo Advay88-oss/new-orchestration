@@ -21,3 +21,6 @@ Only configured and permitted assets can be credited. BLUSDC, AqUSDC, and SoUSDC
 Use **Leverage Assets** when you intend to combine a deposit with borrowing; the standalone transfer flow adds collateral without creating debt. Account and protocol pause/configuration checks can affect availability.
 
 After confirmation, check the margin balance rather than the wallet balance alone. See [Transfer Collateral](/guides/margin/transfer-collateral).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

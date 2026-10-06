@@ -28,7 +28,35 @@ function when(iso: string | null | undefined): string {
   return isNaN(d.getTime()) ? String(iso).slice(0, 19).replace("T", " ") : d.toLocaleString();
 }
 
-export function LiveHarvest() {
+function kindOf(s: { signal_id?: string; source_type?: string; source?: string; source_root?: string }): string {
+  const blob = [s.signal_id, s.source_type, s.source, s.source_root].join(" ").toLowerCase();
+  if (/twitter|reddit|telegram|\bt\.me\b|x\.com/.test(blob)) return "Post";
+  if (/docs|github|blog/.test(blob)) return "Docs";
+  if (/llama|defillama/.test(blob)) return "Market data";
+  return "News";
+}
+
+const SOURCE_BTN: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 6,
+  width: "fit-content",
+  maxWidth: "100%",
+  background: "var(--vn-hover)",
+  border: "1px solid var(--vn-line-strong)",
+  color: "var(--vn-ink)",
+  borderRadius: 8,
+  padding: "7px 10px",
+  fontFamily: MONO,
+  fontSize: 11,
+  fontWeight: 650,
+  lineHeight: 1.2,
+  cursor: "pointer",
+  textDecoration: "none",
+};
+
+export function LiveHarvest({ onOpenReference }: { onOpenReference?: (id: string) => void }) {
   const [data, setData] = useState<any>(null);
   const [err, setErr] = useState<string | null>(null);
   const [company, setCompany] = useState<string>("ALL");
@@ -55,6 +83,7 @@ export function LiveHarvest() {
   if (!data) return <SkeletonCard lines={5} />;
 
   const signals: any[] = data.signals ?? [];
+  const collected = data.collected as { collected_at?: string; used_by?: string; items?: { headline: string; source?: string; kind?: string; style?: string }[] } | null;
   const shown = company === "ALL"
     ? signals
     : signals.filter((s) => (s.entities ?? []).includes(company));
@@ -63,6 +92,26 @@ export function LiveHarvest() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+      {collected?.items?.length ? (
+        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "16px 18px" }}>
+          <div style={{ fontFamily: MONO, fontSize: 11, color: "var(--vn-accent-ink)", fontWeight: 700 }}>COLLECTED RESEARCH</div>
+          <p style={{ margin: "6px 0 10px", fontSize: 13.5, color: "var(--vn-ink-body)", lineHeight: 1.45 }}>
+            {collected.used_by || "The next post reads this list."} Collected {when(collected.collected_at)}.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {collected.items.filter((item, i, all) => all.findIndex((o) => o.headline === item.headline) === i).slice(0, 12).map((item, i) => (
+              <div key={i} style={{ padding: "10px 12px", border: "1px solid var(--vn-line)", borderRadius: 10, background: "var(--vn-sunken)" }}>
+                <div style={{ display: "flex", gap: 8, alignItems: "baseline", flexWrap: "wrap" }}>
+                  <span style={{ fontFamily: MONO, fontSize: 10, letterSpacing: 0.6, textTransform: "uppercase", color: "var(--vn-ink-muted)" }}>{item.kind || "Source"}</span>
+                  {item.source ? <span style={{ fontSize: 12, color: "var(--vn-ink-muted)" }}>{item.source}</span> : null}
+                </div>
+                <div style={{ fontSize: 14.5, color: "var(--vn-ink)", lineHeight: 1.45, marginTop: 4 }}>{item.headline}</div>
+                {item.style ? <div style={{ fontSize: 12.5, color: "var(--vn-ink-body)", marginTop: 4, lineHeight: 1.45 }}>{item.style}</div> : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
       <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "var(--vn-card-pad)" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", flexWrap: "wrap", gap: 12 }}>
           <div>
@@ -72,6 +121,9 @@ export function LiveHarvest() {
             <h3 style={{ fontSize: 19, fontWeight: 700, color: "var(--vn-ink)", margin: "4px 0 0" }}>
               {data.totalSignals} signals from {sourceRows.filter(([, v]) => v?.signals).length} sources
             </h3>
+            <p style={{ margin: "8px 0 0", fontSize: 13.5, color: "var(--vn-ink-body)", lineHeight: 1.45, maxWidth: 640 }}>
+              These are the docs, posts, news pages and market pages the scout took. Open one in References to see the post idea the other agents write from that same source.
+            </p>
           </div>
           <div style={{ textAlign: "right", fontFamily: MONO, fontSize: 12, color: DIM }}>
             <div>SCRAPED AT</div>
@@ -168,15 +220,22 @@ export function LiveHarvest() {
                       ))}
                     </div>
                   </td>
-                  <td style={{ padding: "12px 16px", fontFamily: MONO, fontSize: 11 }}>
-                    <div style={{ color: "var(--vn-accent-ink)" }}>{s.source_type}</div>
-                    {s.source?.startsWith("http") ? (
-                      <a href={s.source} target="_blank" rel="noreferrer" style={{ color: DIM, fontSize: 10 }}>
-                        {s.source_root || s.source.slice(0, 40)} ↗
-                      </a>
-                    ) : (
-                      <span style={{ color: DIM, fontSize: 10 }}>{s.source_root || s.source}</span>
-                    )}
+                  <td style={{ padding: "12px 16px" }}>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+                      <span style={{ fontFamily: MONO, fontSize: 10, color: "var(--vn-accent-ink)", fontWeight: 700 }}>{kindOf(s)}</span>
+                      {s.source?.startsWith("http") ? (
+                        <a href={s.source} target="_blank" rel="noreferrer" style={SOURCE_BTN}>
+                          {s.source_root || "Open source"} ↗
+                        </a>
+                      ) : (
+                        <span style={{ ...SOURCE_BTN, cursor: "default", color: DIM }}>{s.source_root || s.source || "No link"}</span>
+                      )}
+                      {onOpenReference && s.signal_id && (
+                        <button type="button" onClick={() => onOpenReference(String(s.signal_id))} style={SOURCE_BTN}>
+                          Open in References
+                        </button>
+                      )}
+                    </div>
                   </td>
                   <td style={{ padding: "12px 16px", fontFamily: MONO, fontSize: 11, color: DIM, whiteSpace: "nowrap" }}>
                     {when(s.observed_at)}

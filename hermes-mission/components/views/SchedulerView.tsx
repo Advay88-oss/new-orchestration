@@ -6,20 +6,68 @@ import type { MissionVM } from "@/lib/viewmodel";
 import { EmptyState, SkeletonCard } from "@/components/States";
 import { OpsCard } from "@/components/views/OpsCard";
 
+/** What a founder needs to see. The job id stays the key the scheduler runs. */
+const PLAIN: Record<string, { title: string; does: string; lands: string; look?: "runs" | "trace" | "plays" | "research" }> = {
+  gtm_cycle: {
+    title: "Writes a post",
+    does: "The agents write a post on the gap you tell them. They pick the subject, write it, and make the image. It stops for you. Nothing is published.",
+    lands: "Post History",
+    look: "runs",
+  },
+  brain_watch: {
+    title: "Listens in public",
+    does: "Reads what is being said about the company on X, Reddit, news, and the web. This is the scrape. It does not write a post.",
+    lands: "The brand brain. The next post can use it. There is no separate page for the raw scrape.",
+  },
+  github_commits: {
+    title: "Reads our GitHub",
+    does: "Pulls the product pages (Solana and Stellar) into the brain every 6 hours, and new commits every hour. A post may use a figure only when that page states it.",
+    lands: "The brand brain, on the page it came from.",
+  },
+  notion_sync: {
+    title: "Syncs Notion",
+    does: "Once a day, copies connected Notion pages into the brain so a post can use what you already wrote there.",
+    lands: "The brand brain, and your Notion workspace.",
+  },
+  metrics_collect: {
+    title: "Reads what a published post did",
+    does: "After you publish a post, this looks up engagement about two days later. Until something is published, it has nothing to read.",
+    lands: "Learning",
+  },
+  research_collect: {
+    title: "Collects research",
+    does: "Reads live headlines from news, Reddit, Telegram and docs. It does not write the post. The next post is allowed to use this list.",
+    lands: "Scraped Intelligence, then the next post in Post History.",
+    look: "research",
+  },
+  ops_watch: {
+    title: "Checks the machine is healthy",
+    does: "Once an hour. If a job fails, you get one Telegram note. The spend for today is the card above.",
+    lands: "This page, and Telegram when something breaks.",
+  },
+};
+
+const STATUS_WORD: Record<string, string> = {
+  RUNNING: "Working now",
+  COMPLETED: "Done",
+  IDLE: "Waiting",
+  FAILED: "Failed",
+  DISABLED_AUTO_BACKOFF: "Paused after failures",
+  STOPPED: "Stopped",
+};
+
 export function SchedulerView({ vm }: { vm: MissionVM }) {
   const [schedulerData, setSchedulerData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [actionFeedback, setActionFeedback] = useState<string | null>(null);
   const [runningJob, setRunningJob] = useState<string | null>(null);
-  const [completedJobTarget, setCompletedJobTarget] = useState<{ label: string; action: () => void } | null>(null);
+  const [tell, setTell] = useState("");
 
   const fetchStatus = async () => {
     try {
       const res = await fetch("/api/scheduler", { cache: "no-store" });
       const data = await res.json();
-      if (data.success) {
-        setSchedulerData(data);
-      }
+      if (data.success) setSchedulerData(data);
     } catch (e: any) {
       console.warn("Scheduler fetch error:", e);
     } finally {
@@ -35,31 +83,17 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
 
   const handleRunNow = async (jobName: string) => {
     setRunningJob(jobName);
-    setCompletedJobTarget(null);
-    setActionFeedback(`Triggering immediate execution for '${jobName}'...`);
+    const name = PLAIN[jobName]?.title || jobName;
+    setActionFeedback(`${name} is starting.`);
     try {
       const res = await fetch("/api/scheduler", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "run_now", job: jobName })
+        body: JSON.stringify({ action: "run_now", job: jobName }),
       });
       const data = await res.json();
-      if (data.success) {
-        const targetAction =
-          jobName === "ideas_panel"
-            ? { label: "Ideas Panel", action: () => (vm as any).goIdeas?.() }
-            : jobName === "memes_panel"
-            ? { label: "Crypto Memes", action: () => (vm as any).goMemes?.() }
-            : jobName === "research_collect" || jobName === "trend_scan"
-            ? { label: "Scraped Intelligence", action: () => (vm as any).goResearch?.() }
-            : null;
-
-        setCompletedJobTarget(targetAction);
-        setActionFeedback(`Job '${jobName}' completed in ${data.result?.duration_s ? data.result.duration_s.toFixed(2) : "0.5"}s! New items generated.`);
-        await fetchStatus();
-      } else {
-        setActionFeedback(`Note: ${data.error || "Execution skipped or still running"}`);
-      }
+      setActionFeedback(data.success ? `${name} is running. This page follows it.` : `Note: ${data.error || "Skipped, or already running."}`);
+      await fetchStatus();
     } catch (err: any) {
       setActionFeedback(`Failed: ${err.message}`);
     } finally {
@@ -67,311 +101,154 @@ export function SchedulerView({ vm }: { vm: MissionVM }) {
     }
   };
 
-  const handleSetInterval = async (jobName: string, intervalStr: string) => {
-    setActionFeedback(`Updating interval for '${jobName}' to ${intervalStr}...`);
+  const handleTell = async () => {
+    const text = tell.trim();
+    if (!text) return;
+    setActionFeedback("Telling the agents.");
     try {
       const res = await fetch("/api/scheduler", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "set_interval", job: jobName, interval: intervalStr })
+        body: JSON.stringify({ action: "tell", text }),
       });
       const data = await res.json();
-      if (data.success) {
-        setActionFeedback(`Interval for '${jobName}' updated to ${intervalStr}`);
-        await fetchStatus();
-      } else {
-        setActionFeedback(`Failed: ${data.error || "Failed to update interval"}`);
-      }
+      setActionFeedback(data.success ? (data.message || "Done.") : (data.error || "That did not stick."));
+      if (data.success) setTell("");
+      await fetchStatus();
     } catch (err: any) {
-      setActionFeedback(`Failed: Network error: ${err.message}`);
-    } finally {
-      setTimeout(() => setActionFeedback(null), 8000);
+      setActionFeedback(err.message);
     }
   };
 
-  const jobs = schedulerData?.jobs || [];
-  const ALLOWED_INTERVALS = ["2m", "5m", "30m", "1h", "2h", "6h", "12h", "24h"];
+  const jobs = (schedulerData?.jobs || []).filter((j: any) => j.enabled !== false);
+  const post = jobs.find((j: any) => j.job === "gtm_cycle");
+  const latest = (vm.runRows || [])[0] as { headline?: string; label?: string; outcomeLabel?: string; open?: () => void } | undefined;
+
+  const openLook = (look?: "runs" | "trace" | "plays" | "research") => {
+    if (look === "runs") vm.goRuns();
+    else if (look === "trace") vm.goTrace();
+    else if (look === "plays") vm.goVannaPlays();
+    else if (look === "research") vm.goResearch();
+  };
 
   return (
     <section className="vanna-section">
-      {/* Banner */}
       <div className="vanna-banner">
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <span style={{ width: "8px", height: "8px", borderRadius: "999px", background: "var(--vn-ok)", boxShadow: "0 0 0 3px var(--vn-hover)" }} />
-            <span style={{ fontFamily: MONO, fontSize: "11px", fontWeight: 700, color: "var(--vn-ok)", letterSpacing: "0.1em" }}>
-              24/7 AUTONOMOUS SCHEDULER & RESTART RESILIENCE
-            </span>
+          <div style={{ fontFamily: MONO, fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", color: "var(--vn-ok)" }}>
+            ON ITS OWN
           </div>
-          <h2 style={{ fontSize: "22px", fontWeight: 800, color: "var(--vn-ink)", marginTop: "6px" }}>
-            Configurable Interval Jobs & Anti-Overlap Daemon
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: "var(--vn-ink)", margin: "6px 0 0" }}>
+            The clock writes a post, then waits for you
           </h2>
-          <p style={{ fontSize: "14px", color: "var(--vn-ink-muted)", marginTop: "4px" }}>
-            Continuous background execution engine that survives machine reboots, prevents concurrent job stacking, and enforces interval sanity to protect API spend.
+          <p style={{ fontSize: 14, color: "var(--vn-ink-muted)", marginTop: 6, maxWidth: 640, lineHeight: 1.5 }}>
+            Listening and GitHub go into the brain. Every 6 hours that reading becomes one post in Post History.
+            You approve it. Nothing publishes by itself.
           </p>
         </div>
-
-        {/* Global Daemon Health Pill */}
-        <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
-          <div style={{ background: "var(--vn-ok-soft)", border: "1px solid var(--vn-ok-line)", borderRadius: "8px", padding: "10px 16px" }}>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>DAEMON SERVICE</div>
-            <div style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: "var(--vn-ok)", marginTop: "2px" }}>
-              ● ACTIVE (SURVIVES BOOT)
-            </div>
-          </div>
-          <div style={{ background: "var(--vn-accent-soft)", border: "1px solid var(--vn-accent-line)", borderRadius: "8px", padding: "10px 16px" }}>
-            <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>JOBS CONFIGURED</div>
-            <div style={{ fontFamily: MONO, fontSize: "14px", fontWeight: 700, color: "var(--vn-accent-ink)", marginTop: "2px" }}>
-              {jobs.length} SCHEDULED
-            </div>
+        <div style={{ background: "var(--vn-ok-soft)", border: "1px solid var(--vn-ok-line)", borderRadius: 8, padding: "10px 16px" }}>
+          <div style={{ fontFamily: MONO, fontSize: 10, color: "var(--vn-ink-muted)" }}>ON THE CLOCK</div>
+          <div style={{ fontFamily: MONO, fontSize: 14, fontWeight: 700, color: "var(--vn-ok)", marginTop: 2 }}>
+            {jobs.length} jobs
           </div>
         </div>
       </div>
 
+      {latest?.headline ? (
+        <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "14px 16px", display: "flex", justifyContent: "space-between", gap: 16, alignItems: "center", flexWrap: "wrap" }}>
+          <div>
+            <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.6, color: "var(--vn-ink-muted)" }}>LATEST POST</div>
+            <div style={{ fontSize: 15, fontWeight: 650, marginTop: 4, color: "var(--vn-ink)" }}>{latest.headline}</div>
+            <div style={{ fontSize: 12.5, color: "var(--vn-ink-muted)", marginTop: 4 }}>{latest.outcomeLabel || "Held for review"}</div>
+          </div>
+          <button onClick={() => (latest.open ? latest.open() : vm.goRuns())} style={{ background: "var(--vn-cta)", color: "var(--vn-on-accent)", border: "none", borderRadius: 8, padding: "8px 14px", fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
+            Open the post
+          </button>
+        </div>
+      ) : null}
+
+      <div style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "16px 18px" }}>
+        <div style={{ fontFamily: MONO, fontSize: 10.5, letterSpacing: 0.6, color: "var(--vn-ink-muted)" }}>TELL THE AGENTS</div>
+        <p style={{ margin: "6px 0 12px", fontSize: 14, lineHeight: 1.5, color: "var(--vn-ink-body)" }}>
+          {post?.paused
+            ? "Posts are stopped."
+            : "A post every " + (post?.interval || "2h") + "."}
+          {" "}Say the gap you want, or say stop. You can say the same thing in Assistant.
+        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input value={tell} onChange={(e) => setTell(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleTell()}
+                 placeholder="A post every 2 hours, or stop"
+                 style={{ flex: "1 1 240px", background: "var(--vn-sunken)", border: "1px solid var(--vn-line)", borderRadius: 8, padding: "9px 12px", color: "var(--vn-ink)", fontSize: 14 }} />
+          <button onClick={handleTell} disabled={!tell.trim()}
+                  style={{ background: "var(--vn-accent)", color: "#fff", border: "none", borderRadius: 8, padding: "9px 16px", fontWeight: 600, cursor: "pointer" }}>
+            Tell them
+          </button>
+        </div>
+      </div>
+
       {actionFeedback && (
-        <div
-          style={{
-            fontFamily: MONO,
-            fontSize: "12px",
-            color: actionFeedback.startsWith("Failed") ? "var(--vn-bad)" : actionFeedback.startsWith("Note") ? "var(--vn-warn)" : "var(--vn-ok)",
-            background: actionFeedback.startsWith("Failed") ? "var(--vn-bad-soft)" : "var(--vn-ok-soft)",
-            padding: "12px 18px",
-            borderRadius: "8px",
-            border: `1px solid ${actionFeedback.startsWith("Failed") ? "var(--vn-bad-line)" : "var(--vn-ok-line)"}`,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "12px"
-          }}
-        >
-          <span>{actionFeedback}</span>
-          {completedJobTarget && (
-            <button
-              onClick={() => completedJobTarget.action()}
-              style={{
-                background: "var(--vn-cta)",
-                color: "var(--vn-on-accent)",
-                border: "none",
-                borderRadius: "6px",
-                padding: "6px 14px",
-                fontFamily: MONO,
-                fontSize: "11px",
-                fontWeight: 800,
-                cursor: "pointer"
-              }}
-            >
-              Open {completedJobTarget.label} →
-            </button>
-          )}
+        <div style={{ fontSize: 13, color: actionFeedback.startsWith("Failed") ? "var(--vn-bad)" : "var(--vn-ink)", background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 8, padding: "10px 14px" }}>
+          {actionFeedback}
         </div>
       )}
 
       <OpsCard />
 
-      {loading && jobs.length === 0 && <><SkeletonCard lines={2} /><SkeletonCard lines={2} /><SkeletonCard lines={2} /></>}
+      {loading && jobs.length === 0 && <><SkeletonCard lines={2} /><SkeletonCard lines={2} /></>}
       {!loading && jobs.length === 0 && (
-        <EmptyState icon="runs" title="No scheduled jobs"
-          body="Jobs are read from the scheduler on the machine that runs the pipeline. When it is reachable they appear here with their interval and last run." />
+        <EmptyState icon="runs" title="The clock is not reachable" body="Jobs are read from the scheduler on the machine that runs the pipeline." />
       )}
 
-      {/* Jobs Grid */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
         {jobs.map((j: any) => {
-          const isModelHeavy = j.job === "ideas_panel" || j.job === "research_collect";
-          const statusColor =
-            j.status === "RUNNING"
-              ? "var(--vn-accent-ink)"
-              : j.status === "COMPLETED"
-                ? "var(--vn-ok)"
-                : j.status === "DISABLED_AUTO_BACKOFF"
-                  ? "var(--vn-bad)"
-                  : "var(--vn-ink-muted)";
-
+          const plain = PLAIN[j.job] || { title: j.job, does: j.description, lands: "See the description." };
+          const word = STATUS_WORD[j.status] || j.status;
+          const statusColor = j.status === "RUNNING" ? "var(--vn-accent-ink)" : j.status === "FAILED" || j.status === "DISABLED_AUTO_BACKOFF" ? "var(--vn-bad)" : j.status === "COMPLETED" ? "var(--vn-ok)" : "var(--vn-ink-muted)";
           return (
-            <div
-              key={j.job}
-              style={{
-                background: "var(--vn-surface)",
-                border: `1px solid ${j.status === "RUNNING" ? "var(--vn-accent-line)" : "var(--vn-line)"}`,
-                borderRadius: "12px",
-                padding: "var(--vn-card-pad)",
-                display: "flex",
-                flexDirection: "column",
-                gap: "16px",
-                boxShadow: "0 2px 8px rgba(17,17,17,0.04)"
-              }}
-            >
-              {/* Row 1: Header & Status */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                    <span style={{ fontSize: "16px", fontWeight: 800, color: "var(--vn-ink)" }}>{j.job}</span>
-                    <span
-                      style={{
-                        fontFamily: MONO,
-                        fontSize: "10px",
-                        fontWeight: 700,
-                        color: statusColor,
-                        background: `color-mix(in srgb, ${statusColor} 9%, transparent)`,
-                        border: `1px solid color-mix(in srgb, ${statusColor} 25%, transparent)`,
-                        padding: "2px 8px",
-                        borderRadius: "6px"
-                      }}
-                    >
-                      ● {j.status}
-                    </span>
-                    {isModelHeavy && (
-                      <span style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-warn)", background: "var(--vn-warn-soft)", border: "1px solid var(--vn-warn-line)", padding: "2px 8px", borderRadius: "4px" }}>
-                        AI MODEL REASONING
-                      </span>
-                    )}
+            <article key={j.job} style={{ background: "var(--vn-surface)", border: "1px solid var(--vn-line)", borderRadius: 12, padding: "16px 18px" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "flex-start", flexWrap: "wrap" }}>
+                <div style={{ maxWidth: 720 }}>
+                  <div style={{ display: "flex", gap: 10, alignItems: "baseline", flexWrap: "wrap" }}>
+                    <h3 style={{ margin: 0, fontSize: 16 }}>{plain.title}</h3>
+                    <span style={{ fontFamily: MONO, fontSize: 11, color: statusColor }}>{word}</span>
                   </div>
-                  <div style={{ fontSize: "13px", color: "var(--vn-ink-body)", marginTop: "4px" }}>
-                    {j.description}
-                  </div>
+                  <p style={{ margin: "6px 0 0", fontSize: 13.5, lineHeight: 1.5, color: "var(--vn-ink-body)" }}>{plain.does}</p>
+                  <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--vn-ink)" }}>
+                    <span style={{ color: "var(--vn-ink-muted)" }}>Stored in </span>{plain.lands}
+                  </p>
                 </div>
-
-                <div style={{ display: "flex", gap: "8px", alignItems: "center", flexWrap: "wrap" }}>
-                  {j.job === "ideas_panel" && (
-                    <button
-                      onClick={() => (vm as any).goIdeas?.()}
-                      style={{
-                        background: "var(--vn-accent-soft)",
-                        border: "1px solid var(--vn-accent-line)",
-                        color: "var(--vn-accent-ink)",
-                        borderRadius: "8px",
-                        padding: "8px 14px",
-                        fontFamily: MONO,
-                        fontSize: "11px",
-                        fontWeight: 700,
-                        cursor: "pointer"
-                      }}
-                    >
-                      View Ideas Panel →
-                    </button>
-                  )}
-                  {j.job === "memes_panel" && (
-                    <button
-                      onClick={() => (vm as any).goMemes?.()}
-                      style={{
-                        background: "var(--vn-accent-soft)",
-                        border: "1px solid var(--vn-accent-line)",
-                        color: "var(--vn-accent-ink)",
-                        borderRadius: "8px",
-                        padding: "8px 14px",
-                        fontFamily: MONO,
-                        fontSize: "11px",
-                        fontWeight: 700,
-                        cursor: "pointer"
-                      }}
-                    >
-                      View Crypto Memes →
-                    </button>
-                  )}
-                  {(j.job === "research_collect" || j.job === "trend_scan") && (
-                    <button
-                      onClick={() => (vm as any).goResearch?.()}
-                      style={{
-                        background: "var(--vn-accent-soft)",
-                        border: "1px solid var(--vn-accent-line)",
-                        color: "var(--vn-accent-ink)",
-                        borderRadius: "8px",
-                        padding: "8px 14px",
-                        fontFamily: MONO,
-                        fontSize: "11px",
-                        fontWeight: 700,
-                        cursor: "pointer"
-                      }}
-                    >
-                      View scraped intelligence →
+                <div style={{ display: "flex", gap: 8 }}>
+                  {plain.look && (
+                    <button onClick={() => openLook(plain.look)} style={{ background: "transparent", border: "1px solid var(--vn-line-strong)", color: "var(--vn-ink)", borderRadius: 8, padding: "8px 12px", fontSize: 12, cursor: "pointer" }}>
+                      Open
                     </button>
                   )}
                   <button
                     onClick={() => handleRunNow(j.job)}
-                    disabled={runningJob === j.job}
-                    style={{
-                      background: runningJob === j.job ? "var(--vn-accent-soft)" : "var(--vn-cta)",
-                      color: runningJob === j.job ? "var(--vn-ink-muted)" : "var(--vn-on-accent)",
-                      border: "none",
-                      borderRadius: "8px",
-                      padding: "8px 16px",
-                      fontFamily: MONO,
-                      fontSize: "11px",
-                      fontWeight: 800,
-                      cursor: runningJob === j.job ? "not-allowed" : "pointer",
-                      whiteSpace: "nowrap"
-                    }}
+                    disabled={runningJob === j.job || j.status === "RUNNING"}
+                    style={{ background: "var(--vn-cta)", color: "var(--vn-on-accent)", border: "none", borderRadius: 8, padding: "8px 12px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
                   >
-                    {runningJob === j.job ? "Executing..." : "Run Now"}
+                    {runningJob === j.job || j.status === "RUNNING" ? "Running" : "Run now"}
                   </button>
                 </div>
               </div>
-
-              {/* Row 2: Metrics Strip */}
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px", background: "var(--vn-hover)", padding: "12px 16px", borderRadius: "8px" }}>
-                <div>
-                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>CURRENT INTERVAL</div>
-                  <div style={{ fontFamily: MONO, fontSize: "13px", fontWeight: 700, color: "var(--vn-accent-ink)", marginTop: "2px" }}>
-                    Every {j.interval}
-                  </div>
+              {j.job === "gtm_cycle" && (
+                <div style={{ marginTop: 10, fontSize: 13, color: "var(--vn-ink)" }}>
+                  {j.paused ? "Stopped, until you say start." : "Every " + j.interval + "."}
                 </div>
-                <div>
-                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>LAST RUN</div>
-                  <div style={{ fontFamily: MONO, fontSize: "13px", color: "var(--vn-ink)", marginTop: "2px" }}>
-                    {j.last_run !== "Never" ? new Date(j.last_run).toLocaleTimeString() : "Never"} ({j.last_duration_s}s)
-                  </div>
-                </div>
-                <div>
-                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>NEXT SCHEDULED</div>
-                  <div style={{ fontFamily: MONO, fontSize: "13px", color: "var(--vn-ok)", marginTop: "2px" }}>
-                    {j.next_run !== "Overdue / Pending" ? new Date(j.next_run).toLocaleTimeString() : "Pending Tick"}
-                  </div>
-                </div>
-                <div>
-                  <div style={{ fontFamily: MONO, fontSize: "10px", color: "var(--vn-ink-muted)" }}>FAILURES / HEALTH</div>
-                  <div style={{ fontFamily: MONO, fontSize: "13px", color: j.consecutive_failures > 0 ? "var(--vn-bad)" : "var(--vn-ok)", marginTop: "2px" }}>
-                    {j.consecutive_failures} Failures (Total: {j.total_runs} runs)
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 3: Configurable Interval Selector Pills */}
-              <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap", borderTop: "1px solid var(--vn-line)", paddingTop: "12px" }}>
-                <span style={{ fontFamily: MONO, fontSize: "11px", color: "var(--vn-ink-muted)", marginRight: "4px" }}>
-                  SET INTERVAL:
-                </span>
-                {ALLOWED_INTERVALS.map((inv) => {
-                  const isSelected = j.interval === inv;
-                  // If model heavy, warn or disable 2m
-                  const isDangerous = isModelHeavy && inv === "2m";
-                  return (
-                    <button
-                      key={inv}
-                      onClick={() => handleSetInterval(j.job, inv)}
-                      style={{
-                        background: isSelected ? "var(--vn-accent-soft)" : "var(--vn-hover)",
-                        border: `1px solid ${isSelected ? "var(--vn-accent)" : isDangerous ? "var(--vn-bad-line)" : "var(--vn-line-strong)"}`,
-                        color: isSelected ? "var(--vn-ink)" : isDangerous ? "var(--vn-ink-muted)" : "var(--vn-ink-body)",
-                        padding: "6px 12px",
-                        borderRadius: "6px",
-                        fontFamily: MONO,
-                        fontSize: "11px",
-                        fontWeight: isSelected ? 800 : 500,
-                        cursor: "pointer",
-                        opacity: isDangerous ? 0.6 : 1
-                      }}
-                      title={isDangerous ? "Interval sanity rejects model-heavy jobs under 2h to protect budget" : `Set ${j.job} interval to ${inv}`}
-                    >
-                      {inv} {isSelected ? "✓" : ""}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+              )}
+              {j.consecutive_failures > 0 ? (
+                <div style={{ marginTop: 8, fontFamily: MONO, fontSize: 12, color: "var(--vn-bad)" }}>{j.consecutive_failures} failed</div>
+              ) : null}
+            </article>
           );
         })}
       </div>
+
+      <p style={{ fontSize: 13, color: "var(--vn-ink-muted)", lineHeight: 1.5 }}>
+        The shortest post gap is 20 minutes. If a post is still being made, the next one waits until it finishes.
+        The other jobs keep their own gaps. Nothing is published until you say so.
+      </p>
     </section>
   );
 }

@@ -19,3 +19,6 @@ External actions require a registered controller and allowed tokens. After confi
 Metadata includes asset risk fields, but the currently enforced RiskEngine health threshold remains the global 1.1. Do not infer a different liquidation formula from metadata alone.
 
 Use the [Registry Reference](/developers/contracts/registry) and [configured address list](/developers/deployed-contracts) for integration.
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

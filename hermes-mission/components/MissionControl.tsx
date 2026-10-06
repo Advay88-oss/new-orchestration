@@ -3,19 +3,13 @@
 import React, { useState } from "react";
 import { PageHeader } from "./PageHeader";
 import { Sidebar } from "./Sidebar";
-import { CommandConsole } from "./CommandConsole";
-import { GtmAgents } from "./views/GtmAgents";
-import { AgentReasoning } from "./views/AgentReasoning";
-import { LiveTrace } from "./views/LiveTrace";
 import { RunDetail } from "./views/RunDetail";
 import { Runs } from "./views/Runs";
 import { Research } from "./views/Research";
 import { VannaReferences } from "./views/VannaReferences";
-import { BrandBrain } from "./views/BrandBrain";
-import { Learning } from "./views/Learning";
 import { SchedulerView } from "./views/SchedulerView";
-import { IdeasView } from "./views/IdeasView";
-import { MemesView } from "./views/MemesView";
+import { WhatVannaCanDo } from "./views/WhatVannaCanDo";
+import { Campaigns } from "./views/Campaigns";
 import { useMissionControl } from "@/lib/viewmodel";
 import type { MissionControlProps } from "@/lib/types";
 import { Assistant } from "./views/Assistant";
@@ -113,22 +107,14 @@ export function MissionControl({
         </div>
 
         <PageHeader vm={vm} />
-        {/* The directive box belongs where a run is watched: Live Trace only. */}
-        {(vm as any).isTrace && (vm as any).canLaunch && <CommandConsole vm={vm} />}
-
-        {(vm as any).isTrace && <LiveTrace />}
-        {vm.isLive && <AgentReasoning />}
         {(vm as any).isScheduler && <SchedulerView vm={vm} />}
-        {(vm as any).isIdeas && <IdeasView vm={vm} />}
-        {(vm as any).isMemes && <MemesView vm={vm} />}
         {vm.isRuns && <Runs vm={vm} />}
         {vm.isRun && <RunDetail vm={vm} />}
-        {vm.isAgents && <GtmAgents />}
         {(vm as any).isResearch && <Research vm={vm} />}
-        {(vm as any).isReferences && <VannaReferences />}
+        {(vm as any).isVannaPlays && <WhatVannaCanDo vm={vm} />}
+        {(vm as any).isCampaigns && <Campaigns />}
+        {(vm as any).isReferences && <VannaReferences focusId={(vm as any).referenceFocus || ""} />}
         {(vm as any).isAssistant && <Assistant vm={vm} />}
-        {(vm as any).isBrain && <BrandBrain />}
-        {(vm as any).isLearning && <Learning />}
       </main>
     </div>
   );

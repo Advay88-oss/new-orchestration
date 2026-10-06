@@ -27,3 +27,6 @@ The pool limits one redemption to the smallest of the requested value, **50% of 
 If no payout is available, the transaction fails. Additional withdrawals require another request and sufficient liquidity. Pool pause can also block redemption. Displayed total assets include loans, so that number is not the available cash balance.
 
 See [vTokens](/learn/vtokens) and [Pool Mechanics](/learn/lending-pool-mechanics).
+
+
+This documentation is built and hosted on [Mintlify](https://mintlify.com), a developer documentation platform.

@@ -342,6 +342,77 @@ table, .num {
   min-width: 680px;
 }
 
+.post-card {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  background: var(--vn-surface);
+  border: 1px solid var(--vn-line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  color: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.post-card:hover {
+  border-color: var(--vn-line-strong);
+  background: var(--vn-raised);
+}
+
+.post-visual {
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--vn-sunken);
+  border: 1px solid var(--vn-line);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.post-visual img,
+.post-visual video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.backend-floor .vanna-section {
+  padding: 0;
+}
+
+.strategy-field {
+  display: grid;
+  grid-template-columns: 168px minmax(0, 1fr);
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--vn-line);
+}
+
+@media (max-width: 720px) {
+  .strategy-field {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}
+
+@media (max-width: 720px) {
+  .post-card {
+    grid-template-columns: 64px minmax(0, 1fr);
+  }
+
+  .post-visual {
+    width: 64px;
+    height: 64px;
+  }
+}
+
 /* ── BREAKPOINT RULES ─────────────────────────────────────────────────────── */
 
 @media (max-width: 1279px) {
@@ -476,8 +547,9 @@ pre, code {
   .vn-skel { animation: none; }
 }
 
-/* The assistant's conversation list gives way on narrow screens. */
-@media (max-width: 760px) {
-  .assistant-threads { display: none !important; }
+/* On a narrow window the automations panel sits under the chat. */
+@media (max-width: 980px) {
+  .assistant-shell { flex-direction: column !important; height: auto !important; min-height: calc(100dvh - 150px); }
+  .assistant-work { width: 100% !important; flex: none !important; border-left: none !important; border-top: 1px solid var(--vn-line); max-height: 360px; }
 }
-.assistant-thread:hover { background: var(--vn-hover); }
+.assistant-shell textarea::placeholder { color: var(--vn-ink-faint); }

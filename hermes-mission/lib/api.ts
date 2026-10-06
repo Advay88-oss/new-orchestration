@@ -244,6 +244,9 @@ export async function loadMissionData(): Promise<MissionData> {
       POSTS_TOTAL: (Array.isArray(runsData?.runs) ? runsData.runs : [])
         .reduce((n: number, r: any) =>
           n + ["x", "linkedin", "reddit"].filter((k) => r?.posts?.[k]?.copy).length, 0),
+      POST_COUNT: typeof runsData?.post_count === "number"
+        ? runsData.post_count
+        : (Array.isArray(runsData?.runs) ? runsData.runs : []).filter((r: any) => r?.has_post === true).length,
       SPENT_USD: typeof spend?.costUsd === "number" && spend?.costComplete
         ? spend.costUsd
         : null,

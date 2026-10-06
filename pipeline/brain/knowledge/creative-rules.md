@@ -30,8 +30,12 @@ here — this file changes only when the founder changes a rule.
 - Headline and subtitle on top, then 2-4 large, clearly separated glass cards,
   each holding one simple diagram, then the footer. Generous space. Nothing
   overlapping, nothing clipped, everything aligned.
-- FLAT and face-on: 2D glass cards, flat icons, straight arrows. No isometric
-  or 3D objects (chips, cubes, platforms seen at an angle).
+- A poster that will be animated is FLAT and face-on: 2D glass cards, flat
+  icons, straight arrows. No isometric or 3D objects (chips, cubes, platforms
+  seen at an angle) — Veo tilts the camera on them.
+- A still poster (no video that run) may give one or two hero objects soft
+  glass 3D depth, like the approved testnet poster's glass cube and raised chip
+  (founder, 2026-10-02). Cards, arrows and text stay flat.
 - Few words. At most 6 diagram labels, each 1-4 words. Every word is drawn and
   every word is a chance to misspell.
 - No markdown characters rendered as text (** __ `). Emphasis is the gradient word.
