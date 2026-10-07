@@ -42,9 +42,18 @@ def new_thread(tenant: str, title: str = "") -> str:
 
 def threads(tenant: str, limit: int = 40) -> list[dict]:
     with _b(tenant)._db() as con:
-        rows = con.execute("SELECT id, title, created_at, updated_at FROM chat_threads "
-                           "ORDER BY updated_at DESC LIMIT ?", (limit,)).fetchall()
-    return [dict(r) for r in rows]
+        rows = con.execute(
+            "SELECT t.id, t.title, t.created_at, t.updated_at, "
+            "(SELECT m.text FROM chat_messages m WHERE m.thread_id = t.id "
+            "AND m.role = 'assistant' ORDER BY m.id LIMIT 1) AS preview "
+            "FROM chat_threads t ORDER BY t.updated_at DESC LIMIT ?",
+            (limit,)).fetchall()
+    out = []
+    for r in rows:
+        d = dict(r)
+        d["preview"] = " ".join(str(d.get("preview") or "").split())[:160]
+        out.append(d)
+    return out
 
 
 def thread(tenant: str, thread_id: str) -> Optional[dict]:

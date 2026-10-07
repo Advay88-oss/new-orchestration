@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { pythonPath } from '@/lib/python';
+import { pythonPath, spawnHidden } from '@/lib/python';
 import { listGtmRunIds, gtmRunSummary } from '@/lib/gtm';
 import { cloudMode, companyAccess } from '@/lib/local-only';
 import { clientTenant } from '@/lib/viewer';
@@ -88,7 +87,7 @@ export async function POST(req: Request) {
   fs.writeFileSync(path.join(LOG_DIR, 'last_launch.log'), 'see ' + path.basename(logFile) + '\n');
   const out = fs.openSync(logFile, 'a');
 
-  const child = spawn(py, args, {
+  const child = spawnHidden(args, {
     cwd: REPO_ROOT,
     env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1', BRAIN_TENANT: tenant },
     detached: true,

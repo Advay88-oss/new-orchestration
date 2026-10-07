@@ -11,7 +11,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { spawn } from 'child_process';
+import { spawn, type ChildProcess, type SpawnOptions } from 'child_process';
 
 import { REPO_ROOT } from './v2';
 
@@ -39,6 +39,25 @@ export function pythonPath(): string | null {
   }
   cached = null;
   return cached;
+}
+
+/**
+ * Start a pipeline process without a console window.
+ *
+ * On Windows, `detached: true` gives a console app its own window, which is
+ * the PowerShell flash every time a post or a visual starts. A detached job
+ * uses pythonw (no console) when the venv has it, and every spawn sets
+ * windowsHide so a short call does not flash either.
+ */
+export function spawnHidden(args: string[], opts: SpawnOptions = {}): ChildProcess {
+  const py = pythonPath();
+  if (!py) throw new Error('no python interpreter');
+  let bin = py;
+  if (process.platform === 'win32' && opts.detached) {
+    const windowless = py.replace(/python\.exe$/i, 'pythonw.exe');
+    try { if (fs.existsSync(windowless)) bin = windowless; } catch { /* python.exe */ }
+  }
+  return spawn(bin, args, { ...opts, windowsHide: true, shell: false });
 }
 
 export interface PyResult {
@@ -74,7 +93,7 @@ export function runPython(args: string[], timeoutMs = 120_000, input?: string,
   return new Promise<PyResult>((resolve) => {
     // No shell, no cmd.exe: arguments are passed as argv, so a directive
     // containing &, |, ^ or quotes cannot become a second command.
-    const child = spawn(py, args, {
+    const child = spawnHidden(args, {
       cwd: REPO_ROOT,
       // `env` carries the tenant a request is for (BRAIN_TENANT), e.g. a client's own company.
       env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1', ...env },

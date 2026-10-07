@@ -367,5 +367,6 @@
 /* Recents: past chats, newest first, like a chat app's history. */
 .recents{display:flex;flex-direction:column;gap:1px;max-height:34vh;overflow-y:auto;scrollbar-width:none}
 .recents::-webkit-scrollbar{width:0}
-.side-btn.recent{height:32px;font-size:13.5px;font-weight:400}
+.side-btn.recent{height:auto;min-height:44px;padding:7px 12px;font-size:13.5px;font-weight:500;align-items:stretch;flex-direction:column;gap:1px;line-height:1.3}
 .recent-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.recent-p{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;font-size:12px;font-weight:400;color:var(--faint)}

@@ -86,7 +86,8 @@ def ensure_spend_proxy_running():
                 [sys.executable, str(script), "--port", "8900"],
                 cwd=str(REPO_ROOT),
                 stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL
+                stderr=subprocess.DEVNULL,
+                creationflags=(0x08000000 if os.name == "nt" else 0),
             )
             time.sleep(1.5)
             return True
@@ -1043,10 +1044,35 @@ def _gap_of(n: int, unit: str) -> tuple[int, str]:
 
 DEFAULT_POST_RUN = 10    # posts asked for without a number
 
+# Numbers said as words, English and Hinglish. Only one that comes right
+# before a time unit becomes a digit, so "post do" stays a request, not 2.
+_NUM_WORDS = {
+    "one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8, "nine": 9,
+    "ten": 10, "eleven": 11, "twelve": 12, "fifteen": 15, "twenty": 20, "thirty": 30, "forty": 40,
+    "forty five": 45, "fifty": 50, "sixty": 60, "a": 1, "an": 1, "half an": 30,
+    "ek": 1, "do": 2, "teen": 3, "char": 4, "chaar": 4, "paanch": 5, "panch": 5, "chhe": 6, "che": 6,
+    "saat": 7, "aath": 8, "nau": 9, "das": 10, "pandrah": 15, "bees": 20, "tees": 30, "chalis": 40,
+    "pachas": 50, "aadha": 30, "adha": 30,
+}
+_UNIT = r"(?:minutes|minute|mins|min|minut|hours|hour|hrs|hr|ghante|ghanta)\b"
+
+
+def _digits(low: str) -> str:
+    """'every five minutes' -> 'every 5 minutes'; 'har paanch minute' -> 'har 5 minute'."""
+    words = sorted(_NUM_WORDS, key=len, reverse=True)
+    pattern = r"\b(" + "|".join(re.escape(w) for w in words) + r")\s+(" + _UNIT + ")"
+    def sub(m: re.Match) -> str:
+        n = _NUM_WORDS[m.group(1)]
+        unit = m.group(2)
+        if m.group(1) in ("half an", "aadha", "adha") and unit.startswith(("h", "gh")):
+            return "30 minutes"
+        return str(n) + " " + unit
+    return re.sub(pattern, sub, low)
+
 
 def parse_tell(text: str) -> dict:
     """One sentence into the jobs it names, each with its own gap, plus a post count."""
-    low = " ".join(str(text or "").lower().split())
+    low = _digits(" ".join(str(text or "").lower().split()))
     until = _parse_until(low)
     intervals = []
     for m in re.finditer(_GAP, low):
@@ -1089,7 +1115,10 @@ def parse_tell(text: str) -> dict:
     default_count = False
     if ("gtm_cycle" in asked and "gtm_cycle" not in assigned and not posts_left
             and not re.search(r"\b(stop|pause|ruk|roko|band|hold)\b", low)):
-        posts_left = DEFAULT_POST_RUN
+        # "post do", "make a post": one. "posts", or a post "every ..." /
+        # "har ..." / "baar baar" / "repeatedly": a run of 10.
+        many = re.search(r"\bposts\b|\bevery\b|\bhar\b|baar baar|repeatedly|again and again|continuous", low)
+        posts_left = DEFAULT_POST_RUN if many else 1
         default_count = True
     # "Make 10 posts" with no gap of its own: one after another, each as soon
     # as the last one is done. A gap the owner named for posts is kept.
@@ -1235,8 +1264,44 @@ def _expire_timeline() -> None:
     _write_intervals(chosen)
 
 
+class _TellLock:
+    """One sentence at a time: a start still saving must not land after the
+    stop that followed it. A lock file, taken with O_EXCL; a holder that died
+    leaves it, so a lock older than a minute is taken over."""
+
+    def __init__(self) -> None:
+        self.path = STATE_DIR / "_tell.lock"
+
+    def __enter__(self):
+        deadline = time.time() + 60
+        while True:
+            try:
+                fd = os.open(str(self.path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(fd, str(os.getpid()).encode())
+                os.close(fd)
+                return self
+            except FileExistsError:
+                try:
+                    if time.time() - self.path.stat().st_mtime > 60:
+                        self.path.unlink(missing_ok=True)
+                        continue
+                except FileNotFoundError:
+                    continue
+                if time.time() > deadline:
+                    raise RuntimeError("another change to the schedule is still saving; try again")
+                time.sleep(0.2)
+
+    def __exit__(self, *exc) -> None:
+        self.path.unlink(missing_ok=True)
+
+
 def apply_tell(text: str) -> dict:
     """The owner says the whole plan in one sentence. Each named job follows its own gap."""
+    with _TellLock():
+        return _apply_tell(text)
+
+
+def _apply_tell(text: str) -> dict:
     parsed = parse_tell(text)
     chosen = _read_intervals()
     paused = {str(n) for n in (chosen.get("_paused") or []) if str(n)}
@@ -1330,7 +1395,8 @@ def apply_tell(text: str) -> dict:
                          "about 20 minutes each (roughly " + span + " in all). It shows in Posts.")
             lines.append("Each one reads the newest scrape and stops at review. Nothing is published.")
             if parsed.get("default_count"):
-                lines.append("You did not say how many, so it is " + str(n) + ". Say a number to change it, or \"stop posts\".")
+                lines.append(("You did not say how many, so it is " + str(n) + ". Say a number to change it, or \"stop posts\".")
+                             if n > 1 else "One post. Say a number for more.")
         elif parsed.get("posts_left") and "gtm_cycle" in applied:
             lines.append(str(parsed["posts_left"]) + " posts, then posts stop. Each one reads the newest scrape.")
         if parsed.get("dropped_post"):

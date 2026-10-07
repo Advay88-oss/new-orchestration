@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import { spawn } from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import { pythonPath } from '@/lib/python';
+import { pythonPath, spawnHidden } from '@/lib/python';
 import { listGtmRunIds, gtmRunSummary, gtmLegacyRun, companyOf } from '@/lib/gtm';
 import { cloudMode, companyAccess } from '@/lib/local-only';
 import { runPipelineJob } from '@/lib/cloudrun';
@@ -212,7 +211,7 @@ export async function POST(req: Request) {
   const logFile = path.join(RUNS_DIR, 'last_launch.log');
   fs.mkdirSync(RUNS_DIR, { recursive: true });
   const out = fs.openSync(logFile, 'a');
-  const child = spawn(py, ['-m', 'pipeline.gtm_os.autonomous_cycle', '--directive', directive, '--no-video'], {
+  const child = spawnHidden(['-m', 'pipeline.gtm_os.autonomous_cycle', '--directive', directive, '--no-video'], {
     cwd: REPO_ROOT,
     env: {
       ...process.env,

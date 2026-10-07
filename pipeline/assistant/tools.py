@@ -250,7 +250,7 @@ def _spawn(args: list[str], status_file: Path) -> None:
     subprocess.Popen([sys.executable, "-m", *args, "--status-file", str(status_file)], cwd=str(REPO),
                      env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONPATH": str(REPO)},
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                     creationflags=getattr(subprocess, "DETACHED_PROCESS", 0) if os.name == "nt" else 0,
+                     creationflags=((getattr(subprocess, "DETACHED_PROCESS", 0) | 0x08000000) if os.name == "nt" else 0),
                      start_new_session=os.name != "nt")
 
 
@@ -319,7 +319,7 @@ def find_campaigns(tenant: str, query: str, source: str = "galxe") -> dict:
         cwd=str(REPO),
         env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONPATH": str(REPO)},
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        creationflags=getattr(subprocess, "DETACHED_PROCESS", 0) if os.name == "nt" else 0,
+        creationflags=((getattr(subprocess, "DETACHED_PROCESS", 0) | 0x08000000) if os.name == "nt" else 0),
         start_new_session=os.name != "nt",
     )
     return {"started": True, "query": q, "source": src,
@@ -344,7 +344,7 @@ def study_brand(tenant: str, name: str, where: str = "") -> dict:
         args, cwd=str(REPO),
         env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONPATH": str(REPO)},
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        creationflags=getattr(subprocess, "DETACHED_PROCESS", 0) if os.name == "nt" else 0,
+        creationflags=((getattr(subprocess, "DETACHED_PROCESS", 0) | 0x08000000) if os.name == "nt" else 0),
         start_new_session=os.name != "nt",
     )
     return {"started": True, "name": who,

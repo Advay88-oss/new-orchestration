@@ -5,7 +5,8 @@ import { clientTenant, scopePanel } from '@/lib/viewer';
 import { companiesOf } from '@/lib/gtm';
 import fs from 'fs';
 import path from 'path';
-import { exec, spawn } from 'child_process';
+import { exec } from 'child_process';
+import { spawnHidden } from '@/lib/python';
 
 const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
 const MEMES_FILE_1 = path.join(REPO_ROOT, 'state/panels/memes.json');
@@ -98,7 +99,7 @@ export async function POST(req: Request) {
       const spawnArgs = rawArgs;
 
       return new Promise<Response>((resolve) => {
-        const py = spawn(binary, spawnArgs, {
+        const py = spawnHidden(spawnArgs, {
           cwd: REPO_ROOT,
           env: {
             ...process.env,

@@ -286,22 +286,79 @@ BUILD_BRIEF = (
     "premium product-explainer motion graphic:\n"
     "  1. the soft glows of the brand ground breathe in on the empty ground;\n"
     "  2. the {company} logo fades up at the top;\n"
-    "  3. the headline arrives line by line, the gradient word sweeping in last;\n"
-    "  4. the cards, panels and marks slide and scale in from nothing, one "
+    "  3. cards, panels and marks slide and scale in from nothing, one "
     "after another, keeping the surface of the finished poster "
     "(do not add frost or glass if the last frame has none);\n"
-    "  5. inside them the diagram assembles: icons pop in, connectors and "
+    "  4. inside them the diagram assembles: icons pop in, connectors and "
     "arrows draw along their paths, gauges and bars fill to their values, the "
     "problem side strains while {company}'s side settles;\n"
-    "  6. labels and the footer resolve, and everything settles exactly into "
-    "the last frame and holds.\n"
+    "  5. everything settles exactly into the last frame and holds.\n"
     "CAMERA: completely locked off — no pan, tilt, zoom, dolly, orbit, drift, "
     "shake, parallax or depth of field. Everything moves in the flat plane.\n"
-    "TEXT: every word, when it appears, is sharp, correctly spelled and "
-    "identical to the last frame; never scramble, melt or morph letters. Add "
-    "no text, objects, people, coins or scenes that are not in the last frame. "
+    "LETTERS: draw none. Do not write, type, reveal, fade or morph any letter, "
+    "word, numeral or logo — a previous clip spelled 'actually deploy it' as "
+    "'acilly deppe it'. Words are composited afterwards. Add no objects, "
+    "people, coins or scenes that are not in the last frame. "
     "The ground stays {company}'s dark violet-and-magenta throughout."
 )
+
+
+def letter_mask(im):
+    """Type, not hairlines. A 1px rule is dropped; a letter is kept and grown
+    enough to cover the misspelled glyph Veo puts in the same place."""
+    from PIL import Image, ImageFilter
+    import numpy as np
+
+    lum = np.asarray(im.convert("L"), dtype=np.int16)
+    soft = np.asarray(im.convert("L").filter(ImageFilter.BoxBlur(1)), dtype=np.int16)
+    ink = np.abs(lum - soft) > 16
+    mask = Image.fromarray(np.where(ink, 255, 0).astype("uint8"), "L")
+    mask = mask.filter(ImageFilter.MinFilter(3))
+    mask = mask.filter(ImageFilter.MaxFilter(7))
+    return mask.filter(ImageFilter.GaussianBlur(0.6))
+
+
+def without_letters(frame: Path, out: Path) -> Path:
+    """The poster with its words dissolved, so Veo is not asked to draw them."""
+    from PIL import Image, ImageFilter
+
+    im = Image.open(frame).convert("RGB")
+    ground = im.filter(ImageFilter.GaussianBlur(14))
+    im.paste(ground, mask=letter_mask(im))
+    out.parent.mkdir(parents=True, exist_ok=True)
+    im.save(out)
+    return out
+
+
+def stamp_poster_text(clip: Path, plate: Path, out: Path) -> Path:
+    """Paint the plate's real letters over every frame of the clip."""
+    from PIL import Image
+
+    exe = shutil.which("ffmpeg") or "ffmpeg"
+    probe = shutil.which("ffprobe") or "ffprobe"
+    meta = subprocess.run(
+        [probe, "-v", "error", "-select_streams", "v:0",
+         "-show_entries", "stream=width,height", "-of", "json", str(clip)],
+        capture_output=True, text=True, timeout=30, check=True)
+    st = json.loads(meta.stdout)["streams"][0]
+    w, h = int(st["width"]), int(st["height"])
+    im = Image.open(plate).convert("RGB")
+    if im.size != (w, h):
+        im = im.resize((w, h), Image.Resampling.LANCZOS)
+    rgba = im.convert("RGBA")
+    rgba.putalpha(letter_mask(im))
+    overlay = out.with_name(out.stem + "_type.png")
+    rgba.save(overlay)
+    # Letters fade in whole, late, once the shapes have settled. Painting
+    # them from the first frame floats labels over a layout that is still moving.
+    subprocess.run(
+        [exe, "-y", "-loglevel", "error", "-i", str(clip), "-loop", "1", "-i", str(overlay),
+         "-filter_complex",
+         "[1:v]format=rgba,fade=t=in:st=5.2:d=1.3:alpha=1[ov];"
+         "[0:v][ov]overlay=0:0:format=auto:shortest=1",
+         "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-an", str(out)],
+        check=True, timeout=300)
+    return out
 
 
 def empty_ground(frame: Path, out: Path) -> Path:
@@ -337,15 +394,13 @@ def judge_build(mp4: Path, poster: Path, brief: str) -> dict[str, Any]:
         "four are frames from the clip at 1.5s, 4s, 6s and the end.\n\n"
         "The post: " + brief[:600] + "\n\n"
         "Elements appearing progressively is EXPECTED in the early frames. "
-        "Check: any text that is visible is sharp and spelled correctly, never "
-        "garbled or morphing; the END frame matches the poster; the camera "
-        "never moves or zooms; the build reads as a deliberate motion graphic; "
-        "nothing appears that is not in the poster. "
-        "Verdict rules: REJECT when the END frame's text is wrong or garbled, "
-        "the camera moves, or something off-brand (coins, people, a scene) "
-        "appears. A typo or an invented icon that shows only MID-build and "
-        "resolves by the end is a REVISE, not a REJECT — the founder approved "
-        "a clip with exactly that fault. Name every such fault in `fix`. "
+        "Words are composited from the poster, so any letter that is visible "
+        "must match the poster exactly. "
+        "Verdict rules: REJECT when ANY frame shows a misspelled, melted, "
+        "duplicated or invented word (mid-clip garbage is a REJECT, even if "
+        "the end frame recovers). Also REJECT when the camera moves or "
+        "something off-brand (coins, people, a scene) appears. "
+        "Name every such fault in `fix`. "
         "Return JSON exactly:\n" + JUDGE_SCHEMA)
     return R.brain_vision(prompt, [poster] + frames, agent="A15_creative_judge",
                           system="You review a short brand video before a human sees it. "
@@ -364,7 +419,11 @@ def make_build(poster: str | Path, brief: str, out: str | Path, *,
     """
     poster, out = Path(poster), Path(out)
     last = first_frame(poster, out.with_name(out.stem + "_last.png"))
-    first = empty_ground(last, out.with_name(out.stem + "_first.png"))
+    # Veo interpolates toward the last frame. If that frame contains words,
+    # the middle of the clip is Veo inventing the spelling. It builds a
+    # wordless plate; the real letters are painted on afterwards.
+    bare = without_letters(last, out.with_name(out.stem + "_bare.png"))
+    first = empty_ground(bare, out.with_name(out.stem + "_first.png"))
     learned = learned_block()
     history, correction = [], ""
     for n in range(1, attempts + 1):
@@ -374,7 +433,10 @@ def make_build(poster: str | Path, brief: str, out: str | Path, *,
                   + " ".join(brief.split())[:700]
                   + ("\n\nFIX FROM THE PREVIOUS ATTEMPT: " + correction if correction else ""))
         clip = out.with_name(out.stem + f"_try{n}.mp4")
-        _veo(prompt, first, clip, last_frame=last)
+        _veo(prompt, first, clip, last_frame=bare)
+        stamped = out.with_name(out.stem + f"_try{n}_sharp.mp4")
+        stamp_poster_text(clip, last, stamped)
+        clip = stamped
         # One retry on a failed judge call: a dropped connection left a clip
         # UNJUDGED, and an unjudged clip was then chosen as the final video.
         v = None

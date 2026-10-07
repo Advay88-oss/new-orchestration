@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { spawn } from 'child_process';
 import { NextResponse } from 'next/server';
 import { localOnly } from '@/lib/local-only';
-import { pythonPath } from '@/lib/python';
+import { pythonPath, spawnHidden } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
 
 export const dynamic = 'force-dynamic';
@@ -40,7 +39,7 @@ export async function POST() {
   if (!py) return NextResponse.json({ ok: false, error: 'no python interpreter' }, { status: 500 });
   fs.mkdirSync(path.dirname(STATUS), { recursive: true });
   fs.writeFileSync(STATUS, JSON.stringify({ state: 'running', at: new Date().toISOString() }));
-  const child = spawn(py, ['-m', 'pipeline.assistant.evals', '--status-file', STATUS], {
+  const child = spawnHidden(['-m', 'pipeline.assistant.evals', '--status-file', STATUS], {
     cwd: REPO_ROOT, detached: true, stdio: 'ignore',
     env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONPATH: REPO_ROOT },
   });

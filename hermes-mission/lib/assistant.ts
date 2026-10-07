@@ -38,12 +38,40 @@ function write(obj: object) {
   start().stdin.write(JSON.stringify(obj) + '\n');
 }
 
+// The Python code the assistant runs. The process imports it once, so when a
+// file here changes it is restarted at the next idle moment; otherwise a fix
+// would not reach the chat until the dashboard itself was restarted.
+const CODE_DIRS = ['pipeline/assistant', 'pipeline/scheduler', 'pipeline/brand_brain', 'pipeline/intelligence_stream'];
+let spawnedAt = 0;
+
+function codeChangedSince(t: number): boolean {
+  const fs = require('fs') as typeof import('fs');
+  const path = require('path') as typeof import('path');
+  for (const d of CODE_DIRS) {
+    const dir = path.join(REPO_ROOT, d);
+    let names: string[] = [];
+    try { names = fs.readdirSync(dir); } catch { continue; }
+    for (const n of names) {
+      if (!n.endsWith('.py')) continue;
+      try { if (fs.statSync(path.join(dir, n)).mtimeMs > t) return true; } catch { /* gone */ }
+    }
+  }
+  return false;
+}
+
 function start(): ChildProcessWithoutNullStreams {
+  if (st.child && st.child.exitCode === null && !st.child.killed && st.listeners.size === 0
+      && spawnedAt && codeChangedSince(spawnedAt)) {
+    try { st.child.kill(); } catch { /* already gone */ }
+    st.child = null;
+  }
   if (st.child && st.child.exitCode === null && !st.child.killed) return st.child;
   const py = pythonPath();
   if (!py) throw new Error('no python interpreter for the assistant');
   const child = spawn(py, ['-m', 'pipeline.assistant.server'], {
     cwd: REPO_ROOT,
+    windowsHide: true,
+    shell: false,
     env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1', PYTHONPATH: REPO_ROOT },
   });
   st.buf = '';
@@ -63,10 +91,12 @@ function start(): ChildProcessWithoutNullStreams {
   });
   child.stderr.on('data', () => { /* the child's own log noise */ });
   child.on('exit', () => {
+    if (st.child !== child) return;      // an old process replaced on purpose
     failAll('the assistant restarted; ask again');
     st.child = null;
   });
   st.child = child;
+  spawnedAt = Date.now();
   // Health: a ping every 30 s; no sign of life for 90 s while idle-or-busy
   // and the process is replaced.
   if (!st.watchdog) {

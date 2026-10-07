@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { spawn } from 'child_process';
 import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
-import { pythonPath } from '@/lib/python';
+import { pythonPath, spawnHidden } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
 
 export const dynamic = 'force-dynamic';
@@ -58,7 +57,7 @@ export async function POST(req: Request) {
   }
   const args = ['-m', 'pipeline.brand_brain.mcp_call', 'competitors', '--tenant', tenant, '--status-file', f];
   if (body.suggest) args.push('--suggest');
-  const child = spawn(py, args, {
+  const child = spawnHidden(args, {
     cwd: REPO_ROOT, detached: true, stdio: 'ignore',
     env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONPATH: REPO_ROOT },
   });

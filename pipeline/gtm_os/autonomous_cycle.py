@@ -40,6 +40,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+# Before any child starts: a post must not open a console window.
+from pipeline.ops.quiet_windows import install as _quiet_console
+_quiet_console()
+
 from pipeline.gtm_os import agent_runtime as R
 
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
@@ -506,7 +510,13 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
             res = VV.make_build(visual, brief, out, total_s=10.0, attempts=2,
                                 directed=plan["prompt"])
             verdicts = [str(a.get("verdict")).upper() for a in res["attempts"]]
-            if "SHIP" in verdicts or "REVISE" in verdicts:
+            def _words_ok(a: dict) -> bool:
+                if a.get("text_intact") is False:
+                    return False
+                blob = (str(a.get("critique") or "") + " " + str(a.get("fix") or "")).lower()
+                return not any(w in blob for w in ("garbled", "misspell", "morph", "scrambl"))
+            if any(v in ("SHIP", "REVISE") and _words_ok(a)
+                   for v, a in zip(verdicts, res["attempts"])):
                 s["video_mode"] = "veo_build"
                 s["video_prompt"] = res["attempts"][-1].get("prompt", "")[:1500]
                 s["video_review"] = {k: res["attempts"][-1].get(k) for k in

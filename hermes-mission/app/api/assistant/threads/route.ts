@@ -39,10 +39,12 @@ const LISTS = new Map<string, { at: number; body: any }>();
 const REFRESHING = new Set<string>();
 
 async function freshList(tenant: string): Promise<any> {
-  const r = await runPython(['-m', 'pipeline.assistant.cli', 'threads', '--tenant', tenant], 30_000);
+  // A cold start against Cloud SQL can take longer than the old 30s limit,
+  // and that timeout is what left Recents empty even though the chats were saved.
+  const r = await runPython(['-m', 'pipeline.assistant.cli', 'threads', '--tenant', tenant], 90_000);
   const line = r.stdout.trim().split('\n').filter(Boolean).pop() || '';
   const body = JSON.parse(line);
-  if (body && body.ok) LISTS.set(tenant, { at: Date.now(), body });
+  if (body && body.ok && Array.isArray(body.threads)) LISTS.set(tenant, { at: Date.now(), body });
   return body;
 }
 
@@ -58,7 +60,9 @@ export async function GET(req: Request) {
     return py(['thread', '--tenant', tenant, '--id', id]);
   }
   const cached = LISTS.get(tenant);
-  if (cached && u.searchParams.get('fresh') !== '1') {
+  // An empty copy is never reused. The first read often landed before any
+  // chat existed, and every later open of Recents was handed that empty list.
+  if (cached && cached.body?.threads?.length && u.searchParams.get('fresh') !== '1') {
     if (Date.now() - cached.at > 3000 && !REFRESHING.has(tenant)) {
       REFRESHING.add(tenant);
       freshList(tenant).catch(() => {}).finally(() => REFRESHING.delete(tenant));

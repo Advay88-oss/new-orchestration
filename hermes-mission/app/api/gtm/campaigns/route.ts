@@ -1,7 +1,6 @@
-import { spawn } from 'child_process';
 import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
-import { lastJson, pythonPath, runPython } from '@/lib/python';
+import { lastJson, pythonPath, runPython, spawnHidden } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
 
 export const dynamic = 'force-dynamic';
@@ -32,7 +31,7 @@ export async function POST(req: Request) {
   if (!query) return NextResponse.json({ ok: false, error: 'write what kind of campaign you want' }, { status: 400 });
   const py = pythonPath();
   if (!py) return NextResponse.json({ ok: false, error: 'no python interpreter for the pipeline' }, { status: 500 });
-  const child = spawn(py, ['-m', 'pipeline.gtm_os.campaigns', 'run', tenant, query, source], {
+  const child = spawnHidden(['-m', 'pipeline.gtm_os.campaigns', 'run', tenant, query, source], {
     cwd: REPO_ROOT, detached: true, stdio: 'ignore',
     env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONPATH: REPO_ROOT },
   });

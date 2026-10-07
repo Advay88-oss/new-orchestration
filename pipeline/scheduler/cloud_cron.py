@@ -141,13 +141,20 @@ SCHED_API = ("https://cloudscheduler.googleapis.com/v1/projects/" + PROJECT
              + "/locations/" + REGION + "/jobs")
 
 
+_SESSION: list = []
+
+
 def _rest():
-    """An authorised HTTP session from application-default credentials, or None."""
+    """An authorised HTTP session from application-default credentials, or None.
+    Made once per process: building it takes several seconds."""
+    if _SESSION:
+        return _SESSION[0]
     try:
         import google.auth
         from google.auth.transport.requests import AuthorizedSession
         creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
-        return AuthorizedSession(creds)
+        _SESSION.append(AuthorizedSession(creds))
+        return _SESSION[0]
     except Exception:                               # noqa: BLE001 — the gcloud CLI is the fallback
         return None
 
@@ -265,7 +272,7 @@ STATE_OBJECT = "gs://" + BUCKET + "/state/pipeline/state/scheduler_state.json"
 _TICK_SEEN: dict = {}
 
 
-def tick_live(max_age_s: float = 120) -> bool:
+def tick_live(max_age_s: float = 600) -> bool:
     """True when GCP keeps the clock: the 2-minute tick exists and is enabled.
 
     Then the laptop's scheduler only mirrors the bucket, so a job never runs
@@ -349,6 +356,33 @@ def execute_now(name: str) -> tuple[bool, str]:
     return code == 0, ("" if code == 0 else detail)
 
 
+def pause_live_crons() -> list[str]:
+    """Pause every live vanna-cron-* job in GCP. Returns the ids it paused."""
+    done = []
+    for job_id in sorted(live_crons() or []):
+        if job_id.startswith("vanna-cron-") and _pause(job_id):
+            done.append(job_id)
+    return done
+
+
+def pause_live_in_background() -> None:
+    """The same, in a separate process: listing and pausing take seconds each,
+    and the owner's sentence should be answered at once."""
+    import os
+    import sys
+    root = Path(__file__).resolve().parents[2]
+    flags = 0
+    if sys.platform == "win32":
+        flags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS | getattr(subprocess, "CREATE_NO_WINDOW", 0)
+    try:
+        subprocess.Popen([sys.executable, "-m", "pipeline.scheduler.cloud_cron", "pause-live"], cwd=str(root),
+                         env={**os.environ, "PYTHONPATH": str(root)}, stdin=subprocess.DEVNULL,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=flags,
+                         close_fds=True)
+    except OSError:
+        pass
+
+
 def _row(name: str, interval: str, labels: dict, lands: dict) -> dict:
     return {
         "id": _job_id(name), "cron": interval_to_cron(interval) or "",
@@ -404,16 +438,8 @@ def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[s
         # for a job the owner stopped here, keep running it there (that sent
         # the research note every 2 minutes after "stop"). Pause every live
         # cron, whatever this machine remembers about it.
-        live = live_crons()
-        for job_id in sorted(live or []):
-            if job_id.startswith("vanna-cron-"):
-                _pause(job_id)
-        lines, crons, state = remember("local")
-        if live is None:
-            lines.append("Could not reach GCP to check its crons; sign in again with gcloud auth login.")
-        elif any(j.startswith("vanna-cron-") for j in live):
-            lines.append("Paused the GCP crons so nothing runs twice.")
-        return lines, crons, state
+        pause_live_in_background()
+        return remember("local")
     if not authed():
         lines.append("No cron was changed: Google sign-in is missing (gcloud auth login). The plan is saved.")
         return lines, [], state
@@ -471,3 +497,9 @@ def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[s
         else:
             threading.Thread(target=_narrow_tick, args=(list(live),), daemon=True).start()
     return lines, live, state
+
+
+if __name__ == "__main__":
+    import sys as _sys
+    if _sys.argv[1:2] == ["pause-live"]:
+        print(json.dumps({"paused": pause_live_crons()}))

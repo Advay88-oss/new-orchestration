@@ -1,7 +1,6 @@
-import { spawn } from 'child_process';
 import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
-import { lastJson, pythonPath, runPython } from '@/lib/python';
+import { lastJson, pythonPath, runPython, spawnHidden } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
 
 export const dynamic = 'force-dynamic';
@@ -88,7 +87,7 @@ export async function POST(req: Request) {
   }
   const py = pythonPath();
   if (!py) return NextResponse.json({ ok: false, error: 'no python interpreter for the pipeline' }, { status: 500 });
-  const child = spawn(py, ['-m', 'pipeline.brand_brain.mcp_call', 'inspiration', ...args], {
+  const child = spawnHidden(['-m', 'pipeline.brand_brain.mcp_call', 'inspiration', ...args], {
     cwd: REPO_ROOT, detached: true, stdio: 'ignore',
     env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONPATH: REPO_ROOT },
   });

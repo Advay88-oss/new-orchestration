@@ -235,7 +235,7 @@ export function HeraldApp() {
   const [toast, setToast] = useState("");
   const [autopilot, setAutopilot] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
-  const [threads, setThreads] = useState<{ id: string; title: string; updated_at: string }[]>([]);
+  const [threads, setThreads] = useState<{ id: string; title: string; updated_at: string; preview?: string }[]>([]);
   const [prefill, setPrefill] = useState({ text: "", n: 0 });
   const [make, setMake] = useState<string | null>(null);
   const [runs, setRuns] = useState<Run[]>([]);
@@ -272,25 +272,34 @@ export function HeraldApp() {
   }, [theme]);
 
   const [threadsLoaded, setThreadsLoaded] = useState(false);
+  const [threadsErr, setThreadsErr] = useState("");
+  const threadReq = useRef(0);
   // `fresh` waits for the saved list; otherwise the server answers from its
   // last copy at once. Chats started here stay listed until the server has them.
+  // A slower reply must not replace a newer one — that was wiping Recents.
   const loadThreads = useCallback((fresh = false) => {
     if (!company?.id || !owner) return;
+    const n = ++threadReq.current;
     fetch("/api/assistant/threads?tenant=" + encodeURIComponent(company.id) + (fresh ? "&fresh=1" : ""), { cache: "no-store" })
       .then((r) => r.json())
       .then((d) => {
-        if (!d.ok || !Array.isArray(d.threads)) return;
+        if (n !== threadReq.current) return;
+        if (!d.ok || !Array.isArray(d.threads)) {
+          setThreadsErr(d.error || "Chats could not be loaded");
+          return;
+        }
+        setThreadsErr("");
         setThreads((cur) => {
-          const saved = d.threads as { id: string; title: string; updated_at: string }[];
+          const saved = d.threads as { id: string; title: string; updated_at: string; preview?: string }[];
           const pending = cur.filter((t) => t.updated_at === "pending" && !saved.some((x) => x.id === t.id));
           return [...pending, ...saved];
         });
       })
-      .catch(() => {})
-      .finally(() => setThreadsLoaded(true));
+      .catch(() => { if (n === threadReq.current) setThreadsErr("Chats could not be loaded"); })
+      .finally(() => { if (n === threadReq.current) setThreadsLoaded(true); });
   }, [company?.id, owner]);
   const addThread = useCallback((id: string, title: string) => {
-    setThreads((cur) => (cur.some((t) => t.id === id) ? cur : [{ id, title, updated_at: "pending" }, ...cur]));
+    setThreads((cur) => (cur.some((t) => t.id === id) ? cur : [{ id, title: title || "New chat", updated_at: "pending", preview: "" }, ...cur]));
   }, []);
   useEffect(() => { setThreadId(null); loadThreads(); }, [loadThreads]);
 
@@ -396,7 +405,7 @@ export function HeraldApp() {
             )}
           </div>
 
-          {owner && <button className="side-btn" style={{ color: "var(--text)" }} onClick={() => { setThreadId(null); go("assistant"); }}><IEdit />New chat</button>}
+          {owner && <button className="side-btn" style={{ color: "var(--text)" }} onClick={() => { setThreadId(null); go("assistant"); loadThreads(true); }}><IEdit />New chat</button>}
           <button className="side-btn" onClick={() => { setPq(""); setPalette(true); setMenu(false); }}><ISearch />Search <span className="kbd">⌘K</span></button>
 
           <div className="side-label">Create</div>
@@ -407,13 +416,25 @@ export function HeraldApp() {
               <div className="side-label">Recents</div>
               <div className="recents">
                 {!threadsLoaded && !threads.length && [0, 1, 2].map((i) => <span key={i} className="skel" style={{ width: "80%", height: 12, margin: "10px 12px", borderRadius: 5 }} />)}
-                {threadsLoaded && !threads.length && <span className="meta" style={{ padding: "6px 12px", fontSize: 12.5 }}>Your chats show here.</span>}
-                {threads.slice(0, 20).map((t) => (
-                  <button key={t.id} className={"side-btn recent" + (view === "assistant" && threadId === t.id ? " active" : "")}
-                          title={t.title} onClick={() => { setThreadId(t.id); go("assistant"); }}>
-                    <span className="recent-t">{t.title || "Untitled chat"}</span>
-                  </button>
-                ))}
+                {threadsLoaded && !threads.length && <span className="meta" style={{ padding: "6px 12px", fontSize: 12.5 }}>{threadsErr || "Your chats show here."}</span>}
+                {threads.slice(0, 20).map((t) => {
+                  const asked = (t.title || "Untitled chat").replace(/\s+/g, " ").trim();
+                  const said = (t.preview || "").replace(/\s+/g, " ").trim();
+                  const showSaid = said && said.toLowerCase() !== asked.toLowerCase();
+                  const when = t.updated_at && t.updated_at !== "pending" ? new Date(t.updated_at) : null;
+                  const stamp = when && !Number.isNaN(when.getTime())
+                    ? (when.toDateString() === new Date().toDateString()
+                      ? when.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
+                      : when.toLocaleDateString([], { month: "short", day: "numeric" }))
+                    : "";
+                  return (
+                    <button key={t.id} className={"side-btn recent" + (view === "assistant" && threadId === t.id ? " active" : "")}
+                            title={asked + (showSaid ? "\n" + said : "")} onClick={() => { setThreadId(t.id); go("assistant"); }}>
+                      <span className="recent-t">{asked}</span>
+                      {(showSaid || stamp) && <span className="recent-p">{showSaid ? said : stamp}</span>}
+                    </button>
+                  );
+                })}
               </div>
             </>
           )}

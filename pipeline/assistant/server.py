@@ -33,6 +33,25 @@ def _emit(obj: dict) -> None:
         sys.stdout.flush()
 
 
+def _threads(req: dict) -> None:
+    from pipeline.assistant import store as ST
+    rid = str(req.get("id") or "")
+    tenant = str(req.get("tenant") or "")
+    if not TENANT.match(tenant):
+        _emit({"id": rid, "type": "result", "ok": False, "error": "pick a company first"})
+        return
+    try:
+        if req.get("op") == "thread":
+            t = ST.thread(tenant, str(req.get("thread_id") or ""))
+            _emit({"id": rid, "type": "result", "ok": bool(t), "thread": t})
+        elif req.get("op") == "delete":
+            _emit({"id": rid, "type": "result", "ok": ST.delete_thread(tenant, str(req.get("thread_id") or ""))})
+        else:
+            _emit({"id": rid, "type": "result", "ok": True, "threads": ST.threads(tenant)})
+    except Exception as exc:                        # noqa: BLE001 — the sidebar shows a sentence, never a connection string
+        _emit({"id": rid, "type": "result", "ok": False, "error": type(exc).__name__})
+
+
 def _run(req: dict) -> None:
     from pipeline.assistant.chat import turn
     rid = str(req.get("id") or "")
@@ -76,6 +95,8 @@ def main() -> None:
             _cancelled.add(str(req.get("id") or ""))
         elif op == "ping":
             _emit({"id": req.get("id"), "type": "pong"})
+        elif op in ("threads", "thread", "delete"):
+            pool.submit(_threads, req)
         else:
             pool.submit(_run, req)
     # stdin closed (the dashboard went away): finish the turns in flight.

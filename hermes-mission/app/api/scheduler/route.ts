@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import { runPython, lastJson, pythonPath } from '@/lib/python';
-import { spawn } from 'child_process';
+import { runPython, lastJson, pythonPath, spawnHidden } from '@/lib/python';
 import path from 'path';
 import fs from 'fs';
 import { cloudMode, localOnly } from '@/lib/local-only';
@@ -138,7 +137,7 @@ export async function POST(req: Request) {
       const py = pythonPath();
       if (!py) return NextResponse.json({ success: false, error: 'no python interpreter' }, { status: 503 });
       return new Promise<Response>((resolve) => {
-        const child = spawn(py, [SCHEDULER_SCRIPT, '--tell', text], {
+        const child = spawnHidden([SCHEDULER_SCRIPT, '--tell', text], {
           cwd: REPO_ROOT,
           env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8' },
         });
@@ -170,7 +169,7 @@ export async function POST(req: Request) {
       const spawnArgs = rawArgs;
 
       return new Promise<Response>((resolve) => {
-        const py = spawn(pythonPath() as string, spawnArgs, {
+        const py = spawnHidden(spawnArgs, {
           cwd: REPO_ROOT,
           env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONUNBUFFERED: '1' }
         });
@@ -216,7 +215,7 @@ export async function POST(req: Request) {
       const logFile = path.join(REPO_ROOT, 'pipeline', 'state', 'scheduler_run_now.log');
       fs.mkdirSync(path.dirname(logFile), { recursive: true });
       const out = fs.openSync(logFile, 'a');
-      const child = spawn(py, [SCHEDULER_SCRIPT, '--run-now', job], {
+      const child = spawnHidden([SCHEDULER_SCRIPT, '--run-now', job], {
         cwd: REPO_ROOT,
         env: { ...process.env, PYTHONPATH: REPO_ROOT, PYTHONIOENCODING: 'utf-8' },
         detached: true,

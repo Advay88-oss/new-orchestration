@@ -40,13 +40,15 @@ MOTION_AGENT = AGENT
 
 GUARDRAILS = (
     "The FIRST frame is the empty {company} ground; the LAST frame is the finished "
-    "poster. The clip is that poster building itself.\n"
+    "poster with its words removed. The clip is that poster building itself.\n"
     "CAMERA: completely locked off — no pan, tilt, zoom, dolly, orbit, drift, "
     "shake, parallax or depth of field. Everything moves in the flat plane.\n"
-    "TEXT: every word, when it appears, is sharp, correctly spelled and "
-    "identical to the last frame; never scramble, melt or morph letters. Add "
-    "no text, icons, objects, people, coins or scenes that are not in the last "
-    "frame. The ground stays the brand's ground colours throughout."
+    "LETTERS: draw none. Do not write, type, reveal, fade, wipe or morph any "
+    "letter, word, numeral or logo. Words are composited afterwards from the "
+    "real poster, and a letter you invent is how the last video spelled "
+    "'actually deploy it' as 'acilly deppe it'. Animate shapes, cards, arrows, "
+    "connectors and light only. Add no objects, people, coins or scenes that "
+    "are not in the last frame. The ground stays the brand's ground colours."
 )
 
 
@@ -395,10 +397,11 @@ def motion_plan(poster: str | Path, brief: str, *,
         "locked camera. You look at the finished poster and write the build "
         "for ITS elements — not a template. Motion must explain the idea: the "
         "problem side should visibly fail or strain, {company}'s side should "
-        "settle calmly. Keep beats few and clear; big simultaneous changes "
-        "make Veo garble text, so text should arrive in its own beat and "
-        "never change after. Every text element appears in its FINAL "
-        "position and size — never slide, grow or move text. Describe every "
+        "settle calmly. Keep beats few and clear. Do not write a beat in which "
+        "a headline, subtitle, label, footer or logo appears, fades, types or "
+        "wipes: Veo invents the spelling when it draws letters. Words are "
+        "painted on after the clip, from the poster. Your beats move shapes, "
+        "cards, arrows, connectors and light only. Describe every "
         "element as flat and face-on; never use the words isometric, 3D, "
         "perspective or depth, which make Veo tilt the camera. "
         "Never say glass, frost, blur, translucent, or glassmorphism, and do not "
@@ -436,6 +439,9 @@ def motion_plan(poster: str | Path, brief: str, *,
     _remember("recent_motion_styles.json", style)
     plan = "MOTION STYLE: " + style + " — " + MOTION_STYLES[style] + "\n" + plan
     plan += ("\nSURFACE: no glassmorphism. Do not add frost, blur, a see-through fill, "
-             "or a glowing glass border. Move only the opaque shapes already drawn.")
+             "or a glowing glass border. Move only the opaque shapes already drawn."
+             "\nLETTERS: do not draw, type, reveal, fade, wipe or morph any letter, "
+             "word, numeral or logo. Those are composited afterwards. Animate "
+             "shapes, cards, arrows, connectors and light only.")
     return {"plan": plan, "raw": out, "motion_style": style,
             "prompt": _fill(GUARDRAILS) + "\n\n" + plan + ("\n\n" + learned if learned else "")}

@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { spawn } from 'child_process';
 import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
-import { pythonPath } from '@/lib/python';
+import { pythonPath, spawnHidden } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
 
 export const dynamic = 'force-dynamic';
@@ -56,7 +55,7 @@ export async function POST(req: Request) {
   if (fs.existsSync(f) && JSON.parse(fs.readFileSync(f, 'utf-8')).state === 'running') {
     return NextResponse.json({ ok: false, error: 'an analysis for this tenant is already running' }, { status: 409 });
   }
-  const child = spawn(py, ['-m', 'pipeline.brand_brain.analyzer', url, '--tenant', tenant, '--status-file', f], {
+  const child = spawnHidden(['-m', 'pipeline.brand_brain.analyzer', url, '--tenant', tenant, '--status-file', f], {
     cwd: REPO_ROOT, detached: true, stdio: 'ignore',
     env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONPATH: REPO_ROOT },
   });
