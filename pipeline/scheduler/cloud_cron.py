@@ -137,8 +137,55 @@ def _upsert(name: str, cron: str, existing: dict[str, str] | None) -> tuple[bool
     return code == 0, detail
 
 
-def _pause(name: str) -> None:
-    _run(["scheduler", "jobs", "pause", _job_id(name), "--location", REGION], timeout=15)
+SCHED_API = ("https://cloudscheduler.googleapis.com/v1/projects/" + PROJECT
+             + "/locations/" + REGION + "/jobs")
+
+
+def _rest():
+    """An authorised HTTP session from application-default credentials, or None."""
+    try:
+        import google.auth
+        from google.auth.transport.requests import AuthorizedSession
+        creds, _ = google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+        return AuthorizedSession(creds)
+    except Exception:                               # noqa: BLE001 — the gcloud CLI is the fallback
+        return None
+
+
+def live_crons() -> set[str] | None:
+    """Ids of this project's Cloud Scheduler jobs that are ENABLED; None if unknown."""
+    sess = _rest()
+    if sess is not None:
+        try:
+            r = sess.get(SCHED_API, timeout=20)
+            if r.status_code < 300:
+                return {j["name"].rsplit("/", 1)[-1] for j in r.json().get("jobs", []) if j.get("state") == "ENABLED"}
+        except Exception:                           # noqa: BLE001 — try the CLI
+            pass
+    code, raw = _run(["scheduler", "jobs", "list", "--location", REGION, "--format", "json(name,state)"],
+                     timeout=20, limit=20000)
+    if code != 0:
+        return None
+    try:
+        rows = json.loads(raw[raw.find("["):])
+    except ValueError:
+        return None
+    return {str(r.get("name", "")).rstrip("/").rsplit("/", 1)[-1] for r in rows if r.get("state") == "ENABLED"}
+
+
+def _pause(name: str) -> bool:
+    """Pause one job's cron in GCP. True when GCP confirms it is paused."""
+    job_id = name if name.startswith("vanna-") else _job_id(name)
+    sess = _rest()
+    if sess is not None:
+        try:
+            r = sess.post(SCHED_API + "/" + job_id + ":pause", json={}, timeout=20)
+            if r.status_code < 300 or r.status_code == 404:
+                return True
+        except Exception:                           # noqa: BLE001 — try the CLI
+            pass
+    code, _ = _run(["scheduler", "jobs", "pause", job_id, "--location", REGION], timeout=15)
+    return code == 0
 
 
 def _containers(payload: dict) -> list:
@@ -234,11 +281,8 @@ def tick_live(max_age_s: float = 120) -> bool:
             pass
     if _TICK_SEEN and _t.time() - float(_TICK_SEEN.get("at", 0)) < max_age_s:
         return bool(_TICK_SEEN.get("live"))
-    live = False
-    if _gcloud():
-        code, raw = _run(["scheduler", "jobs", "describe", TICK, "--location", REGION,
-                          "--format", "value(state)"], timeout=20)
-        live = code == 0 and raw.strip().splitlines()[-1:] == ["ENABLED"]
+    crons = live_crons()
+    live = bool(crons and TICK in crons)
     _TICK_SEEN.update(at=_t.time(), live=live)
     try:
         cache.write_text(json.dumps(_TICK_SEEN), encoding="utf-8")
@@ -356,10 +400,20 @@ def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[s
     from pipeline.gtm_os.state_sync import in_cloud
     if not in_cloud() and not tick_live():
         # GCP's clock is off, so this machine's scheduler runs the plan. A
-        # cron left live in GCP would run the same job a second time there.
-        for name in list(chosen.get("_cron") or []):
-            _pause(str(name))
-        return remember("local")
+        # cron still live in GCP would run the job a second time there — or,
+        # for a job the owner stopped here, keep running it there (that sent
+        # the research note every 2 minutes after "stop"). Pause every live
+        # cron, whatever this machine remembers about it.
+        live = live_crons()
+        for job_id in sorted(live or []):
+            if job_id.startswith("vanna-cron-"):
+                _pause(job_id)
+        lines, crons, state = remember("local")
+        if live is None:
+            lines.append("Could not reach GCP to check its crons; sign in again with gcloud auth login.")
+        elif any(j.startswith("vanna-cron-") for j in live):
+            lines.append("Paused the GCP crons so nothing runs twice.")
+        return lines, crons, state
     if not authed():
         lines.append("No cron was changed: Google sign-in is missing (gcloud auth login). The plan is saved.")
         return lines, [], state
