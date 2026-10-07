@@ -271,11 +271,27 @@ export function HeraldApp() {
     return () => mq.removeEventListener("change", read);
   }, [theme]);
 
-  const loadThreads = useCallback(() => {
+  const [threadsLoaded, setThreadsLoaded] = useState(false);
+  // `fresh` waits for the saved list; otherwise the server answers from its
+  // last copy at once. Chats started here stay listed until the server has them.
+  const loadThreads = useCallback((fresh = false) => {
     if (!company?.id || !owner) return;
-    fetch("/api/assistant/threads?tenant=" + encodeURIComponent(company.id), { cache: "no-store" })
-      .then((r) => r.json()).then((d) => setThreads(d.ok && Array.isArray(d.threads) ? d.threads : [])).catch(() => {});
+    fetch("/api/assistant/threads?tenant=" + encodeURIComponent(company.id) + (fresh ? "&fresh=1" : ""), { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d.ok || !Array.isArray(d.threads)) return;
+        setThreads((cur) => {
+          const saved = d.threads as { id: string; title: string; updated_at: string }[];
+          const pending = cur.filter((t) => t.updated_at === "pending" && !saved.some((x) => x.id === t.id));
+          return [...pending, ...saved];
+        });
+      })
+      .catch(() => {})
+      .finally(() => setThreadsLoaded(true));
   }, [company?.id, owner]);
+  const addThread = useCallback((id: string, title: string) => {
+    setThreads((cur) => (cur.some((t) => t.id === id) ? cur : [{ id, title, updated_at: "pending" }, ...cur]));
+  }, []);
   useEffect(() => { setThreadId(null); loadThreads(); }, [loadThreads]);
 
   const loadRuns = useCallback(() => {
@@ -386,11 +402,13 @@ export function HeraldApp() {
           <div className="side-label">Create</div>
           {owner && <NavBtn k="assistant" icon={<IChat />}>Assistant</NavBtn>}
           <NavBtn k="history" icon={<IImage />} count={runsLoading ? undefined : postCount}>Posts</NavBtn>
-          {owner && threads.length > 0 && (
+          {owner && (
             <>
               <div className="side-label">Recents</div>
               <div className="recents">
-                {threads.slice(0, 15).map((t) => (
+                {!threadsLoaded && !threads.length && [0, 1, 2].map((i) => <span key={i} className="skel" style={{ width: "80%", height: 12, margin: "10px 12px", borderRadius: 5 }} />)}
+                {threadsLoaded && !threads.length && <span className="meta" style={{ padding: "6px 12px", fontSize: 12.5 }}>Your chats show here.</span>}
+                {threads.slice(0, 20).map((t) => (
                   <button key={t.id} className={"side-btn recent" + (view === "assistant" && threadId === t.id ? " active" : "")}
                           title={t.title} onClick={() => { setThreadId(t.id); go("assistant"); }}>
                     <span className="recent-t">{t.title || "Untitled chat"}</span>
@@ -461,7 +479,7 @@ export function HeraldApp() {
 
           {view === "assistant" && owner && (
             <AssistantView company={ws} owner={owner} ownerName={ownerName} prefill={prefill} threadId={threadId}
-                           onThreadChange={setThreadId} onSaved={loadThreads}
+                           onThreadChange={setThreadId} onSaved={() => loadThreads(true)} onNewThread={addThread}
                            onOpenRun={openRun} onAutopilot={() => setAutopilot(true)} flash={(t) => { flash(t); loadRuns(); }} />
           )}
           {view === "history" && <PostsView runs={mine} loading={runsLoading} brand={brand} owner={owner} onOpen={openRun} onAsk={() => setMake("")} />}

@@ -915,7 +915,7 @@ _GAP = r"(\d+)\s*(minutes|minute|mins|min|minut|m|hours|hour|hrs|hr|h|ghante|gha
 # A gap with no recognised job used to become a post. Each phrase here is a
 # real pipeline job. "post" is the only phrase that schedules a post.
 _JOB_WORDS = (
-    ("research_collect", re.compile(r"\b(scrape|scraping|scraped|fresh data|headlines|news|research|competitors?|twitter|tweets?)\b")),
+    ("research_collect", re.compile(r"\b(scrape|scraping|scraped|fresh data|headlines|news|research|competitors?|twitter|tweets?|social|socials|accounts?|handles?|x posts)\b")),
     ("campaigns_refresh", re.compile(r"\b(campaigns?|galxe)\b")),
     ("trend_scan", re.compile(r"\btrends?\b")),
     ("ideas_panel", re.compile(r"\bideas\b")),
@@ -1041,6 +1041,9 @@ def _gap_of(n: int, unit: str) -> tuple[int, str]:
     return n, f"{n}m"
 
 
+DEFAULT_POST_RUN = 10    # posts asked for without a number
+
+
 def parse_tell(text: str) -> dict:
     """One sentence into the jobs it names, each with its own gap, plus a post count."""
     low = " ".join(str(text or "").lower().split())
@@ -1080,6 +1083,14 @@ def parse_tell(text: str) -> dict:
             "Say which job that gap is for: headlines, competitor Twitter, campaigns, "
             "memes, ideas, trends, GitHub, Notion, or a post."
         )
+    # "...and make posts from it" with no count and no gap of its own: the
+    # owner asked for posts, so they run — 10, one after another, unless a
+    # number is given. Dropping them silently read as "it did nothing".
+    default_count = False
+    if ("gtm_cycle" in asked and "gtm_cycle" not in assigned and not posts_left
+            and not re.search(r"\b(stop|pause|ruk|roko|band|hold)\b", low)):
+        posts_left = DEFAULT_POST_RUN
+        default_count = True
     # "Make 10 posts" with no gap of its own: one after another, each as soon
     # as the last one is done. A gap the owner named for posts is kept.
     chain = False
@@ -1101,6 +1112,7 @@ def parse_tell(text: str) -> dict:
         if not jobs:
             raise ValueError("Say what to run: scrape, posts, memes, ideas, GitHub, or Notion.")
         return {"action": "plan", "jobs": jobs, "until": until, "posts_left": posts_left, "chain": chain,
+                "default_count": default_count,
                 "dropped_post": "gtm_cycle" in asked and "gtm_cycle" not in names}
     if stopping:
         # "stop the cron", "sab band karo": no job named means every job the
@@ -1317,6 +1329,8 @@ def apply_tell(text: str) -> dict:
             lines.append(str(n) + " posts, one after another: each starts when the last one is done, "
                          "about 20 minutes each (roughly " + span + " in all). It shows in Posts.")
             lines.append("Each one reads the newest scrape and stops at review. Nothing is published.")
+            if parsed.get("default_count"):
+                lines.append("You did not say how many, so it is " + str(n) + ". Say a number to change it, or \"stop posts\".")
         elif parsed.get("posts_left") and "gtm_cycle" in applied:
             lines.append(str(parsed["posts_left"]) + " posts, then posts stop. Each one reads the newest scrape.")
         if parsed.get("dropped_post"):

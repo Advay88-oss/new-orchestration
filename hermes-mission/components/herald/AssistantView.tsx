@@ -210,7 +210,7 @@ function Composer({ id, rows, value, onChange, onSend, onStop, busy, disabled, c
   );
 }
 
-export function AssistantView({ company, owner, ownerName, prefill, threadId, onThreadChange, onSaved, onOpenRun, onAutopilot, flash }: {
+export function AssistantView({ company, owner, ownerName, prefill, threadId, onThreadChange, onSaved, onNewThread, onOpenRun, onAutopilot, flash }: {
   company: { id: string; name: string; color: string } | null;
   owner: boolean;
   ownerName: string;
@@ -220,6 +220,8 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
   onThreadChange: (id: string | null) => void;
   /** A message was saved: the Recents list should refresh. */
   onSaved: () => void;
+  /** A new chat got its id: list it in Recents straight away. */
+  onNewThread?: (id: string, title: string) => void;
   onOpenRun: (id: string) => void;
   onAutopilot: () => void;
   flash: (t: string) => void;
@@ -316,8 +318,8 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
             if (ev.thread_id !== mine && current.current === mine) {
               mine = ev.thread_id;
               current.current = ev.thread_id;
+              onNewThread?.(ev.thread_id, q.slice(0, 80));
               onThreadChange(ev.thread_id);
-              onSaved();
             }
           } else if (ev.type === "tool") {
             update((m) => ({ ...m, tools: [...(m.tools || []), { name: ev.name, summary: ev.summary }] }));

@@ -515,7 +515,118 @@ class SocialAndDocsCollector:
 
     # --------------------------------------------------------------------- X
 
+    # ------------------------------------------------------------------- X
+
+    _X_STATE = Path(__file__).resolve().parents[1] / "state"
+    X_SEEN_FILE = _X_STATE / "x_seen.json"          # every X post already handed on
+    X_CTX_FILE = _X_STATE / "x_context_cursor.json"  # when each handle was last searched
+
+    def _x_seen(self) -> set:
+        try:
+            return set(json.loads(self.X_SEEN_FILE.read_text(encoding="utf-8")))
+        except (OSError, ValueError):
+            return set()
+
+    def _x_remember(self, keys) -> None:
+        seen = self._x_seen() | set(keys)
+        try:
+            self.X_SEEN_FILE.write_text(json.dumps(sorted(seen)[-6000:]), encoding="utf-8")
+        except OSError:
+            pass
+
+    @staticmethod
+    def _x_key(url: str, text: str) -> str:
+        """A post's status id when the link has one, else its opening words."""
+        m = re.search(r"/status/(\d+)", url or "")
+        return "x:" + m.group(1) if m else "t:" + " ".join(re.sub(r"[^\w\s]", " ", text.lower()).split())[:100]
+
     def collect_x_signals(self) -> List[Dict[str, Any]]:
+        """Competitors' own X posts, new ones only.
+
+        Apify first (it reads the timeline, with likes and views). When it
+        returns nothing — no token, a failed run, or the plan's monthly
+        credit used up — Context.dev's web search finds the same accounts'
+        recent posts by their status links. Either way a post that was
+        already handed on is dropped, so a scrape on a timer brings only
+        what is new since the last one.
+        """
+        seen = self._x_seen()
+        rows = self._x_via_apify()
+        via = "apify"
+        if not rows:
+            rows = self._x_via_context(seen)
+            via = "context.dev"
+        fresh, keys = [], []
+        for r in rows:
+            text = str(r.get("description") or r.get("headline") or "")
+            # The status id, and the words: one post reposted under a new id
+            # (or the same line posted twice) is still the same content.
+            both = (self._x_key(str(r.get("source") or ""), text), self._x_key("", text))
+            if any(k in seen for k in both):
+                continue
+            seen.update(both)
+            keys.extend(both)
+            r.setdefault("data", {})["via"] = via
+            fresh.append(r)
+        self._x_remember(keys)
+        return fresh
+
+    def _x_via_context(self, seen: set, per_run: int = 4, every_s: int = 1800) -> List[Dict[str, Any]]:
+        """Recent posts of each competitor X account, found with Context.dev.
+
+        Search `site:x.com/<handle>/status` over the last week. To keep the
+        cost down a run searches at most `per_run` accounts, the ones searched
+        longest ago, and none more than once per `every_s` seconds.
+        """
+        accounts = self._CFG.get("x_accounts") or []
+        if not accounts:
+            return []
+        try:
+            from pipeline.intelligence_stream.context_dev_service import ContextDevService
+            service = ContextDevService.get_instance()
+        except Exception:                           # noqa: BLE001 — no key: X is empty this run
+            return []
+        try:
+            last = json.loads(self.X_CTX_FILE.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            last = {}
+        now = time.time()
+        due = sorted((a for a in accounts if now - float(last.get(a["handle"].lower(), 0)) >= every_s),
+                     key=lambda a: float(last.get(a["handle"].lower(), 0)))[:per_run]
+        signals: List[Dict[str, Any]] = []
+        for a in due:
+            handle = str(a["handle"]).lstrip("@")
+            name = a.get("name") or handle
+            last[handle.lower()] = now
+            found = service.search_web("site:x.com/" + handle + "/status", num_results=10, freshness="last_week")
+            for row in found.get("results") or []:
+                url = str(row.get("url") or "").split("?")[0]
+                m = re.match(r"https?://(?:www\.)?(?:x|twitter)\.com/([^/]+)/status/(\d+)", url, re.I)
+                if not m or m.group(1).lower() != handle.lower():
+                    continue                        # someone else's post, or not a post
+                text = " ".join(str(row.get("description") or row.get("title") or "").split())
+                text = re.sub(r"^.{0,60}? on X:\s*\"?", "", text) if " on X:" in text[:80] else text
+                if not text or self._x_key(url, text) in seen:
+                    continue
+                signals.append({
+                    "signal_id": "SIG-TWITTER-" + handle.upper() + "-" + m.group(2),
+                    "headline": "[" + name + " on X] " + text[:200],
+                    "description": text[:900],
+                    "source": "https://x.com/" + handle + "/status/" + m.group(2),
+                    "source_type": "X_POST_OBSERVED",
+                    "derivation_provenance": "CONTEXT_DEV:site_search:last_week",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "confidence": "MEDIUM",
+                    "data": {"platform": "x", "handle": handle.lower(), "name": name,
+                             "url": "https://x.com/" + handle + "/status/" + m.group(2)},
+                })
+        try:
+            self.X_CTX_FILE.write_text(json.dumps(last), encoding="utf-8")
+        except OSError:
+            pass
+        return signals
+
+    def _x_via_apify(self) -> List[Dict[str, Any]]:
         """Recent posts from the protocols' X accounts, through an Apify actor.
 
         Needs APIFY_TOKEN (Apify's free plan carries monthly credit; the

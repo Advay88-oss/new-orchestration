@@ -32,6 +32,20 @@ function scoped(u: URL) {
   return access.tenant || asked;
 }
 
+// The list comes from a Python process that opens the brain: several seconds.
+// Answer from the last copy at once and refresh it behind the answer, so the
+// sidebar's Recents is there the moment the page opens.
+const LISTS = new Map<string, { at: number; body: any }>();
+const REFRESHING = new Set<string>();
+
+async function freshList(tenant: string): Promise<any> {
+  const r = await runPython(['-m', 'pipeline.assistant.cli', 'threads', '--tenant', tenant], 30_000);
+  const line = r.stdout.trim().split('\n').filter(Boolean).pop() || '';
+  const body = JSON.parse(line);
+  if (body && body.ok) LISTS.set(tenant, { at: Date.now(), body });
+  return body;
+}
+
 export async function GET(req: Request) {
   const u = new URL(req.url);
   const s = scoped(u);
@@ -43,7 +57,19 @@ export async function GET(req: Request) {
     if (!THREAD.test(id)) return NextResponse.json({ ok: false, error: 'bad thread' }, { status: 400 });
     return py(['thread', '--tenant', tenant, '--id', id]);
   }
-  return py(['threads', '--tenant', tenant]);
+  const cached = LISTS.get(tenant);
+  if (cached && u.searchParams.get('fresh') !== '1') {
+    if (Date.now() - cached.at > 3000 && !REFRESHING.has(tenant)) {
+      REFRESHING.add(tenant);
+      freshList(tenant).catch(() => {}).finally(() => REFRESHING.delete(tenant));
+    }
+    return NextResponse.json({ ...cached.body, cached_at: new Date(cached.at).toISOString() });
+  }
+  try {
+    return NextResponse.json(await freshList(tenant));
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: String(e?.message || e).slice(0, 300) }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: Request) {
