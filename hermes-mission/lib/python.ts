@@ -11,7 +11,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { spawn, type ChildProcess, type SpawnOptions } from 'child_process';
+import { spawn, type ChildProcessWithoutNullStreams, type SpawnOptions } from 'child_process';
 
 import { REPO_ROOT } from './v2';
 
@@ -49,7 +49,7 @@ export function pythonPath(): string | null {
  * uses pythonw (no console) when the venv has it, and every spawn sets
  * windowsHide so a short call does not flash either.
  */
-export function spawnHidden(args: string[], opts: SpawnOptions = {}): ChildProcess {
+export function spawnHidden(args: string[], opts: SpawnOptions = {}): ChildProcessWithoutNullStreams {
   const py = pythonPath();
   if (!py) throw new Error('no python interpreter');
   let bin = py;
@@ -57,7 +57,9 @@ export function spawnHidden(args: string[], opts: SpawnOptions = {}): ChildProce
     const windowless = py.replace(/python\.exe$/i, 'pythonw.exe');
     try { if (fs.existsSync(windowless)) bin = windowless; } catch { /* python.exe */ }
   }
-  return spawn(bin, args, { ...opts, windowsHide: true, shell: false });
+  // Call sites read stdout and stderr. A detached job may set stdio to
+  // 'ignore'; those callers never touch the streams.
+  return spawn(bin, args, { ...opts, windowsHide: true, shell: false }) as ChildProcessWithoutNullStreams;
 }
 
 export interface PyResult {
