@@ -21,7 +21,15 @@ const TOOL_LABEL: Record<string, string> = {
   learning_overview: "Read what’s working", add_company: "Started studying a website", analysis_status: "Checked the study",
   analyse_competitors: "Started reading competitors", notion_connect: "Made a Notion link", propose_action: "Prepared an action",
   list_companies: "Listed brands", set_post_cadence: "Updated the schedule", find_campaigns: "Searched campaigns",
-  study_brand: "Added to Inspiration",
+  study_brand: "Added to Inspiration", schedule_status: "Checked the schedule",
+};
+
+// The same step when it did not go through: never a tick on a failure.
+const TOOL_FAILED: Record<string, string> = {
+  set_post_cadence: "Couldn’t update the schedule", add_company: "Couldn’t start the study",
+  find_campaigns: "Couldn’t search campaigns", study_brand: "Couldn’t add it to Inspiration",
+  propose_action: "Couldn’t prepare that", notion_connect: "Couldn’t make the Notion link",
+  web_search: "The web search failed", search_knowledge: "The source search failed",
 };
 
 function inline(s: string, key: string): React.ReactNode[] {
@@ -441,7 +449,8 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
         {msgs.map((m, i) => {
           if (m.role === "user") return <div key={i} className="m-user">{m.text}</div>;
           const tools = m.tools || [];
-          const planned = tools.some((t) => (t.name === "set_post_cadence" || t.name === "find_campaigns") && !t.summary.startsWith("failed"));
+          // The copilot's own answer is the reply; the tool's raw note stays a short line on its chip.
+          const planned = false;
           const runs = Array.from(new Set((m.cards || []).filter((c) => c.type === "run").map((c) => String(c.run_id))));
           if (m.pending && !m.text && !tools.length) {
             return <div key={i} className="m-bot"><span className="bot-mark"><ISpin /></span><span className="thinking">Reading your sources…</span></div>;
@@ -453,7 +462,13 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
                 <div className="bot-body">
                   {tools.map((t, j) => (
                     <span key={j} className="tool-line" style={t.summary.startsWith("failed") ? { color: "var(--bad)" } : undefined}>
-                      <ICheck size={14} />{TOOL_LABEL[t.name] || t.name}{t.summary && !planned ? <span style={{ color: "var(--faint)", opacity: 0.8 }}>· {t.summary.slice(0, 110)}</span> : null}
+                      {t.summary.startsWith("failed")
+                        ? <><span aria-hidden style={{ width: 14, display: "inline-flex", justifyContent: "center", fontWeight: 600 }}>×</span>{TOOL_FAILED[t.name] || (TOOL_LABEL[t.name] || t.name) + " — failed"}</>
+                        : t.summary === "still saving"
+                          ? <><ISpin />{(TOOL_LABEL[t.name] || t.name) + " — still saving"}</>
+                          : <><ICheck size={14} />{TOOL_LABEL[t.name] || t.name}</>}
+                      {t.summary && !t.summary.startsWith("failed") && t.summary !== "still saving" && t.name !== "set_post_cadence"
+                        ? <span style={{ color: "var(--faint)", opacity: 0.8 }}>· {t.summary.split("\n")[0].slice(0, 90)}</span> : null}
                     </span>
                   ))}
                   {planned && tools.filter((t) => t.name === "set_post_cadence" || t.name === "find_campaigns").map((t, j) => (

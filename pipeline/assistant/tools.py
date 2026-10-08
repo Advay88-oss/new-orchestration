@@ -474,6 +474,18 @@ def _jobs_this_chat_started(tenant: str, tid: str, now: str) -> Optional[list[st
     return jobs or None
 
 
+def schedule_status(tenant: str) -> dict:
+    """What is running now, read from the scheduler (read only)."""
+    from pipeline.scheduler.configurable_scheduler_daemon import _LABELS, _read_intervals
+    chosen = _read_intervals()
+    paused = {str(n) for n in (chosen.get("_paused") or [])}
+    on = [{"job": n, "label": _LABELS.get(n, n), "every": chosen.get(n)}
+          for n in (chosen.get("_on") or []) if n not in paused]
+    left = chosen.get("_posts_left") if isinstance(chosen.get("_posts_left"), int) else None
+    return {"running": on, "posts_left": left, "posts_one_after_another": bool(chosen.get("_post_chain")),
+            "paused": sorted(paused), "until": chosen.get("_until") or ""}
+
+
 def propose_action(tenant: str, action: str, run_id: str = "", directive: str = "", note: str = "") -> dict:
     """An action the OWNER confirms with a button: nothing happens until then."""
     action = action.lower()
@@ -531,6 +543,10 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
     "find_campaigns": (find_campaigns, "Search live campaigns. query is what kind. source is where: Galxe, a website, "
                        "a company name, or an X handle. Starts the search; the Campaigns page shows that source on its own.",
                        {**_p(query=S_, source=S_), "required": ["query"]}),
+    "schedule_status": (schedule_status,
+                        "What is scheduled right now: the jobs running with their gaps, posts left, what is "
+                        "paused. Read only. Use it after a schedule change that did not confirm, or when asked "
+                        "what is running.", _p()),
     "set_post_cadence": (set_post_cadence, "The schedule. Pass the owner's sentence unchanged, including "
                          "the source and the gap: Twitter, Reddit, news, a protocol name, \"every minute\", "
                          "\"one protocol\". Twitter means posts from those protocols on Twitter. News is included "
@@ -549,7 +565,7 @@ CLIENT_BLOCKED = {"list_companies", "add_company", "set_post_cadence", "find_cam
 
 # A visitor to the public link reads and asks; nothing they say changes the
 # schedule, adds a company, starts paid work or proposes a run.
-VISITOR_ALLOWED = {"brand_profile", "search_knowledge", "whats_new", "competitor_patterns",
+VISITOR_ALLOWED = {"schedule_status", "brand_profile", "search_knowledge", "whats_new", "competitor_patterns",
                    "list_runs", "get_run", "learning_overview", "analysis_status"}
 
 
