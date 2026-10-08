@@ -146,10 +146,23 @@ NO_GLASS = (
     "Do not copy their glass.")
 
 
-def _material_rule(brief: str) -> str:
-    """The brief names one opaque surface. Glass is not one of them."""
+GLASS_ACCENT = (
+    "GLASS AS AN ACCENT ONLY. Exactly ONE element is frosted glass: the card this brief is about "
+    "(see Material). It is a soft frosted panel with a fine bright edge. Everything else — the "
+    "ground, every other card, every label, arrow and icon — is opaque, matte and crisp. Do not "
+    "frost the background, do not make several glass cards, do not let a glow bleed across the poster.")
+
+
+def _material(brief: str) -> str:
     line = next((ln for ln in brief.splitlines() if ln.lower().startswith("material:")), "")
-    name = line.split("—", 1)[0].replace("Material:", "").strip().lower()
+    return line.split("—", 1)[0].replace("Material:", "").strip().lower()
+
+
+def _material_rule(brief: str) -> str:
+    """The surface the brief names. Glass only when it names glass_accent, on one card."""
+    name = _material(brief)
+    if name == "glass_accent":
+        return "SURFACE: matte opaque cards with ONE glass accent. " + GLASS_ACCENT
     if name == "editorial":
         return "SURFACE: no cards and no panels. Type and one thin-line diagram on the open ground. " + NO_GLASS
     if name == "line":
@@ -176,7 +189,8 @@ def _prompt(brief: str, correction: str = "", approved: int = 0,
            "explanatory diagram built from clear cards, icons and "
            "arrows, clearly contrasting the problem with " + _c().company_name() + "'s answer. Match "
            "that level and that density. Follow the layout and the MATERIAL named in this brief. "
-           "Do not copy their frosted glass, blur, or glowing translucent borders. "
+           + ("Their glass is allowed on the ONE accent card only. " if _material(brief) == "glass_accent"
+              else "Do not copy their frosted glass, blur, or glowing translucent borders. ") +
            "Do NOT copy their text or redraw the same diagram. The images after them" + (", except the last," if has_logo else "")
            + " are further STYLE REFERENCES." + last + "\n\n"
            if approved else
@@ -284,8 +298,11 @@ def judge(image: Path, brief: str, *, animated: bool = True) -> dict[str, Any]:
         "Check: every word spelled correctly and not garbled; no figure that "
         "is not in the facts list; the logo matches the official one (not a "
         "cube); nothing overlaps or is cut off; the image is about the brief; "
-        "NO GLASSMORPHISM: frosted, blurred, see-through, or neon-bordered glass "
-        "cards are a REJECT, even if an approved poster looks like that. "
+        + ("GLASS: this brief allows ONE frosted-glass accent card; more than one glass element, "
+           "a frosted background, or glow bleeding across the poster is a REJECT. "
+           if _material(brief) == "glass_accent" else
+           "NO GLASSMORPHISM on this poster: frosted, blurred, see-through, or neon-bordered glass "
+           "cards are a REJECT, even if an approved poster looks like that. ") +
         "matches_reference_style means type, spacing, logo, contrast and density, "
         "not a frosted fill. "
         "no logo or brand mark of ANY other protocol (" + _venues() + " and "

@@ -65,9 +65,17 @@ LAYOUTS = {
     "before_after": "the same diagram twice, stacked: 'today' above, 'with {company}' below, on the MATERIAL of this post",
     "grid_features": "a 2x2 grid of cards, one capability each with a flat icon, on the MATERIAL of this post",
 }
-# The founder stopped glassmorphism (2026-10-06). Cards are opaque.
-# Frost, blur, a see-through fill, and a glowing glass border do not appear.
+# Glassmorphism (2026-10-08). The founder's references are mostly glass, and
+# every poster came out glass; a blanket ban (2026-10-06) went too far the
+# other way. Glass is now one material among five — an accent, chosen when the
+# idea is a layer, a container or a product surface, and then on ONE element
+# only. The material rotation holds it back after use, so it never runs twice
+# in a row.
+GLASS_WHEN = ("glass_accent is for an idea about a layer, a container or a product surface — an isolated account sitting over a pool, one product card, a shield over a position — where one see-through panel says something. A comparison, a flow, a checklist or a figure reads better flat.")
 MATERIALS = {
+    "glass_accent": "matte opaque ground and cards, with exactly ONE frosted-glass panel — the {company} "
+                    "card the idea is about — soft blur behind it and a fine bright edge; every other card, "
+                    "label and arrow stays opaque and crisp",
     "solid": "opaque matte cards in the brand ink, a hairline border, no blur, no frost, nothing glowing through the fill",
     "editorial": "no panels. The headline carries the poster. One diagram is thin lines, marks and a single arrow on the open ground",
     "line": "a technical drawing: hairline rules, open shapes, small labels. No filled slabs, no blur, no glow",
@@ -215,13 +223,13 @@ def _brief_faults(out: dict, animated: bool = True) -> list[str]:
         faults.append("diagram is a text flowchart; describe it visually")
     material = str(out.get("material") or "")
     if material not in MATERIALS:
-        faults.append("material must be one of: " + ", ".join(MATERIALS) + ". Glass is not a material")
-    blob_l = " ".join(str(v) for v in out.values()).lower()
+        faults.append("material must be one of: " + ", ".join(MATERIALS))
+    blob_l = " ".join(str(v) for k, v in out.items() if k != "material").lower()
     glass_words = [w for w in ("glass", "frost", "blur", "translucent", "glassmorphism", "see-through")
                    if w in blob_l]
-    if glass_words:
-        faults.append("glassmorphism is banned (" + ", ".join(glass_words)
-                      + "). Cards are opaque. No frost, no blur, no see-through fill, no glowing glass border")
+    if glass_words and material != "glass_accent":
+        faults.append("the brief asks for " + ", ".join(glass_words) + " on the " + (material or "?")
+                      + " material; glass belongs only to glass_accent, on one card")
     return faults
 
 
@@ -265,14 +273,14 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
             "face-on: flat icons, straight arrows. No isometric "
             "or 3D objects (chips, cubes, platforms seen at an angle) — Veo turns "
             "them into a moving 3D scene and the camera tilts. "
-            "Cards are opaque. Never ask for glass, frost, blur, a translucent fill, "
-            "or a glowing glass border. ")
+            "Cards are opaque unless the material is glass_accent, and then only "
+            "the one card it names is glass. ")
     else:
         shape = (
             "The poster is a STILL (no video this run): headline and subtitle on "
             "top, then the cards the layout describes, short plain-text "
-            "labels, a footer. Cards are opaque and flat. Never ask for glass, "
-            "frost, blur, a translucent fill, or a glowing glass border. ")
+            "labels, a footer. Cards are opaque and flat unless the material is "
+            "glass_accent, and then only the one card it names is glass. ")
     system = _fill(
         "You are {company}'s Motion Director, briefing the poster that will be "
         "drawn" + (" and then animated" if animated else "") + ". {company_line} "
@@ -325,8 +333,8 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
           "prefer higher when two fit):\n"
         + "\n".join("  " + k + ": " + how + (" [" + rec + "]" if rec else "")
                     for k, how, rec in layouts) + "\n\n"
-        + "MATERIALS open this run (the last two used are held back). "
-          "Glassmorphism is banned. Do not write glass, frost, blur, or translucent:\n"
+        + "MATERIALS open this run (the last two used are held back). Pick the one that fits THIS "
+          "idea. " + GLASS_WHEN + " Glass on everything is the look to avoid:\n"
         + "\n".join("  " + k + ": " + how for k, how, _rec in materials) + "\n\n"
         + "THE FOUNDER'S QUERY: " + " ".join(str(query).split())[:800] + "\n"
         + ("THE POST — hook: " + hook[:300] + "\nbody: " + " ".join(body.split())[:1200] + "\n"
