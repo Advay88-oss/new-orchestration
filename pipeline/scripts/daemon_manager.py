@@ -62,13 +62,17 @@ def is_process_running(pid: int) -> bool:
 
 
 def get_spend_remaining() -> float:
-    """Inspects live spend proxy to verify sufficient budget remains."""
+    """What is left of today's budget, from the same ledger every paid call
+    is checked against (pipeline/ops/budget.py). An unreadable ledger is
+    0.0, not a guess: the daemon does not start on a budget it cannot see."""
     try:
-        with urllib.request.urlopen(SPEND_PROXY_URL, timeout=3) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            return float(data.get("remaining_usd", 10.0))
-    except Exception:
-        return 10.0  # Default safe assumption if proxy unreachable
+        from pipeline.ops import budget as B
+        cap = float(B.config().get("daily_usd", 15))
+        spent = sum(v["usd"] for v in B.spent(strict=True).values())
+        return max(0.0, cap - spent)
+    except Exception as exc:                        # noqa: BLE001 — fail closed, said on stderr
+        print("[daemon_manager] spend ledger unreadable: " + str(exc)[:200], file=sys.stderr)
+        return 0.0
 
 
 def _set_wanted(on: bool) -> None:

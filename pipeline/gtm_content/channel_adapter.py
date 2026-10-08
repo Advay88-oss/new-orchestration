@@ -282,6 +282,9 @@ Return STRICT JSON matching this schema:
                 "_synthesised": True,
             }
 
+        # The template stand-in is marked on every post: the cycle stops
+        # before paying for a poster or a video for copy no model wrote.
+        synthesised = bool(parsed_data.get("_synthesised"))
         parsed_data = _simplify_if_dense(parsed_data, ground_truth)
 
         x_hook = parsed_data.get("x_hook", title)
@@ -308,7 +311,8 @@ Return STRICT JSON matching this schema:
             call_to_action=cta,
             risk_flags=["Requires testnet anchor verification"],
             confidence="HIGH",
-            provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id},
+            provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id,
+                        "synthesised": synthesised},
             media_direction="16:9 cinematic textless video showing sub-second optical deflection path away from danger boundary."
         )
 
@@ -332,7 +336,8 @@ Return STRICT JSON matching this schema:
             call_to_action=cta,
             risk_flags=["Must not claim mainnet live or live institutional fund adoption"],
             confidence="HIGH",
-            provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id},
+            provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id,
+                        "synthesised": synthesised},
             media_direction="High-resolution 2-panel architecture schematic comparing monolithic pool vs isolated sandboxes."
         )
 
@@ -358,7 +363,8 @@ Return STRICT JSON matching this schema:
             discussion_question=(reddit_hook or "What would you want this to do next?"),
             risk_flags=["Requires testnet disclosure"],
             confidence="HIGH",
-            provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id},
+            provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id,
+                        "synthesised": synthesised},
             media_direction="Detailed code walkthrough of the mechanism the post explains."
         )
 

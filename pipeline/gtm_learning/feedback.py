@@ -68,6 +68,10 @@ def features(run_id: str) -> dict[str, Any]:
     }
 
 
+class GateBlocked(ValueError):
+    """An approval for a run the claim gate or the reviewer blocked."""
+
+
 def record(run_id: str, verdict: str, note: str = "", *,
            source: str = "cli", by: Optional[str] = None,
            edited: Optional[str] = None) -> dict[str, Any]:
@@ -83,6 +87,17 @@ def record(run_id: str, verdict: str, note: str = "", *,
             pass
     if not run_dir.is_dir():
         raise FileNotFoundError("no run " + run_id)
+    # A blocked run cannot be approved: the gate is not something a click
+    # overrides, and an approval would teach the learning loop that what the
+    # gate stopped was good. Revise (with what to change) or kill it.
+    if verdict == "approve":
+        try:
+            blocked = json.loads((run_dir / "summary.json").read_text(encoding="utf-8")).get("review_passed") is False
+        except (OSError, ValueError):
+            blocked = False
+        if blocked:
+            raise GateBlocked(run_id + " was blocked by the review gate; it cannot be approved. "
+                              "Revise it with what to change, or kill it.")
 
     row = {
         "run_id": run_id,

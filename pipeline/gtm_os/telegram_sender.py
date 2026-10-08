@@ -116,10 +116,11 @@ def _post_file(method: str, field: str, path: Path, fields: dict,
         return json.loads(r.read().decode("utf-8"))
 
 
-def _decision_keyboard(run_id: str) -> dict:
-    """Approve / revise / kill. The callbacks are what the listener handles."""
-    return {"inline_keyboard": [[
-        {"text": "✅ Approve", "callback_data": "approve:" + run_id},
+def _decision_keyboard(run_id: str, passed: bool = True) -> dict:
+    """Approve / revise / kill. The callbacks are what the listener handles.
+    A run the gate blocked has no Approve: revise or kill only."""
+    row = [{"text": "✅ Approve", "callback_data": "approve:" + run_id}] if passed else []
+    return {"inline_keyboard": [row + [
         {"text": "✏️ Revise", "callback_data": "revise:" + run_id},
         {"text": "❌ Kill", "callback_data": "kill:" + run_id},
     ]]}
@@ -205,7 +206,7 @@ def send_review(summary: dict[str, Any], run_id: str, *,
     try:
         res = _post_json("sendMessage", {
             "chat_id": chat, "text": text, "parse_mode": "Markdown",
-            "reply_markup": _decision_keyboard(run_id),
+            "reply_markup": _decision_keyboard(run_id, bool(summary.get("review_passed"))),
         }, token)
         if res.get("ok"):
             sent.append("message")

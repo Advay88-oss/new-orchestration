@@ -113,6 +113,10 @@ def handle(update: dict, token: str, reviewer_chat: Optional[str]) -> Optional[d
         except FileNotFoundError:
             _ack(token, cq["id"], "Run not found locally.")
             return None
+        except ValueError as exc:                   # GateBlocked: an approve on a blocked run
+            _ack(token, cq["id"], "Blocked runs cannot be approved.")
+            _reply(token, chat_id, str(exc)[:400])
+            return None
         labels = {"approve": "Approved", "revise": "Revision noted", "kill": "Killed"}
         _ack(token, cq["id"], labels[verdict] + " — recorded.")
         if verdict == "revise":

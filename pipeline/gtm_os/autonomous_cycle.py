@@ -311,13 +311,18 @@ def _render_direct(hook: str, body: str, subject: str,
     best = next((a for v in ("SHIP", "REVISE", "REJECT") for a in out["attempts"]
                  if str(a.get("verdict")).upper() == v), out["attempts"][-1])
     png = Path(out["final"])
+    # Every attempt rejected by its own judge: the poster is kept so the
+    # founder can see what went wrong, but it does not pass review and no
+    # video is paid for on top of it.
+    rejected = bool(verdicts) and all(v == "REJECT" for v in verdicts)
     # The poster's own stage row. Without it A08's only row on a run was
     # "meme not requested", and a run that made a poster showed A08 skipped.
-    R.record_stage("A08_visual_synthesis", "ok",
+    R.record_stage("A08_visual_synthesis", "degraded" if rejected else "ok",
                    "poster by " + MODEL + " from the approved posters and the "
-                   "design references; own judge " + "/".join(verdicts),
+                   "design references; own judge " + "/".join(verdicts)
+                   + ("; every attempt rejected" if rejected else ""),
                    outputs=[str(png)])
-    return {"path": str(png), "filename": png.name,
+    return {"path": str(png), "filename": png.name, "rejected": rejected,
             "archetype": "DIRECT_MODEL",
             "visual_review": {k: best.get(k) for k in ("verdict", "fix")},
             "why": "image model shown the founder-approved posters and the "
@@ -1043,6 +1048,21 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         }
         _checkpoint(summary, rid)
 
+        # Copy no model wrote (A06's template stand-in after its model call
+        # failed) is not worth a poster, a video and a review: the run stops
+        # here, blocked, and says why. Retrying is the next run's job.
+        if any((getattr(v, "provenance", None) or {}).get("synthesised")
+               for v in (content_pkg.channel_posts or {}).values()):
+            summary["status"] = "review_blocked"
+            summary["review_passed"] = False
+            summary["reason"] = ("A06 could not get copy from the model and fell back to a template; "
+                                 "stopped before the poster, video and review so nothing is paid for "
+                                 "a stand-in.")
+            for skipped in ("A07_creative_director", "A08_visual_synthesis", "A09_video_production",
+                            "A10_reviewer_firewall", "A11_delivery", "A15_creative_judge"):
+                R.record_stage(skipped, "skipped", "A06 copy was a template stand-in")
+            return _finish(summary, t0, rid)
+
         # A07 — Creative Director System
         blueprint = _stage(
             "A07_creative_director",
@@ -1079,6 +1099,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 summary["poster_layout"] = visual["poster_layout"]
             summary["visual_why"] = visual.get("why")
             summary["visual_public_url"] = visual.get("public_url")
+            if visual.get("rejected"):
+                summary["visual_rejected"] = True
             _checkpoint(summary, rid)
 
         # Meme — same agent, nano banana pro
@@ -1096,7 +1118,10 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         if with_video and not wanted["video"]:
             R.record_stage("A09_video_production", "skipped",
                            "video not requested by this directive")
-        if with_video and wanted["video"]:
+        if with_video and wanted["video"] and summary.get("visual_rejected"):
+            R.record_stage("A09_video_production", "skipped",
+                           "the poster was rejected by its own judge; no video is made from it")
+        elif with_video and wanted["video"]:
             video = _stage("A09_video_production",
                            lambda: render_video(summary, rid),
                            required=False, self_recorded=True)
@@ -1138,10 +1163,17 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 blueprint, raw_post_copy=content_pkg.channel_posts["x"].copy)
             # Every claim in the post against the brand brain's knowledge,
             # plus the deterministic claim-safety gate.
-            from pipeline.gtm_os.fact_check import check_copy
+            from pipeline.gtm_os.fact_check import check_copy, poster_words
             x = content_pkg.channel_posts["x"]
+            others = {}
+            for k, post in (content_pkg.channel_posts or {}).items():
+                if str(k).lower() != "x":
+                    others[str(k).lower()] = (str(getattr(post, "hook", "") or "") + "\n\n"
+                                              + str(getattr(post, "copy", "") or "") + "\n\n"
+                                              + str(getattr(post, "call_to_action", "") or "")).strip()
             facts = check_copy(str(getattr(x, "hook", "") or ""), str(getattr(x, "copy", "") or ""),
-                               run_id=rid)
+                               run_id=rid, channels=others,
+                               poster=poster_words(str(summary.get("poster_brief") or "")))
             return channel_verdict, slop_verdict, facts
         verdicts = _stage("A10_reviewer_firewall", review,
                           detail="ran the pre-delivery firewalls and the fact check")
@@ -1151,9 +1183,11 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         # REJECT blocks the run the same way a channel or slop failure does,
         # and so does a claim the brand brain does not support.
         creative_rejected = str(summary.get("creative_verdict") or "").upper() == "REJECT"
-        facts_blocked = bool(facts.get("blocked"))
+        # Fails closed: a fact check that could not run blocks like one that failed.
+        facts_blocked = bool(facts.get("blocked")) or not facts.get("ok", False)
         passed = bool(channel_verdict.approved and creative_verdict.approved
-                      and not creative_rejected and not facts_blocked)
+                      and not creative_rejected and not facts_blocked
+                      and not summary.get("visual_rejected"))
         summary["review_passed"] = passed
         # Every reason the gate can block for, not two of them. A run was
         # recorded review_blocked with blocked_claims and slop both empty and
@@ -1170,6 +1204,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                           else str(getattr(creative_verdict, "reasoning", ""))[:300]),
             "creative": summary.get("creative_verdict"),
             "facts": list(facts.get("blocked") or []),
+            "poster": ("rejected by its own judge on every attempt"
+                       if summary.get("visual_rejected") else None),
             "facts_supported": facts.get("supported"),
         }
         R.record_decision("A10_reviewer_firewall",

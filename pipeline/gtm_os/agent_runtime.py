@@ -164,12 +164,41 @@ def _api_key() -> Optional[str]:
     return None
 
 
+RETRY_STATUS = {429, 500, 502, 503, 504}
+RETRY_WAITS = (2.0, 6.0)                            # then the third attempt is the last
+
+
+def _retry_after(exc: urllib.error.HTTPError) -> float:
+    try:
+        return min(30.0, max(0.0, float(exc.headers.get("Retry-After") or 0)))
+    except (TypeError, ValueError):
+        return 0.0
+
+
 def _post(url: str, payload: dict, timeout: float) -> dict:
-    req = urllib.request.Request(
-        url, data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=timeout) as r:
-        return json.loads(r.read().decode("utf-8"))
+    """POST to the model. A rate limit (429), a server error (5xx) or a
+    dropped connection is retried twice, after 2 s and 6 s (or what
+    Retry-After asks, up to 30 s). Anything else — a 400, a refused budget —
+    fails at once: retrying cannot fix it."""
+    if os.environ.get("VANNA_GUARD_MISSING"):
+        raise BrainError("the spend guard is not installed (" + os.environ["VANNA_GUARD_MISSING"]
+                         + "); model calls are refused")
+    body = json.dumps(payload).encode("utf-8")
+    for attempt in range(len(RETRY_WAITS) + 1):
+        req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                return json.loads(r.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            if exc.code not in RETRY_STATUS or attempt == len(RETRY_WAITS):
+                raise
+            wait = max(RETRY_WAITS[attempt], _retry_after(exc))
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as exc:
+            if attempt == len(RETRY_WAITS):
+                raise
+            wait = RETRY_WAITS[attempt]
+        time.sleep(wait)
+    raise BrainError("unreachable")                 # the loop returns or raises
 
 
 def endpoint(role: str) -> tuple[str, str, str]:

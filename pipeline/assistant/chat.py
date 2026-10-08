@@ -298,11 +298,13 @@ def _summarize(old: str, msgs: list[dict]) -> str:
 
 def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
          cancelled: Callable[[], bool] = lambda: False, client: bool = False,
-         role: str = "") -> Iterator[dict]:
+         role: str = "owner") -> Iterator[dict]:
     """One turn. `role`: owner, client (the company's own client link — no
     other companies, no onboarding) or visitor (the public link — read only).
-    An unknown role is a visitor."""
-    role = role if role in ("owner", "client", "visitor") else ("client" if client else "visitor")
+    An unknown role is a visitor; pipeline.assistant.server passes the
+    dashboard's role and sends "visitor" when the request names none."""
+    role = "client" if client and role == "owner" else role
+    role = role if role in ("owner", "client", "visitor") else "visitor"
     client = role == "client"
     from pipeline.brand_brain import mcp_client as M
     M.enable()                                      # the assistant is an agent: brain reads go over MCP

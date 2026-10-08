@@ -59,6 +59,18 @@ class ContextDevService:
             )
         self.client = ContextDev(api_key=self.api_key)
 
+    @staticmethod
+    def _paid(fn, **kwargs):
+        """One Context.dev request, checked against the day's budget first and
+        counted after (the SDK does not go through urllib, so the guard in
+        pipeline/ops/guard.py never sees it)."""
+        from pipeline.ops import budget as B
+        B.check("context_dev")
+        out = fn(**kwargs)
+        rate = ((B.config().get("rates") or {}).get("context_dev") or {}).get("per_call", 0.01)
+        B.add("context_dev", float(rate))
+        return out
+
     @classmethod
     def get_instance(cls) -> "ContextDevService":
         if cls._instance is None:
@@ -89,7 +101,7 @@ class ContextDevService:
             params["exclude_domains"] = exclude_domains
 
         try:
-            resp = self.client.web.search(**params)
+            resp = self._paid(self.client.web.search, **params)
             results = []
             for r in getattr(resp, "results", []) or []:
                 results.append(
@@ -127,7 +139,7 @@ class ContextDevService:
         Docs: https://docs.context.dev/api-reference/web-scraping/scrape
         """
         try:
-            resp = self.client.web.scrape(
+            resp = self._paid(self.client.web.scrape, 
                 url=url,
                 use_main_content_only=use_main_content_only,
                 max_age_ms=max_age_ms,
@@ -156,7 +168,7 @@ class ContextDevService:
         Docs: https://docs.context.dev/api-reference/brand-intelligence/brand
         """
         try:
-            resp = self.client.brand.retrieve(
+            resp = self._paid(self.client.brand.retrieve, 
                 type="by_domain",
                 domain=domain,
             )
@@ -198,7 +210,7 @@ class ContextDevService:
         Docs: https://docs.context.dev/api-reference/web-scraping/crawl
         """
         try:
-            resp = self.client.web.web_crawl_md(
+            resp = self._paid(self.client.web.web_crawl_md, 
                 url=url,
                 max_pages=max_pages,
                 max_depth=max_depth,

@@ -52,22 +52,22 @@ def get_spend_metrics() -> Dict[str, Any]:
         except Exception:
             pass
 
-    # Fallback to local spend file
-    if not SPEND_FILE.exists():
-        STATE_DIR.mkdir(parents=True, exist_ok=True)
-        default_data = {
-            "spent_usd": 0.42,
-            "budget_usd": 10.0,
-            "cap_usd": 10.0,
-            "calls_total": 8,
-            "source": "LOCAL_WATCHDOG_FALLBACK"
-        }
-        SPEND_FILE.write_text(json.dumps(default_data, indent=2), encoding="utf-8")
-        return default_data
-
-    data = json.loads(SPEND_FILE.read_text(encoding="utf-8"))
-    data["source"] = "LOCAL_WATCHDOG_FALLBACK"
-    return data
+    # No proxy: today's numbers from the spend ledger every paid call is
+    # counted in. Never a made-up starting figure — when the ledger cannot be
+    # read, it says so and reports nothing as spent-or-left.
+    try:
+        from pipeline.ops import budget as B
+        cfg = B.config()
+        rows = B.spent(strict=True)
+        spent = round(sum(v["usd"] for v in rows.values()), 4)
+        cap = float(cfg.get("daily_usd", 15))
+        return {"spent_usd": spent, "budget_usd": cap, "cap_usd": cap,
+                "remaining_usd": round(max(0.0, cap - spent), 4),
+                "calls_total": int(sum(v["calls"] for v in rows.values())),
+                "by_service": rows, "source": "OPS_LEDGER"}
+    except Exception as exc:                        # noqa: BLE001 — reported as unknown
+        return {"spent_usd": None, "budget_usd": None, "cap_usd": None, "remaining_usd": None,
+                "calls_total": None, "source": "UNAVAILABLE", "error": str(exc)[:200]}
 
 
 def ensure_proxy_running() -> Dict[str, Any]:

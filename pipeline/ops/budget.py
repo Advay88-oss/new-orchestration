@@ -127,11 +127,17 @@ class _Cur:
 
 # --------------------------------------------------------------------- spend
 
-def spent(day: Optional[str] = None) -> dict[str, dict[str, float]]:
+def spent(day: Optional[str] = None, *, strict: bool = False) -> dict[str, dict[str, float]]:
+    """Today's spend by service. `strict`: raise BudgetExceeded when the
+    ledger cannot be read, instead of reporting nothing spent — the check
+    before a paid call uses it, so an unreadable ledger refuses the call."""
     try:
         with db() as con:
             rows = con.execute("SELECT * FROM ops_spend WHERE day=?", (day or today(),)).fetchall()
-    except Exception:                               # noqa: BLE001 — no ledger: nothing counted
+    except Exception as exc:                        # noqa: BLE001 — reported, never silently zero
+        if strict:
+            raise BudgetExceeded("the spend ledger cannot be read (" + type(exc).__name__ + ": "
+                                 + str(exc)[:120] + "); paid calls are refused until it can") from exc
         return {}
     return {r["service"]: {"calls": r["calls"], "usd": float(r["usd"]), "input_tokens": r["input_tokens"],
                            "output_tokens": r["output_tokens"]} for r in rows}
@@ -140,7 +146,7 @@ def spent(day: Optional[str] = None) -> dict[str, dict[str, float]]:
 def check(service: str) -> None:
     """Raise BudgetExceeded when this service, or the day, is over its cap."""
     cfg = config()
-    s = spent()
+    s = spent(strict=True)
     total = sum(v["usd"] for v in s.values())
     cap = (cfg.get("services") or {}).get(service)
     if total >= float(cfg.get("daily_usd", 15)):
@@ -150,7 +156,9 @@ def check(service: str) -> None:
 
 
 def add(service: str, usd: float, *, calls: int = 1, input_tokens: int = 0, output_tokens: int = 0) -> None:
-    """Count a call. Never raises: accounting must not break the call it counts."""
+    """Count a call. Never raises: accounting must not break the call it
+    counts. A call that cannot be counted is said on stderr and alerted
+    once a day, rather than vanishing."""
     try:
         with _lock, db() as con:
             con.execute(
@@ -161,8 +169,15 @@ def add(service: str, usd: float, *, calls: int = 1, input_tokens: int = 0, outp
                 "updated_at = excluded.updated_at",
                 (today(), service, calls, int(input_tokens), int(output_tokens), float(usd), _now()))
         _threshold_alerts()
-    except Exception:                               # noqa: BLE001
-        pass
+    except Exception as exc:                        # noqa: BLE001 — reported, not raised
+        import sys
+        print("[budget] could not count $%.4f of %s: %s" % (usd, service, exc), file=sys.stderr)
+        try:
+            from pipeline.ops import alerts
+            alerts.send("budget-uncounted-" + today(), "Spend is not being counted: " + service
+                        + " call of $%.4f could not be written (%s)." % (usd, str(exc)[:120]))
+        except Exception:                           # noqa: BLE001 — the stderr line stands
+            pass
 
 
 def token_cost(input_tokens: int, output_tokens: int) -> float:
