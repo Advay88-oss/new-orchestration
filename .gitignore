@@ -84,3 +84,40 @@ vanna-src/
 **/.env.*
 !**/.env.example
 .mcp.json
+
+# ---------------------------------------------------------------------------
+# Runtime state. It lives on disk and in the GCS bucket (state_sync.py), not
+# in git: committed, it was 54% of all changes and ~1.1 GB of the history.
+# Seed data the code reads stays tracked (the ! lines).
+pipeline/state/*
+!pipeline/state/logo.png
+!pipeline/state/vanna_official_master_logo.png
+!pipeline/state/vanna_full_brand_badge.png
+!pipeline/state/reference_posters/
+!pipeline/state/approved/
+!pipeline/state/prompts/
+!pipeline/state/series/
+!pipeline/state/campaign-assets/
+state/*
+!state/manifest.json
+pipeline/brain/db/evidence.jsonl
+pipeline/brain/docs/.fetched
+pipeline/brain/knowledge/learned-rules.*
+pipeline/brain/knowledge/tenants/
+registry/spend.jsonl
+registry/outcomes.jsonl
+registry/discovery_log.jsonl
+registry/raw_store/
+registry/cache_index.json
+registry/defillama_snapshot.json
+pipeline/gtm_engine/registry/defillama_snapshot.json
+hermes-mission/public/RUN_*
+hermes-mission/public/idea_*
+hermes-mission/public/GTM-*
+hermes-mission/public/DEMO_*
+hermes-mission/public/meme_*
+hermes-mission/public/*_visual.png
+hermes-mission/public/*_visual
+hermes-mission/public/*.mp4
+.tmp-*/
+*.bak
