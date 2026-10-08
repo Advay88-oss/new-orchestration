@@ -32,8 +32,16 @@ TOKEN_FILE="$(mktemp -t gcloud_token.XXXXXX)"
 trap 'rm -f "${TOKEN_FILE}"' EXIT
 # User login (anand@vanna.finance) is the credential that can deploy.
 # Application-default is only a fallback, and on this machine it goes stale.
-if ! "${GCLOUD}" auth print-access-token > "${TOKEN_FILE}" 2>/dev/null; then
-  "${GCLOUD}" auth application-default print-access-token > "${TOKEN_FILE}"
+# A login that needs re-authentication waits for a prompt nobody can answer:
+# time it out, and accept only a real token, else use application-default.
+token_ok() { grep -q '^ya29\.' "${TOKEN_FILE}" 2>/dev/null; }
+timeout 30 "${GCLOUD}" auth print-access-token > "${TOKEN_FILE}" 2>/dev/null < /dev/null || true
+if ! token_ok; then
+  timeout 30 "${GCLOUD}" auth application-default print-access-token > "${TOKEN_FILE}" 2>/dev/null < /dev/null || true
+fi
+if ! token_ok; then
+  echo "no usable Google credential: run 'gcloud auth login' or 'gcloud auth application-default login'" >&2
+  exit 1
 fi
 gc() { "${GCLOUD}" "$@" --project "${PROJECT}" --access-token-file="${TOKEN_FILE}"; }
 say() { printf '\n== %s\n' "$*"; }
