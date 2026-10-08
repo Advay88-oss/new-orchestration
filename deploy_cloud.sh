@@ -53,7 +53,8 @@ secret_val() { gc secrets versions access latest --secret="$1"; }
 MAP=(GEMINI_API_KEY:gemini-api-key VEO_API_KEY:veo-api-key APIFY_TOKEN:apify-token
      TELEGRAM_BOT_TOKEN:telegram-bot-token TELEGRAM_REVIEWER_CHAT_ID:telegram-reviewer-chat-id
      RUNWAY_API_KEY:runway-api-key BRAIN_SECRET_KEY:brain-secret-key BRAIN_INVITE_SECRET:brain-invite-secret
-     NOTION_OAUTH_CLIENT_ID:notion-oauth-client-id NOTION_OAUTH_CLIENT_SECRET:notion-oauth-client-secret)
+     NOTION_OAUTH_CLIENT_ID:notion-oauth-client-id NOTION_OAUTH_CLIENT_SECRET:notion-oauth-client-secret
+     CONTEXT_DEV_API_KEY:context-dev-api-key)
 
 step_secrets() {
   say "secrets: pipeline/.env -> Secret Manager (values are piped, never shown)"
