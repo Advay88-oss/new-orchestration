@@ -1,9 +1,6 @@
 [submodule "Agent-Reach"]
 	path = Agent-Reach
 	url = https://github.com/Panniantong/Agent-Reach.git
-[submodule "claude-video"]
-	path = claude-video
-	url = https://github.com/Advay88-oss/claude-video.git
 [submodule "tools/recordly"]
 	path = tools/recordly
 	url = https://github.com/webadderallorg/Recordly.git

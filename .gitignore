@@ -121,3 +121,8 @@ hermes-mission/public/*_visual
 hermes-mission/public/*.mp4
 .tmp-*/
 *.bak
+
+# Video stacks the engine does not use (A09 is Veo, in pipeline/gtm_creative/motion.py;
+# brand films are made from D:/vanna-remotion by the crypto-video-style skill).
+remotion-video/
+claude-video/

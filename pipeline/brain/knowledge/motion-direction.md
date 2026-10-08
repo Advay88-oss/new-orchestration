@@ -56,10 +56,10 @@ This keeps the guarantee the stills have: every word is composited, so nothing
 published can be misspelt, and the background is byte-identical to the post it
 accompanies.
 
-**Remotion** is already in the repo (`remotion-video/`) and is the obvious
-alternative to hand-rolled PIL frames if the sequences get complex. Check what
-state it is in before committing to it — it was last touched before this work
-began.
+**Remotion** is the alternative to hand-rolled PIL frames if the sequences get
+complex. It is not part of this engine: the brand films are made with it from
+`D:/vanna-remotion` by the crypto-video-style skill. The engine's own video is
+Veo (A09, `pipeline/gtm_creative/motion.py`).
 
 ## What Veo is still good for
 

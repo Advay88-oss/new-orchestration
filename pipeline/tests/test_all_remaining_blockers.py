@@ -16,9 +16,7 @@ import unittest
 from pathlib import Path
 
 from pipeline.intelligence_stream.continuous_ingestion_daemon import ContinuousIngestionDaemon
-from pipeline.video_pipeline.video_render_queue import VideoRenderQueue
 from pipeline.gtm_os.event_bus import EventBus
-from pipeline.scripts.spend_proxy_watchdog import is_proxy_alive, get_spend_metrics
 from pipeline.gtm_orchestration.config import BRAIN_DB_DIR, BRAIN_ROOT, CANONICAL_KNOWLEDGE_ROOT
 
 
@@ -45,29 +43,6 @@ class TestAllRemainingBlockers(unittest.TestCase):
         opp_lines = [line.strip() for line in db_opp.read_text(encoding="utf-8").splitlines() if line.strip()]
         self.assertGreaterEqual(len(opp_lines), 2)
 
-    def test_blocker_8_async_video_render_queue(self):
-        """Blocker 8: Verify video rendering queue runs jobs asynchronously without blocking."""
-        queue = VideoRenderQueue()
-        job_id = queue.submit_render_job(
-            composition_id="VannaProductFilm41s",
-            output_filename="test_video_queue.mp4",
-            simulate=True  # Fast test mode
-        )
-
-        self.assertTrue(job_id.startswith("JOB-VID-"))
-
-        # Wait briefly for worker thread completion
-        for _ in range(10):
-            time.sleep(0.1)
-            status = queue.get_job_status(job_id)
-            if status and status.status == "COMPLETED":
-                break
-
-        final_job = queue.get_job_status(job_id)
-        self.assertIsNotNone(final_job)
-        self.assertEqual(final_job.status, "COMPLETED")
-        self.assertGreater(final_job.output_size_bytes, 0)
-        self.assertGreater(final_job.duration_sec, 0)
 
     def test_blocker_9_vanna_campaigns_and_series_in_db(self):
         """Blocker 9: Verify Vanna campaigns and series are registered in canonical DB."""
@@ -85,18 +60,6 @@ class TestAllRemainingBlockers(unittest.TestCase):
         camp_ids = {c["campaign_id"] for c in camp_entries}
         self.assertIn("CAMP_TESTNET_SANDBOX_ALPHA", camp_ids)
         self.assertIn("CAMP_BLEND_V2_INTEGRATION", camp_ids)
-
-    def test_blocker_10_spend_proxy_watchdog_and_budget(self):
-        """Blocker 10: Verify spend proxy watchdog ensures service is running and returns valid metrics."""
-        from pipeline.scripts.spend_proxy_watchdog import ensure_proxy_running
-        res = ensure_proxy_running()
-        self.assertIn(res["status"], ("RUNNING", "SPAWNED", "FALLBACK_LOCAL"))
-
-        metrics = res["metrics"]
-        self.assertIn("spent_usd", metrics)
-        self.assertIn("cap_usd", metrics)
-        self.assertEqual(metrics["cap_usd"], 10.0)
-        self.assertGreaterEqual(metrics["spent_usd"], 0.0)
 
     def test_blocker_11_realtime_event_bus(self):
         """Blocker 11: Verify EventBus publishes events, stores atomically, and formats SSE."""

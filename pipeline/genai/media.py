@@ -1,6 +1,6 @@
 """Media generation — images (nano banana / nano banana pro) and video (Veo 3.1).
 
-Routing comes from `core.models`, so the model used is declared in one place and
+Routing comes from `pipeline.genai.models`, so the model used is declared in one place and
 recorded per run:
 
     image       gemini-3.1-flash-image     background texture for a rendered asset
@@ -38,7 +38,7 @@ from .llm import API_ROOT, LLMError, api_key
 from .models import Role, resolve
 from .motion import motion_stage as _motion
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[2]
 MEDIA_DIR = Path(os.environ.get("VANNA_MEDIA_DIR", REPO / "state" / "media"))
 
 VIDEO_POLL_INTERVAL_S = 10.0

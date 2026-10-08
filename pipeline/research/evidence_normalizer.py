@@ -84,7 +84,7 @@ class EvidenceNormalizer:
     ) -> List[Dict[str, Any]]:
         """Extract checkable claims from a scraped page.
 
-        Delegates to `core.research`, which reads the page as prose and refuses
+        Delegates to `pipeline.genai.research`, which reads the page as prose and refuses
         to emit a claim it cannot attach a subject and a verbatim supporting
         quote to.
 
@@ -106,7 +106,7 @@ class EvidenceNormalizer:
         _repo = str(Path(__file__).resolve().parents[2])
         if _repo not in _sys.path:
             _sys.path.insert(0, _repo)
-        from core.research import extract_claims as _extract
+        from pipeline.genai.research import extract_claims as _extract
 
         try:
             claims = _extract(

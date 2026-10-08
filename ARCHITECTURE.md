@@ -129,5 +129,6 @@ python -m pipeline.tests.offline
 bash deploy_cloud.sh build jobs service
 ```
 
-`core/` is the earlier pipeline. It no longer runs; three of its modules (claim extraction,
-meme design rules, the image client) are still imported as libraries.
+The earlier `core/` pipeline was removed on 2026-10-08; the model clients it had that the engine
+still uses (LLM client, model routing, image generation, design rules, claim extraction) live in
+`pipeline/genai/`. Video is Veo only (A09); the Remotion brand films are a separate tool.

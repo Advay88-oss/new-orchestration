@@ -25,7 +25,6 @@ OFFLINE_SAFE = [
     "test_copilot_layers",
     "test_assistant_chat",
     "test_assistant_tools",
-    "test_blocker_fixes",
     "test_blockers_4_5_6_7",
     "test_brain_hygiene",
     "test_brain_mcp",

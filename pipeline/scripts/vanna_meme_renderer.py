@@ -33,7 +33,7 @@ from pipeline.scripts.vanna_schematic_generator import overlay_official_vanna_lo
 
 
 def build_meme_prompt(meme_data: Dict[str, Any]) -> str:
-    """Build the image prompt from `core.media`.
+    """Build the image prompt from `pipeline.genai.media`.
 
     The previous builder hardcoded product figures into the picture — "fixed
     '0.00014 XLM'", "a glowing holographic 1.10x protective shield" — so the
@@ -49,7 +49,7 @@ def build_meme_prompt(meme_data: Dict[str, Any]) -> str:
     _repo = str(pathlib.Path(__file__).resolve().parents[2])
     if _repo not in _sys.path:
         _sys.path.insert(0, _repo)
-    from core.design import REJECTED_TREATMENTS
+    from pipeline.genai.design import REJECTED_TREATMENTS
 
     concept = str(meme_data.get("vanna_angle") or meme_data.get("reference") or "crypto credit").strip()
     caption = str(meme_data.get("copy") or concept).strip()
@@ -71,7 +71,7 @@ def render_meme_card(meme_data: Dict[str, Any], output_path: Path | str | None =
 
     prompt = build_meme_prompt(meme_data)
 
-    # Generated through core.media, which routes `meme_image` to nano banana pro
+    # Generated through pipeline.genai.media, which routes `meme_image` to nano banana pro
     # over the API key. The previous path called Vertex, where that model is not
     # published (HTTP 404), then copied a pre-existing PNG from state/ and
     # reported success — so the memes surface showed a recycled diagram carrying
@@ -80,7 +80,7 @@ def render_meme_card(meme_data: Dict[str, Any], output_path: Path | str | None =
     _repo = str(pathlib.Path(__file__).resolve().parents[2])
     if _repo not in _sys.path:
         _sys.path.insert(0, _repo)
-    from core.media import generate_image, MediaError
+    from pipeline.genai.media import generate_image, MediaError
 
     try:
         generated, used_model = generate_image(prompt, "meme_image", out)

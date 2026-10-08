@@ -24,7 +24,7 @@ jobs:
       - name: Install (pinned, hashed)
         run: pip install --require-hashes -r requirements.lock
       - name: Lint (syntax errors, undefined names)
-        run: pipx run ruff==0.9.10 check pipeline core
+        run: pipx run ruff==0.9.10 check pipeline
       - name: Claims registry matches the facts ledger
         run: python -m pipeline.scripts.build_claims_registry --check
       - name: Tests, network off

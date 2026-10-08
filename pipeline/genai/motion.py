@@ -31,7 +31,7 @@ from typing import Any
 from .contracts import Claim, StageResult, VisualSpec, degraded, digest, ok
 from .design import PALETTE
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[2]
 REMOTION_DIR = Path(os.environ.get("VANNA_REMOTION_DIR", REPO / "remotion-video"))
 OUT_DIR = Path(os.environ.get("VANNA_MEDIA_DIR", REPO / "state" / "media"))
 

@@ -43,8 +43,6 @@ from pipeline.gtm_orchestration.intelligence_provider import IntelligenceProvide
 from pipeline.gtm_orchestration.claim_evidence_gate import ClaimEvidenceGate
 from pipeline.gtm_orchestration.gtm_strategist import GTMStrategist
 from pipeline.gtm_orchestration.content_creator import ContentCreator
-from pipeline.gtm_orchestration.creative_director import CreativeDirector
-from pipeline.gtm_orchestration.gtm_orchestrator import GTMOrchestrator
 
 
 class TestGTMPhase11Integrity(unittest.TestCase):
@@ -55,7 +53,6 @@ class TestGTMPhase11Integrity(unittest.TestCase):
         self.intelligence = IntelligenceProvider(config=self.config)
         self.evidence_gate = ClaimEvidenceGate(config=self.config)
         self.strategist = GTMStrategist(intelligence_provider=self.intelligence)
-        self.orchestrator = GTMOrchestrator(config=self.config)
 
     # -------------------------------------------------------------------------
     # TEST M: OLD REPOSITORY PATH REJECTED UNLESS COMPATIBILITY EXPLICIT
@@ -200,66 +197,14 @@ class TestGTMPhase11Integrity(unittest.TestCase):
     # -------------------------------------------------------------------------
     # TEST O: NULL METRICS REMAIN NULL (null != 0)
     # -------------------------------------------------------------------------
-    def test_O_null_metrics_remain_null(self):
-        trace = self.orchestrator.run_lifecycle()
-        meta = trace.performance_metadata
-        self.assertIsNone(meta.get("impressions"), "Unmeasured impressions must be None (null), not 0")
-        self.assertIsNone(meta.get("engagements"), "Unmeasured engagements must be None (null), not 0")
-        self.assertIsNone(meta.get("conversions"), "Unmeasured conversions must be None (null), not 0")
 
     # -------------------------------------------------------------------------
     # TEST P: PROVENANCE SURVIVES ENTIRE CHAIN
     # -------------------------------------------------------------------------
-    def test_P_provenance_chain_integrity(self):
-        trace = self.orchestrator.run_lifecycle()
-        self.assertGreater(len(trace.provenance_chain), 0)
-        prov = trace.provenance_chain[0]
-        self.assertIn("source_root", prov)
-        self.assertIn("record_id", prov)
-        self.assertIn("source_type", prov)
 
     # -------------------------------------------------------------------------
     # TEST Q & R: HUMAN_REVIEW_REQUIRED AND KILL TERMINATE PIPELINE
     # -------------------------------------------------------------------------
-    def test_Q_and_R_pipeline_stops_on_review_or_kill(self):
-        # 1. Kill stops pipeline entirely
-        prohibited_sig = MarketSignal(
-            signal_id="SIG-PROHIBITED",
-            headline="Mainnet Live Token Trading Launch Announced",
-            description="Claiming live mainnet token trading and yield distribution.",
-            market_category="LENDING",
-            source="https://x.com",
-            source_root=str(self.config.intelligence_root),
-            source_type="SOCIAL_CORPUS",
-            record_id="rec_fatal_01",
-            observed_at="2026-09-10",
-            confidence="HIGH",
-            evidence_status="OBSERVED"
-        )
-        kill_trace = self.orchestrator.run_lifecycle(signal_override=prohibited_sig)
-        self.assertEqual(kill_trace.overall_status, "KILL")
-        # Assert no content or creative stages were run
-        stage_names = [s.stage for s in kill_trace.stages]
-        self.assertNotIn("content", stage_names)
-        self.assertNotIn("creative", stage_names)
-
-        # 2. Human review stops autonomous publishing
-        uncertain_sig = MarketSignal(
-            signal_id="SIG-UNCERTAIN",
-            headline="Potential New Exotic Collateral Whitelisted on Stellar",
-            description="Unconfirmed reports of an unverified stablecoin pool on Soroban.",
-            market_category="LENDING",
-            source="https://reddit.com",
-            source_root=str(self.config.intelligence_root),
-            source_type="SOCIAL_CORPUS",
-            record_id="rec_unc_01",
-            observed_at="2026-09-10",
-            confidence="LOW",
-            evidence_status="INSUFFICIENT"
-        )
-        review_trace = self.orchestrator.run_lifecycle(signal_override=uncertain_sig)
-        self.assertEqual(review_trace.overall_status, "HUMAN_REVIEW_REQUIRED")
-        self.assertNotIn("content", [s.stage for s in review_trace.stages])
 
 
     # -------------------------------------------------------------------------

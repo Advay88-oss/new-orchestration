@@ -10,7 +10,6 @@
 !/config/
 !/registry/
 !/knowledge/
-!/core/
 
 # Never uploaded: secrets, builds, caches, runtime data (the bucket has it).
 **/.env

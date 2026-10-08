@@ -68,7 +68,7 @@ Cloud Scheduler vanna-gtm-tick (hourly: notion_sync, metrics_collect; the cycle 
 | `knowledge/`, `registry/` | Campaign book; claims, discovered players, outcomes (`.jsonl`) |
 | `marketing/`, `work/`, `exports/` | Brand/ads/competitive assets, campaigns, Notion exports |
 | `okf-auri/`, `auri data/` | Second tenant (Auri) knowledge pack |
-| `remotion-video/`, `claude-video/`, `pipeline/video_*` | Video production stack |
+| `pipeline/gtm_creative/motion.py`, `pipeline/scripts/veo_broll.py` | Video (Veo, agent A09). Brand films: `D:/vanna-remotion` (crypto-video-style skill) |
 | `open-design/`, `design references/` | Design systems and visual references |
 | `Agent-Reach/`, `tools/` | Multi-platform scraping/research; utilities |
 

@@ -52,7 +52,6 @@ COPY pipeline/ ./pipeline/
 COPY config/ ./config/
 COPY registry/ ./registry/
 COPY knowledge/ ./knowledge/
-COPY core/ ./core/
 RUN mkdir -p state/panels pipeline/state/gtm_runs pipeline/state/panels pipeline/logs
 
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh

@@ -25,7 +25,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-REPO = Path(__file__).resolve().parents[1]
+REPO = Path(__file__).resolve().parents[2]
 API_ROOT = "https://generativelanguage.googleapis.com/v1beta"
 
 # USD per 1M tokens (input, output). An absent entry means we do not know the
@@ -326,7 +326,7 @@ class LLMClient:
     def _endpoint(self, method: str) -> tuple[str, dict[str, str]]:
         """Resolve the URL + headers for this client's declared transport.
 
-        Vertex failures are NOT silently downgraded here — `core.models` decides
+        Vertex failures are NOT silently downgraded here — `pipeline.genai.models` decides
         the transport up front and records any downgrade. Falling back inside
         the call would hide it.
         """
