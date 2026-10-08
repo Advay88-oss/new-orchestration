@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { REPO_ROOT } from '@/lib/v2';
 
 const PROXY_URL = 'http://127.0.0.1:8900/_spend';
-const LEDGER_PATH = path.resolve('D:/new orchestration/pipeline/state/spend-ledger.json');
+const LEDGER_PATH = path.join(REPO_ROOT, 'pipeline', 'state', 'spend-ledger.json');
 
 export const dynamic = 'force-dynamic';
 

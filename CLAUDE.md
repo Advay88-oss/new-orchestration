@@ -159,9 +159,15 @@ Requires `google-cloud-storage` and valid ADC (`gcloud auth application-default 
 - The dashboard source is `hermes-mission/` (branded **Herald** since 2026-10-07):
   `/` is the front page, the app is `/app`, `/brief` is the share page.
   `.claude/launch.json` runs it (`hermes-mission`, port 3000).
-- The live dashboard and pipeline are in `sales-agent-504607` (deploy with
-  `deploy_cloud.sh`). `deploy_gcp.sh` / `deploy_dashboard.sh` are the older,
-  dashboard-only deploys.
+- The live dashboard and pipeline are in `sales-agent-504607`; `deploy_cloud.sh` is the
+  only deploy (the older dashboard-only scripts were removed: they reset env vars and
+  disagreed on max instances).
+- CI: `.github/workflows/ci.yml` runs ruff (`ruff.toml`), the claims-registry check,
+  `python -m pipeline.tests.offline` (network blocked, no paid calls) and `tsc`.
+- Python deps: edit `requirements.txt`, then recompile `requirements.lock` (command in
+  its header); the image installs the lock with `--require-hashes` and runs as `app`.
+- Runtime state (`pipeline/state/`, `state/`, generated images) is gitignored; it lives
+  on disk and in the bucket. History still holds ~1.3 GB of old state.
 - Scheduler: locally the dashboard server keeps `configurable_scheduler_daemon.py`
   alive (`daemon_manager.py ensure` every minute; `stop` from the Autopilot drawer
   is respected). When the GCP tick `vanna-gtm-tick` is ENABLED the laptop only

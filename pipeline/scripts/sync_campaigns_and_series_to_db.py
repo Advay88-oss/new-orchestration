@@ -14,11 +14,11 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-DB_SERIES_FILE = BRAIN_DB_DIR / "recurring_series.jsonl"
-DB_CAMPAIGNS_FILE = BRAIN_DB_DIR / "campaigns.jsonl"
-
 from pipeline.gtm_storage.atomic_store import AtomicJsonlStore
 from pipeline.gtm_orchestration.config import BRAIN_DB_DIR, BRAIN_ROOT, CANONICAL_KNOWLEDGE_ROOT
+
+DB_SERIES_FILE = BRAIN_DB_DIR / "recurring_series.jsonl"
+DB_CAMPAIGNS_FILE = BRAIN_DB_DIR / "campaigns.jsonl"
 
 # Authoritative Vanna Series
 VANNA_SERIES = [

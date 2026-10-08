@@ -1,0 +1,7 @@
+# Lint for what breaks at run time, not style: syntax errors, undefined
+# names, invalid comparisons. Widen the rule set as files are cleaned up.
+target-version = "py311"
+extend-exclude = ["Agent-Reach", "claude-video", "remotion-video", "open-design", "tools", "pipeline/system1_extracted"]
+
+[lint]
+select = ["E9", "F63", "F7", "F82"]

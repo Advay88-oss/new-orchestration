@@ -20,6 +20,7 @@ import json
 import re
 import shutil
 import subprocess
+import os
 import sys
 import tempfile
 from pathlib import Path
@@ -29,7 +30,7 @@ from typing import Any, Dict, Optional
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from art_director import compile_art_direction, ARCHETYPE_RULES
 
-CHROME_CANDIDATES = [
+CHROME_CANDIDATES = [c for c in [os.environ.get("CHROME_BIN", "")] if c] + [
     r"C:\Program Files\Google\Chrome\Application\chrome.exe",
     r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
     "google-chrome",

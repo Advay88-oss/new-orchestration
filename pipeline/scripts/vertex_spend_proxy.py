@@ -209,10 +209,10 @@ def access_token() -> str | None:
     now = time.time()
     if _token_cache.get("value") and float(_token_cache.get("expires", 0)) > now + 60:
         return str(_token_cache["value"])
-    gcloud = os.environ.get(
-        "GCLOUD_BIN",
-        r"C:\Users\Advay Anand\AppData\Local\Google\Cloud SDK\google-cloud-sdk\bin\gcloud.cmd",
-    )
+    import shutil
+    # GCLOUD_BIN, else gcloud on PATH (gcloud.cmd on Windows): no one
+    # machine's install path is written into the code.
+    gcloud = os.environ.get("GCLOUD_BIN") or shutil.which("gcloud") or shutil.which("gcloud.cmd") or "gcloud"
     try:
         out = subprocess.run([gcloud, "auth", "application-default", "print-access-token"],
                              capture_output=True, text=True, timeout=60,

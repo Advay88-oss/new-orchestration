@@ -13,10 +13,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-DB_MACHINES_FILE = BRAIN_DB_DIR / "gtm_machines.jsonl"
-
 from pipeline.gtm_machines.machine_library import GTMMachineLibrary
 from pipeline.gtm_orchestration.config import BRAIN_DB_DIR, BRAIN_ROOT, CANONICAL_KNOWLEDGE_ROOT
+
+DB_MACHINES_FILE = BRAIN_DB_DIR / "gtm_machines.jsonl"
 
 def sync_machines():
     print("▶ Syncing authoritative GTM Machines to canonical DB...")

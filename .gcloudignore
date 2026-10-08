@@ -3,6 +3,7 @@
 !/Dockerfile
 !/docker-entrypoint.sh
 !/requirements.txt
+!/requirements.lock
 !/.dockerignore
 !/hermes-mission/
 !/pipeline/

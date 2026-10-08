@@ -11,3 +11,12 @@ except Exception as _exc:                           # noqa: BLE001 — never blo
     _os.environ["VANNA_GUARD_MISSING"] = type(_exc).__name__ + ": " + str(_exc)[:200]
     print("[pipeline] the spend guard did not install (" + _os.environ["VANNA_GUARD_MISSING"]
           + "); paid calls through agent_runtime are refused", file=_sys.stderr)
+
+
+# In a Cloud Run Job, every printed line becomes a JSON log entry with a
+# severity (pipeline/ops/cloudlog.py), so errors can be filtered and alerted on.
+try:
+    from pipeline.ops.cloudlog import install as _install_logs
+    _install_logs()
+except Exception:                                   # noqa: BLE001 — plain logs still work
+    pass
