@@ -31,6 +31,15 @@ _turn_thread: contextvars.ContextVar[str] = contextvars.ContextVar("assistant_th
 def bind_thread(thread_id: str) -> None:
     _turn_thread.set(thread_id or "")
 
+
+# The dashboard's address for this turn (links in a Notion invite). Per turn,
+# not a process-wide variable another request could overwrite.
+_turn_base: contextvars.ContextVar[str] = contextvars.ContextVar("assistant_base", default="")
+
+
+def bind_base(base: str) -> None:
+    _turn_base.set(str(base or "")[:200])
+
 REPO = Path(__file__).resolve().parents[2]
 RUNS = REPO / "pipeline" / "state" / "gtm_runs"
 STATUS_DIR = REPO / "pipeline" / "state" / "analyzer"
@@ -351,7 +360,7 @@ def analyse_competitors(tenant: str, find_new: bool = False) -> dict:
 
 def notion_connect(tenant: str, for_client: bool = False) -> dict:
     from pipeline.brand_brain import notion_oauth as O
-    base = os.environ.get("ASSISTANT_BASE_URL", "")
+    base = _turn_base.get() or os.environ.get("ASSISTANT_BASE_URL", "")
     inv = O.make_invite(tenant, base=base)
     st = O.status(tenant)
     return {"tenant": tenant, "configured": st.get("configured"), "connected": st.get("connected"),
@@ -370,8 +379,8 @@ def find_campaigns(tenant: str, query: str, source: str = "galxe") -> dict:
     if not TENANT.match(tenant):
         return {"error": "bad company"}
     _hidden_popen([_python_exe(), "-m", "pipeline.gtm_os.campaigns", "run", tenant, q, src])
-    return {"started": True, "query": q, "source": src,
-            "message": "Searching " + src + ". It lands in its own list on Campaigns."}
+    return {"started": True, "confirmed": False, "query": q, "source": src,
+            "message": "Started searching " + src + " (not finished yet). It lands in its own list on Campaigns."}
 
 
 def study_brand(tenant: str, name: str, where: str = "") -> dict:
@@ -389,8 +398,9 @@ def study_brand(tenant: str, name: str, where: str = "") -> dict:
     elif re.fullmatch(r"@?[A-Za-z0-9_]{1,30}", src):
         args += ["--x", src.lstrip("@")]
     _hidden_popen(args)
-    return {"started": True, "name": who,
-            "message": "Studying " + who + ". It lands on What Vanna Can Do, with what a post from it could be."}
+    return {"started": True, "confirmed": False, "name": who,
+            "message": "Started studying " + who + " (not finished yet). It lands on What Vanna Can Do, "
+                       "with what a post from it could be."}
 
 
 def set_post_cadence(tenant: str, instruction: str) -> dict:
@@ -412,13 +422,56 @@ def set_post_cadence(tenant: str, instruction: str) -> dict:
         except Exception:                           # noqa: BLE001 — the tool argument still applies
             said = ""
     text = said or instruction
+    from pipeline.scheduler.configurable_scheduler_daemon import parse_tell
+    try:
+        parsed = parse_tell(text)
+    except ValueError as exc:
+        return {"ok": False, "error": str(exc)[:240]}
+    # Scheduled posts are made for the company this machine runs; asking for
+    # them while talking about another company would quietly make the wrong
+    # company's posts.
+    primary = (os.environ.get("BRAIN_TENANT") or "vanna").lower()
+    wants_posts = any((j.get("job") if isinstance(j, dict) else j) == "gtm_cycle"
+                      for j in (parsed.get("jobs") or [])) and parsed.get("action") in ("plan", "start")
+    if wants_posts and tenant != primary:
+        return {"ok": False, "error": "scheduled posts run for " + primary + " only; for " + tenant
+                + ", ask for one post at a time (Make post) instead"}
+    # "stop this": what THIS chat started, not every job that is running.
+    only = None
+    if parsed.get("action") == "stop" and parsed.get("jobs") == ["@owner"] and tid:
+        only = _jobs_this_chat_started(tenant, tid, text)
     if tid and re.search(r"\b(news|scrape|scraping|fetch|twitter|tweets?|reddit|headline|headlines|socials?|protocols?|defi)\b", text, re.I):
         remember_news_chat(tenant, tid)
     try:
-        out = apply_tell(text)
+        out = apply_tell(text, only_jobs=only)
     except Exception as exc:                       # noqa: BLE001 — the chat shows the sentence
-        return {"error": str(exc)[:240]}
+        return {"ok": False, "error": str(exc)[:240]}
     return out
+
+
+def _jobs_this_chat_started(tenant: str, tid: str, now: str) -> Optional[list[str]]:
+    """The jobs the owner's earlier messages in this chat turned on."""
+    from pipeline.assistant.store import history
+    from pipeline.scheduler.configurable_scheduler_daemon import parse_tell
+    try:
+        _, recent = history(tenant, tid)
+    except Exception:                               # noqa: BLE001 — falls back to every job the owner turned on
+        return None
+    jobs: list[str] = []
+    for msg in recent:
+        t = str(msg.get("text") or "")
+        if msg.get("role") != "user" or not t.strip() or t.strip() == now.strip():
+            continue
+        try:
+            p = parse_tell(t)
+        except ValueError:
+            continue
+        if p.get("action") in ("plan", "start"):
+            for j in p.get("jobs") or []:
+                name = j.get("job") if isinstance(j, dict) else j
+                if name and name not in jobs:
+                    jobs.append(name)
+    return jobs or None
 
 
 def propose_action(tenant: str, action: str, run_id: str = "", directive: str = "", note: str = "") -> dict:
@@ -519,12 +572,24 @@ def declarations(client: bool = False, role: str = "") -> list[dict]:
 
 
 def call(name: str, tenant: str, args: dict) -> dict:
+    """Every result says ok true or false, and a failure says how to fix it."""
     if name not in TOOLS:
-        return {"error": "no tool " + name}
-    fn = TOOLS[name][0]
+        return {"ok": False, "error": "no tool " + name}
+    fn, _desc, params = TOOLS[name]
+    allowed_args = set((params or {}).get("properties", {}))
+    unknown = [k for k in (args or {}) if allowed_args and k not in allowed_args]
+    if unknown:
+        return {"ok": False, "error": "unknown arguments " + ", ".join(unknown[:5])
+                + "; this tool takes " + ", ".join(sorted(allowed_args))}
     try:
-        return fn(tenant, **{k: v for k, v in (args or {}).items() if v not in (None, "")})
+        out = fn(tenant, **{k: v for k, v in (args or {}).items() if v not in (None, "")})
     except TypeError as exc:
-        return {"error": "bad arguments: " + str(exc)[:200]}
+        return {"ok": False, "error": "bad arguments: " + str(exc)[:200]}
     except Exception as exc:                        # noqa: BLE001 — the model is told, and can recover
-        return {"error": type(exc).__name__ + ": " + str(exc)[:300]}
+        return {"ok": False, "error": type(exc).__name__ + ": " + str(exc)[:300]}
+    if isinstance(out, dict):
+        if "error" in out:
+            out["ok"] = False
+        else:
+            out.setdefault("ok", True)
+    return out

@@ -136,7 +136,7 @@ export interface Turn { id: string; done: Promise<void>; cancel: () => void }
 
 /** Start one turn; `onEvent` gets each event, ending with {type: 'done'}. */
 export function ask(req: { tenant: string; text: string; thread_id?: string | null; base?: string; client?: boolean;
-                           role: 'owner' | 'client' | 'visitor' },
+                           role: 'owner' | 'client' | 'visitor'; viewer?: string },
                     onEvent: Listener): Turn {
   restartIfStale();
   const id = crypto.randomUUID();

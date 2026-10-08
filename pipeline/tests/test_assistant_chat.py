@@ -30,7 +30,7 @@ def script(*rounds):
     calls = []
     it = iter(rounds)
 
-    def fake(payload, cancelled):
+    def fake(payload, cancelled, sink=None):
         calls.append(payload)
         for p in next(it):
             if cancelled():
@@ -127,7 +127,7 @@ class ChatTurnTest(unittest.TestCase):
         self.assertEqual(len(recent), ST.KEEP_RECENT)
 
     def test_model_errors_are_shown_and_saved(self):
-        def boom(payload, cancelled):
+        def boom(payload, cancelled, sink=None):
             raise RuntimeError("model HTTP 503: overloaded")
             yield  # pragma: no cover
         with mock.patch.object(CH, "_stream", boom):

@@ -110,7 +110,7 @@ function ActionCard({ c, tenant, threadId, owner, onDone }: { c: Card; tenant: s
     try {
       if (c.action === "approve_profile") { setState("It stays in the brand brain."); return; }
       const r = c.action === "launch_run"
-        ? await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ directive: c.directive || "" }) })
+        ? await fetch("/api/run", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ directive: c.directive || "", tenant: (c as any).tenant || tenant }) })
         : await fetch("/api/gtm/feedback", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ runId: c.run_id, verdict: c.action, note: c.note || "" }) });
       const j = await r.json();
       const ok = Boolean(j.success || j.ok);
@@ -373,6 +373,8 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
             if (ev.name === "set_post_cadence") window.dispatchEvent(new Event("vn:autopilot"));
           } else if (ev.type === "card") update((m) => ({ ...m, cards: [...(m.cards || []), ev.card] }));
           else if (ev.type === "delta") update((m) => ({ ...m, text: (m.text || "") + ev.text }));
+          // Text before a tool call is not the answer; the saved chat does not keep it either.
+          else if (ev.type === "reset") update((m) => ({ ...m, text: "" }));
           // A refused or failed action: the server puts this line first in the saved answer too.
           else if (ev.type === "correction") update((m) => ({ ...m, text: ev.text + "\n\n" + (m.text || "") }));
           else if (ev.type === "grounding") update((m) => ({ ...m, grounding: { checked: ev.checked, supported: ev.supported, flagged: ev.flagged, note: ev.note } }));

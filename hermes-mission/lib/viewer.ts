@@ -87,6 +87,18 @@ export function scopeTenant(): string | null {
 
 export type Role = 'owner' | 'client' | 'visitor';
 
+/** Who owns the chats this browser starts: "owner", "client:<tenant>", or
+ * "visitor:<id>" — the id is a hash of the signed first-visit cookie, so it
+ * is stable for the browser and says nothing about the person. */
+export function viewerKey(): string {
+  if (isOwner()) return 'owner';
+  const own = clientTenant();
+  if (own) return 'client:' + own;
+  const since = jar()?.get(SINCE_COOKIE)?.value || '';
+  return 'visitor:' + (since ? crypto.createHash('sha256').update('vn-viewer:' + since).digest('hex').slice(0, 16)
+                             : 'anonymous');
+}
+
 export function role(): Role {
   if (isOwner()) return 'owner';
   return clientTenant() ? 'client' : 'visitor';

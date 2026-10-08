@@ -25,15 +25,18 @@ def main(argv: list[str]) -> None:
     ap.add_argument("cmd", choices=["threads", "thread", "delete", "audit", "record"])
     ap.add_argument("--tenant", required=True)
     ap.add_argument("--id", default="")
+    ap.add_argument("--by", default="", help="only chats this viewer started (visitor / client link)")
     a = ap.parse_args(argv)
     if not TENANT.match(a.tenant):
         raise SystemExit("bad tenant")
     if a.cmd in ("thread", "delete") and not THREAD.match(a.id):
         raise SystemExit("bad thread id")
     if a.cmd == "threads":
-        out = {"ok": True, "threads": ST.threads(a.tenant)}
+        out = {"ok": True, "threads": ST.threads(a.tenant, by=a.by or None)}
     elif a.cmd == "thread":
         t = ST.thread(a.tenant, a.id)
+        if t and a.by and ST.thread_owner(a.tenant, a.id) != a.by:
+            t = None                                # not this viewer's chat
         out = {"ok": bool(t), "thread": t}
     elif a.cmd == "delete":
         out = {"ok": ST.delete_thread(a.tenant, a.id)}

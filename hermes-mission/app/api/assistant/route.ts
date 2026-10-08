@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
-import { clientTenant, role } from '@/lib/viewer';
+import { clientTenant, role, viewerKey } from '@/lib/viewer';
 import { allow, clientIp } from '@/lib/ratelimit';
 import { ask } from '@/lib/assistant';
 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
           controller.enqueue(enc.encode('data: ' + JSON.stringify(rest) + '\n\n'));
         } catch { open = false; }
       };
-      turn = ask({ tenant, text, thread_id, base: new URL(req.url).origin, client, role: who }, send);
+      turn = ask({ tenant, text, thread_id, base: new URL(req.url).origin, client, role: who, viewer: viewerKey() }, send);
       req.signal.addEventListener('abort', () => turn?.cancel());
       turn.done.finally(() => { open = false; try { controller.close(); } catch { /* */ } });
     },

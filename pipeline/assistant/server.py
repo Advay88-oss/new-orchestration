@@ -69,7 +69,8 @@ def _run(req: dict) -> None:
     try:
         for ev in turn(tenant, str(req.get("text") or ""), thread_id=req.get("thread_id") or None,
                        cancelled=lambda: rid in _cancelled, client=bool(req.get("client")),
-                       role=str(req.get("role") or "visitor")):
+                       role=str(req.get("role") or "visitor"), viewer=str(req.get("viewer") or ""),
+                       base_url=str(req.get("base") or "")):
             _emit({"id": rid, **ev})
     except Exception as exc:                        # noqa: BLE001 — one turn fails alone
         _emit({"id": rid, "type": "error", "error": type(exc).__name__ + ": " + str(exc)[:300]})
@@ -96,8 +97,6 @@ def main() -> None:
         except ValueError:
             continue
         op = req.get("op", "turn")
-        if req.get("base"):
-            os.environ["ASSISTANT_BASE_URL"] = str(req["base"])[:200]
         if op == "cancel":
             _cancelled.add(str(req.get("id") or ""))
         elif op == "ping":

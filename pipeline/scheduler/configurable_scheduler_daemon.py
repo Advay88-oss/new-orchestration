@@ -1054,11 +1054,18 @@ def remember_news_chat(tenant: str, thread_id: str) -> None:
         NEWS_CHAT.write_text(json.dumps({"tenant": tenant, "thread_id": thread_id}), encoding="utf-8")
     except OSError:
         return
-    try:
-        from pipeline.gtm_os.state_sync import push_state_files
-        push_state_files(["pipeline/state/news_chat.json"])
-    except Exception:                               # noqa: BLE001 — the local file is what this machine reads
-        pass
+    # The cloud only needs it when the cloud runs the scrape; the upload takes
+    # seconds, so it happens off the owner's turn.
+    def _push() -> None:
+        try:
+            from pipeline.scheduler.cloud_cron import tick_live
+            if not _running_in_cloud() and not tick_live():
+                return
+            from pipeline.gtm_os.state_sync import push_state_files
+            push_state_files(["pipeline/state/news_chat.json"])
+        except Exception:                           # noqa: BLE001 — the local file is what this machine reads
+            pass
+    threading.Thread(target=_push, name="news-chat-push", daemon=True).start()
 
 
 def _digest_headlines(limit: int = 12) -> list[dict]:
@@ -1593,9 +1600,28 @@ def _kick_cloud_research() -> str:
 
 
 def _scrape_on_this_machine() -> None:
+    """Make the first scrape due now. The daemon starts it within one poll
+    (15 s) through its own claim, so it never runs twice and never runs
+    inside whichever process asked — the assistant's included, where a full
+    scrape held up the chat past its tool timeout. Without a daemon running
+    (a laptop with the dashboard closed), it is started here as before."""
+    from pipeline.ops.atomic import FileLock, read_json, write_json
+    try:
+        with _STATE_LOCK, FileLock(SCHEDULER_STATE_FILE):
+            st = read_json(SCHEDULER_STATE_FILE, {}, strict=True)
+            rec = dict(st.get("research_collect") or {})
+            if rec.get("status") != "RUNNING":
+                rec.pop("last_run", None)                # due at the next poll
+                st["research_collect"] = rec
+                write_json(SCHEDULER_STATE_FILE, st)
+    except Exception:                               # noqa: BLE001 — the daemon still runs it on its gap
+        pass
+    if _daemon_alive():
+        return
+
     def _scrape_now() -> None:
         try:
-            result = SchedulerEngine().execute_job("research_collect", force=True)
+            result = SchedulerEngine().execute_job("research_collect")
         except Exception as exc:                    # noqa: BLE001 — the schedule is already saved
             _post_news_to_chat("The scrape did not finish: " + str(exc)[:160], [])
             return
@@ -1613,6 +1639,29 @@ def _scrape_on_this_machine() -> None:
             )
 
     threading.Thread(target=_scrape_now, name="research-now", daemon=True).start()
+
+
+def _daemon_alive() -> bool:
+    """A scheduler daemon is running on this machine (it holds its instance lock)."""
+    path = STATE_DIR / "scheduler_daemon.instance"
+    if not path.exists():
+        return False
+    f = open(path, "a+")
+    try:
+        if os.name == "nt":
+            import msvcrt
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+            msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+        return False                                # we could take it: nobody holds it
+    except OSError:
+        return True
+    finally:
+        f.close()
 
 
 def _research_brief(text: str) -> dict:
@@ -1720,14 +1769,17 @@ def _steer_research_clock(chosen: dict, action: str) -> str:
     return ""
 
 
-def apply_tell(text: str) -> dict:
-    """The owner says the whole plan in one sentence. Each named job follows its own gap."""
+def apply_tell(text: str, only_jobs: Optional[list] = None) -> dict:
+    """The owner says the whole plan in one sentence. Each named job follows its own gap.
+    `only_jobs`: for a bare "stop this", the jobs the conversation started."""
     with _TellLock():
-        return _apply_tell(text)
+        return _apply_tell(text, only_jobs)
 
 
-def _apply_tell(text: str) -> dict:
+def _apply_tell(text: str, only_jobs: Optional[list] = None) -> dict:
     parsed = parse_tell(text)
+    if parsed.get("action") == "stop" and parsed.get("jobs") == ["@owner"] and only_jobs:
+        parsed["jobs"] = sorted({str(j) for j in only_jobs})
     chosen = _read_intervals()
     paused = {str(n) for n in (chosen.get("_paused") or []) if str(n)}
     on = {str(n) for n in (chosen.get("_on") or []) if str(n)}

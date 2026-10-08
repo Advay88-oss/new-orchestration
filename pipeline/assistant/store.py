@@ -40,20 +40,42 @@ def new_thread(tenant: str, title: str = "") -> str:
     return tid
 
 
-def threads(tenant: str, limit: int = 40) -> list[dict]:
+def _by(meta: Any) -> str:
+    """Who started a thread, from its first message (older chats: the owner)."""
+    try:
+        return str((json.loads(meta) if isinstance(meta, str) else (meta or {})).get("by") or "owner")
+    except (TypeError, ValueError):
+        return "owner"
+
+
+def threads(tenant: str, limit: int = 40, by: Optional[str] = None) -> list[dict]:
+    """Newest first. `by`: only the chats that viewer started (a visitor or a
+    client link); None for the owner, who sees every chat."""
     with _b(tenant)._db() as con:
         rows = con.execute(
             "SELECT t.id, t.title, t.created_at, t.updated_at, "
             "(SELECT m.text FROM chat_messages m WHERE m.thread_id = t.id "
-            "AND m.role = 'assistant' ORDER BY m.id LIMIT 1) AS preview "
+            "AND m.role = 'assistant' ORDER BY m.id LIMIT 1) AS preview, "
+            "(SELECT m.meta FROM chat_messages m WHERE m.thread_id = t.id "
+            "AND m.role = 'user' ORDER BY m.id LIMIT 1) AS first_meta "
             "FROM chat_threads t ORDER BY t.updated_at DESC LIMIT ?",
-            (limit,)).fetchall()
+            (limit * (4 if by else 1),)).fetchall()
     out = []
     for r in rows:
         d = dict(r)
+        owner = _by(d.pop("first_meta", None))
+        if by and owner != by:
+            continue
         d["preview"] = " ".join(str(d.get("preview") or "").split())[:160]
         out.append(d)
-    return out
+    return out[:limit]
+
+
+def thread_owner(tenant: str, thread_id: str) -> str:
+    with _b(tenant)._db() as con:
+        r = con.execute("SELECT meta FROM chat_messages WHERE thread_id=? AND role='user' ORDER BY id LIMIT 1",
+                        (thread_id,)).fetchone()
+    return _by(r["meta"] if r else None)
 
 
 def thread(tenant: str, thread_id: str) -> Optional[dict]:

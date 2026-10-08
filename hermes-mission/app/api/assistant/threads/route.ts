@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
 import { runPython, lastJson } from '@/lib/python';
-import { seesSince, viewerSince } from '@/lib/viewer';
+import { isOwner, seesSince, viewerKey, viewerSince } from '@/lib/viewer';
 
 /** A visitor's Recents start empty: only chats started after their first visit. */
 function scopeThreads(body: any): any {
@@ -46,13 +46,17 @@ function scoped(u: URL, opts: { publicRead?: boolean } = {}) {
 const LISTS = new Map<string, { at: number; body: any }>();
 const REFRESHING = new Set<string>();
 
-async function freshList(tenant: string): Promise<any> {
+// The owner's list is cached per company; anyone else's per company and viewer.
+function listKey(tenant: string, by: string) { return by ? tenant + '|' + by : tenant; }
+
+async function freshList(tenant: string, by = ''): Promise<any> {
   // A cold start against Cloud SQL can take longer than the old 30s limit,
   // and that timeout is what left Recents empty even though the chats were saved.
-  const r = await runPython(['-m', 'pipeline.assistant.cli', 'threads', '--tenant', tenant], 90_000);
+  const args = ['-m', 'pipeline.assistant.cli', 'threads', '--tenant', tenant, ...(by ? ['--by', by] : [])];
+  const r = await runPython(args, 90_000);
   const line = r.stdout.trim().split('\n').filter(Boolean).pop() || '';
   const body = JSON.parse(line);
-  if (body && body.ok && Array.isArray(body.threads)) LISTS.set(tenant, { at: Date.now(), body });
+  if (body && body.ok && Array.isArray(body.threads)) LISTS.set(listKey(tenant, by), { at: Date.now(), body });
   return body;
 }
 
@@ -63,33 +67,36 @@ export async function GET(req: Request) {
   const tenant = s;
   const id = u.searchParams.get('id') || '';
   if (!TENANT.test(tenant)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
+  const by = isOwner() ? '' : viewerKey();
   if (id) {
     if (!THREAD.test(id)) return NextResponse.json({ ok: false, error: 'bad thread' }, { status: 400 });
-    if (viewerSince()) {
-      const r = await runPython(['-m', 'pipeline.assistant.cli', 'thread', '--tenant', tenant, '--id', id], 30_000);
+    if (by) {
+      // Only a chat this viewer started; for a visitor, also only since their first visit.
+      const r = await runPython(['-m', 'pipeline.assistant.cli', 'thread', '--tenant', tenant, '--id', id, '--by', by], 30_000);
       const line = r.stdout.trim().split('\n').filter(Boolean).pop() || '';
       let body: any = null;
       try { body = JSON.parse(line); } catch { body = null; }
       const t = body?.thread || body;
-      if (!body || !seesSince(t?.created_at)) {
+      if (!body || !body.ok || !t || (viewerSince() && !seesSince(t?.created_at))) {
         return NextResponse.json({ ok: false, error: 'chat not found' }, { status: 404 });
       }
       return NextResponse.json(body);
     }
     return py(['thread', '--tenant', tenant, '--id', id]);
   }
-  const cached = LISTS.get(tenant);
+  const cached = LISTS.get(listKey(tenant, by));
   // An empty copy is never reused. The first read often landed before any
   // chat existed, and every later open of Recents was handed that empty list.
   if (cached && cached.body?.threads?.length && u.searchParams.get('fresh') !== '1') {
-    if (Date.now() - cached.at > 3000 && !REFRESHING.has(tenant)) {
-      REFRESHING.add(tenant);
-      freshList(tenant).catch(() => {}).finally(() => REFRESHING.delete(tenant));
+    const k = listKey(tenant, by);
+    if (Date.now() - cached.at > 3000 && !REFRESHING.has(k)) {
+      REFRESHING.add(k);
+      freshList(tenant, by).catch(() => {}).finally(() => REFRESHING.delete(k));
     }
     return NextResponse.json(scopeThreads({ ...cached.body, cached_at: new Date(cached.at).toISOString() }));
   }
   try {
-    return NextResponse.json(scopeThreads(await freshList(tenant)));
+    return NextResponse.json(scopeThreads(await freshList(tenant, by)));
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: String(e?.message || e).slice(0, 300) }, { status: 500 });
   }
