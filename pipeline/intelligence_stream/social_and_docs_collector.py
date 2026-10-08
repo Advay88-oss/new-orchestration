@@ -549,13 +549,23 @@ class SocialAndDocsCollector:
         accounts = list(self._CFG.get("x_accounts") or [])
         if only:
             want = {str(w).lower().lstrip("@") for w in only if str(w).strip()}
-            accounts = [
+            listed = [
                 a for a in accounts
                 if str(a.get("handle") or "").lower().lstrip("@") in want
                 or str(a.get("name") or "").lower() in want
                 or any(w in str(a.get("name") or "").lower() or w in str(a.get("handle") or "").lower()
                        for w in want)
             ]
+            # A protocol the owner named that is not in the configured list:
+            # its X handle is found once and kept (x_handles.json).
+            have = {str(a.get("name") or "").lower() for a in listed} | {
+                str(a.get("handle") or "").lower() for a in listed}
+            for w in sorted(want):
+                if not any(w in h for h in have):
+                    found = self._resolve_handle(w)
+                    if found:
+                        listed.append({"name": w.title(), "handle": found})
+            accounts = listed
         if one and len(accounts) > 1:
             path = self._X_STATE / "x_one_cursor.json"
             try:
@@ -568,6 +578,37 @@ class SocialAndDocsCollector:
             except OSError:
                 pass
         return accounts
+
+    def _resolve_handle(self, name: str) -> Optional[str]:
+        """The X handle of a protocol by name, found with one web search and
+        remembered. None when it cannot be found (nothing is invented)."""
+        path = self._X_STATE / "x_handles.json"
+        try:
+            known = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            known = {}
+        key = name.lower().strip()
+        if key in known:
+            return known[key] or None
+        handle = None
+        try:
+            from pipeline.intelligence_stream.context_dev_service import ContextDevService
+            res = ContextDevService.get_instance().search_web(query=name + " official X twitter account", num_results=5)
+            rows = res.get("results") if isinstance(res, dict) else res
+            for r in rows or []:
+                url = str((r or {}).get("url") or "")
+                m = re.search(r"(?:x|twitter)\.com/([A-Za-z0-9_]{2,15})(?:[/?]|$)", url)
+                if m and m.group(1).lower() not in ("home", "search", "i", "intent", "share", "explore"):
+                    handle = m.group(1)
+                    break
+        except Exception:                           # noqa: BLE001 — not found this time; asked again later
+            return None
+        known[key] = handle or ""
+        try:
+            path.write_text(json.dumps(known, indent=2), encoding="utf-8")
+        except OSError:
+            pass
+        return handle
 
     def collect_x_signals(self, only: Optional[List[str]] = None, one: bool = False) -> List[Dict[str, Any]]:
         """Competitors' own X posts, new ones only.
@@ -584,7 +625,10 @@ class SocialAndDocsCollector:
         rows = self._x_via_apify(accounts)
         via = "apify"
         if not rows:
-            rows = self._x_via_context(seen, accounts=accounts)
+            # One or two named accounts: every 10 minutes, not 30 (the owner
+            # asked for them; the daily budget still caps Context.dev).
+            every = 600 if only and len(accounts) <= 2 else 1800
+            rows = self._x_via_context(seen, accounts=accounts, every_s=every)
             via = "context.dev"
         fresh, keys = [], []
         for r in rows:

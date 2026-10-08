@@ -23,6 +23,7 @@ OFFLINE_SAFE = [
     "test_p1_safety",
     "test_agents_debate",
     "test_copilot_layers",
+    "test_schedule_sentences",
     "test_assistant_chat",
     "test_assistant_tools",
     "test_blockers_4_5_6_7",

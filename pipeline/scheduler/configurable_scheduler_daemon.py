@@ -1355,31 +1355,48 @@ def parse_tell(text: str) -> dict:
         minutes, interval = _gap_of(int(m.group(1)), m.group(2))
         if minutes > 24 * 60:
             raise ValueError("The longest gap is 24 hours.")
-        intervals.append((m.start(), minutes, interval))
+        # The gap's span starts at its "every" / "har" / "each", so distance
+        # to the job words is measured from the whole phrase.
+        lead = re.search(r"(?:every|har|each)\s+$", low[:m.start()])
+        intervals.append((lead.start() if lead else m.start(), minutes, interval, m.end()))
+    # "every hour" / "every minute" with no number: their own gap, unless a
+    # numbered gap already covers that very spot in the sentence.
+    def _covered(a: int, b: int) -> bool:
+        return any(st < b and a < en for st, _, _, en in intervals)
     hour = re.search(r"\bevery hour\b", low)
-    if hour and not any(unit.endswith("h") for _, _, unit in intervals):
-        intervals.append((hour.start(), 60, "1h"))
+    if hour and not _covered(hour.start(), hour.end()):
+        intervals.append((hour.start(), 60, "1h", hour.end()))
     bare_min = re.search(r"\b(?:every|har)\s+(?:minute|min)\b", low)
-    if bare_min and not any(minutes == 1 and unit.endswith("m") for _, minutes, unit in intervals):
-        intervals.append((bare_min.start(), 1, "1m"))
+    if bare_min and not _covered(bare_min.start(), bare_min.end()):
+        intervals.append((bare_min.start(), 1, "1m", bare_min.end()))
+    intervals.sort()
     mentioned = []
     for name, cre in _JOB_WORDS:
         for m in cre.finditer(low):
-            mentioned.append((m.start(), name))
-    asked = {name for _, name in mentioned}
-    count_m = re.search(r"\b(\d+)\s*posts?\b", low)
+            mentioned.append((m.start(), name, m.end()))
+    asked = {name for _, name, _ in mentioned}
+    # "5 posts", and "5 twitter posts" / "5 x post" — a word or two between.
+    count_m = re.search(r"\b(\d+)\s*(?:[a-z]+\s+){0,2}posts?\b", low)
     posts_left = int(count_m.group(1)) if count_m else None
     if posts_left is not None and not 1 <= posts_left <= 50:
         raise ValueError("Ask for between 1 and 50 posts.")
-    names = {name for _, name in mentioned}
+    names = {name for _, name, _ in mentioned}
     assigned: dict[str, str] = {}
     mentioned.sort()
     if mentioned and intervals:
-        for pos, _minutes, interval in intervals:
-            before = [item for item in mentioned if item[0] <= pos]
-            after = [item for item in mentioned if item[0] > pos]
-            name = before[-1][1] if before else after[0][1]
-            assigned.setdefault(name, interval)
+        # A gap belongs to the job named NEAREST to it, before or after:
+        # "post of Term Finance every 2 min scraping" gives the 2 minutes to
+        # the scrape right after the gap, not to the post three words back.
+        # Each job takes one gap; a tie goes to the job named before.
+        for pos, _minutes, interval, end in intervals:
+            free = [item for item in mentioned if item[1] not in assigned]
+            if not free:
+                break
+            def dist(item: tuple) -> tuple:
+                start, _name, stop = item
+                return ((pos - stop, 0) if stop <= pos else (start - end, 1) if start >= end else (0, 0))
+            nearest = min(free, key=dist)
+            assigned[nearest[1]] = interval
         # A gap belongs to the job named next to it. Other words in the
         # sentence do not get a schedule, and a post is not added for them.
         names = set(assigned)
@@ -1704,6 +1721,14 @@ def _research_brief(text: str) -> dict:
     for name in found:
         if name not in names:
             names.append(name)
+    # Any other protocol named in the sentence ("of Term Finance", "for
+    # Kamino"): capitalised words after of / for / about / on / from.
+    for m in re.finditer(r"\b(?:of|for|about|on|from)\s+([A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+){0,2})",
+                         str(text or "")):
+        name = m.group(1).strip()
+        if name.lower() not in ("twitter", "x", "reddit", "telegram", "news", "signals", "defi", "vanna") \
+                and name.lower() not in names:
+            names.append(name.lower())
     one = bool(re.search(r"\b(one|single|ek)\s+protocols?\b", low))
     if not sources and (topic or names):
         sources = ["twitter"]

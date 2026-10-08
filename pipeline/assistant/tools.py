@@ -422,6 +422,17 @@ def set_post_cadence(tenant: str, instruction: str) -> dict:
         except Exception:                           # noqa: BLE001 — the tool argument still applies
             said = ""
     text = said or instruction
+    # "this protocol", "iska", "is protocol ka": the owner points at something
+    # named earlier in the chat. The model's instruction carries the name, so
+    # it is used when it names what the owner's sentence only points at.
+    pointing = re.search(r"\b(this|that|these|those|it|is|iss|us|iska|uska|isko|usko)\s+"
+                         r"(protocol|project|company|brand|one|token|account)s?\b|\b(iska|uska|isko|usko)\b",
+                         said or "", re.I)
+    if said and pointing and instruction:
+        named = [w for w in re.findall(r"\b[A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+)*", instruction)
+                 if w.lower() not in said.lower() and w.lower() not in ("i", "x", "twitter", "reddit", "news")]
+        if named:
+            text = pointing.re.sub(named[0], said, count=1)
     from pipeline.scheduler.configurable_scheduler_daemon import parse_tell
     try:
         parsed = parse_tell(text)
@@ -547,7 +558,8 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
                         "What is scheduled right now: the jobs running with their gaps, posts left, what is "
                         "paused. Read only. Use it after a schedule change that did not confirm, or when asked "
                         "what is running.", _p()),
-    "set_post_cadence": (set_post_cadence, "The schedule. Pass the owner's sentence unchanged, including "
+    "set_post_cadence": (set_post_cadence, "The schedule. Pass the owner's sentence, with 'this protocol' / "
+                         "'iska' replaced by the name it points to in the chat; otherwise unchanged, including "
                          "the source and the gap: Twitter, Reddit, news, a protocol name, \"every minute\", "
                          "\"one protocol\". Twitter means posts from those protocols on Twitter. News is included "
                          "only when they asked for news. Also for stop, pause, band karo, resume. Each job runs "
