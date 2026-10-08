@@ -59,7 +59,8 @@ class GTMStrategist:
         vanna_knowledge: Optional[Dict[str, Any]] = None,
         audience_segments: Optional[List[Dict[str, Any]]] = None,
         gtm_machines: Optional[List[Dict[str, Any]]] = None,
-        force_no_action: bool = False
+        force_no_action: bool = False,
+        arc: Optional[Dict[str, Any]] = None,
     ) -> GTMStrategy:
         """Analyze market signal and formulate an approved GTM strategy or return NO_ACTION / HUMAN_REVIEW / KILL."""
         vanna_kb = vanna_knowledge or self.intelligence.get_vanna_capabilities()
@@ -222,6 +223,7 @@ class GTMStrategist:
             "AUDIENCE SEGMENTS\n" + json.dumps(audiences, default=str)[:2000] + "\n\n"
             "AVAILABLE GTM MACHINES\n" + json.dumps(machines_for_prompt, default=str)[:2000] + "\n\n"
             + _learned_preferences()
+            + _arc_brief(arc)
             + "Return JSON matching exactly this shape:\n" + strategy_schema_hint
         )
 
@@ -548,6 +550,18 @@ class GTMStrategist:
             claim_consistency=claim_res,
             final_decision=final_dec
         )
+
+
+def _arc_brief(arc: Optional[Dict[str, Any]]) -> str:
+    """One strategist per narrative arc (gtm_os/editorial_judge.py): this
+    one argues only through its arc and competes with the others."""
+    if not arc:
+        return ""
+    return ("YOUR ARC (you are one of several strategists; each argues through one arc and an "
+            "independent judge picks): argue ONLY through the '" + str(arc.get("name")) + "' argument — "
+            + str(arc.get("claim") or "") + ". Choose the narrative pillar that carries it. Do not "
+            "blend in another arc. If this signal cannot honestly be argued through this arc, set "
+            "relevant to false: another strategist has the other arcs.\n\n")
 
 
 def _fill_strategy(text: str) -> str:

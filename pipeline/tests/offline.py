@@ -21,14 +21,29 @@ import unittest
 # it passes here; the ones left out call live services when nothing is mocked.
 OFFLINE_SAFE = [
     "test_p1_safety",
+    "test_agents_debate",
     "test_assistant_chat",
     "test_assistant_tools",
+    "test_blocker_fixes",
+    "test_blockers_4_5_6_7",
+    "test_brain_hygiene",
+    "test_brain_mcp",
+    "test_brain_postgres",          # skips without a database
+    "test_brain_watch",
+    "test_brand_brain",
+    "test_gtm_campaigns",
+    "test_gtm_learning",
+    "test_gtm_machines",
+    "test_gtm_regression_opp_sandbox",
     "test_learning_loop",
     "test_metrics_loop",
+    "test_notion_oauth",
     "test_notion_sync",
     "test_ops",
-    "test_brain_mcp",
 ]
+# Not yet offline (they call the live model when nothing is mocked):
+# test_all_remaining_blockers, test_gtm_content, test_gtm_creative,
+# test_gtm_orchestration, test_gtm_phase1_1_integrity.
 
 _LOCAL = {"127.0.0.1", "::1", "localhost"}
 _real_connect = socket.socket.connect

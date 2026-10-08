@@ -331,6 +331,59 @@ def _render_direct(hook: str, body: str, subject: str,
             "poster_brief": brief, "poster_layout": layout}
 
 
+def _compete(ip, signal, summary: dict, run_id: str, *, directive: bool):
+    """One strategist per arc in parallel; the editorial judge scores the
+    ones that found an angle and the best goes on. An autonomous pick under
+    the bar becomes NO_ACTION (default rejection); a founder directive keeps
+    its best angle whatever the score — the subject was the founder's call."""
+    from pipeline.gtm_orchestration.gtm_strategist import GTMStrategist
+    from pipeline.gtm_os import editorial_judge as EJ
+
+    arcs = EJ.arcs_for_tenant()
+    entries = EJ.compete(
+        lambda arc: GTMStrategist(intelligence_provider=ip).evaluate_and_formulate_strategy(signal, arc=arc),
+        arcs)
+    ok = [(a, s) for a, s in entries if not isinstance(s, Exception) and s.action_status == "ACTION"]
+    debate = {"arcs": [str((a or {}).get("name") or "free") for a, _ in entries],
+              "proposed": [{"arc": str((a or {}).get("name") or "free"),
+                            "status": ("error: " + str(s)[:120]) if isinstance(s, Exception) else s.action_status,
+                            "pillar": None if isinstance(s, Exception) else str(s.narrative_pillar)[:120]}
+                           for a, s in entries]}
+    summary["strategist_debate"] = debate
+    if not ok:
+        first = next((s for _, s in entries if not isinstance(s, Exception)), None)
+        if first is None:
+            raise RuntimeError("every strategist failed: " + "; ".join(str(s)[:120] for _, s in entries))
+        return first
+    if len(ok) == 1:
+        debate["winner"] = debate["proposed"][[s for _, s in entries].index(ok[0][1])]["arc"]
+        debate["judged"] = "only one arc found an angle"
+        R.record_decision("A03_gtm_strategist", "debate", debate)
+        return ok[0][1]
+    verdict = EJ.judge(signal, ok, run_id=run_id)
+    debate["judge"] = verdict
+    if not verdict.get("ok"):
+        # No judge, no winner by chance: the arc whose strategy carries the
+        # most checkable proof goes on, and the run says the judge was out.
+        R.record_stage(EJ.AGENT, "degraded", "editorial judge unavailable: " + str(verdict.get("error"))[:160])
+        win = max(ok, key=lambda e: len(getattr(e[1], "proof", None) or []))
+        debate["winner"] = str((win[0] or {}).get("name") or "free")
+        R.record_decision("A03_gtm_strategist", "debate", debate)
+        return win[1]
+    arc, best = ok[verdict["winner"]]
+    debate["winner"] = str((arc or {}).get("name") or "free")
+    R.record_stage(EJ.AGENT, "ok", "editorial: " + " / ".join(
+        str(s["arc"]) + " " + str(s["score"]) for s in verdict["scores"]))
+    R.record_decision("A03_gtm_strategist", "debate", debate)
+    if verdict.get("best_score", 0) < EJ.MIN_SCORE and not directive:
+        return best.model_copy(update={
+            "action_status": "NO_ACTION", "decision_reason_class": "EDITORIAL_BELOW_BAR",
+            "no_action_rationale": ("the editorial judge scored the best of " + str(len(ok))
+                                    + " competing strategies " + str(verdict["best_score"]) + "/100, under the "
+                                    + str(EJ.MIN_SCORE) + " bar: " + str(verdict["scores"][0].get("why") or ""))})
+    return best
+
+
 def render_visual_legacy(strategy, content_pkg, blueprint, run_id: str) -> Optional[dict]:
     from pipeline.gtm_creative.visual_pipeline_engine import VisualPipelineEngine
 
@@ -879,11 +932,12 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         except Exception as exc:                    # noqa: BLE001 — no guidance this run
             summary["bandit"] = {"error": str(exc)[:160]}
 
-        # A03 — GTM Strategist
+        # A03 — GTM Strategists, one per narrative arc, competing; an
+        # independent editorial judge picks (gtm_os/editorial_judge.py).
         strategist = GTMStrategist(intelligence_provider=ip)
         strategy = _stage("A03_gtm_strategist",
-                          lambda: strategist.evaluate_and_formulate_strategy(signal),
-                          detail="formulated strategy")
+                          lambda: _compete(ip, signal, summary, rid, directive=bool(directive)),
+                          detail="formulated competing strategies")
         summary["action_status"] = strategy.action_status
         summary["machine"] = strategy.gtm_machine_id
         summary["pillar"] = strategy.narrative_pillar
@@ -1081,12 +1135,27 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             for k, v in _fs.items()
         }
 
-        # A08 — Visual Synthesis Engine (nano banana)
-        visual = None if not wanted["visual"] else _stage("A08_visual_synthesis",
-                        lambda: render_visual(strategy, content_pkg, blueprint, rid,
-                              str(signal.headline),
-                              animated=bool(with_video and wanted["video"])),
-                        required=False, self_recorded=True)
+        # A08 — Visual Synthesis Engine (nano banana). The poster and the
+        # meme do not depend on each other, so they are made at the same time
+        # (the spec draws them in parallel; one after the other they added
+        # the meme's minute or two to every run).
+        from concurrent.futures import ThreadPoolExecutor as _Pool
+        if not wanted["meme"]:
+            R.record_stage("A08_visual_synthesis", "skipped",
+                           "meme not requested by this directive")
+        with _Pool(max_workers=2, thread_name_prefix="A08") as _a08:
+            _poster = None if not wanted["visual"] else _a08.submit(
+                _stage, "A08_visual_synthesis",
+                lambda: render_visual(strategy, content_pkg, blueprint, rid,
+                                      str(signal.headline),
+                                      animated=bool(with_video and wanted["video"])),
+                required=False, self_recorded=True)
+            _meme = None if not wanted["meme"] else _a08.submit(
+                _stage, "A08_visual_synthesis",
+                lambda: render_meme(blueprint, rid, strategy, content_pkg),
+                required=False, detail="rendered the meme", self_recorded=True)
+            visual = _poster.result() if _poster else None
+            meme = _meme.result() if _meme else None
         if visual:
             summary["visual_path"] = visual.get("path") or visual.get("filename")
             summary["visual_archetype"] = visual.get("archetype")
@@ -1103,14 +1172,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 summary["visual_rejected"] = True
             _checkpoint(summary, rid)
 
-        # Meme — same agent, nano banana pro
-        if not wanted["meme"]:
-            R.record_stage("A08_visual_synthesis", "skipped",
-                           "meme not requested by this directive")
-        meme = None if not wanted["meme"] else _stage("A08_visual_synthesis",
-                      lambda: render_meme(blueprint, rid, strategy, content_pkg),
-                      required=False,
-                      detail="rendered the meme", self_recorded=True)
+        # Meme — same agent, nano banana pro (made alongside the poster above)
         if meme:
             summary["meme_path"] = meme
 

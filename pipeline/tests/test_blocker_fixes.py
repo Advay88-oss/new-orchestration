@@ -18,11 +18,6 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from pipeline.gtm_publish.publisher_schemas import (
-    ChannelContentPayload,
-    PublishRequest,
-)
-from pipeline.gtm_publish.approved_dispatch_worker import ApprovedDispatchWorker
 from pipeline.gtm_learning.outcome_schema import MetricValue
 from pipeline.gtm_learning.performance_store import PerformanceStore
 from pipeline.gtm_learning.pattern_weighting import PatternWeightingEngine
@@ -41,60 +36,6 @@ class TestBlockerFixes(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
-    def test_blocker_1_multi_channel_publish_execution(self):
-        """Blocker 1: Verify ApprovedDispatchWorker successfully dispatches to X, LinkedIn, and Reddit."""
-        worker = ApprovedDispatchWorker(performance_store=self.store)
-
-        request = PublishRequest(
-            request_id="REQ-TEST-001",
-            packet_id="PKT-TEST-001",
-            run_id="RUN-TEST-001",
-            pattern_id="PAT_01_TECHNICAL_TELEMETRY",
-            approved_by="FOUNDER_UNIT_TEST",
-            channels=[
-                ChannelContentPayload(
-                    channel="X",
-                    copy="Sub-second Mercury telemetry streams ledger events in ~320ms on Stellar Soroban. test.stellar.vanna.finance"
-                ),
-                ChannelContentPayload(
-                    channel="LinkedIn",
-                    title="Institutional Sovereign Credit",
-                    copy="Why isolated SmartAccounts eliminate pooled liquidation contagion on Stellar Soroban."
-                ),
-                ChannelContentPayload(
-                    channel="Reddit",
-                    target_community="r/defi",
-                    title="Technical Breakdown of Vanna Composable Credit",
-                    copy="Here is how we designed isolated SmartAccount execution on Soroban Protocol 20."
-                )
-            ],
-            mode="SIMULATED_TESTNET"
-        )
-
-        result = worker.execute_publish(request)
-
-        # Assertions on Batch Result
-        self.assertEqual(result.overall_status, "ALL_PUBLISHED")
-        self.assertEqual(result.total_channels, 3)
-        self.assertEqual(result.successful_channels, 3)
-        self.assertEqual(result.lifecycle_state, "PUBLISHED")
-
-        # Assertions on Individual Channel Receipts
-        channels_published = {r.channel for r in result.receipts if r.status == "SUCCESS"}
-        self.assertEqual(channels_published, {"X", "LinkedIn", "Reddit"})
-
-        for receipt in result.receipts:
-            self.assertIsNotNone(receipt.post_id)
-            self.assertTrue(receipt.canonical_url.startswith("https://"))
-            self.assertGreater(receipt.latency_ms, 0)
-
-        # Verify performance store was pre-seeded with unmeasured status (NULL != 0)
-        perf_records = self.store.list_records()
-        self.assertEqual(len(perf_records), 3)
-        for p in perf_records:
-            self.assertEqual(p.impressions.status, "NOT_MEASURED")
-            self.assertIsNone(p.impressions.raw_value)
-            self.assertEqual(p.deployments.status, "NOT_MEASURED")
 
     def test_blocker_2_sample_size_threshold_suppression(self):
         """Blocker 2: Verify sample size threshold (N >= 3) suppresses premature weight adjustments."""

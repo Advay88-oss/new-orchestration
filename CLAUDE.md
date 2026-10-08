@@ -5,7 +5,7 @@ infrastructure on Stellar Soroban). It researches what is trending, argues
 internally about what to say, renders the visual, checks every claim against a
 facts ledger, and stops at human review. It never auto-publishes.
 
-Authoritative spec: `ARCHITECTURE.md` (13 agents across 4 tracks —
+Authoritative spec: `ARCHITECTURE.md` (12 agents, two of them judges —
 Intelligence, Creative, Governance, Learning).
 
 The engine is **tenant-agnostic**. Vanna is the primary tenant; Auri is the
@@ -54,10 +54,11 @@ Cloud Scheduler vanna-gtm-tick (hourly: notion_sync, metrics_collect; the cycle 
 
 | Path | What it is |
 |---|---|
-| `pipeline/` | **The engine.** 108 scripts, 30 subsystems (`gtm_*`), agent prompts, state, drafts, logs |
-| `pipeline/scripts/autonomous_orchestrator.py` | End-to-end content run |
-| `pipeline/scripts/runner.py` | Bridges GCS requests → local pipeline → live trace |
-| `pipeline/scripts/gcs_sync.py` | GCS push/pull/claim |
+| `pipeline/` | **The engine.** ~160 modules in 12 `gtm_*` subsystems, agent prompts, state, logs |
+| `pipeline/gtm_os/autonomous_cycle.py` | One content run (`run_cycle`), all 12 agents |
+| `pipeline/gtm_os/cloud_job.py` | The Cloud Run Job entry: `cycle`, `tick`, `sched <job>` |
+| `pipeline/gtm_os/state_sync.py` | GCS push/pull, job claims, the clock lease |
+| `pipeline/gtm_os/editorial_judge.py` | Competing strategists per arc + the /100 judge |
 | `pipeline/scripts/claim_safety_gate.py` | Deterministic compliance gate |
 | `pipeline/companies/` | Tenant configs (`vanna.json`, `sample_saas.json`) |
 | `.claude/agents/` | Agent definitions: trend-scout, content-strategist, editorial-judge, visual-creator |
@@ -79,16 +80,17 @@ Root `*.md` files are specs and prompts — `ARCHITECTURE.md`, `GTM-ENGINE-SPEC.
 
 ## The content run (what the agents do)
 
-1. **trend-scout** — scans X, Reddit, HN, ProductHunt, DefiLlama, Exa in parallel;
-   scores with STEPPS and the 5 virality patterns. Returns evidence, never copy.
-2. **live scouter** — scrapes competitor tweets + Reddit posts (local Chrome bridge).
-3. **content-strategist ×3 in parallel** — one per narrative arc
-   (capital-efficiency / risk-relief / third arc). They **compete, not converge**.
-4. **editorial-judge** — scores all three out of 100, re-verifies every claim,
-   ships at ≥70. Default posture is rejection.
-5. **visual-creator** — renders the winner's brief to a 1080×1080 PNG.
-6. **claim-safety gate** — deterministic PASS/FAIL. No overclaims, no invented numbers.
-7. **Telegram review** — founder approves. **Nothing publishes automatically.**
+`pipeline/gtm_os/autonomous_cycle.py`; the full picture is in `ARCHITECTURE.md`.
+
+1. **A01 scout** — news, Google News, GDELT, Reddit, Telegram, DefiLlama and X in parallel. No model.
+2. **A02** — picks ONE subject (topic memory: nothing repeats).
+3. **A03 strategists, one per narrative arc, in parallel** — the arcs are the tenant's profile
+   arguments (Vanna: capital efficiency, risk isolation). They **compete, not converge**.
+4. **Editorial judge** — scores each /100 in a separate call; ships the best at ≥70, an autonomous
+   run under 70 stops (default rejection). A founder directive keeps its best angle.
+5. **A06 copy → A07 direction → A08 poster + meme in parallel → A09 video → A15 creative judge.**
+6. **A10 fact check + claim-safety gate** — every channel and the poster text; fails closed.
+7. **Telegram review** — founder approves (blocked runs cannot be). **Nothing publishes automatically.**
 
 ---
 
@@ -96,13 +98,16 @@ Root `*.md` files are specs and prompts — `ARCHITECTURE.md`, `GTM-ENGINE-SPEC.
 
 ```bash
 # full run (local)
-python pipeline/scripts/autonomous_orchestrator.py --focus "topic" --visual static
+python -m pipeline.gtm_os.autonomous_cycle --directive "topic"
 
-# serve dashboard-triggered runs from GCS
-python pipeline/scripts/runner.py --interval 30
+# the same on GCP (what the dashboard's Launch Run starts)
+python -m pipeline.gtm_os.cloud_job cycle --directive "topic"
 
 # GCS state
-python pipeline/scripts/gcs_sync.py requests|runs|push|claim
+python -m pipeline.gtm_os.state_sync push-state|pull-state
+
+# tests, network off (CI runs this)
+python -m pipeline.tests.offline
 
 # brand brain (per tenant): build, search, serve over MCP
 python -m pipeline.brand_brain init vanna
