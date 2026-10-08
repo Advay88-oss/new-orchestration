@@ -217,6 +217,12 @@ def admin_schema() -> int:
     return 0
 
 
+def admin_fix_sequences() -> int:
+    from pipeline.brand_brain import pg
+    print(json.dumps({"sequences": pg.fix_sequences(os.environ["BRAIN_PG_ADMIN_URL"])}))
+    return 0
+
+
 def admin_migrate() -> int:
     """Import every tenant snapshot in the bucket that Cloud SQL lacks."""
     from pathlib import Path
@@ -280,7 +286,7 @@ def _guarded_main(argv: list[str]) -> int:
 
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["cycle", "tick", "sched", "admin-schema", "admin-migrate", "admin-tidy", "telegram", "watch", "video"])
+    ap.add_argument("cmd", choices=["cycle", "tick", "sched", "admin-schema", "admin-migrate", "admin-fix-sequences", "admin-tidy", "telegram", "watch", "video"])
     ap.add_argument("--directive", default=None)
     ap.add_argument("--no-video", action="store_true")
     ap.add_argument("--run", default=None, help="video: the run whose poster to animate")
@@ -299,7 +305,7 @@ def main(argv: list[str]) -> int:
         from pipeline.ops.watch import run as watch
         print(json.dumps(watch(), default=str)[:4000])
         return 0
-    return {"tick": tick, "admin-schema": admin_schema, "admin-migrate": admin_migrate, "admin-tidy": admin_tidy,
+    return {"tick": tick, "admin-schema": admin_schema, "admin-migrate": admin_migrate, "admin-fix-sequences": admin_fix_sequences, "admin-tidy": admin_tidy,
             "telegram": telegram}[a.cmd]()
 
 

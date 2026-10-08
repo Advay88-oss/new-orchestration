@@ -189,6 +189,34 @@ def _pg_count(con, table: str) -> int:
     return int(con.execute("SELECT COUNT(*) FROM " + table).fetchone()[0])
 
 
+def fix_sequences(admin_url: str) -> dict[str, Any]:
+    """Move every identity counter past the highest id of any tenant.
+
+    Rows copied from SQLite keep their ids, but Postgres's identity counter
+    does not move, so the next insert reused an id already taken
+    ("duplicate key ... audit_log_pkey"). The counter is shared by all
+    tenants while row-level security shows one tenant at a time, so the
+    highest id is read tenant by tenant."""
+    import psycopg
+    out: dict[str, Any] = {}
+    with psycopg.connect(admin_url, autocommit=True) as con:
+        cols = con.execute(
+            "SELECT table_name, column_name FROM information_schema.columns "
+            "WHERE table_schema = 'public' AND is_identity = 'YES'").fetchall()
+        tenants = [r[0] for r in con.execute("SELECT id FROM tenants").fetchall()]
+        for table, col in cols:
+            high = 0
+            for t in tenants:
+                con.execute("SELECT set_config('app.tenant', %s, false)", (t,))
+                v = con.execute("SELECT COALESCE(MAX(" + col + "), 0) FROM " + table).fetchone()[0]
+                high = max(high, int(v or 0))
+            seq = con.execute("SELECT pg_get_serial_sequence(%s, %s)", (table, col)).fetchone()[0]
+            if seq:
+                con.execute("SELECT setval(%s, %s, true)", (seq, max(high, 1)))
+                out[table] = high
+    return out
+
+
 def migrate_tenant(tenant: str, db: Path, app_url: str) -> dict[str, Any]:
     """Replace this tenant's rows in Postgres with the SQLite brain's."""
     import os
@@ -210,6 +238,9 @@ def migrate_tenant(tenant: str, db: Path, app_url: str) -> dict[str, Any]:
             report[t] = (report[t][0], _pg_count(con, t))
     finally:
         con.close()
+    admin = os.environ.get("BRAIN_PG_ADMIN_URL")
+    if admin:
+        report["_sequences"] = (fix_sequences(admin), None)
     bad = {t: v for t, v in report.items() if v[0] != v[1]}
     return {"tenant": tenant, "ok": not bad, "rows": {t: v[0] for t, v in report.items()}, "mismatch": bad}
 

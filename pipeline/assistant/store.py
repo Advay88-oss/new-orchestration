@@ -138,10 +138,17 @@ def fold(tenant: str, thread_id: str, summarize) -> bool:
 # --------------------------------------------------------------------- audit
 
 def audit(tenant: str, actor: str, action: str, detail: Optional[dict] = None, thread_id: str = "") -> None:
-    with _b(tenant)._db() as con:
-        con.execute("INSERT INTO audit_log(at, actor, action, detail, thread_id) VALUES (?,?,?,?,?)",
-                    (_now(), actor, action, json.dumps(detail or {}, ensure_ascii=False, default=str)[:4000],
-                     thread_id or None))
+    """Write one audit row. A row that cannot be written is reported on
+    stderr; it never fails the turn whose action it records."""
+    try:
+        with _b(tenant)._db() as con:
+            con.execute("INSERT INTO audit_log(at, actor, action, detail, thread_id) VALUES (?,?,?,?,?)",
+                        (_now(), actor, action, json.dumps(detail or {}, ensure_ascii=False, default=str)[:4000],
+                         thread_id or None))
+    except Exception as exc:                        # noqa: BLE001 — the action already happened
+        import sys
+        print("[audit] could not record " + action + ": " + type(exc).__name__ + ": " + str(exc)[:200],
+              file=sys.stderr)
 
 
 def audit_log(tenant: str, limit: int = 50) -> list[dict[str, Any]]:
