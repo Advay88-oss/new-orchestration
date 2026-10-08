@@ -221,6 +221,8 @@ def _brief_faults(out: dict, animated: bool = True) -> list[str]:
                       "logos or currency, and keep to the brand palette")
     if "─" in str(out.get("diagram") or "") or "-->" in str(out.get("diagram") or ""):
         faults.append("diagram is a text flowchart; describe it visually")
+    if len(str(out.get("takeaway") or "").split()) < 3:
+        faults.append("takeaway is missing: say in one sentence what a stranger gets from the image alone")
     material = str(out.get("material") or "")
     if material not in MATERIALS:
         faults.append("material must be one of: " + ", ".join(MATERIALS))
@@ -324,10 +326,24 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
     layouts = _options(LAYOUTS, "recent_layouts.json", 3, "poster_layout")
     materials = _options(MATERIALS, "recent_materials.json", 2, "poster_material")
     rules = _rules_block()
+    try:
+        from pipeline.gtm_os.freshness import block as _fresh_block
+        fresh = _fresh_block()
+    except Exception:                               # noqa: BLE001 — the brief still gets written
+        fresh = ""
+    recent_pictures = [r for r in _recent("recent_poster_pictures.json")[:5] if isinstance(r, str)]
     prompt = (
         prompt_block((query or hook)[:300], excerpts=4) + "\n\n----\n\n"
         + (rules + "\n\n----\n\n" if rules else "")
         + (record + "\n" if record else "")
+        + "THE POINT FIRST. Read the founder's query and the post's hook, and decide the ONE thing a "
+          "stranger must understand from this image in three seconds, before reading any caption: that "
+          "is the takeaway. Then decide the single element that carries it (the focal element) and draw "
+          "the picture around it. The picture must show the change or the contrast the headline claims "
+          "— not a generic architecture diagram that could sit under any post.\n"
+        + ("RECENT POSTERS drew these pictures; draw something that does not look like them:\n"
+           + "\n".join("  - " + p for p in recent_pictures) + "\n" if recent_pictures else "")
+        + (fresh if fresh else "")
         + "LAYOUT FAMILIES open this run (the last three used are held back so "
           "consecutive posts look different; ordered by the founder's record — "
           "prefer higher when two fit):\n"
@@ -342,6 +358,8 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         + '\nReturn JSON: {"format": "announcement"|"explainer"|"question"|"metric", '
         '"layout": str (one id from LAYOUT FAMILIES), '
         '"material": str (one id from MATERIALS), '
+        '"takeaway": str (the one sentence a stranger gets from the image alone, under 14 words), '
+        '"focal": str (the one element that carries the takeaway: what it is and why it dominates), '
         '"idea": str, "headline": str (under 9 words), '
         '"gradient_word": str (1-2 words from the headline), "subtitle": str '
         '(under 14 words), "problem_side": str, "brand_side": str, '
@@ -365,6 +383,8 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         (("problem_side", "Problem side"), ("brand_side", _fill("{company} side")))
         if str(out.get(k) or "").strip() and str(out.get(k)).strip().lower() not in ("n/a", "none"))
     text = ("Format: " + str(out.get("format") or "explainer")
+            + "\nTakeaway: " + str(out.get("takeaway", ""))
+            + "\nFocal: " + str(out.get("focal", ""))
             + "\nHeadline: " + str(out.get("headline", "")) + " (gradient word: "
             + str(out.get("gradient_word", "")) + ")\nSubtitle: "
             + str(out.get("subtitle", "")) + "\nIdea: " + str(out.get("idea", ""))
@@ -384,6 +404,9 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
     if material not in open_materials:
         material = open_materials[0]
     _remember("recent_materials.json", material)
+    picture = " ".join(str(out.get("idea") or out.get("diagram") or "").split())[:160]
+    if picture:
+        _remember("recent_poster_pictures.json", picture)
     text = ("Material: " + material + " — " + MATERIALS[material] + "\n"
             + "Layout: " + layout + " — " + _fill(LAYOUTS[layout]) + "\n" + text)
     return {"brief": text, "raw": out, "layout": layout}
@@ -413,7 +436,11 @@ def motion_plan(poster: str | Path, brief: str, *,
         "element as flat and face-on; never use the words isometric, 3D, "
         "perspective or depth, which make Veo tilt the camera. "
         "Never say glass, frost, blur, translucent, or glassmorphism, and do not "
-        "add a glass slab. Cards stay opaque. Return strict JSON.")
+        "add a glass slab unless the poster already has one glass card. "
+        "The build tells the post's point: read the Takeaway and Focal lines in the brief. The "
+        "early beats set up the problem, the middle beats show the change, and the LAST beats bring "
+        "the focal element in or settle it, so the clip ends on the takeaway; nothing new appears "
+        "after it. Return strict JSON.")
     styles = _options(MOTION_STYLES, "recent_motion_styles.json", 2, "motion_style")
     rules = _rules_block()
     prompt = (

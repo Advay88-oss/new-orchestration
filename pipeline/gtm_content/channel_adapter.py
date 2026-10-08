@@ -128,6 +128,15 @@ class ChannelAdapter:
         traveling = _traveling_shapes()
         if traveling:
             ground_truth = ground_truth + "\n\n" + traveling
+        # What the last posts leaned on and how their hooks opened: this one
+        # says something else and opens differently (gtm_os/freshness.py).
+        try:
+            from pipeline.gtm_os.freshness import block as _fresh_block
+            fresh = _fresh_block()
+        except Exception:                           # noqa: BLE001 — the copy still gets written
+            fresh = ""
+        if fresh:
+            ground_truth = ground_truth + "\n\n" + fresh
 
         # -------------------------------------------------------------
         # Call Gemini 3.8 Flash for Bespoke Copy Generation

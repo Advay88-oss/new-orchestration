@@ -153,6 +153,24 @@ GLASS_ACCENT = (
     "frost the background, do not make several glass cards, do not let a glow bleed across the poster.")
 
 
+def _line(brief: str, key: str) -> str:
+    """One `Key: value` line of the brief."""
+    for ln in str(brief or "").splitlines():
+        if ln.lower().startswith(key.lower() + ":"):
+            return ln.split(":", 1)[1].strip()
+    return ""
+
+
+def _point(brief: str) -> str:
+    """The poster's job in one line: what a stranger must get in three seconds."""
+    take, focal = _line(brief, "Takeaway"), _line(brief, "Focal")
+    if not take:
+        return ""
+    return ("THE POINT: a stranger must understand \"" + take + "\" from this image in three seconds, before "
+            "reading the caption." + (" The focal element is " + focal + ": make it the largest, clearest "
+            "thing on the poster, and let everything else support it." if focal else "") + "\n\n")
+
+
 def _material(brief: str) -> str:
     line = next((ln for ln in brief.splitlines() if ln.lower().startswith("material:")), "")
     return line.split("—", 1)[0].replace("Material:", "").strip().lower()
@@ -201,6 +219,7 @@ def _prompt(brief: str, correction: str = "", approved: int = 0,
         + ("BRAND COLOURS (use these, not others): " + _palette_line() + ".\n\n" if _palette_line() else "")
         + "Match the references' house style exactly: " + _c().house_style()
         + ". Generous spacing, nothing overlapping, everything aligned.\n\n"
+        + _point(brief)
         + _shape_rule(animated) + "\n\n"
         + _material_rule(brief) + "\n\n"
         + ("LOGO: use the logo from the LAST attached image, exactly as it is: "
@@ -298,6 +317,9 @@ def judge(image: Path, brief: str, *, animated: bool = True) -> dict[str, Any]:
         "Check: every word spelled correctly and not garbled; no figure that "
         "is not in the facts list; the logo matches the official one (not a "
         "cube); nothing overlaps or is cut off; the image is about the brief; "
+        + ("THREE-SECOND TEST: from the image alone, would a stranger get \"" + _line(brief, "Takeaway")
+           + "\"? If the picture is a generic diagram that does not show it, that is a REVISE, and the fix "
+           "says what to draw instead. " if _line(brief, "Takeaway") else "")
         + ("GLASS: this brief allows ONE frosted-glass accent card; more than one glass element, "
            "a frosted background, or glow bleeding across the poster is a REJECT. "
            if _material(brief) == "glass_accent" else

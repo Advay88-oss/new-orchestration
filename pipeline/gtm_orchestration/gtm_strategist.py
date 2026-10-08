@@ -223,6 +223,7 @@ class GTMStrategist:
             "AUDIENCE SEGMENTS\n" + json.dumps(audiences, default=str)[:2000] + "\n\n"
             "AVAILABLE GTM MACHINES\n" + json.dumps(machines_for_prompt, default=str)[:2000] + "\n\n"
             + _learned_preferences()
+            + _freshness()
             + _arc_brief(arc)
             + "Return JSON matching exactly this shape:\n" + strategy_schema_hint
         )
@@ -550,6 +551,15 @@ class GTMStrategist:
             claim_consistency=claim_res,
             final_decision=final_dec
         )
+
+
+def _freshness() -> str:
+    """What the last posts leaned on (gtm_os/freshness.py)."""
+    try:
+        from pipeline.gtm_os.freshness import block
+        return block()
+    except Exception:                               # noqa: BLE001 — never block a strategy
+        return ""
 
 
 def _arc_brief(arc: Optional[Dict[str, Any]]) -> str:
