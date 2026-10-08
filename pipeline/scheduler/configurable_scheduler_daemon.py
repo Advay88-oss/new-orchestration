@@ -650,6 +650,14 @@ def _remember_on_since() -> None:
 _INSTANCE_LOCK: list = []
 
 
+def _local_has_work(chosen: dict) -> bool:
+    """The owner turned something on here (a job, or a run of posts)."""
+    paused = {str(n) for n in (chosen.get("_paused") or [])}
+    if any(str(n) not in paused for n in (chosen.get("_on") or [])):
+        return True
+    return bool(chosen.get("_post_chain")) and "gtm_cycle" not in paused
+
+
 def _single_instance() -> bool:
     """One daemon per machine. The lock is an open file the OS holds for this
     process (msvcrt on Windows, flock elsewhere): it is released the moment
@@ -732,7 +740,10 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
                 continue
             # This machine runs the schedule: say so in the bucket, so a GCP
             # tick switched on meanwhile runs nothing (state_sync lease).
-            if now - leased > 120:
+            # Only while this machine has scheduled work of its own: with
+            # nothing on here, a schedule set from the deployed link must run
+            # on GCP, and the lease would stop it.
+            if now - leased > 120 and _local_has_work(chosen):
                 leased = now
                 from pipeline.gtm_os.state_sync import renew_clock_lease
                 threading.Thread(target=renew_clock_lease, daemon=True, name="clock-lease").start()

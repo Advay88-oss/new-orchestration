@@ -24,7 +24,7 @@ two roles). `deploy_cloud.sh` builds and deploys all of it.
 
 ```
 Dashboard  vanna-gtm-mission (Cloud Run service, public link)
-   | owner actions (signed session from /login): Launch Run, approve, Brand Brain, Notion invites
+   | anyone on the link: Launch Run, approve, Brand Brain, Notion invites, schedules
    v
 Cloud Run Job vanna-gtm-pipeline  ---- cycle: all 12 agents; they reach the brain only
    ^        |                           through the Brain MCP server (stdio child process)
@@ -37,10 +37,9 @@ Cloud Scheduler vanna-gtm-tick (hourly: notion_sync, metrics_collect; the cycle 
    Telegram review (webhook -> /api/telegram/webhook). Nothing publishes automatically.
 ```
 
-- Visitors to the public link see only this tenant's runs since their first visit
-  (`vn_since` is HMAC-signed) and can change nothing: no runs, no schedule, and the
-  assistant refuses its action tools for them. The owner signs in on `/login`
-  (key in a POST body, 30-day signed session); `?key=` links only redirect there.
+- One link, no login (2026-10-08): anyone who opens the dashboard can do everything. A new
+  browser starts fresh (runs since its first visit, only the chats it started); `?all` shows a
+  browser the whole history, `?fresh` starts it over. Spend is bounded by `config/budget.json`.
 - File routes take bare names or validated run ids only (`hermes-mission/lib/safepath.ts`).
 - Secrets live in Secret Manager (from `pipeline/.env` via `deploy_cloud.sh secrets`).
 - Brain LLM: the generativelanguage API key (Vertex/ADC is blocked for it — do not reroute).

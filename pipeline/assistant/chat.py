@@ -446,7 +446,8 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
         yield {"type": "error", "error": str(exc)}
         yield {"type": "done"}
         return
-    if thread_id and ST.thread(tenant, thread_id) and role != "owner" and ST.thread_owner(tenant, thread_id) != viewer:
+    # A browser continues only its own chats, unless it sees the whole history.
+    if thread_id and viewer != "owner" and ST.thread(tenant, thread_id) and ST.thread_owner(tenant, thread_id) != viewer:
         thread_id = None                            # someone else's chat: this message starts a new one
     if not thread_id or not ST.thread(tenant, thread_id):
         thread_id = ST.new_thread(tenant, text[:80])

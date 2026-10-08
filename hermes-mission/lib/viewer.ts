@@ -1,25 +1,18 @@
 /**
- * Who is looking, and how far back they may see.
+ * Who is looking, and what they see.
  *
- * The deployed dashboard is a public link. A visitor sees only the runs that
- * started after they first opened it, so a link sent today shows today's work
- * rather than every experiment before it. Nothing is deleted: every run stays
- * in the bucket, and the owner sees all of them.
+ * One link, no owner/visitor split (2026-10-08): whoever opens the dashboard
+ * can do everything — chat, launch, schedule, add a company. What differs is
+ * only what each BROWSER sees:
  *
- *   owner    locally always; deployed, after signing in on /login with the
- *            OWNER_KEY (app/api/auth/login sets `vn_owner`, a signed session
- *            `<expiry>.<nonce>.<hmac>` good for 30 days; changing OWNER_KEY
- *            ends every session). The key is never put in a URL.
- *            `?as=visitor` previews the visitor's view, `?as=owner` ends it.
- *   client   a company's own login: `?client=<link>` (made by the owner in
- *            Brand Brain) sets `vn_client`, a signed token naming ONE tenant.
- *            A client sees and runs everything for that company — its runs,
- *            Assistant, Brand Brain, Notion, launches, decisions — and
- *            nothing of any other company.
- *   visitor  everyone else, and only the public link's company
- *            (BRAIN_TENANT). `vn_since` is set by the middleware on the first
- *            page load and signed; a request without a valid one sees no
- *            past runs at all.
+ *   fresh    by default a browser sees the runs started after it first opened
+ *            the link (`vn_since`, set by the middleware, signed) and the
+ *            chats it started itself. A new person starts with a clean slate.
+ *   all      `?all` on any page shows this browser the whole history, every
+ *            run and every chat; `?fresh` starts it over. On the laptop
+ *            (not deployed) everything is always shown.
+ *   client   a company's client link (`?client=<signed link>`) still sees
+ *            and acts for that one company only.
  *
  * Run ids are `GTM-YYYYMMDD-HHMMSS` in UTC, so visibility is a string compare.
  */
@@ -30,6 +23,7 @@ import { isDeployed } from '@/lib/gcs';
 export const SINCE_COOKIE = 'vn_since';
 export const OWNER_COOKIE = 'vn_owner';
 export const PREVIEW_COOKIE = 'vn_preview';
+export const ALL_COOKIE = 'vn_all';
 export const CLIENT_COOKIE = 'vn_client';
 
 const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
@@ -73,16 +67,19 @@ export function verifyClient(token: string | undefined | null): { tenant: string
 
 /** The company this browser is a client of (never for the owner or a preview). */
 export function clientTenant(): string | null {
-  if (jar()?.get(PREVIEW_COOKIE)?.value === 'visitor') return null;
-  if (isOwner()) return null;
   return verifyClient(jar()?.get(CLIENT_COOKIE)?.value)?.tenant ?? null;
 }
 
-/** The one company this viewer may see runs of: a client's own, the public
- * link's company (BRAIN_TENANT) for a visitor, or null for the owner (all). */
+/** This browser asked to see the whole history (`?all`), or this is the laptop. */
+export function seesAll(): boolean {
+  if (clientTenant()) return false;
+  return !isDeployed() || jar()?.get(ALL_COOKIE)?.value === '1';
+}
+
+/** The one company this viewer may see runs of: a client's own; everyone
+ * else sees every company (filtered by date for a fresh browser). */
 export function scopeTenant(): string | null {
-  if (isOwner()) return null;
-  return clientTenant() || String(process.env.BRAIN_TENANT || 'vanna').toLowerCase();
+  return clientTenant();
 }
 
 export type Role = 'owner' | 'client' | 'visitor';
@@ -91,7 +88,7 @@ export type Role = 'owner' | 'client' | 'visitor';
  * "visitor:<id>" — the id is a hash of the signed first-visit cookie, so it
  * is stable for the browser and says nothing about the person. */
 export function viewerKey(): string {
-  if (isOwner()) return 'owner';
+  if (seesAll()) return 'owner';
   const own = clientTenant();
   if (own) return 'client:' + own;
   const since = jar()?.get(SINCE_COOKIE)?.value || '';
@@ -99,14 +96,12 @@ export function viewerKey(): string {
                              : 'anonymous');
 }
 
+/** What this viewer may DO: everything, except a client link (one company). */
 export function role(): Role {
-  if (isOwner()) return 'owner';
-  return clientTenant() ? 'client' : 'visitor';
+  return clientTenant() ? 'client' : 'owner';
 }
 
 const RUN_ID = /^GTM-(\d{8}-\d{6})$/;
-
-export const OWNER_SESSION_DAYS = 30;
 
 function sessionSecret(): string {
   return process.env.SESSION_SECRET || process.env.OWNER_KEY || (isDeployed() ? '' : 'local-dev-session');
@@ -119,32 +114,6 @@ function hmacHex(secret: string, msg: string): string {
 function sameText(a: string, b: string): boolean {
   const x = Buffer.from(a), y = Buffer.from(b);
   return x.length === y.length && crypto.timingSafeEqual(x, y);
-}
-
-/** True when `given` is the OWNER_KEY, compared in constant time. */
-export function isOwnerKey(given: string): boolean {
-  const key = process.env.OWNER_KEY || '';
-  if (!key || !given) return false;
-  // Hash both sides first so the comparison never depends on their lengths.
-  const h = (v: string) => crypto.createHash('sha256').update('vn-owner-key:' + v).digest();
-  return crypto.timingSafeEqual(h(given), h(key));
-}
-
-/** A new owner session: `<expiry>.<nonce>.<hmac>`, signed with OWNER_KEY. */
-export function signOwner(days = OWNER_SESSION_DAYS): string {
-  const key = process.env.OWNER_KEY || '';
-  if (!key) throw new Error('OWNER_KEY is not set');
-  const body = Math.floor(Date.now() / 1000 + days * 86400) + '.' + crypto.randomBytes(12).toString('hex');
-  return body + '.' + hmacHex(key, 'vn-owner-session:' + body);
-}
-
-function verifyOwner(token: string): boolean {
-  const key = process.env.OWNER_KEY || '';
-  const parts = String(token || '').split('.');
-  if (!key || parts.length !== 3) return false;
-  const [exp, nonce, sig] = parts;
-  if (!/^\d{9,11}$/.test(exp) || !/^[0-9a-f]{24}$/.test(nonce) || Number(exp) < Date.now() / 1000) return false;
-  return sameText(sig, hmacHex(key, 'vn-owner-session:' + exp + '.' + nonce));
 }
 
 /** The time a signed `vn_since` names, or null when it is missing or forged.
@@ -164,19 +133,17 @@ function jar() {
   }
 }
 
+/** May act on everything (every company, the schedule, onboarding). True
+ * for anyone on the link; a client link acts for its own company only. */
 export function isOwner(): boolean {
-  if (jar()?.get(PREVIEW_COOKIE)?.value === 'visitor') return false;
-  // Locally the owner is the default viewer, unless this browser opened a
-  // client link (so the client view can be tried on the laptop).
-  if (!isDeployed()) return !verifyClient(jar()?.get(CLIENT_COOKIE)?.value);
-  return verifyOwner(jar()?.get(OWNER_COOKIE)?.value ?? '');
+  return !clientTenant();
 }
 
 /** When this visitor first opened the dashboard, or null for the owner and
  * for a client (who sees every run of their own company, filtered by tenant
  * in lib/gtm.ts rather than by date). */
 export function viewerSince(): Date | null {
-  if (isOwner() || clientTenant()) return null;
+  if (seesAll() || clientTenant()) return null;
   // Unsigned, forged or missing: from now on, so nothing older shows.
   return verifySince(jar()?.get(SINCE_COOKIE)?.value) ?? new Date();
 }
@@ -266,8 +233,7 @@ export function scopeLearning(data: any): any {
 
 export function viewer() {
   const since = viewerSince();
-  const previewing = jar()?.get(PREVIEW_COOKIE)?.value === 'visitor';
   const r = role();
   return { owner: r === 'owner', role: r, client: r === 'client' ? clientTenant() : null,
-           previewing, since: since ? since.toISOString() : null };
+           previewing: false, all: seesAll(), since: since ? since.toISOString() : null };
 }

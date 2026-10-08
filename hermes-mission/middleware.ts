@@ -4,11 +4,9 @@
  *   vn_since  the first time this browser opened the dashboard; a visitor
  *             sees runs from then on. Signed (`<epoch>.<hmac>`), so it
  *             cannot be backdated to see older runs.
- *   vn_owner  set by the /login form (app/api/auth/login), never by a URL:
- *             a key in an address ends up in request logs and history.
- *             `?key=` now only sends the browser to /login.
- *   vn_preview `?as=visitor` shows the owner what a visitor sees;
- *             `?as=owner` ends the preview.
+ *   vn_all    `?all`: this browser sees the whole history; `?fresh` ends it
+ *             and starts the browser over from now. No login: anyone on the
+ *             link can do everything (lib/viewer.ts).
  *   vn_client `?client=<link>` (a signed link for one company, made by the
  *             owner): this browser becomes that company's client. The token
  *             is verified on every request in lib/viewer.ts; `?client=` ends it.
@@ -40,7 +38,7 @@ async function signedSince(): Promise<string> {
 
 // The app moved from / to /app; / is the front page. Old links that carry an
 // app parameter (the owner key, a client link, a view) still open the app.
-const APP_PARAMS = ['key', 'client', 'as', 'view', 'fresh'];
+const APP_PARAMS = ['key', 'client', 'as', 'view', 'fresh', 'all'];
 
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
@@ -56,12 +54,19 @@ export async function middleware(req: NextRequest) {
   const opts = { httpOnly: true, sameSite: 'lax' as const, secure, path: '/', maxAge: YEAR };
 
   let res: NextResponse;
-  if (url.searchParams.has('as')) {
+  if (url.searchParams.has('all')) {
     const clean = url.clone();
+    clean.searchParams.delete('all');
+    res = NextResponse.redirect(clean);
+    res.cookies.set('vn_all', '1', opts);
+  } else if (url.searchParams.has('key') || url.searchParams.has('as')) {
+    // Old owner-key and preview links: there is no login any more.
+    const clean = url.clone();
+    clean.searchParams.delete('key');
     clean.searchParams.delete('as');
     res = NextResponse.redirect(clean);
-    if (url.searchParams.get('as') === 'visitor') res.cookies.set('vn_preview', 'visitor', opts);
-    else res.cookies.delete('vn_preview');
+    res.cookies.delete('vn_owner');
+    res.cookies.delete('vn_preview');
   } else if (url.searchParams.has('client')) {
     const given = (url.searchParams.get('client') ?? '').slice(0, 600);
     const clean = url.clone();
@@ -70,19 +75,13 @@ export async function middleware(req: NextRequest) {
     res.cookies.delete('vn_preview');
     if (given) res.cookies.set('vn_client', given, { ...opts, maxAge: 60 * 60 * 24 * 30 });
     else res.cookies.delete('vn_client');
-  } else if (url.searchParams.has('key')) {
-    // Old owner links: the key is dropped unread and the owner signs in on
-    // the form, so it never sits in an address bar again.
-    const login = url.clone();
-    login.pathname = '/login';
-    login.search = '';
-    res = NextResponse.redirect(login);
   } else if (url.searchParams.has('fresh')) {
     // `?fresh` starts this browser over as a new visitor: nothing before now.
     const clean = url.clone();
     clean.searchParams.delete('fresh');
     res = NextResponse.redirect(clean);
     res.cookies.set('vn_since', await signedSince(), opts);
+    res.cookies.delete('vn_all');
     return res;
   } else {
     res = NextResponse.next();

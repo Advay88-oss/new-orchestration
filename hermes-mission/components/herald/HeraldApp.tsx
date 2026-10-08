@@ -535,10 +535,8 @@ export function HeraldApp() {
                 <button className={dark ? "on" : ""} onClick={() => setTheme("dark")} aria-label="Dark theme"><IMoon /></button>
               </div>
             </div>
-            {owner && <a href="?as=visitor" className="meta" style={{ fontSize: 12, padding: "2px 6px", color: "var(--faint)" }}>See what visitors see</a>}
-            {viewer?.previewing && <a href="?as=owner" className="meta" style={{ fontSize: 12, padding: "2px 6px" }}>Back to the owner view</a>}
-            {viewer && !owner && !viewer.client && !viewer.previewing && <a href="/login" className="meta" style={{ fontSize: 12, padding: "2px 6px", color: "var(--faint)" }}>Owner sign in</a>}
-            {owner && viewer && <a href="/login" className="meta" style={{ fontSize: 12, padding: "2px 6px", color: "var(--faint)" }}>Account</a>}
+            {viewer && !viewer.client && !(viewer as any).all && <a href="?all" className="meta" style={{ fontSize: 12, padding: "2px 6px", color: "var(--faint)" }}>Show all history</a>}
+            {viewer && (viewer as any).all && viewer.since === null && <a href="?fresh" className="meta" style={{ fontSize: 12, padding: "2px 6px", color: "var(--faint)" }}>Start fresh</a>}
           </div>
         </aside>
 

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
 import { runPython, lastJson } from '@/lib/python';
-import { isOwner, seesSince, viewerKey, viewerSince } from '@/lib/viewer';
+import { seesAll, seesSince, viewerKey, viewerSince } from '@/lib/viewer';
 
 /** A visitor's Recents start empty: only chats started after their first visit. */
 function scopeThreads(body: any): any {
@@ -67,7 +67,7 @@ export async function GET(req: Request) {
   const tenant = s;
   const id = u.searchParams.get('id') || '';
   if (!TENANT.test(tenant)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
-  const by = isOwner() ? '' : viewerKey();
+  const by = seesAll() ? '' : viewerKey();
   if (id) {
     if (!THREAD.test(id)) return NextResponse.json({ ok: false, error: 'bad thread' }, { status: 400 });
     if (by) {
