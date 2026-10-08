@@ -24,6 +24,18 @@ from mcp.server.mcpserver import MCPServer
 from pipeline.brand_brain.client import Brain, current_tenant
 
 
+_METRICS = {"impressions", "likes", "replies", "reposts", "quotes", "bookmarks", "clicks",
+            "profile_visits", "follows", "signups", "views", "comments", "shares", "saves"}
+
+
+def _n(v, hi: int) -> int:
+    """A count from an agent, kept between 1 and `hi`."""
+    try:
+        return max(1, min(int(v), hi))
+    except (TypeError, ValueError):
+        return min(10, hi)
+
+
 def build(tenant: str) -> MCPServer:
     brain = Brain(tenant)
     server = MCPServer(
@@ -46,7 +58,7 @@ def build(tenant: str) -> MCPServer:
     @server.tool(description="Dated events (feature launches, factual updates) after `since`, "
                              "an ISO timestamp — usually the last run's start. Newest first.")
     def get_whats_new(since: Optional[str] = None, limit: int = 20) -> list[dict]:
-        return brain.get_whats_new(since, limit)
+        return brain.get_whats_new(since, _n(limit, 50))
 
     @server.tool(description="Hybrid keyword + semantic search over the company's knowledge base. "
                              "Returns chunks with source, url, authority (1 founder-confirmed .. "
@@ -55,19 +67,22 @@ def build(tenant: str) -> MCPServer:
     def search_knowledge(query: str, k: int = 8, content_types: Optional[list[str]] = None,
                          sources: Optional[list[str]] = None, max_authority: int = 4,
                          include_legal: bool = False) -> list[dict]:
-        return brain.search_knowledge(query, k=k, content_types=content_types, sources=sources,
-                                      max_authority=max_authority, include_legal=include_legal)
+        # Authority 5 is what others say (public watch): context, never proof
+        # for a post. An agent cannot ask for it as if it were a fact.
+        return brain.search_knowledge(str(query)[:500], k=_n(k, 25), content_types=content_types,
+                                      sources=sources, max_authority=max(1, min(int(max_authority), 4)),
+                                      include_legal=include_legal)
 
     @server.tool(description="The company's own images closest to a topic (approved posters, "
                              "video stills, design references, logo), with caption and style tags. "
                              "Founder-approved images rank first on a near tie.")
     def get_visual_refs(topic: str, n: int = 4, kinds: Optional[list[str]] = None) -> list[dict]:
-        return brain.get_visual_refs(topic, n, kinds)
+        return brain.get_visual_refs(str(topic)[:300], _n(n, 12), kinds)
 
     @server.tool(description="How competitors post about a topic: summarised patterns (formats, "
                              "hooks, topics), never their text.")
     def get_competitor_patterns(topic: Optional[str] = None, n: int = 6) -> list[dict]:
-        return brain.get_competitor_patterns(topic, n)
+        return brain.get_competitor_patterns(topic, _n(n, 20))
 
     @server.tool(description="The company's newest GitHub commits (every branch, last 30 days), "
                              "newest first: repo, short sha, author, date (UTC), message, branches, "
@@ -76,17 +91,23 @@ def build(tenant: str) -> MCPServer:
     def get_recent_commits(repo: Optional[str] = None, since: Optional[str] = None,
                            limit: int = 20) -> dict[str, Any]:
         from pipeline.brand_brain.github_sync import recent_commits
-        return recent_commits(tenant, repo=repo, since=since, limit=limit)
+        return recent_commits(tenant, repo=repo, since=since, limit=_n(limit, 100))
 
     @server.tool(description="Record a published post's metrics (impressions, likes, replies, "
                              "reposts, clicks, …) so the learning loop can use them.")
     def log_post_outcome(post_id: str, metrics: dict, run_id: Optional[str] = None) -> dict:
-        return brain.log_post_outcome(post_id, metrics, run_id=run_id, source="mcp")
+        # Numbers only, for the metrics the loop reads: an agent cannot write
+        # free text or invented fields into the outcomes it learns from.
+        clean = {k: float(v) for k, v in (metrics or {}).items()
+                 if k in _METRICS and isinstance(v, (int, float)) and 0 <= float(v) < 1e10}
+        if not clean:
+            return {"ok": False, "error": "no usable metrics; numbers for: " + ", ".join(sorted(_METRICS))}
+        return brain.log_post_outcome(str(post_id)[:200], clean, run_id=run_id, source="mcp")
 
     @server.tool(description="The ledger of published-post metrics recorded for this company, "
                              "newest first. Each row is one log_post_outcome call.")
     def list_outcomes(limit: int = 40) -> list[dict]:
-        return brain.outcomes(limit)
+        return brain.outcomes(_n(limit, 200))
 
     @server.tool(description="Posters the founder killed or handed over as never-make. "
                              "These are not approved references; do not imitate them.")
