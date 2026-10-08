@@ -1,30 +1,46 @@
 /**
- * Sets the two viewer cookies lib/viewer.ts reads.
+ * Sets the viewer cookies lib/viewer.ts reads.
  *
  *   vn_since  the first time this browser opened the dashboard; a visitor
- *             sees runs from then on.
- *   vn_owner  set by `?key=<OWNER_KEY>`, cleared by `?key=`. Holds a hash of
- *             the key, and the key is stripped from the address bar.
+ *             sees runs from then on. Signed (`<epoch>.<hmac>`), so it
+ *             cannot be backdated to see older runs.
+ *   vn_owner  set by the /login form (app/api/auth/login), never by a URL:
+ *             a key in an address ends up in request logs and history.
+ *             `?key=` now only sends the browser to /login.
  *   vn_preview `?as=visitor` shows the owner what a visitor sees;
  *             `?as=owner` ends the preview.
  *   vn_client `?client=<link>` (a signed link for one company, made by the
  *             owner): this browser becomes that company's client. The token
  *             is verified on every request in lib/viewer.ts; `?client=` ends it.
  *
- * Edge runtime: Web Crypto here, node:crypto in lib/viewer.ts, same hash.
+ * Edge runtime: Web Crypto here, node:crypto in lib/viewer.ts, same HMAC.
  */
 import { NextResponse, type NextRequest } from 'next/server';
 
 const YEAR = 60 * 60 * 24 * 365;
 
-async function ownerHash(key: string): Promise<string> {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('vn-owner:' + key));
-  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('');
+function sessionSecret(): string {
+  return process.env.SESSION_SECRET || process.env.OWNER_KEY || (process.env.K_SERVICE ? '' : 'local-dev-session');
+}
+
+async function hmacHex(secret: string, msg: string): Promise<string> {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** `<epoch seconds>.<hmac>` for now; empty when no secret is configured. */
+async function signedSince(): Promise<string> {
+  const secret = sessionSecret();
+  if (!secret) return '';
+  const t = String(Math.floor(Date.now() / 1000));
+  return t + '.' + (await hmacHex(secret, 'vn-since:' + t));
 }
 
 // The app moved from / to /app; / is the front page. Old links that carry an
 // app parameter (the owner key, a client link, a view) still open the app.
-const APP_PARAMS = ['key', 'client', 'as', 'view'];
+const APP_PARAMS = ['key', 'client', 'as', 'view', 'fresh'];
 
 export async function middleware(req: NextRequest) {
   const url = req.nextUrl;
@@ -33,7 +49,10 @@ export async function middleware(req: NextRequest) {
     moved.pathname = '/app';
     return NextResponse.redirect(moved);
   }
-  const secure = url.protocol === 'https:';
+  // Cloud Run terminates TLS in front of the container, so the request the
+  // server sees is http: deployed, every cookie is Secure regardless.
+  const secure = Boolean(process.env.K_SERVICE) || url.protocol === 'https:'
+    || req.headers.get('x-forwarded-proto') === 'https';
   const opts = { httpOnly: true, sameSite: 'lax' as const, secure, path: '/', maxAge: YEAR };
 
   let res: NextResponse;
@@ -52,22 +71,27 @@ export async function middleware(req: NextRequest) {
     if (given) res.cookies.set('vn_client', given, { ...opts, maxAge: 60 * 60 * 24 * 30 });
     else res.cookies.delete('vn_client');
   } else if (url.searchParams.has('key')) {
-    const given = url.searchParams.get('key') ?? '';
+    // Old owner links: the key is dropped unread and the owner signs in on
+    // the form, so it never sits in an address bar again.
+    const login = url.clone();
+    login.pathname = '/login';
+    login.search = '';
+    res = NextResponse.redirect(login);
+  } else if (url.searchParams.has('fresh')) {
+    // `?fresh` starts this browser over as a new visitor: nothing before now.
     const clean = url.clone();
-    clean.searchParams.delete('key');
+    clean.searchParams.delete('fresh');
     res = NextResponse.redirect(clean);
-    const key = process.env.OWNER_KEY;
-    if (given && key && given === key) {
-      res.cookies.set('vn_owner', await ownerHash(key), opts);
-    } else {
-      res.cookies.delete('vn_owner');
-    }
+    res.cookies.set('vn_since', await signedSince(), opts);
+    return res;
   } else {
     res = NextResponse.next();
   }
 
-  if (!req.cookies.get('vn_since')) {
-    res.cookies.set('vn_since', new Date().toISOString(), opts);
+  // A missing cookie, or one from before signing (an ISO date), starts now.
+  if (!/^\d{9,11}\.[0-9a-f]{64}$/.test(req.cookies.get('vn_since')?.value || '')) {
+    const since = await signedSince();
+    if (since) res.cookies.set('vn_since', since, opts);
   }
   return res;
 }

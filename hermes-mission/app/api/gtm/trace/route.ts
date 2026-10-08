@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { companyOf, listGtmRunIds, gtmRunSummary, tenantOfRun } from '@/lib/gtm';
 import { isDeployed, getText } from '@/lib/gcs';
-import { canSeeRun, clientTenant } from '@/lib/viewer';
+import { canSeeRun, scopeTenant } from '@/lib/viewer';
 import fs from 'fs';
 import path from 'path';
+import { RUN_ID, within } from '@/lib/safepath';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,12 +28,13 @@ const RUNS_DIR = path.join(REPO_ROOT, 'pipeline', 'state', 'gtm_runs');
  * and never re-renders what it already has.
  */
 async function readFile(runId: string, name: string): Promise<string | null> {
-  if (!canSeeRun(runId)) return null;
-  const own = clientTenant();
+  if (!RUN_ID.test(runId) || !canSeeRun(runId)) return null;
+  const own = scopeTenant();
   if (own && (await tenantOfRun(runId)) !== own) return null;
   if (isDeployed()) return getText(`gtm_runs/${runId}/${name}`);
   try {
-    return fs.readFileSync(path.join(RUNS_DIR, runId, name), 'utf-8');
+    const file = within(RUNS_DIR, runId, name);
+    return file ? fs.readFileSync(file, 'utf-8') : null;
   } catch {
     return null;
   }

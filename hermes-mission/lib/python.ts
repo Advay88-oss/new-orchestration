@@ -44,22 +44,26 @@ export function pythonPath(): string | null {
 /**
  * Start a pipeline process without a console window.
  *
- * On Windows, `detached: true` gives a console app its own window, which is
- * the PowerShell flash every time a post or a visual starts. A detached job
- * uses pythonw (no console) when the venv has it, and every spawn sets
- * windowsHide so a short call does not flash either.
+ * On Windows, a console python.exe started from this app (which has no
+ * console of its own) opens a PowerShell window. Every spawn uses pythonw
+ * when the venv has it, and windowsHide, so a post, a visual, or a scrape
+ * does not flash a window. pythonw still writes to the pipes we pass it.
  */
 export function spawnHidden(args: string[], opts: SpawnOptions = {}): ChildProcessWithoutNullStreams {
   const py = pythonPath();
   if (!py) throw new Error('no python interpreter');
   let bin = py;
-  if (process.platform === 'win32' && opts.detached) {
+  if (process.platform === 'win32') {
     const windowless = py.replace(/python\.exe$/i, 'pythonw.exe');
     try { if (fs.existsSync(windowless)) bin = windowless; } catch { /* python.exe */ }
   }
   // Call sites read stdout and stderr. A detached job may set stdio to
   // 'ignore'; those callers never touch the streams.
-  return spawn(bin, args, { ...opts, windowsHide: true, shell: false }) as ChildProcessWithoutNullStreams;
+  // detached:true on Windows sets DETACHED_PROCESS, and Windows then ignores
+  // windowsHide and opens a PowerShell window. pythonw plus windowsHide is
+  // enough; the Next server stays up, so the child does not need to detach.
+  const hidden = process.platform === 'win32' ? { ...opts, detached: false } : opts;
+  return spawn(bin, args, { ...hidden, windowsHide: true, shell: false }) as ChildProcessWithoutNullStreams;
 }
 
 export interface PyResult {

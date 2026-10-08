@@ -13,6 +13,7 @@ action to confirm, a run).
 """
 from __future__ import annotations
 
+import contextvars
 import json
 import os
 import re
@@ -21,6 +22,14 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Optional
+
+# The turn sets this before a tool runs, so a scrape can write its headlines
+# back into the chat that asked for them.
+_turn_thread: contextvars.ContextVar[str] = contextvars.ContextVar("assistant_thread", default="")
+
+
+def bind_thread(thread_id: str) -> None:
+    _turn_thread.set(thread_id or "")
 
 REPO = Path(__file__).resolve().parents[2]
 RUNS = REPO / "pipeline" / "state" / "gtm_runs"
@@ -71,15 +80,39 @@ def brand_profile(tenant: str, section: str = "") -> dict:
             "sections": [k for k in p.keys() if not k.startswith("_")]}
 
 
+def _search(brain: Any, query: str, **kwargs: Any) -> list:
+    """Call the brain search with whatever arguments this process accepts.
+
+    A long-lived brain server can be one revision behind the assistant. Passing
+    include_legal to that older method raises TypeError and the whole answer
+    shows up red. Drop the argument it does not know and search anyway.
+    """
+    import inspect
+    try:
+        allowed = inspect.signature(brain.search_knowledge).parameters
+    except (TypeError, ValueError):
+        allowed = {}
+    if allowed:
+        kwargs = {key: value for key, value in kwargs.items() if key in allowed}
+    try:
+        rows = brain.search_knowledge(query, **kwargs)
+    except TypeError as exc:
+        if "include_legal" not in str(exc):
+            raise
+        kwargs.pop("include_legal", None)
+        rows = brain.search_knowledge(query, **kwargs)
+    return list(rows or [])
+
+
 def search_knowledge(tenant: str, query: str, k: int = 6) -> dict:
     # The company's own brain first; then, separately, the top public items
     # brain_watch kept (news, Reddit, X; authority 5), which rank below the
     # company's own pages and would otherwise never make the cut. They are
     # marked external so they are quoted as reported, not as fact.
     b = _brain(tenant)
-    hits = b.search_knowledge(query, k=max(1, min(int(k or 6), 10)), max_authority=4, include_legal=True)
+    hits = _search(b, query, k=max(1, min(int(k or 6), 10)), max_authority=4, include_legal=True)
     seen = {h.get("id") for h in hits}
-    hits += [h for h in b.search_knowledge(query, k=3, sources=["public"], max_authority=5)
+    hits += [h for h in _search(b, query, k=3, sources=["public"], max_authority=5)
              if h.get("id") not in seen]
     return {"query": query, "results": [
         {"text": _clip(h.get("text"), 700), "section": h.get("section"), "title": h.get("title"),
@@ -242,16 +275,38 @@ def learning_overview(tenant: str) -> dict:
 
 # ------------------------------------------------------------------ doing
 
+def _python_exe() -> str:
+    """pythonw on Windows: python.exe is a console program and opens a window
+    when this dashboard (which has no console) starts it."""
+    exe = sys.executable
+    if os.name == "nt" and exe.lower().endswith("python.exe"):
+        windowless = exe[: -len("python.exe")] + "pythonw.exe"
+        if os.path.isfile(windowless):
+            return windowless
+    return exe
+
+
+def _hidden_popen(argv: list[str]) -> None:
+    # CREATE_NO_WINDOW only. DETACHED_PROCESS makes Windows ignore it and
+    # open a PowerShell window for every scrape, post and study.
+    flags = 0
+    if os.name == "nt":
+        flags = subprocess.CREATE_NEW_PROCESS_GROUP | 0x08000000 | getattr(subprocess, "CREATE_BREAKAWAY_FROM_JOB", 0)
+    subprocess.Popen(
+        argv, cwd=str(REPO),
+        env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONPATH": str(REPO)},
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+        creationflags=flags,
+        start_new_session=os.name != "nt",
+    )
+
+
 def _spawn(args: list[str], status_file: Path) -> None:
     status_file.parent.mkdir(parents=True, exist_ok=True)
     # Written before the child starts, so the child's own status always wins.
     status_file.write_text(json.dumps({"state": "running", "at": datetime.now(timezone.utc).isoformat()}),
                            encoding="utf-8")
-    subprocess.Popen([sys.executable, "-m", *args, "--status-file", str(status_file)], cwd=str(REPO),
-                     env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONPATH": str(REPO)},
-                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                     creationflags=((getattr(subprocess, "DETACHED_PROCESS", 0) | 0x08000000) if os.name == "nt" else 0),
-                     start_new_session=os.name != "nt")
+    _hidden_popen([_python_exe(), "-m", *args, "--status-file", str(status_file)])
 
 
 def add_company(tenant: str, url: str, new_tenant_id: str = "") -> dict:
@@ -314,14 +369,7 @@ def find_campaigns(tenant: str, query: str, source: str = "galxe") -> dict:
         return {"error": "say what kind of campaign you want"}
     if not TENANT.match(tenant):
         return {"error": "bad company"}
-    subprocess.Popen(
-        [sys.executable, "-m", "pipeline.gtm_os.campaigns", "run", tenant, q, src],
-        cwd=str(REPO),
-        env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONPATH": str(REPO)},
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        creationflags=((getattr(subprocess, "DETACHED_PROCESS", 0) | 0x08000000) if os.name == "nt" else 0),
-        start_new_session=os.name != "nt",
-    )
+    _hidden_popen([_python_exe(), "-m", "pipeline.gtm_os.campaigns", "run", tenant, q, src])
     return {"started": True, "query": q, "source": src,
             "message": "Searching " + src + ". It lands in its own list on Campaigns."}
 
@@ -334,28 +382,40 @@ def study_brand(tenant: str, name: str, where: str = "") -> dict:
         return {"error": "say which company"}
     if not TENANT.match(tenant):
         return {"error": "bad company"}
-    args = [sys.executable, "-m", "pipeline.brand_brain.inspiration", "add", tenant, who]
+    args = [_python_exe(), "-m", "pipeline.brand_brain.inspiration", "add", tenant, who]
     handle = re.search(r"(?:x|twitter)\.com/([A-Za-z0-9_]{1,30})", src, re.I)
     if handle:
         args += ["--x", handle.group(1)]
     elif re.fullmatch(r"@?[A-Za-z0-9_]{1,30}", src):
         args += ["--x", src.lstrip("@")]
-    subprocess.Popen(
-        args, cwd=str(REPO),
-        env={**os.environ, "PYTHONIOENCODING": "utf-8", "PYTHONPATH": str(REPO)},
-        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-        creationflags=((getattr(subprocess, "DETACHED_PROCESS", 0) | 0x08000000) if os.name == "nt" else 0),
-        start_new_session=os.name != "nt",
-    )
+    _hidden_popen(args)
     return {"started": True, "name": who,
             "message": "Studying " + who + ". It lands on What Vanna Can Do, with what a post from it could be."}
 
 
 def set_post_cadence(tenant: str, instruction: str) -> dict:
     """The owner says how often a post should appear, or says stop, or start."""
-    from pipeline.scheduler.configurable_scheduler_daemon import apply_tell
+    from pipeline.scheduler.configurable_scheduler_daemon import apply_tell, remember_news_chat
+    tid = _turn_thread.get()
+    # The schedule is the sentence the person typed. A shortened tool
+    # argument used to turn "Twitter, every minute, one protocol" into
+    # "headlines every 2m".
+    said = ""
+    if tid:
+        try:
+            from pipeline.assistant.store import history
+            _, recent = history(tenant, tid)
+            for msg in reversed(recent):
+                if msg.get("role") == "user" and str(msg.get("text") or "").strip():
+                    said = str(msg["text"]).strip()
+                    break
+        except Exception:                           # noqa: BLE001 — the tool argument still applies
+            said = ""
+    text = said or instruction
+    if tid and re.search(r"\b(news|scrape|scraping|fetch|twitter|tweets?|reddit|headline|headlines|socials?|protocols?|defi)\b", text, re.I):
+        remember_news_chat(tenant, tid)
     try:
-        out = apply_tell(instruction)
+        out = apply_tell(text)
     except Exception as exc:                       # noqa: BLE001 — the chat shows the sentence
         return {"error": str(exc)[:240]}
     return out
@@ -418,14 +478,11 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
     "find_campaigns": (find_campaigns, "Search live campaigns. query is what kind. source is where: Galxe, a website, "
                        "a company name, or an X handle. Starts the search; the Campaigns page shows that source on its own.",
                        {**_p(query=S_, source=S_), "required": ["query"]}),
-    "set_post_cadence": (set_post_cadence, "The schedule, in the owner's own sentence: start, change, pause "
-                         "or stop any job they name — news / headlines / competitor Twitter (one scrape), "
-                         "campaigns, memes, ideas, trends, GitHub, Notion, Reddit, health, or posts — each at the "
-                         "gap they say (\"news every 4 minutes\", \"memes har 5 min\"), or a number of posts "
-                         "(\"make 10 posts\" runs them one after another). Also for \"stop\", \"pause\", \"band "
-                         "karo\", \"resume\". Pass their sentence unchanged. Each job runs on its own: news does "
-                         "not start posts or memes unless they asked. A post takes about 20 minutes. Nothing is "
-                         "published.",
+    "set_post_cadence": (set_post_cadence, "The schedule. Pass the owner's sentence unchanged, including "
+                         "the source and the gap: Twitter, Reddit, news, a protocol name, \"every minute\", "
+                         "\"one protocol\". Twitter means posts from those protocols on Twitter. News is included "
+                         "only when they asked for news. Also for stop, pause, band karo, resume. Each job runs "
+                         "on its own. Nothing is published.",
                          {**_p(instruction=S_), "required": ["instruction"]}),
     "propose_action": (propose_action, "Offer the owner a button for something only they may do: launch_run "
                        "(optional directive), approve / revise / kill a run, approve_profile. It does NOT do it.",
@@ -437,10 +494,28 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
 # company only: no list of the other companies, no onboarding a new one.
 CLIENT_BLOCKED = {"list_companies", "add_company", "set_post_cadence", "find_campaigns", "study_brand"}
 
+# A visitor to the public link reads and asks; nothing they say changes the
+# schedule, adds a company, starts paid work or proposes a run.
+VISITOR_ALLOWED = {"brand_profile", "search_knowledge", "whats_new", "competitor_patterns",
+                   "list_runs", "get_run", "learning_overview", "analysis_status"}
 
-def declarations(client: bool = False) -> list[dict]:
+
+def allowed(name: str, role: str = "owner") -> bool:
+    if role == "visitor":
+        return name in VISITOR_ALLOWED
+    if role == "client":
+        return name not in CLIENT_BLOCKED
+    return True
+
+
+def declarations(client: bool = False, role: str = "") -> list[dict]:
+    """What the model is offered. A visitor is offered every tool on purpose:
+    an action they ask for is then called, refused in chat.turn (allowed()),
+    and the refusal is what the model answers with. Hidden tools made it
+    answer "set" for a schedule it had no way to set."""
+    role = role or ("client" if client else "owner")
     return [{"name": n, "description": d, "parameters": p} for n, (_, d, p) in TOOLS.items()
-            if not (client and n in CLIENT_BLOCKED)]
+            if role == "visitor" or allowed(n, role)]
 
 
 def call(name: str, tenant: str, args: dict) -> dict:

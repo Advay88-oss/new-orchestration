@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
 import { runPython, lastJson } from '@/lib/python';
+import { seesSince, viewerSince } from '@/lib/viewer';
+
+/** A visitor's Recents start empty: only chats started after their first visit. */
+function scopeThreads(body: any): any {
+  if (!viewerSince() || !body || !Array.isArray(body.threads)) return body;
+  return { ...body, threads: body.threads.filter((t: any) => seesSince(t?.created_at)) };
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +18,8 @@ export const dynamic = 'force-dynamic';
  *   GET    ?tenant=&id=t_...     one thread with its messages
  *   DELETE ?tenant=&id=t_...     delete a thread
  *
- * Owner-only.
+ * The owner and a company's client can read and delete. A visitor on the
+ * public link can read this company's chats and cannot delete them.
  */
 const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
 const THREAD = /^t_[A-Za-z0-9_-]{6,40}$/;
@@ -25,9 +33,9 @@ async function py(args: string[]) {
   }
 }
 
-function scoped(u: URL) {
+function scoped(u: URL, opts: { publicRead?: boolean } = {}) {
   const asked = u.searchParams.get('tenant') || '';
-  const access = companyAccess('the assistant', TENANT.test(asked) ? asked : null);
+  const access = companyAccess('the assistant', TENANT.test(asked) ? asked : null, opts);
   if (access instanceof NextResponse) return access;
   return access.tenant || asked;
 }
@@ -50,13 +58,24 @@ async function freshList(tenant: string): Promise<any> {
 
 export async function GET(req: Request) {
   const u = new URL(req.url);
-  const s = scoped(u);
+  const s = scoped(u, { publicRead: true });
   if (s instanceof NextResponse) return s;
   const tenant = s;
   const id = u.searchParams.get('id') || '';
   if (!TENANT.test(tenant)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
   if (id) {
     if (!THREAD.test(id)) return NextResponse.json({ ok: false, error: 'bad thread' }, { status: 400 });
+    if (viewerSince()) {
+      const r = await runPython(['-m', 'pipeline.assistant.cli', 'thread', '--tenant', tenant, '--id', id], 30_000);
+      const line = r.stdout.trim().split('\n').filter(Boolean).pop() || '';
+      let body: any = null;
+      try { body = JSON.parse(line); } catch { body = null; }
+      const t = body?.thread || body;
+      if (!body || !seesSince(t?.created_at)) {
+        return NextResponse.json({ ok: false, error: 'chat not found' }, { status: 404 });
+      }
+      return NextResponse.json(body);
+    }
     return py(['thread', '--tenant', tenant, '--id', id]);
   }
   const cached = LISTS.get(tenant);
@@ -67,10 +86,10 @@ export async function GET(req: Request) {
       REFRESHING.add(tenant);
       freshList(tenant).catch(() => {}).finally(() => REFRESHING.delete(tenant));
     }
-    return NextResponse.json({ ...cached.body, cached_at: new Date(cached.at).toISOString() });
+    return NextResponse.json(scopeThreads({ ...cached.body, cached_at: new Date(cached.at).toISOString() }));
   }
   try {
-    return NextResponse.json(await freshList(tenant));
+    return NextResponse.json(scopeThreads(await freshList(tenant)));
   } catch (e: any) {
     return NextResponse.json({ ok: false, error: String(e?.message || e).slice(0, 300) }, { status: 500 });
   }

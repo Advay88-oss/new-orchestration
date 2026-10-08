@@ -116,6 +116,13 @@
       "authority": 2,
       "max_age_s": 86400,
       "_note": "Needs NOTION_TOKEN (internal integration) with the pages shared to it."
+    },
+    {
+      "name": "github",
+      "kind": "github",
+      "org": "vannafinance",
+      "authority": 2,
+      "max_age_s": 86400
     }
   ]
 }

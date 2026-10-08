@@ -159,6 +159,10 @@ def sched(job_name: str) -> int:
     from pipeline.scheduler.configurable_scheduler_daemon import (
         SchedulerEngine, _consume_post, load_yaml_config,
     )
+    from pipeline.gtm_os.state_sync import refresh_interval_overrides
+    # The image can contain an older copy of the clock. The bucket is the
+    # plan the public link just saved, including a stop.
+    refresh_interval_overrides()
     job = (load_yaml_config().get("jobs") or {}).get(job_name) or {}
     if not job.get("enabled", True):
         print(json.dumps({"job": job_name, "skipped": "paused"}))

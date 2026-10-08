@@ -6,17 +6,20 @@
  * rather than every experiment before it. Nothing is deleted: every run stays
  * in the bucket, and the owner sees all of them.
  *
- *   owner    locally always; deployed, after opening the site once with
- *            `?key=<OWNER_KEY>` (middleware.ts sets an httpOnly cookie holding
- *            a hash of the key, never the key itself). `?key=` clears it.
+ *   owner    locally always; deployed, after signing in on /login with the
+ *            OWNER_KEY (app/api/auth/login sets `vn_owner`, a signed session
+ *            `<expiry>.<nonce>.<hmac>` good for 30 days; changing OWNER_KEY
+ *            ends every session). The key is never put in a URL.
  *            `?as=visitor` previews the visitor's view, `?as=owner` ends it.
  *   client   a company's own login: `?client=<link>` (made by the owner in
  *            Brand Brain) sets `vn_client`, a signed token naming ONE tenant.
  *            A client sees and runs everything for that company — its runs,
  *            Assistant, Brand Brain, Notion, launches, decisions — and
  *            nothing of any other company.
- *   visitor  everyone else. `vn_since` is set by the middleware on the first
- *            page load; a request without it sees no past runs at all.
+ *   visitor  everyone else, and only the public link's company
+ *            (BRAIN_TENANT). `vn_since` is set by the middleware on the first
+ *            page load and signed; a request without a valid one sees no
+ *            past runs at all.
  *
  * Run ids are `GTM-YYYYMMDD-HHMMSS` in UTC, so visibility is a string compare.
  */
@@ -75,6 +78,13 @@ export function clientTenant(): string | null {
   return verifyClient(jar()?.get(CLIENT_COOKIE)?.value)?.tenant ?? null;
 }
 
+/** The one company this viewer may see runs of: a client's own, the public
+ * link's company (BRAIN_TENANT) for a visitor, or null for the owner (all). */
+export function scopeTenant(): string | null {
+  if (isOwner()) return null;
+  return clientTenant() || String(process.env.BRAIN_TENANT || 'vanna').toLowerCase();
+}
+
 export type Role = 'owner' | 'client' | 'visitor';
 
 export function role(): Role {
@@ -84,9 +94,54 @@ export function role(): Role {
 
 const RUN_ID = /^GTM-(\d{8}-\d{6})$/;
 
-/** The owner cookie's value for a key. middleware.ts computes the same hash. */
-export function ownerHash(key: string): string {
-  return crypto.createHash('sha256').update('vn-owner:' + key).digest('hex');
+export const OWNER_SESSION_DAYS = 30;
+
+function sessionSecret(): string {
+  return process.env.SESSION_SECRET || process.env.OWNER_KEY || (isDeployed() ? '' : 'local-dev-session');
+}
+
+function hmacHex(secret: string, msg: string): string {
+  return crypto.createHmac('sha256', secret).update(msg).digest('hex');
+}
+
+function sameText(a: string, b: string): boolean {
+  const x = Buffer.from(a), y = Buffer.from(b);
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
+}
+
+/** True when `given` is the OWNER_KEY, compared in constant time. */
+export function isOwnerKey(given: string): boolean {
+  const key = process.env.OWNER_KEY || '';
+  if (!key || !given) return false;
+  // Hash both sides first so the comparison never depends on their lengths.
+  const h = (v: string) => crypto.createHash('sha256').update('vn-owner-key:' + v).digest();
+  return crypto.timingSafeEqual(h(given), h(key));
+}
+
+/** A new owner session: `<expiry>.<nonce>.<hmac>`, signed with OWNER_KEY. */
+export function signOwner(days = OWNER_SESSION_DAYS): string {
+  const key = process.env.OWNER_KEY || '';
+  if (!key) throw new Error('OWNER_KEY is not set');
+  const body = Math.floor(Date.now() / 1000 + days * 86400) + '.' + crypto.randomBytes(12).toString('hex');
+  return body + '.' + hmacHex(key, 'vn-owner-session:' + body);
+}
+
+function verifyOwner(token: string): boolean {
+  const key = process.env.OWNER_KEY || '';
+  const parts = String(token || '').split('.');
+  if (!key || parts.length !== 3) return false;
+  const [exp, nonce, sig] = parts;
+  if (!/^\d{9,11}$/.test(exp) || !/^[0-9a-f]{24}$/.test(nonce) || Number(exp) < Date.now() / 1000) return false;
+  return sameText(sig, hmacHex(key, 'vn-owner-session:' + exp + '.' + nonce));
+}
+
+/** The time a signed `vn_since` names, or null when it is missing or forged.
+ * middleware.ts signs it with the same secret. */
+function verifySince(raw: string | undefined): Date | null {
+  const secret = sessionSecret();
+  const m = /^(\d{9,11})\.([0-9a-f]{64})$/.exec(String(raw || ''));
+  if (!secret || !m || !sameText(m[2], hmacHex(secret, 'vn-since:' + m[1]))) return null;
+  return new Date(Number(m[1]) * 1000);
 }
 
 function jar() {
@@ -102,11 +157,7 @@ export function isOwner(): boolean {
   // Locally the owner is the default viewer, unless this browser opened a
   // client link (so the client view can be tried on the laptop).
   if (!isDeployed()) return !verifyClient(jar()?.get(CLIENT_COOKIE)?.value);
-  const key = process.env.OWNER_KEY;
-  if (!key) return false;
-  const got = jar()?.get(OWNER_COOKIE)?.value ?? '';
-  const want = ownerHash(key);
-  return got.length === want.length && crypto.timingSafeEqual(Buffer.from(got), Buffer.from(want));
+  return verifyOwner(jar()?.get(OWNER_COOKIE)?.value ?? '');
 }
 
 /** When this visitor first opened the dashboard, or null for the owner and
@@ -114,9 +165,8 @@ export function isOwner(): boolean {
  * in lib/gtm.ts rather than by date). */
 export function viewerSince(): Date | null {
   if (isOwner() || clientTenant()) return null;
-  const raw = jar()?.get(SINCE_COOKIE)?.value;
-  const d = raw ? new Date(raw) : new Date();
-  return Number.isNaN(d.getTime()) ? new Date() : d;
+  // Unsigned, forged or missing: from now on, so nothing older shows.
+  return verifySince(jar()?.get(SINCE_COOKIE)?.value) ?? new Date();
 }
 
 function stamp(d: Date): string {
@@ -134,6 +184,16 @@ export function runVisibility(): (runId: string) => boolean {
     const m = RUN_ID.exec(runId);
     return Boolean(m) && m![1] >= cut;
   };
+}
+
+/** True when this viewer may see something stamped `iso`. A visitor sees
+ * only what happened after they first opened the link; an item with no
+ * date is older than any visitor. */
+export function seesSince(iso: unknown): boolean {
+  const since = viewerSince();
+  if (!since) return true;
+  const t = Date.parse(String(iso || ''));
+  return Number.isFinite(t) && t >= since.getTime();
 }
 
 export function canSeeRun(runId: string): boolean {

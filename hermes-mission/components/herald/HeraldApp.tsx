@@ -62,7 +62,6 @@ function fmtDur(s: number): string {
 
 function Autopilot({ onClose }: { onClose: () => void }) {
   const { clock, daemon, reload } = useAutopilot(8000);
-  const [line, setLine] = useState("");
   const [busy, setBusy] = useState("");
   const [note, setNote] = useState<string[]>([]);
   useEffect(() => {
@@ -78,16 +77,10 @@ function Autopilot({ onClose }: { onClose: () => void }) {
       const d = await r.json();
       const lines = String(d.message || d.error || "").split("\n").filter(Boolean);
       setNote(d.success ? lines : [lines[0] || "That did not stick."]);
-      if (d.success && key === "line") setLine("");
     } catch { setNote(["That did not reach the scheduler."]); }
     setBusy("");
     await reload();
     window.dispatchEvent(new Event("vn:autopilot"));
-  };
-  const power = async (action: "start" | "stop") => {
-    setBusy("daemon");
-    try { await fetch("/api/daemon", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) }); } catch { /* */ }
-    setBusy(""); await reload(); window.dispatchEvent(new Event("vn:autopilot"));
   };
   const TELL: Record<string, [string, string]> = {
     gtm_cycle: ["stop posts", "start posts"], research_collect: ["stop headlines", "start headlines"], campaigns_refresh: ["stop campaigns", "start campaigns"],
@@ -107,10 +100,15 @@ function Autopilot({ onClose }: { onClose: () => void }) {
         <span className={"live" + (on ? "" : " off")} style={{ marginTop: 6 }} />
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 500, color: on ? "var(--text)" : "var(--muted)" }}>{WORK_LABEL[j.job]} <span style={{ color: "var(--faint)", fontWeight: 400 }}>· {chain ? left + " left, one after another" : "every " + gapLabel(j.interval)}</span></div>
-          <div className="meta" style={{ fontSize: 12.5 }}>{j.status === "RUNNING" ? "Running now · " : ""}{j.last_run && j.last_run !== "Never" ? "Last ran " + new Date(j.last_run).toLocaleString(undefined, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "Not run yet"}{j.cron_state === "live" ? " · GCP cron" : ""}</div>
+          <div className="meta" style={{ fontSize: 12.5 }}>
+            {j.on_since ? "On for " + fmtDur((Date.now() - new Date(j.on_since).getTime()) / 1000) + " · " : ""}
+            {j.status === "RUNNING" && j.current_run_start ? "This run " + fmtDur((Date.now() - new Date(j.current_run_start).getTime()) / 1000) + " · " : ""}
+            {j.last_duration_s ? "Last run " + fmtDur(j.last_duration_s) + " · " : ""}
+            {"Shows in " + (j.lands || (j.job === "research_collect" ? "Signals" : j.job === "gtm_cycle" ? "Posts" : "the dashboard"))}
+          </div>
           {j.status === "DISABLED_AUTO_BACKOFF" && <div className="meta bad-c">Paused after 3 failures in a row.</div>}
         </div>
-        {TELL[j.job] && <button className="btn btn-sm" disabled={busy === j.job} onClick={() => tell(on ? TELL[j.job][0] : TELL[j.job][1], j.job)}>{busy === j.job ? "…" : on ? "Pause" : "Resume"}</button>}
+        {on && TELL[j.job] && <button className="btn btn-sm" disabled={busy === j.job} onClick={() => tell(TELL[j.job][0], j.job)}>{busy === j.job ? "…" : "Pause"}</button>}
       </div>
     );
   };
@@ -122,49 +120,18 @@ function Autopilot({ onClose }: { onClose: () => void }) {
         <div className="ap-body">
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
             <span className="meta" style={{ color: "var(--muted)" }}><span className={"live" + (alive ? "" : " off")} />
-              {daemon === null ? "Checking the scheduler…" : daemon.cloud ? "Runs on GCP (Cloud Scheduler)" : daemon.running ? "Runs on this machine, restarted if it stops" : daemon.wanted === false ? "Stopped by you" : "Scheduler is not running"}</span>
-            {daemon && !daemon.cloud && <button className="btn btn-sm" disabled={busy === "daemon"} onClick={() => power(daemon.running ? "stop" : "start")}>{daemon.running ? "Stop all" : "Start"}</button>}
-          </div>
-          <div className="composer" style={{ maxWidth: "none", borderRadius: 16 }}>
-            <textarea rows={2} value={line} placeholder="Research every 2 minutes and make 10 posts" onChange={(e) => setLine(e.target.value)}
-                      onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); tell(line); } }} />
-            <div className="comp-row"><span className="hint">One line sets every gap</span>
-              <button className="btn btn-primary btn-sm" style={{ marginLeft: "auto" }} disabled={!line.trim() || busy === "line"} onClick={() => tell(line)}>{busy === "line" ? "Setting…" : "Set"}</button></div>
-          </div>
-          {note.length > 0 && <div className="note" style={{ flexDirection: "column", alignItems: "flex-start", gap: 2 }}>{note.map((l, i) => <span key={i}>{l}</span>)}</div>}
-          <div className="pills" style={{ justifyContent: "flex-start" }}>
-            {["Research every 2 minutes", "Make 10 posts", "Memes every 30 minutes", "Stop posts"].map((s) => <button key={s} className="pill-s" style={{ height: 32 }} onClick={() => tell(s, "line")}>{s}</button>)}
+              {daemon === null ? "Checking the scheduler…" : daemon.cloud ? "Runs on GCP" : daemon.running ? "Running on this machine" : daemon.wanted === false ? "Stopped" : "Scheduler is not running"}</span>
           </div>
           <div className="side-label" style={{ padding: "6px 2px 0" }}>Running{clock ? " (" + jobs.filter(isOn).length + ")" : ""}</div>
-          <div className="card">{!clock ? <div className="ap-row"><span className="skel" style={{ width: "60%", height: 12 }} /></div> : jobs.filter(isOn).length ? jobs.filter(isOn).map((j) => <Row key={j.job} j={j} />) : <div className="ap-row meta">Nothing runs on its own yet.</div>}</div>
+          <div className="card">{!clock ? <div className="ap-row"><span className="skel" style={{ width: "60%", height: 12 }} /></div> : jobs.filter(isOn).length ? jobs.filter(isOn).map((j) => <Row key={j.job} j={j} />) : <div className="ap-row meta">Nothing is running.</div>}</div>
           {clock && jobs.some((j) => !isOn(j) && (j.paused || j.cron_id)) && (
             <>
               <div className="side-label" style={{ padding: "6px 2px 0" }}>Paused</div>
               <div className="card">{jobs.filter((j) => !isOn(j) && (j.paused || j.cron_id)).map((j) => <Row key={j.job} j={j} />)}</div>
             </>
           )}
-          <div className="side-label" style={{ padding: "6px 2px 0" }}>How often each job runs</div>
-          <div className="card" style={{ overflow: "hidden" }}>
-            <div className="ap-row" style={{ fontSize: 12, color: "var(--faint)", fontWeight: 500, padding: "8px 14px" }}>
-              <span style={{ flex: 1 }}>Job</span><span style={{ width: 66 }}>One run</span><span style={{ width: 62 }}>Default</span><span style={{ width: 62 }}>Shortest</span>
-            </div>
-            {!clock && <div className="ap-row"><span className="skel" style={{ width: "60%", height: 12 }} /></div>}
-            {jobs.map((j) => (
-              <div key={j.job} className="ap-row" style={{ fontSize: 13, padding: "9px 14px", alignItems: "center" }}>
-                <span style={{ flex: 1, minWidth: 0 }} title={j.description}>{WORK_LABEL[j.job]}
-                  {isOn(j) && <span className="meta" style={{ fontSize: 12, display: "block" }}>now every {gapLabel(j.interval)}</span>}</span>
-                <span style={{ width: 66, color: "var(--muted)" }}>{RUN_TIME[j.job] || (j.last_duration_s ? fmtDur(j.last_duration_s) : "—")}</span>
-                <span style={{ width: 62, color: "var(--muted)" }}>{gapLabel(j.default_interval || j.interval)}</span>
-                <span style={{ width: 62, color: "var(--muted)" }}>{j.min_interval_m ? gapLabel(j.min_interval_m + "m") : "—"}</span>
-              </div>
-            ))}
-          </div>
-          <div className="note" style={{ flexDirection: "column", alignItems: "flex-start", gap: 4, fontSize: 12.5 }}>
-            <span>A gap you set stays until you stop it: “research every 2 minutes” scrapes every 2 minutes, by itself, until you press Pause or say stop.</span>
-            <span>“Make 10 posts” writes them one after another — about 20 minutes each — until all 10 are done, then posts stop.</span>
-            <span>A job never runs twice at once: if one run takes longer than its gap, the next starts when it ends.</span>
-          </div>
-          <div className="hint" style={{ textAlign: "left" }}>Every post stops at review, here and on Telegram. Nothing is published on its own.</div>
+          {note.length > 0 && <div className="note" style={{ flexDirection: "column", alignItems: "flex-start", gap: 2 }}>{note.map((l, i) => <span key={i}>{l}</span>)}</div>}
+          <div className="hint" style={{ textAlign: "left" }}>The scheduler keeps each job on its own gap. This list shows what is running, and for how long. Nothing is published.</div>
         </div>
       </aside>
     </div>
@@ -222,6 +189,10 @@ function MakePost({ initial, tenant, onClose, onStarted }: { initial: string; te
 export function HeraldApp() {
   const viewer = useViewer();
   const owner = Boolean(viewer?.owner);
+  // The public link is the demo. A visitor can chat and ask about the brand
+  // and its posts; starting runs, the schedule and onboarding stay with the
+  // owner (the assistant only offers a visitor its read-only tools).
+  const canChat = true;
   const [theme, setTheme] = useTheme();
   const [dark, setDark] = useState(false);
   const [company, companies, pickCompany] = useTenant();
@@ -233,6 +204,7 @@ export function HeraldApp() {
   const [palette, setPalette] = useState(false);
   const [pq, setPq] = useState("");
   const [toast, setToast] = useState("");
+  const [unread, setUnread] = useState<{ scraped?: boolean; history?: boolean }>({});
   const [autopilot, setAutopilot] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [threads, setThreads] = useState<{ id: string; title: string; updated_at: string; preview?: string }[]>([]);
@@ -244,8 +216,12 @@ export function HeraldApp() {
   const [editName, setEditName] = useState(false);
   const [lastIngest, setLastIngest] = useState<string | null>(null);
   const toastT = useRef<ReturnType<typeof setTimeout>>();
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  const seenNotes = useRef<Set<string> | null>(null);
+  const seenRuns = useRef<Set<string> | null>(null);
   const wsRef = useRef<HTMLDivElement>(null);
-  const { clock, daemon } = useAutopilot(15000, owner);
+  const { clock, daemon } = useAutopilot(15000);
   const auto = autopilotSummary(clock, daemon);
   const scrapeJob = ((clock?.jobs || []) as any[]).find((j) => j.job === "research_collect");
   const scrapeGap = scrapeJob && scrapeJob.enabled !== false && !scrapeJob.paused ? gapLabel(scrapeJob.interval) : "";
@@ -261,7 +237,6 @@ export function HeraldApp() {
   }, []);
   useEffect(() => { if (ready) writeUrl(view, runId, refFocus); }, [ready, view, runId, refFocus]);
   // a visitor has no Assistant (its routes answer 403)
-  useEffect(() => { if (viewer && !owner && view === "assistant") setView("history"); }, [viewer, owner, view]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
@@ -273,12 +248,26 @@ export function HeraldApp() {
 
   const [threadsLoaded, setThreadsLoaded] = useState(false);
   const [threadsErr, setThreadsErr] = useState("");
+  const [studies, setStudies] = useState<{ id: string; name: string; line: string }[]>([]);
   const threadReq = useRef(0);
+  // Show the last list at once. A slow or failed refresh must not blank Recents,
+  // and New chat must not drop the chats already had.
+  useEffect(() => {
+    if (!company?.id) return;
+    try {
+      const raw = localStorage.getItem("herald-threads:" + company.id);
+      const saved = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(saved) && saved.length) {
+        setThreads(saved);
+        setThreadsLoaded(true);
+      }
+    } catch { /* a bad copy is ignored; the server list replaces it */ }
+  }, [company?.id]);
   // `fresh` waits for the saved list; otherwise the server answers from its
   // last copy at once. Chats started here stay listed until the server has them.
   // A slower reply must not replace a newer one — that was wiping Recents.
   const loadThreads = useCallback((fresh = false) => {
-    if (!company?.id || !owner) return;
+    if (!company?.id) return;
     const n = ++threadReq.current;
     fetch("/api/assistant/threads?tenant=" + encodeURIComponent(company.id) + (fresh ? "&fresh=1" : ""), { cache: "no-store" })
       .then((r) => r.json())
@@ -292,16 +281,39 @@ export function HeraldApp() {
         setThreads((cur) => {
           const saved = d.threads as { id: string; title: string; updated_at: string; preview?: string }[];
           const pending = cur.filter((t) => t.updated_at === "pending" && !saved.some((x) => x.id === t.id));
-          return [...pending, ...saved];
+          const next = [...pending, ...saved];
+          try { localStorage.setItem("herald-threads:" + company.id, JSON.stringify(next.slice(0, 40))); } catch { /* private mode */ }
+          return next;
         });
       })
       .catch(() => { if (n === threadReq.current) setThreadsErr("Chats could not be loaded"); })
       .finally(() => { if (n === threadReq.current) setThreadsLoaded(true); });
-  }, [company?.id, owner]);
+  }, [company?.id]);
   const addThread = useCallback((id: string, title: string) => {
     setThreads((cur) => (cur.some((t) => t.id === id) ? cur : [{ id, title: title || "New chat", updated_at: "pending", preview: "" }, ...cur]));
   }, []);
   useEffect(() => { setThreadId(null); loadThreads(); }, [loadThreads]);
+  useEffect(() => {
+    if (!company?.id) return;
+    const t = setInterval(() => loadThreads(), 20000);
+    return () => clearInterval(t);
+  }, [company?.id, loadThreads]);
+  useEffect(() => {
+    if (!company?.id) return;
+    let stop = false;
+    fetch("/api/gtm/brain/inspiration?tenant=" + encodeURIComponent(company.id), { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (stop || !Array.isArray(d?.brands)) return;
+        setStudies(d.brands.slice(0, 6).map((b: any) => {
+          const move = (b.vanna_moves || [])[0] || {};
+          const line = String(move.vanna_move || move.adapt || move.vanna_can || "What Vanna can do");
+          return { id: String(b.id || b.name), name: String(b.name || "Brand"), line };
+        }));
+      })
+      .catch(() => {});
+    return () => { stop = true; };
+  }, [company?.id]);
 
   const loadRuns = useCallback(() => {
     fetch("/api/runs", { cache: "no-store" }).then((r) => r.json())
@@ -335,10 +347,53 @@ export function HeraldApp() {
   const flash = useCallback((t: string) => {
     setToast(t);
     clearTimeout(toastT.current);
-    toastT.current = setTimeout(() => setToast(""), 2600);
+    toastT.current = setTimeout(() => setToast(""), 4200);
   }, []);
 
-  const go = useCallback((v: View) => { setView(v); setMenu(false); setPalette(false); if (v !== "run") setRunId(""); if (v !== "references") setRefFocus(""); }, []);
+  useEffect(() => {
+    let stop = false;
+    const pull = async () => {
+      try {
+        const r = await fetch("/api/notices", { cache: "no-store" });
+        const d = await r.json();
+        const list = Array.isArray(d.notices) ? d.notices : [];
+        if (seenNotes.current === null) {
+          seenNotes.current = new Set(list.map((n: { id?: string }) => String(n.id || "")));
+          return;
+        }
+        const fresh = list.filter((n: { id?: string }) => n?.id && !seenNotes.current!.has(String(n.id)));
+        if (!fresh.length || stop) return;
+        for (const n of fresh) seenNotes.current.add(String(n.id));
+        const top = fresh[0] as { title?: string; body?: string };
+        flash([top.title, top.body].filter(Boolean).join(" — "));
+        if (viewRef.current !== "scraped") setUnread((u) => ({ ...u, scraped: true }));
+        window.dispatchEvent(new Event("herald-signals"));
+      } catch { /* the next poll tries again */ }
+    };
+    pull();
+    const t = setInterval(pull, 8000);
+    return () => { stop = true; clearInterval(t); };
+  }, [flash]);
+
+  useEffect(() => {
+    const ids = runs.map((r) => r.run_id).filter(Boolean);
+    if (seenRuns.current === null) {
+      if (!runsLoading) seenRuns.current = new Set(ids);
+      return;
+    }
+    const fresh = ids.filter((id) => !seenRuns.current!.has(id));
+    if (!fresh.length) return;
+    for (const id of fresh) seenRuns.current!.add(id);
+    flash(fresh.length === 1 ? "A new post is in Posts" : fresh.length + " new posts are in Posts");
+    if (viewRef.current !== "history" && viewRef.current !== "run") setUnread((u) => ({ ...u, history: true }));
+  }, [runs, runsLoading, flash]);
+
+  const go = useCallback((v: View) => {
+    setView(v); setMenu(false); setPalette(false);
+    if (v !== "run") setRunId("");
+    if (v !== "references") setRefFocus("");
+    if (v === "scraped" || v === "history") setUnread((u) => ({ ...u, [v]: false }));
+  }, []);
   const openRun = useCallback((id: string) => { setRunId(id); setView("run"); setPalette(false); setMenu(false); }, []);
   const ask = useCallback((text: string) => { setThreadId(null); setPrefill((p) => ({ text, n: p.n + 1 })); go("assistant"); }, [go]);
   const openRef = useCallback((id: string) => { setRefFocus(id); setView("references"); }, []);
@@ -353,7 +408,7 @@ export function HeraldApp() {
 
   // palette
   const q = pq.trim().toLowerCase();
-  const pages = PAGES.filter((p) => (owner || p.key !== "assistant") && (!q || p.label.toLowerCase().includes(q)));
+  const pages = PAGES.filter((p) => !q || p.label.toLowerCase().includes(q));
   const pPosts = mine.filter((r) => { const s = stateOf(r); return s !== "nopost"; })
     .filter((r) => !q || headlineOf(r).toLowerCase().includes(q)).slice(0, q ? 20 : 6);
 
@@ -363,9 +418,9 @@ export function HeraldApp() {
     try { if (clean) localStorage.setItem("vn_owner_name", clean); else localStorage.removeItem("vn_owner_name"); } catch { /* */ }
   };
 
-  const NavBtn = ({ k, icon, children, count }: { k: View; icon: React.ReactNode; children: React.ReactNode; count?: number }) => (
+  const NavBtn = ({ k, icon, children, count, ping }: { k: View; icon: React.ReactNode; children: React.ReactNode; count?: number; ping?: boolean }) => (
     <button className={"side-btn" + (navKey === k ? " active" : "")} aria-current={navKey === k ? "page" : undefined} onClick={() => go(k)}>
-      {icon}{children}{count != null && <span className="count">{count}</span>}
+      {icon}{children}{(count != null || ping) && <span className="nav-end">{count != null && <span className="count">{count}</span>}{ping && <span className="ping" aria-label="New" />}</span>}
     </button>
   );
 
@@ -391,7 +446,7 @@ export function HeraldApp() {
                 {companies.map((c) => (
                   <button key={c.id} className="ws-opt" onClick={() => { pickCompany(c.id); setWsOpen(false); if (view === "run") go("history"); }}>
                     <span className="ws-av" style={{ background: companyHue(c.id) }}>{c.name.charAt(0)}</span>
-                    <span style={{ flex: 1, display: "flex", flexDirection: "column", lineHeight: 1.25 }}><span style={{ fontWeight: 500 }}>{c.name}</span><span style={{ fontSize: 12, color: "var(--faint)" }}>{owner ? "Owner" : "Viewer"}</span></span>
+                    <span style={{ flex: 1, display: "flex", flexDirection: "column", lineHeight: 1.25 }}><span style={{ fontWeight: 500 }}>{c.name}</span><span style={{ fontSize: 12, color: "var(--faint)" }}>{viewer?.client ? "Client" : owner ? "Owner" : "Viewer"}</span></span>
                     {c.id === company?.id && <ICheck />}
                   </button>
                 ))}
@@ -405,19 +460,28 @@ export function HeraldApp() {
             )}
           </div>
 
-          {owner && <button className="side-btn" style={{ color: "var(--text)" }} onClick={() => { setThreadId(null); go("assistant"); loadThreads(true); }}><IEdit />New chat</button>}
+          <button className="side-btn" style={{ color: "var(--text)" }} onClick={() => { setThreadId(null); go("assistant"); loadThreads(true); }}><IEdit />New chat</button>
           <button className="side-btn" onClick={() => { setPq(""); setPalette(true); setMenu(false); }}><ISearch />Search <span className="kbd">⌘K</span></button>
 
           <div className="side-label">Create</div>
-          {owner && <NavBtn k="assistant" icon={<IChat />}>Assistant</NavBtn>}
-          <NavBtn k="history" icon={<IImage />} count={runsLoading ? undefined : postCount}>Posts</NavBtn>
-          {owner && (
+          <NavBtn k="assistant" icon={<IChat />}>Assistant</NavBtn>
+          <NavBtn k="history" icon={<IImage />} count={runsLoading ? undefined : postCount} ping={Boolean(unread.history)}>Posts</NavBtn>
+          {(
             <>
               <div className="side-label">Recents</div>
               <div className="recents">
+                <button className="side-btn" onClick={() => { setThreadId(null); go("assistant"); loadThreads(true); }}><IEdit />New chat</button>
+                {studies.length > 0 && <div className="side-label" style={{ paddingLeft: 12 }}>What Vanna can do</div>}
+                {studies.map((s) => (
+                  <button key={s.id} className="side-btn recent"
+                          title={s.name + "\n" + s.line} onClick={() => go("inspiration")}>
+                    <span className="recent-t">{s.name}</span>
+                    <span className="recent-p">{s.line}</span>
+                  </button>
+                ))}
                 {!threadsLoaded && !threads.length && [0, 1, 2].map((i) => <span key={i} className="skel" style={{ width: "80%", height: 12, margin: "10px 12px", borderRadius: 5 }} />)}
-                {threadsLoaded && !threads.length && <span className="meta" style={{ padding: "6px 12px", fontSize: 12.5 }}>{threadsErr || "Your chats show here."}</span>}
-                {threads.slice(0, 20).map((t) => {
+                {threadsLoaded && !threads.length && !studies.length && <span className="meta" style={{ padding: "6px 12px", fontSize: 12.5 }}>{threadsErr || "Your chats show here."}</span>}
+                {threads.slice(0, 30).map((t) => {
                   const asked = (t.title || "Untitled chat").replace(/\s+/g, " ").trim();
                   const said = (t.preview || "").replace(/\s+/g, " ").trim();
                   const showSaid = said && said.toLowerCase() !== asked.toLowerCase();
@@ -439,22 +503,20 @@ export function HeraldApp() {
             </>
           )}
           <div className="side-label">Research</div>
-          <NavBtn k="scraped" icon={<IPulse />}>Signals</NavBtn>
+          <NavBtn k="scraped" icon={<IPulse />} ping={Boolean(unread.scraped)}>Signals</NavBtn>
           <NavBtn k="references" icon={<IBookmark />}>References</NavBtn>
           <NavBtn k="inspiration" icon={<ICompass />}>Inspiration</NavBtn>
           <NavBtn k="campaigns" icon={<IMegaphone />}>Campaigns</NavBtn>
 
           <div className="side-foot">
-            {owner && (
-              <button className="sched" onClick={() => { setAutopilot(true); setMenu(false); }}>
-                <span className={"live" + (auto.on ? "" : " off")} />
-                <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.3, flex: 1, minWidth: 0 }}>
-                  <span style={{ fontSize: 13.5, fontWeight: 500 }}>{clock || daemon ? auto.title : "Autopilot"}</span>
-                  <span style={{ fontSize: 12, color: "var(--faint)" }}>{clock || daemon ? auto.sub : "Checking…"}</span>
-                </span>
-                <IChevR style={{ color: "var(--faint)" }} />
-              </button>
-            )}
+            <button className="sched" onClick={() => { setAutopilot(true); setMenu(false); }}>
+              <span className={"live" + (auto.on ? "" : " off")} />
+              <span style={{ display: "flex", flexDirection: "column", lineHeight: 1.3, flex: 1, minWidth: 0 }}>
+                <span style={{ fontSize: 13.5, fontWeight: 500 }}>{clock || daemon ? auto.title : "Autopilot"}</span>
+                <span style={{ fontSize: 12, color: "var(--faint)" }}>{clock || daemon ? auto.sub : "Checking…"}</span>
+              </span>
+              <IChevR style={{ color: "var(--faint)" }} />
+            </button>
             <a className="side-btn" href="/brief" target="_blank" rel="noreferrer"><IShare />Share page</a>
             <div className="user">
               <span className="user-av">{(ownerName || (owner ? "O" : "V")).charAt(0).toUpperCase()}</span>
@@ -465,7 +527,7 @@ export function HeraldApp() {
                 ) : (
                   <button onClick={() => setEditName(true)} title="Set your name" style={{ border: 0, background: "transparent", padding: 0, fontSize: 13.5, fontWeight: 500, textAlign: "left", cursor: "pointer" }}>{ownerName || "Add your name"}</button>
                 )}
-                <span style={{ fontSize: 12, color: "var(--faint)" }}>{owner ? "Owner" : "Viewer"}</span>
+                <span style={{ fontSize: 12, color: "var(--faint)" }}>{viewer?.client ? "Client" : owner ? "Owner" : "Viewer"}</span>
               </span>
               <div className="theme-sw" role="group" aria-label="Theme">
                 <span className="theme-thumb" style={{ transform: `translateX(${dark ? "100%" : "0%"})` }} />
@@ -475,6 +537,8 @@ export function HeraldApp() {
             </div>
             {owner && <a href="?as=visitor" className="meta" style={{ fontSize: 12, padding: "2px 6px", color: "var(--faint)" }}>See what visitors see</a>}
             {viewer?.previewing && <a href="?as=owner" className="meta" style={{ fontSize: 12, padding: "2px 6px" }}>Back to the owner view</a>}
+            {viewer && !owner && !viewer.client && !viewer.previewing && <a href="/login" className="meta" style={{ fontSize: 12, padding: "2px 6px", color: "var(--faint)" }}>Owner sign in</a>}
+            {owner && viewer && <a href="/login" className="meta" style={{ fontSize: 12, padding: "2px 6px", color: "var(--faint)" }}>Account</a>}
           </div>
         </aside>
 
@@ -498,8 +562,8 @@ export function HeraldApp() {
             </div>
           </header>
 
-          {view === "assistant" && owner && (
-            <AssistantView company={ws} owner={owner} ownerName={ownerName} prefill={prefill} threadId={threadId}
+          {view === "assistant" && (
+            <AssistantView company={ws} owner={canChat} ownerName={ownerName} prefill={prefill} threadId={threadId}
                            onThreadChange={setThreadId} onSaved={() => loadThreads(true)} onNewThread={addThread}
                            onOpenRun={openRun} onAutopilot={() => setAutopilot(true)} flash={(t) => { flash(t); loadRuns(); }} />
           )}
@@ -508,7 +572,7 @@ export function HeraldApp() {
             <PostDetail run={run} brand={brand} brandColor={ws?.color || "#2F6B5E"} owner={owner}
                         onBack={() => go("history")} onReferences={() => go("references")} onChanged={loadRuns} flash={flash} />
           )}
-          {view === "scraped" && <SignalsView scrapeGap={scrapeGap} onOpenRef={openRef} onAutopilot={() => (owner ? setAutopilot(true) : null)} />}
+          {view === "scraped" && <SignalsView scrapeGap={scrapeGap} onOpenRef={openRef} onAutopilot={() => setAutopilot(true)} />}
           {view === "references" && <ReferencesView focusId={refFocus} owner={owner} onDraft={(t) => setMake(t)} />}
           {view === "inspiration" && <InspirationView tenant={company?.id || ""} brand={brand} owner={owner} onAsk={ask} onMake={(t) => setMake(t)} />}
           {view === "campaigns" && <CampaignsView owner={owner} brand={brand} onAsk={ask} onMake={(t) => setMake(t)} flash={flash} />}
@@ -549,7 +613,7 @@ export function HeraldApp() {
           </div>
         )}
 
-        {autopilot && owner && <Autopilot onClose={() => setAutopilot(false)} />}
+        {autopilot && <Autopilot onClose={() => setAutopilot(false)} />}
         {make !== null && owner && (
           <MakePost initial={make} tenant={company?.id || "vanna"} onClose={() => setMake(null)}
                     onStarted={(note) => { setMake(null); flash(note); go("history"); setTimeout(loadRuns, 4000); setTimeout(loadRuns, 15000); }} />

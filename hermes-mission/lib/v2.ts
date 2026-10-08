@@ -14,6 +14,7 @@
  */
 import fs from 'fs';
 import path from 'path';
+import { within } from '@/lib/safepath';
 
 export const REPO_ROOT = process.env.VANNA_REPO_ROOT ?? path.resolve(process.cwd(), '..');
 const STATE = path.join(REPO_ROOT, 'state');
@@ -272,8 +273,10 @@ export function workerHealth(): WorkerHealth {
   return { state: h.state, pid: h.pid, ts: h.ts, ageS, alive: ageS < 120 };
 }
 
-export function artifactPath(runId: string, rel: string): string {
-  return path.join(RUNS_DIR, runId, rel);
+/** A file inside one run's folder, or null when `rel` would leave it. */
+export function artifactPath(runId: string, rel: string): string | null {
+  const run = within(RUNS_DIR, runId);
+  return run ? within(run, rel) : null;
 }
 
 // --------------------------------------------------------------------------

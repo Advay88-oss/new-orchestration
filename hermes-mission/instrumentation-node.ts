@@ -9,9 +9,8 @@
  *
  * Local only. On GCP the clock is Cloud Scheduler (see /api/daemon).
  */
-import { spawn } from 'child_process';
 import path from 'path';
-import { pythonPath } from './lib/python';
+import { pythonPath, spawnHidden } from './lib/python';
 
 export function startWatchdog() {
   if (process.env.K_SERVICE || process.env.VANNA_CLOUD === '1' || process.env.VANNA_NO_WATCHDOG === '1') return;
@@ -23,11 +22,10 @@ export function startWatchdog() {
   if (g.__vnWatchdog) return; // dev reloads call register() again
 
   const ensure = () => {
-    const child = spawn(py, ['pipeline/scripts/daemon_manager.py', 'ensure'], {
+    const child = spawnHidden(['pipeline/scripts/daemon_manager.py', 'ensure'], {
       cwd: root,
       env: { ...process.env, PYTHONPATH: root, PYTHONIOENCODING: 'utf-8' },
       stdio: ['ignore', 'pipe', 'ignore'],
-      windowsHide: true,
     });
     let out = '';
     child.stdout?.on('data', (d) => { out += d.toString(); });

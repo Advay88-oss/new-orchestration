@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { isDeployed, assetKey, getBytes } from '@/lib/gcs';
 import fs from 'fs';
 import path from 'path';
+import { bareName, mediaType } from '@/lib/safepath';
 
 const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
 
@@ -15,8 +16,12 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'file param required' }, { status: 400 });
     }
 
-    // Clean filename of path traversal
-    const safeName = path.basename(filename);
+    // A bare image or video name only: no folders, no dotfiles, no JSON.
+    const safeName = bareName(path.basename(filename));
+    const type = safeName ? mediaType(safeName) : null;
+    if (!safeName || !type) {
+      return NextResponse.json({ error: 'not a media file' }, { status: 400 });
+    }
 
     // Deployed, the render lives in the state bucket rather than on a disk
     // this container has. Without this every meme and visual 404s and the
@@ -43,25 +48,17 @@ export async function GET(req: Request) {
       path.join(REPO_ROOT, 'hermes-mission/public', safeName),
       path.join(REPO_ROOT, 'pipeline/state', safeName),
       path.join(REPO_ROOT, 'pipeline/state/panels', safeName),
-      path.join(REPO_ROOT, safeName),
     ];
 
     for (const c of candidates) {
       if (fs.existsSync(c) && fs.statSync(c).isFile()) {
         const buffer = fs.readFileSync(c);
-        const ext = path.extname(safeName).toLowerCase();
-        let contentType = 'application/octet-stream';
-        if (ext === '.png') contentType = 'image/png';
-        else if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
-        else if (ext === '.webp') contentType = 'image/webp';
-        else if (ext === '.svg') contentType = 'image/svg+xml';
-        else if (ext === '.mp4') contentType = 'video/mp4';
-        else if (ext === '.json') contentType = 'application/json';
-
+        const contentType = type;
         return new NextResponse(buffer, {
           headers: {
             'Content-Type': contentType,
-            'Cache-Control': 'public, max-age=31536000, immutable',
+            'Cache-Control': 'private, max-age=3600',
+            'X-Content-Type-Options': 'nosniff',
           },
         });
       }

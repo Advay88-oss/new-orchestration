@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { runPython } from '@/lib/python';
 import { companyAccess } from '@/lib/local-only';
-import { clientTenant } from '@/lib/viewer';
+import { clientTenant, isOwner } from '@/lib/viewer';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,7 +15,8 @@ export async function GET(req: Request) {
   const q = (sp.get('q') || '').trim().slice(0, 300);
   const asked = (sp.get('tenant') || '').toLowerCase();
   // The owner reads any company's brain; a client only their own.
-  const access = companyAccess('the brand brain', /^[a-z0-9][a-z0-9_-]{1,40}$/.test(asked) ? asked : null);
+  const access = companyAccess('the brand brain', /^[a-z0-9][a-z0-9_-]{1,40}$/.test(asked) ? asked : null,
+                               { publicRead: !q });
   if (access instanceof NextResponse) return access;
   const tenant = access.tenant || '';
   const t = tenant ? [tenant] : [];
@@ -31,7 +32,7 @@ export async function GET(req: Request) {
     const out = JSON.parse(r.stdout);
     // Other companies' names are not a client's business.
     const own = clientTenant();
-    if (own && Array.isArray(out?.tenants)) out.tenants = [own];
+    if (!isOwner()) out.tenants = [own || tenant].filter(Boolean);
     return NextResponse.json(out);
   } catch {
     return NextResponse.json({ ok: false, error: 'unreadable brain output' }, { status: 500 });

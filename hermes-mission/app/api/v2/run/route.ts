@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
+import { ownerOnly } from '@/lib/local-only';
 import { enqueue, queueCounts, workerHealth } from '@/lib/v2';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: Request) {
+  const denied = ownerOnly('the v2 pipeline');
+  if (denied) return denied;
   let directive = '';
   try {
     directive = (await req.json())?.directive ?? '';
@@ -26,5 +29,7 @@ export async function POST(req: Request) {
 }
 
 export async function GET() {
+  const denied = ownerOnly('the v2 pipeline');
+  if (denied) return denied;
   return NextResponse.json({ queued: queueCounts(), worker: workerHealth() });
 }

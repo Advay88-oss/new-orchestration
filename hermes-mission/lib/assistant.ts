@@ -8,9 +8,9 @@
  * dies it is restarted on the next request; if it stops answering pings it
  * is killed and restarted.
  */
-import { spawn, type ChildProcessWithoutNullStreams } from 'child_process';
+import type { ChildProcessWithoutNullStreams } from 'child_process';
 import crypto from 'crypto';
-import { pythonPath } from '@/lib/python';
+import { spawnHidden } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
 
 type Listener = (ev: Record<string, unknown>) => void;
@@ -21,6 +21,7 @@ interface State {
   listeners: Map<string, Listener>;
   lastSeen: number;
   watchdog: NodeJS.Timeout | null;
+  spawnedAt?: number;              // on the global too: a dev reload must not forget it
 }
 
 // On globalThis so Next's dev reloads do not start a second process.
@@ -41,8 +42,7 @@ function write(obj: object) {
 // The Python code the assistant runs. The process imports it once, so when a
 // file here changes it is restarted at the next idle moment; otherwise a fix
 // would not reach the chat until the dashboard itself was restarted.
-const CODE_DIRS = ['pipeline/assistant', 'pipeline/scheduler', 'pipeline/brand_brain', 'pipeline/intelligence_stream'];
-let spawnedAt = 0;
+const CODE_DIRS = ['pipeline/assistant', 'pipeline/scheduler', 'pipeline/brand_brain', 'pipeline/intelligence_stream', 'pipeline/ops'];
 
 function codeChangedSince(t: number): boolean {
   const fs = require('fs') as typeof import('fs');
@@ -59,19 +59,38 @@ function codeChangedSince(t: number): boolean {
   return false;
 }
 
-function start(): ChildProcessWithoutNullStreams {
+/** Called before a new turn registers: restarts the process when its code
+ * changed and no other turn is open. */
+function restartIfStale(): void {
+  // Turns still open block a restart; one older than the turn timeout is a
+  // leftover (a stream that never ended) and does not.
+  const now = Date.now();
+  for (const [k, fn] of Array.from(st.listeners)) {
+    if (now - (((fn as any).at as number) || 0) > TURN_TIMEOUT_MS + 30_000) st.listeners.delete(k);
+  }
   if (st.child && st.child.exitCode === null && !st.child.killed && st.listeners.size === 0
-      && spawnedAt && codeChangedSince(spawnedAt)) {
-    try { st.child.kill(); } catch { /* already gone */ }
+      && codeChangedSince(st.spawnedAt || 0)) {
+    killTree(st.child);
     st.child = null;
   }
+}
+
+/** The venv's pythonw.exe is a launcher with python.exe under it: on
+ * Windows the whole tree goes, or the old interpreter lives on. */
+function killTree(child: ChildProcessWithoutNullStreams): void {
+  try {
+    if (process.platform === 'win32' && child.pid) {
+      require('child_process').spawnSync('taskkill', ['/PID', String(child.pid), '/T', '/F'], { windowsHide: true });
+    } else {
+      child.kill();
+    }
+  } catch { /* already gone */ }
+}
+
+function start(): ChildProcessWithoutNullStreams {
   if (st.child && st.child.exitCode === null && !st.child.killed) return st.child;
-  const py = pythonPath();
-  if (!py) throw new Error('no python interpreter for the assistant');
-  const child = spawn(py, ['-m', 'pipeline.assistant.server'], {
+  const child = spawnHidden(['-m', 'pipeline.assistant.server'], {
     cwd: REPO_ROOT,
-    windowsHide: true,
-    shell: false,
     env: { ...process.env, PYTHONIOENCODING: 'utf-8', PYTHONUNBUFFERED: '1', PYTHONPATH: REPO_ROOT },
   });
   st.buf = '';
@@ -96,14 +115,14 @@ function start(): ChildProcessWithoutNullStreams {
     st.child = null;
   });
   st.child = child;
-  spawnedAt = Date.now();
+  st.spawnedAt = Date.now();
   // Health: a ping every 30 s; no sign of life for 90 s while idle-or-busy
   // and the process is replaced.
   if (!st.watchdog) {
     st.watchdog = setInterval(() => {
       if (!st.child) return;
       if (Date.now() - st.lastSeen > 90_000) {
-        try { st.child.kill(); } catch { /* already gone */ }
+        killTree(st.child);
         return;
       }
       try { st.child.stdin.write(JSON.stringify({ op: 'ping', id: 'ping-' + Date.now() }) + '\n'); } catch { /* */ }
@@ -116,8 +135,10 @@ function start(): ChildProcessWithoutNullStreams {
 export interface Turn { id: string; done: Promise<void>; cancel: () => void }
 
 /** Start one turn; `onEvent` gets each event, ending with {type: 'done'}. */
-export function ask(req: { tenant: string; text: string; thread_id?: string | null; base?: string; client?: boolean },
+export function ask(req: { tenant: string; text: string; thread_id?: string | null; base?: string; client?: boolean;
+                           role: 'owner' | 'client' | 'visitor' },
                     onEvent: Listener): Turn {
+  restartIfStale();
   const id = crypto.randomUUID();
   let finish!: () => void;
   const done = new Promise<void>((r) => (finish = r));
@@ -125,9 +146,10 @@ export function ask(req: { tenant: string; text: string; thread_id?: string | nu
     cancel();
     onEvent({ type: 'error', error: 'the assistant took too long' });
     onEvent({ type: 'done' });
+    stop();                              // a turn that timed out must not stay registered
   }, TURN_TIMEOUT_MS);
   const stop = () => { clearTimeout(timer); st.listeners.delete(id); finish(); };
-  st.listeners.set(id, (ev) => { onEvent(ev); if (ev.type === 'done') stop(); });
+  st.listeners.set(id, Object.assign((ev: any) => { onEvent(ev); if (ev.type === 'done') stop(); }, { at: Date.now() }));
   function cancel() {
     try { write({ op: 'cancel', id }); } catch { /* process gone: nothing to stop */ }
   }

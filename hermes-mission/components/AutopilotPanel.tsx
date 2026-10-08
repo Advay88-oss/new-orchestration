@@ -105,6 +105,15 @@ export function useAutopilot(every = 15000, enabled = true) {
   return { clock, daemon, reload: load };
 }
 
+function elapsed(iso: string): string {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (!Number.isFinite(s) || s < 0) return "";
+  if (s < 90) return Math.max(1, Math.round(s)) + " sec";
+  if (s < 5400) return Math.round(s / 60) + " min";
+  if (s < 172800) return Math.round(s / 3600) + " h";
+  return Math.round(s / 86400) + " d";
+}
+
 /** One line for the sidebar card: what posts and research are doing. */
 export function autopilotSummary(clock: Clock | null, daemon: Daemon): { on: boolean; title: string; sub: string } {
   const jobs = (clock?.jobs || []) as any[];
@@ -119,8 +128,10 @@ export function autopilotSummary(clock: Clock | null, daemon: Daemon): { on: boo
   else if (postsOn) title = "Autopilot · every " + gapLabel(post.interval);
   else if (alive) title = "Autopilot · posts paused";
   const researchOn = Boolean(research && research.enabled !== false && !research.paused);
+  const onFor = research?.on_since ? elapsed(research.on_since) : "";
+  const thisRun = research?.status === "RUNNING" && research.current_run_start ? elapsed(research.current_run_start) : "";
   const sub = !alive ? "Scheduler is not running"
-    : researchOn ? "Research every " + gapLabel(research.interval)
+    : researchOn ? "Research every " + gapLabel(research.interval) + (onFor ? " · on for " + onFor : "") + (thisRun ? " · this run " + thisRun : "")
     : "Research paused";
   const anyOn = jobs.some((j) => WORK_LABEL[j.job] && j.enabled !== false && !j.paused);
   return { on: alive && anyOn, title, sub };

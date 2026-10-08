@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { gtmHarvest } from '@/lib/gtm';
-import { isDeployed, getText, getTextFromLaptop } from '@/lib/gcs';
+import { isDeployed, getText } from '@/lib/gcs';
+import { seesSince, viewerSince } from '@/lib/viewer';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,7 +31,9 @@ export async function GET(req: Request) {
   let collected: unknown = null;
   try {
     const name = 'state/pipeline/state/research_latest.json';
-    const remote = isDeployed() ? await getText(name) : await getTextFromLaptop(name);
+    // On the laptop the scrape writes the file here. Asking gcloud for the
+    // same object shells out to gcloud.cmd and opens a console on each refresh.
+    const remote = isDeployed() ? await getText(name) : null;
     let disk: string | null = null;
     if (!isDeployed()) {
       try {
@@ -40,6 +43,11 @@ export async function GET(req: Request) {
     const raw = !disk ? remote : !remote ? disk : (collectedAt(remote) >= collectedAt(disk) ? remote : disk);
     collected = raw ? JSON.parse(raw) : null;
   } catch { collected = null; }
+  if (collected && viewerSince()) {
+    const c = collected as any;
+    const items = (Array.isArray(c.items) ? c.items : []).filter((i: any) => seesSince(i?.at || c.collected_at));
+    collected = items.length ? { ...c, items } : null;
+  }
   const harvest = await gtmHarvest(runId);
   if (!harvest) {
     if (!collected) {

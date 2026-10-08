@@ -21,7 +21,7 @@ export const dynamic = 'force-dynamic';
  */
 const STATE = 'vn_nstate';
 const INVITE = 'vn_ninvite';
-const COOKIE = { httpOnly: true, sameSite: 'lax' as const, path: '/', maxAge: 900 };
+const COOKIE = { httpOnly: true, sameSite: 'lax' as const, path: '/', maxAge: 900, secure: Boolean(process.env.K_SERVICE) };
 
 async function py(args: string[], input?: object) {
   const r = await runPython(['-m', 'pipeline.brand_brain.mcp_call', 'notion', ...args], 60_000,

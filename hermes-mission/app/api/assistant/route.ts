@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
-import { clientTenant } from '@/lib/viewer';
+import { clientTenant, role } from '@/lib/viewer';
+import { allow, clientIp } from '@/lib/ratelimit';
 import { ask } from '@/lib/assistant';
 
 export const dynamic = 'force-dynamic';
@@ -22,10 +23,15 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   // The owner talks about any company; a client only about their own.
   const access = companyAccess('the assistant', TENANT.test(String(body.tenant || '')) ? String(body.tenant) : null,
-                               { write: true });
+                               { write: true, publicChat: true });
   if (access instanceof NextResponse) return access;
   const tenant = access.tenant || String(body.tenant || '');
   const client = Boolean(clientTenant());
+  const who = role();
+  // The public link can ask questions, not run up the model bill.
+  if (who === 'visitor' && !allow('visitor-chat:' + clientIp(req), 20, 3_600_000)) {
+    return Response.json({ ok: false, error: 'the limit for this link is 20 messages an hour' }, { status: 429 });
+  }
   const text = String(body.text || '').slice(0, 8000);
   const thread_id = THREAD.test(String(body.thread_id || '')) ? String(body.thread_id) : null;
   if (!TENANT.test(tenant)) return Response.json({ ok: false, error: 'pick a company first' }, { status: 400 });
@@ -43,7 +49,7 @@ export async function POST(req: Request) {
           controller.enqueue(enc.encode('data: ' + JSON.stringify(rest) + '\n\n'));
         } catch { open = false; }
       };
-      turn = ask({ tenant, text, thread_id, base: new URL(req.url).origin, client }, send);
+      turn = ask({ tenant, text, thread_id, base: new URL(req.url).origin, client, role: who }, send);
       req.signal.addEventListener('abort', () => turn?.cancel());
       turn.done.finally(() => { open = false; try { controller.close(); } catch { /* */ } });
     },

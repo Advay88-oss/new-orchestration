@@ -20,6 +20,12 @@ import sys
 import threading
 from concurrent.futures import ThreadPoolExecutor
 
+try:
+    from pipeline.ops.quiet_windows import install as _quiet_console
+    _quiet_console()
+except Exception:                               # noqa: BLE001 — the assistant still has to answer
+    pass
+
 TENANT = re.compile(r"^[a-z0-9][a-z0-9_-]{1,40}$")
 WORKERS = int(os.environ.get("ASSISTANT_WORKERS", "4"))
 _out = threading.Lock()
@@ -62,7 +68,8 @@ def _run(req: dict) -> None:
         return
     try:
         for ev in turn(tenant, str(req.get("text") or ""), thread_id=req.get("thread_id") or None,
-                       cancelled=lambda: rid in _cancelled, client=bool(req.get("client"))):
+                       cancelled=lambda: rid in _cancelled, client=bool(req.get("client")),
+                       role=str(req.get("role") or "")):
             _emit({"id": rid, **ev})
     except Exception as exc:                        # noqa: BLE001 — one turn fails alone
         _emit({"id": rid, "type": "error", "error": type(exc).__name__ + ": " + str(exc)[:300]})

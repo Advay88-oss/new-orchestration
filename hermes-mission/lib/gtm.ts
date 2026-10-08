@@ -21,7 +21,8 @@ import fs from 'fs';
 import path from 'path';
 import { isDeployed, getText, getBytes, runIds as gcsRunIds } from '@/lib/gcs';
 import { AGENTS as AGENT_DEFS, ALIAS, type GtmAgentRole } from '@/lib/agents';
-import { canSeeRun, clientTenant, runVisibility } from '@/lib/viewer';
+import { canSeeRun, runVisibility, scopeTenant } from '@/lib/viewer';
+import { RUN_ID, within } from '@/lib/safepath';
 
 export type { GtmAgentRole };
 
@@ -87,9 +88,12 @@ const DEF = new Map(AGENT_DEFS.map((a) => [a.id, a]));
  * from GCS.
  */
 async function rawRunFile(runId: string, name: string): Promise<string | null> {
+  if (!RUN_ID.test(runId) || !/^[A-Za-z0-9_.-]{1,80}$/.test(name) || name.startsWith('.')) return null;
   if (isDeployed()) return getText(`gtm_runs/${runId}/${name}`);
   try {
-    return fs.readFileSync(path.join(RUNS_DIR, runId, name), 'utf-8');
+    const file = within(RUNS_DIR, runId, name);
+    if (!file) return null;
+    return fs.readFileSync(file, 'utf-8');
   } catch {
     return null;
   }
@@ -120,8 +124,8 @@ async function runFile(runId: string, name: string): Promise<string | null> {
   // own company's runs (lib/viewer.ts). Every per-run read passes here, so a
   // run they cannot list cannot be opened by id either.
   if (!canSeeRun(runId)) return null;
-  const client = clientTenant();
-  if (client && (await tenantOfRun(runId)) !== client) return null;
+  const only = scopeTenant();
+  if (only && (await tenantOfRun(runId)) !== only) return null;
   return rawRunFile(runId, name);
 }
 
@@ -143,7 +147,7 @@ function parseJsonl(text: string | null): any[] {
 export async function listGtmRunIds(limit = 25): Promise<string[]> {
   // Newest first, so filtering after the limit keeps the newest visible runs.
   const visible = runVisibility();
-  const client = clientTenant();
+  const client = scopeTenant();
   // A client's company may have few of the newest runs: look further back,
   // then keep only theirs.
   const want = client ? Math.min(400, limit * 8) : limit;
@@ -306,7 +310,7 @@ export async function gtmRunDetail(runId?: string) {
   if (!rid || !canSeeRun(rid)) return null;
   // A client asking for another company's run by id gets nothing, not an
   // empty "running" shell carrying its id.
-  const client = clientTenant();
+  const client = scopeTenant();
   if (client && (await tenantOfRun(rid)) !== client) return null;
 
   // A run in flight has a journal but no summary.json yet — it is written when
@@ -425,7 +429,9 @@ export async function gtmArtifact(
   kind: 'visual' | 'meme' | 'video',
 ): Promise<{ body: Buffer; contentType: string } | null> {
   const type = kind === 'video' ? 'video/mp4' : 'image/png';
-  if (!canSeeRun(runId)) return null;
+  if (!RUN_ID.test(runId) || !canSeeRun(runId)) return null;
+  const only = scopeTenant();
+  if (only && (await tenantOfRun(runId)) !== only) return null;
 
   if (isDeployed()) {
     const ext = kind === 'video' ? 'mp4' : 'png';

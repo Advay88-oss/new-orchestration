@@ -24,7 +24,7 @@ two roles). `deploy_cloud.sh` builds and deploys all of it.
 
 ```
 Dashboard  vanna-gtm-mission (Cloud Run service, public link)
-   | owner actions (OWNER_KEY cookie): Launch Run, approve, Brand Brain, Notion invites
+   | owner actions (signed session from /login): Launch Run, approve, Brand Brain, Notion invites
    v
 Cloud Run Job vanna-gtm-pipeline  ---- cycle: all 12 agents; they reach the brain only
    ^        |                           through the Brain MCP server (stdio child process)
@@ -37,8 +37,11 @@ Cloud Scheduler vanna-gtm-tick (hourly: notion_sync, metrics_collect; the cycle 
    Telegram review (webhook -> /api/telegram/webhook). Nothing publishes automatically.
 ```
 
-- Visitors to the public link see only runs since their first visit and can
-  change nothing; the owner opens it once with `?key=<OWNER_KEY>`.
+- Visitors to the public link see only this tenant's runs since their first visit
+  (`vn_since` is HMAC-signed) and can change nothing: no runs, no schedule, and the
+  assistant refuses its action tools for them. The owner signs in on `/login`
+  (key in a POST body, 30-day signed session); `?key=` links only redirect there.
+- File routes take bare names or validated run ids only (`hermes-mission/lib/safepath.ts`).
 - Secrets live in Secret Manager (from `pipeline/.env` via `deploy_cloud.sh secrets`).
 - Brain LLM: the generativelanguage API key (Vertex/ADC is blocked for it — do not reroute).
 - The laptop still works as before (local Docker Postgres, `.venv`), but it is no longer
@@ -147,12 +150,12 @@ Requires `google-cloud-storage` and valid ADC (`gcloud auth application-default 
 
 ## Known state (2026-10-07)
 
-- `mission-control/` (the deployed dashboard's source) and `files/` (the 12-document
-  Vanna knowledge base) were **deleted from disk**. Tracked copies remain in git
-  history; the SSE/scraped-card work was untracked and is gone. The deployed
-  Cloud Run revision still serves normally.
-- `pipeline/README.md` and the claim gate reference `files/08-facts-ledger-and-claim-safety.md`
-  — that path is currently missing, so claim verification may degrade.
+- `mission-control/` (the old dashboard's source) was **deleted from disk**; tracked
+  copies remain in git history. `files/` (the 12-document Vanna knowledge base,
+  including `files/08-facts-ledger-and-claim-safety.md`) is back on disk.
+- `pipeline/scripts/autonomous_orchestrator.py`, `runner.py` and `gcs_sync.py` were
+  removed in fe00f32. Production runs `pipeline/gtm_os/cloud_job.py` ->
+  `autonomous_cycle.run_cycle`; bucket sync is `pipeline/gtm_os/state_sync.py`.
 - The dashboard source is `hermes-mission/` (branded **Herald** since 2026-10-07):
   `/` is the front page, the app is `/app`, `/brief` is the share page.
   `.claude/launch.json` runs it (`hermes-mission`, port 3000).

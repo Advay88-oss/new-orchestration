@@ -84,6 +84,24 @@ function usePoll(url: string | null, done: (d: any) => boolean) {
   return d;
 }
 
+function NewsCard({ c }: { c: Card }) {
+  const items = (Array.isArray(c.items) ? c.items : []) as { title?: string; who?: string; url?: string }[];
+  if (!items.length) return null;
+  return (
+    <div className="card" style={{ margin: "0 0 14px 34px", padding: "12px 14px" }}>
+      <div className="label">In Signals</div>
+      {items.map((it, i) => {
+        const label = (it.who ? it.who + ": " : "") + (it.title || "");
+        return (
+          <div key={i} style={{ padding: "7px 0", borderTop: i ? "1px solid var(--line)" : undefined, fontSize: 13.5, lineHeight: 1.4 }}>
+            {it.url ? <a href={it.url} target="_blank" rel="noreferrer">{label}</a> : <span>{label}</span>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 function ActionCard({ c, tenant, threadId, owner, onDone }: { c: Card; tenant: string; threadId: string | null; owner: boolean; onDone: (t: string) => void }) {
   const [state, setState] = useState<"" | "working" | string>("");
   const titles: Record<string, string> = { launch_run: "Write a new post", approve: "Approve this post", revise: "Send it back for revision", kill: "Kill this post", approve_profile: "Keep this company profile" };
@@ -269,6 +287,35 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
       .finally(() => { if (current.current === id) setLoadingThread(false); });
   }, [tenant, threadId]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // A scrape finishes after the reply. The headlines are saved onto this chat;
+  // pick them up without making the owner reopen it, and tell Signals to reload.
+  useEffect(() => {
+    if (!tenant || !threadId || busy) return;
+    const id = threadId;
+    const tick = () => {
+      fetch("/api/assistant/threads?tenant=" + tenant + "&id=" + id, { cache: "no-store" })
+        .then((r) => r.json())
+        .then((d) => {
+          if (current.current !== id || !d.ok || !d.thread) return;
+          const incoming = d.thread.messages as Msg[];
+          setMsgs((cur) => {
+            if (cur.some((m) => m.pending)) return cur;
+            const last = incoming[incoming.length - 1];
+            const prev = cur[cur.length - 1];
+            if (incoming.length === cur.length && last?.text === prev?.text) return cur;
+            cache.current.set(id, incoming);
+            if (incoming.some((m) => (m.cards || []).some((c) => c.type === "news"))) {
+              window.dispatchEvent(new Event("herald-signals"));
+            }
+            return incoming;
+          });
+        })
+        .catch(() => {});
+    };
+    const t = setInterval(tick, 6000);
+    return () => clearInterval(t);
+  }, [tenant, threadId, busy]);
+
   useEffect(() => {
     if (!prefill.n) return;
     setInput(prefill.text);
@@ -326,6 +373,8 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
             if (ev.name === "set_post_cadence") window.dispatchEvent(new Event("vn:autopilot"));
           } else if (ev.type === "card") update((m) => ({ ...m, cards: [...(m.cards || []), ev.card] }));
           else if (ev.type === "delta") update((m) => ({ ...m, text: (m.text || "") + ev.text }));
+          // A refused or failed action: the server puts this line first in the saved answer too.
+          else if (ev.type === "correction") update((m) => ({ ...m, text: ev.text + "\n\n" + (m.text || "") }));
           else if (ev.type === "grounding") update((m) => ({ ...m, grounding: { checked: ev.checked, supported: ev.supported, flagged: ev.flagged, note: ev.note } }));
           else if (ev.type === "error") update((m) => ({ ...m, error: ev.error }));
         }
@@ -366,11 +415,17 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
       <div className="chat-shell">
         <div className="greet">
           <h1 className="greet-h"><span className="greet-mark"><Mark size={34} stroke="var(--bg)" /></span>{greeting()}{ownerName ? ", " + ownerName : ""}</h1>
-          <Composer id="ask1" rows={2} value={input} onChange={setInput} onSend={() => send()} onStop={stop} busy={busy} disabled={!tenant}
-                    company={company} boxRef={box} placeholder={"Ask anything about " + name + ", or tell me what to make…"} />
-          <div className="pills">
-            {SUGG.map(([l, f]) => <button key={l} className="pill-s" onClick={() => useSugg(l, f)} disabled={!tenant}>{l}</button>)}
-          </div>
+          {owner ? (
+            <>
+              <Composer id="ask1" rows={2} value={input} onChange={setInput} onSend={() => send()} onStop={stop} busy={busy} disabled={!tenant}
+                        company={company} boxRef={box} placeholder={"Ask anything about " + name + ", or tell me what to make…"} />
+              <div className="pills">
+                {SUGG.map(([l, f]) => <button key={l} className="pill-s" onClick={() => useSugg(l, f)} disabled={!tenant}>{l}</button>)}
+              </div>
+            </>
+          ) : (
+            <p className="sub">Open a chat from Recents. You can read every conversation here.</p>
+          )}
           {err && <div className="note bad-c">{err}</div>}
         </div>
       </div>
@@ -419,6 +474,7 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
                 </div>
               </div>
               {(m.cards || []).map((c, j) => {
+                if (c.type === "news") return <NewsCard key={j} c={c} />;
                 if (c.type === "action") return <ActionCard key={j} c={c} tenant={tenant} threadId={current.current || null} owner={owner} onDone={flash} />;
                 if (c.type === "analysis") return <AnalysisCard key={j} c={c} />;
                 if (c.type === "competitors") return <CompetitorsCard key={j} c={c} />;
@@ -430,11 +486,15 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
         })}
         <div ref={end} />
       </div>
-      <div className="dock">
-        <Composer id="ask2" rows={1} value={input} onChange={setInput} onSend={() => send()} onStop={stop} busy={busy} disabled={!tenant}
-                  company={company} boxRef={box} placeholder="Reply…" />
-        <div className="hint">Herald suggests. You decide. Nothing is ever published for you.</div>
-      </div>
+      {owner ? (
+        <div className="dock">
+          <Composer id="ask2" rows={1} value={input} onChange={setInput} onSend={() => send()} onStop={stop} busy={busy} disabled={!tenant}
+                    company={company} boxRef={box} placeholder="Reply…" />
+          <div className="hint">Herald suggests. You decide. Nothing is ever published for you.</div>
+        </div>
+      ) : (
+        <div className="dock"><div className="hint">You can read this chat. Nothing here is published.</div></div>
+      )}
     </div>
   );
 }

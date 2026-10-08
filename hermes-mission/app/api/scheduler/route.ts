@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { runPython, lastJson, pythonPath, spawnHidden } from '@/lib/python';
 import path from 'path';
 import fs from 'fs';
-import { cloudMode, localOnly } from '@/lib/local-only';
+import { cloudMode, localOnly, ownerOnly } from '@/lib/local-only';
 import { isDeployed, getText } from '@/lib/gcs';
 import { runPipelineJob } from '@/lib/cloudrun';
 
@@ -51,6 +51,7 @@ function jobsFromPipeline(): { success: true; jobs: any[]; timestamp: string } |
       enabled: enabled && st.status !== 'DISABLED_AUTO_BACKOFF',
       status: st.status || 'IDLE',
       last_run: last || 'Never',
+      current_run_start: st.current_run_start || null,
       next_run: next,
       consecutive_failures: st.consecutive_failures || 0,
       total_runs: st.total_runs || 0,
@@ -60,8 +61,14 @@ function jobsFromPipeline(): { success: true; jobs: any[]; timestamp: string } |
   return { success: true, jobs, timestamp: new Date().toISOString() };
 }
 
+// The schedule is the owner's: it spends money for every company. A client
+// link and the public link can neither read nor change it.
+function scheduleOpen() {
+  return localOnly('the scheduler') || ownerOnly('the scheduler');
+}
+
 export async function GET() {
-  const blocked = localOnly('the scheduler');
+  const blocked = scheduleOpen();
   if (blocked) return blocked;
 
   try {
@@ -95,6 +102,9 @@ export async function GET() {
             job.cron_id = typeof st.id === 'string' ? st.id : '';
             job.cron_state = typeof st.state === 'string' ? st.state : '';
             job.lands = typeof st.lands === 'string' ? st.lands : '';
+            const since = (chosen._on_since && typeof chosen._on_since === 'object')
+              ? chosen._on_since as Record<string, unknown> : {};
+            job.on_since = typeof since[job.job] === 'string' ? since[job.job] : '';
           }
           (listed as any).posts = paused.has('gtm_cycle') ? 'stopped' : 'on';
           (listed as any).until = typeof chosen._until === 'string' ? chosen._until : '';
@@ -124,7 +134,7 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const blocked = localOnly('the scheduler');
+  const blocked = scheduleOpen();
   if (blocked) return blocked;
 
   try {

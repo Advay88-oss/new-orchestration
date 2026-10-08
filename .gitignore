@@ -76,3 +76,11 @@ pipeline/brain/tenants/*/notion_cache/
 
 # Local clones of the vannafinance repos, for reading claims (not part of this repo)
 vanna-src/
+
+# Local secrets (never committed): every .env variant and the MCP config,
+# which carries API tokens in its headers. .mcp.json.example is the template.
+.env.*
+!.env.example
+**/.env.*
+!**/.env.example
+.mcp.json

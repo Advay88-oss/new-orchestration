@@ -111,8 +111,13 @@ class BrainMCP:
             from mcp import StdioServerParameters
             from mcp.client.stdio import stdio_client
             env = {**os.environ, "BRAIN_TENANT": self.tenant, "PYTHONIOENCODING": "utf-8"}
+            command = sys.executable
+            if os.name == "nt" and command.lower().endswith("python.exe"):
+                windowless = command[: -len("python.exe")] + "pythonw.exe"
+                if os.path.isfile(windowless):
+                    command = windowless
             params = StdioServerParameters(
-                command=sys.executable,
+                command=command,
                 args=["-m", "pipeline.brand_brain.mcp_server", "--tenant", self.tenant],
                 env=env, cwd=str(REPO))
             with open(os.devnull, "w") as errlog:

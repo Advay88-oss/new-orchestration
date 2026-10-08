@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { clientTenant } from '@/lib/viewer';
 import fs from 'fs';
 import path from 'path';
 import { pythonPath, spawnHidden } from '@/lib/python';
@@ -169,7 +170,7 @@ export async function POST(req: Request) {
   const access = companyAccess('requesting a post', null, { write: true });
   if (access instanceof NextResponse) return access;
   const tenant = access.tenant || process.env.BRAIN_TENANT || 'vanna';
-  if (!allow('launch', 6, 3_600_000)) {
+  if (!allow(clientTenant() ? 'launch:' + tenant : 'launch:owner', 6, 3_600_000)) {
     return NextResponse.json({ ok: false, error: 'too many launches: the limit is 6 an hour' }, { status: 429 });
   }
 

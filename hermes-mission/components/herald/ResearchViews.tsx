@@ -38,7 +38,12 @@ const gradeOf = (r: any): string => (r?.relevance ? String(r.relevance).toUpperC
 
 export function SignalsView({ scrapeGap, onOpenRef, onAutopilot }: { scrapeGap: string; onOpenRef: (id: string) => void; onAutopilot: () => void }) {
   const [tab, setTab] = useState<"latest" | "used">("latest");
-  const harvest = useJson<any>("/api/gtm/harvest", 60000);
+  const harvest = useJson<any>("/api/gtm/harvest", 15000);
+  useEffect(() => {
+    const on = () => harvest.reload();
+    window.addEventListener("herald-signals", on);
+    return () => window.removeEventListener("herald-signals", on);
+  }, [harvest.reload]);
   const refs = useJson<any>("/api/gtm/references");
   const refIds = useMemo(() => new Set(((refs.data?.items || []) as any[]).map((i) => i.id)), [refs.data]);
 
@@ -75,7 +80,7 @@ export function SignalsView({ scrapeGap, onOpenRef, onAutopilot }: { scrapeGap: 
     return out;
   }, [latest]);
 
-  const used = ((refs.data?.items || []) as any[]).slice().sort((a, b) => {
+  const used = ((refs.data?.items || []) as any[]).filter((r) => gradeOf(r) === "DIRECT" || gradeOf(r) === "ADJACENT").slice().sort((a, b) => {
     const o: Record<string, number> = { DIRECT: 0, ADJACENT: 1, UNREAD: 2, NONE: 3 };
     return (o[gradeOf(a)] ?? 9) - (o[gradeOf(b)] ?? 9);
   });
@@ -121,7 +126,7 @@ export function SignalsView({ scrapeGap, onOpenRef, onAutopilot }: { scrapeGap: 
         <div className="card feed">
           <div className="feed-group">Read for the latest post · {refs.data.runId}</div>
           {used.map((r) => {
-            const [label, cls] = GRADE[gradeOf(r)] || GRADE.UNREAD;
+            const [label, cls] = GRADE[gradeOf(r)] || GRADE.DIRECT;
             return (
               <button key={r.id} className="item" onClick={() => onOpenRef(r.id)}>
                 <span className="ch">{glyphOf(r.kind, r.channel)}</span>
@@ -138,7 +143,7 @@ export function SignalsView({ scrapeGap, onOpenRef, onAutopilot }: { scrapeGap: 
 
 /* --------------------------------------------------------------- References */
 
-type RF = "all" | "DIRECT" | "ADJACENT" | "NONE" | "UNREAD";
+type RF = "all" | "DIRECT" | "ADJACENT";
 
 export function ReferencesView({ focusId, owner, onDraft }: { focusId: string; owner: boolean; onDraft: (text: string) => void }) {
   const [runId, setRunId] = useState("");
@@ -146,7 +151,7 @@ export function ReferencesView({ focusId, owner, onDraft }: { focusId: string; o
   const [f, setF] = useState<RF>("all");
   const [sel, setSel] = useState<string>("");
   useEffect(() => { if (focusId) { setSel(focusId); setF("all"); } }, [focusId]);
-  const items = ((data?.items || []) as any[]);
+  const items = ((data?.items || []) as any[]).filter((r) => gradeOf(r) === "DIRECT" || gradeOf(r) === "ADJACENT");
   const shown = items.filter((r) => f === "all" || gradeOf(r) === f);
   const cur = shown.find((r) => r.id === sel) || shown[0];
   const counts: Record<string, number> = {};
@@ -161,7 +166,7 @@ export function ReferencesView({ focusId, owner, onDraft }: { focusId: string; o
   return (
     <div className="page view">
       <div className="head">
-        <div><h1 className="title">References</h1><p className="sub">Herald’s notes on each source: how relevant it is, and the post it could become.</p></div>
+        <div><h1 className="title">References</h1><p className="sub">Sources that matter to Vanna, and the post each one could become.</p></div>
         {Array.isArray(data?.recent) && data.recent.length > 1 && (
           <select className="select" aria-label="Read for which post" value={runId || data.runId || ""} onChange={(e) => { setRunId(e.target.value); setSel(""); }}>
             {data.recent.map((r: any) => <option key={r.runId} value={r.runId}>{r.runId.replace(/^GTM-(\d{4})(\d{2})(\d{2})-(\d{2})(\d{2}).*/, "$3/$2 $4:$5")}{r.hasAnalysis ? "" : " · not graded"}</option>)}
@@ -171,7 +176,7 @@ export function ReferencesView({ focusId, owner, onDraft }: { focusId: string; o
       <div className="toolbar">
         <Seg label="Filter by relevance" value={f} onChange={(k) => { setF(k); setSel(""); }} options={[
           { key: "all", label: "All", count: items.length || undefined }, { key: "DIRECT", label: "Relevant", count: counts.DIRECT },
-          { key: "ADJACENT", label: "Related", count: counts.ADJACENT }, { key: "NONE", label: "Skip", count: counts.NONE }, { key: "UNREAD", label: "Unread", count: counts.UNREAD },
+          { key: "ADJACENT", label: "Related", count: counts.ADJACENT },
         ]} />
       </div>
       {error && <Empty title="References are unavailable" text={error} />}

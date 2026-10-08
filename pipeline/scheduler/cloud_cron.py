@@ -8,6 +8,7 @@ jobs alone so they are not run twice.
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -298,6 +299,54 @@ def tick_live(max_age_s: float = 600) -> bool:
     return live
 
 
+def steer_tick(action: str, schedule: str = "") -> tuple[bool, str]:
+    """Pause, resume, or set the cloud clock.
+
+    Chat is what turns it on. Inside Cloud Run this uses the service account.
+    On the laptop it uses gcloud. A failure leaves the saved plan as it is.
+    """
+    import urllib.request
+    from pipeline.gtm_os.state_sync import in_cloud
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT") or PROJECT
+    region = os.environ.get("VANNA_REGION") or REGION
+    name = "projects/" + project + "/locations/" + region + "/jobs/" + TICK
+    if in_cloud():
+        try:
+            req = urllib.request.Request(
+                "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token",
+                headers={"Metadata-Flavor": "Google"},
+            )
+            token = json.loads(urllib.request.urlopen(req, timeout=5).read().decode())["access_token"]
+        except Exception as exc:                    # noqa: BLE001 — the plan is already saved
+            return False, str(exc)[:160]
+        if action == "schedule" and schedule:
+            url = "https://cloudscheduler.googleapis.com/v1/" + name + "?updateMask=schedule"
+            payload, method = json.dumps({"schedule": schedule}).encode(), "PATCH"
+        elif action in ("pause", "resume"):
+            url = "https://cloudscheduler.googleapis.com/v1/" + name + ":" + action
+            payload, method = b"{}", "POST"
+        else:
+            return False, "unknown clock action"
+        call = urllib.request.Request(url, data=payload, method=method, headers={
+            "Authorization": "Bearer " + token, "Content-Type": "application/json",
+        })
+        try:
+            with urllib.request.urlopen(call, timeout=20) as resp:
+                return resp.status < 300, ""
+        except Exception as exc:                    # noqa: BLE001 — the caller says the clock did not move
+            return False, str(exc)[:180]
+    if action == "pause":
+        code, detail = _run(["scheduler", "jobs", "pause", TICK, "--location", region], timeout=40)
+    elif action == "resume":
+        code, detail = _run(["scheduler", "jobs", "resume", TICK, "--location", region], timeout=40)
+    elif action == "schedule" and schedule:
+        code, detail = _run(["scheduler", "jobs", "update", "http", TICK, "--location", region,
+                             "--schedule", schedule], timeout=40)
+    else:
+        return False, "unknown clock action"
+    return code == 0, detail
+
+
 def pull_clock() -> bool:
     """Copy the bucket's clock (gaps, post count, job state) to this machine,
     so the local dashboard shows what the cloud ran. Uses the user login."""
@@ -373,7 +422,7 @@ def pause_live_in_background() -> None:
     root = Path(__file__).resolve().parents[2]
     flags = 0
     if sys.platform == "win32":
-        flags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS | getattr(subprocess, "CREATE_NO_WINDOW", 0)
+        flags = subprocess.CREATE_NEW_PROCESS_GROUP | getattr(subprocess, "CREATE_NO_WINDOW", 0)
     try:
         subprocess.Popen([sys.executable, "-m", "pipeline.scheduler.cloud_cron", "pause-live"], cwd=str(root),
                          env={**os.environ, "PYTHONPATH": str(root)}, stdin=subprocess.DEVNULL,
@@ -419,7 +468,12 @@ def sync_plan(chosen: dict, wait_narrow: bool = True) -> tuple[list[str], list[s
             state[name] = row
         if status == "local":
             running = [n for n in on if n not in paused]
-            return (["It runs on this machine and keeps its gap until you stop it."] if running else []), [], state
+            if not running:
+                return [], [], state
+            from pipeline.gtm_os.state_sync import in_cloud
+            if in_cloud():
+                return ["It keeps that gap until you say stop."], [], state
+            return ["It runs on this machine and keeps its gap until you stop it."], [], state
         return ["No cron was created: Google sign-in is missing (gcloud auth login). The plan is saved."], [], state
 
     for name in sorted(paused):

@@ -52,7 +52,23 @@ _pool = ThreadPoolExecutor(max_workers=8, thread_name_prefix="assistant-tool")
 
 # ------------------------------------------------------------------ prompts
 
-def _system(tenant: str, summary: str) -> str:
+ACTION_TOOLS = {"set_post_cadence", "add_company", "analyse_competitors", "notion_connect",
+                "find_campaigns", "study_brand", "propose_action"}
+
+_ROLE_RULES = {
+    "visitor": (
+        "\n\nTHE SPEAKER IS A VISITOR on the public link, not the owner. Use the tools as you would for the "
+        "owner; the dashboard refuses the ones that change something (schedules, scrapes, posts, companies, "
+        "Notion). When a tool comes back refused, say in the first line that only the owner of this dashboard "
+        "can do that and that nothing was changed, then offer what you can do: answer about the company, its "
+        "posts and its research. Never say a schedule was set or a post is ready to start."),
+    "client": (
+        "\n\nTHE SPEAKER IS THIS COMPANY'S CLIENT (a client link), not the dashboard owner. They see only "
+        "this company. Schedules, other companies and onboarding are the owner's; say so when asked."),
+}
+
+
+def _system(tenant: str, summary: str, role: str = "owner") -> str:
     from pipeline.brand_brain.client import Brain
     try:
         p = Brain(tenant).get_brand_profile()
@@ -88,9 +104,11 @@ def _system(tenant: str, summary: str) -> str:
         "unchanged. The owner decides every gap. Schedule only the work they named. Do not add a post they did not ask for. "
         "A scrape can be every minute or two; a post takes about 20 minutes. \"Scrape news and socials every 5 minutes "
         "and make posts from it\" sets the scrape and posts together: posts run one after another (10 if no number is "
-        "given), each from the newest scrape. Every scrape brings only items not seen before — news, and competitors' "
-        "X posts (Apify, or Context.dev when Apify has no credit) — so nothing repeats. Each job keeps its gap until "
-        "the owner stops it, and the Autopilot panel shows it. Do that yourself, then say what was set in short lines.\n"
+        "given), each from the newest scrape. Every scrape brings only items not seen before — news, Twitter, and Reddit — "
+        "so nothing repeats. The headlines are written into this chat and into Signals; a post made from them shows in "
+        "Posts. Telegram is only an extra copy. Each job keeps its gap until "
+        "the owner stops it, and the Autopilot panel shows it. Do that yourself, then say what was set in short lines. "
+        "Tell them the headlines are on their way into this chat and into Signals.\n"
         "- When the owner asks for campaigns from a site, a company, or a handle, call find_campaigns with "
         "what they want and where to look. Do that yourself.\n"
         "- When the owner names a company to learn from, or competitor posts, call study_brand with the "
@@ -108,8 +126,30 @@ def _system(tenant: str, summary: str) -> str:
         "which shows the owner a button. Nothing is ever published by you or by the pipeline.\n"
         "- When a tool returns a card, the chat shows it; refer to it in a sentence rather than repeating it.\n"
         "- Use as few tool calls as you need: list_runs already says why each run was blocked; open a run "
-        "with get_run only when the owner asks about that run."
+        "with get_run only when the owner asks about that run.\n"
+        "- Never say you set, started, stopped, scheduled, added or connected something unless a tool in this "
+        "turn returned success for it. When a tool returns an error or \"refused\", say plainly that it did not "
+        "happen and why, in the first line."
+        + _ROLE_RULES.get(role, "")
         + ("\n\nEARLIER IN THIS CONVERSATION (summary):\n" + summary if summary else ""))
+
+
+_FAIL_WORDS = ("did not", "didn't", "could not", "couldn't", "can't", "cannot", "not able", "unable",
+               "failed", "only the owner", "not available", "refused", "nahi", "nahin", "nhi")
+
+
+_CLAIMS = re.compile(r"\b(cadence set|schedule[ds]? (?:set|is set)|is now (?:on|active|scheduled)|set (?:to|for) every|"
+                     r"ready to start|started|launched|scheduled|stopped|paused|resumed|is on its way|are on their way)\b",
+                     re.IGNORECASE)
+
+
+def _claims_action(answer: str) -> bool:
+    return bool(_CLAIMS.search(answer[:600]))
+
+
+def _admits_failure(answer: str) -> bool:
+    head = answer[:400].lower()
+    return any(w in head for w in _FAIL_WORDS)
 
 
 def _contents(messages: list[dict]) -> list[dict]:
@@ -257,9 +297,13 @@ def _summarize(old: str, msgs: list[dict]) -> str:
 # --------------------------------------------------------------------- turn
 
 def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
-         cancelled: Callable[[], bool] = lambda: False, client: bool = False) -> Iterator[dict]:
-    """One turn. `client`: the speaker is the company's own client (a client
-    link), not the dashboard owner — no other companies, no onboarding."""
+         cancelled: Callable[[], bool] = lambda: False, client: bool = False,
+         role: str = "") -> Iterator[dict]:
+    """One turn. `role`: owner, client (the company's own client link — no
+    other companies, no onboarding) or visitor (the public link — read only).
+    An unknown role is a visitor."""
+    role = role if role in ("owner", "client", "visitor") else ("client" if client else "visitor")
+    client = role == "client"
     from pipeline.brand_brain import mcp_client as M
     M.enable()                                      # the assistant is an agent: brain reads go over MCP
     text = str(text or "").strip()[:8000]
@@ -280,15 +324,18 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
     if not thread_id or not ST.thread(tenant, thread_id):
         thread_id = ST.new_thread(tenant, text[:80])
     yield {"type": "thread", "thread_id": thread_id}
+    T.bind_thread(thread_id)
     ST.add_message(tenant, thread_id, "user", text)
     summary, recent = ST.history(tenant, thread_id)
     owner = _owner_words(recent[-6:])
     contents = _contents(recent)
-    base = {"systemInstruction": {"parts": [{"text": _system(tenant, summary)}]},
-            "tools": [{"functionDeclarations": T.declarations(client)}],
+    base = {"systemInstruction": {"parts": [{"text": _system(tenant, summary, role)}]},
+            "tools": [{"functionDeclarations": T.declarations(role=role)}],
             "generationConfig": {"temperature": 0.3, "maxOutputTokens": 2048}}
 
     meta: dict[str, Any] = {"tools": [], "cards": []}
+    failed: list[str] = []                           # action tools that did not do what was asked
+    done_ok: list[str] = []
     evidence: list[str] = []
     answer = ""
     try:
@@ -315,8 +362,9 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
             for c in calls:
                 name, args = c.get("name", ""), c.get("args") or {}
                 why = _gate(name, args, owner)
-                if client and name in T.CLIENT_BLOCKED:
-                    why = "not available on a company's client link"
+                if not T.allowed(name, role):
+                    why = ("not available on a company's client link" if role == "client"
+                           else "only the owner of this dashboard can do that")
                 if why:
                     result = {"error": "refused: " + why}
                     ST.audit(tenant, "assistant", "refused:" + name, {"args": args, "why": why}, thread_id)
@@ -324,6 +372,12 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
                     result = _run_tool(name, tenant, args)
                     if name in ("add_company", "analyse_competitors", "notion_connect") and "error" not in result:
                         ST.audit(tenant, "assistant", name, {"args": args, "asked": text[:300]}, thread_id)
+                if name in ACTION_TOOLS:
+                    err = result.get("error") if isinstance(result, dict) else None
+                    if err or (isinstance(result, dict) and result.get("ok") is False):
+                        failed.append(str(err or result.get("message") or "it did not go through")[:200])
+                    else:
+                        done_ok.append(name)
                 summ = _summary(name, result)
                 meta["tools"].append({"name": name, "summary": summ})
                 yield {"type": "tool", "name": name, "summary": summ}
@@ -352,6 +406,18 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
         yield {"type": "error", "error": meta["error"]}
 
     answer = answer.strip()
+    # The model must not report as done what a tool refused or failed. When
+    # an action failed and nothing else succeeded, the chat says so first,
+    # whatever the model wrote after it.
+    # A visitor's turn that changed nothing but reads as if it did (the
+    # model skipped the tool and answered from the owner's script).
+    if role == "visitor" and not done_ok and not failed and answer and _claims_action(answer) \
+            and not _admits_failure(answer):
+        failed.append("only the owner of this dashboard can set schedules or start posts; nothing was changed")
+    if failed and not done_ok and answer and not _admits_failure(answer):
+        note = "That did not happen: " + failed[0].removeprefix("refused: ") + "."
+        answer = note + "\n\n" + answer
+        yield {"type": "correction", "text": note}
     if not answer and not meta.get("error") and not meta.get("cancelled"):
         answer = "(no answer)"
     if answer and not meta.get("cancelled") and not meta.get("error"):

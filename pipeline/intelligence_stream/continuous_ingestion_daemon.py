@@ -37,6 +37,16 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 DB_EVIDENCE_FILE = BRAIN_DB_DIR / "evidence.jsonl"
 DB_OPPORTUNITIES_FILE = BRAIN_DB_DIR / "opportunities.jsonl"
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
+
+
+def _research_focus() -> dict:
+    """The sentence that turned research on. Empty when nobody named a source."""
+    try:
+        chosen = json.loads((STATE_DIR / "scheduler_intervals.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    brief = chosen.get("_research") if isinstance(chosen, dict) else None
+    return brief if isinstance(brief, dict) else {}
 CACHE_FILE = STATE_DIR / "intelligence_cache.json"
 
 
@@ -127,7 +137,7 @@ def _save_seen(keys: list[str]) -> None:
     path.write_text(json.dumps(keys[-400:], indent=2), encoding="utf-8")
 
 
-def _digest_items(signals: List[Any]) -> List[Dict[str, Any]]:
+def _digest_items(signals: List[Any], known: Optional[set] = None) -> List[Dict[str, Any]]:
     """The posts the writer should learn a shape from.
 
     Competitor posts with real reach come first, then short news and docs.
@@ -158,7 +168,12 @@ def _digest_items(signals: List[Any]) -> List[Dict[str, Any]]:
     def rank(row: Dict[str, Any]) -> tuple:
         kind_order = {"competitor": 0, "news": 1, "docs": 1, "community": 2, "market": 3}
         eng = row["engagement"] if isinstance(row["engagement"], int) else -1
-        return (kind_order.get(row["kind"], 9), -eng, row["words"])
+        url_key, text_key = _item_keys(row["headline"], row["source"])
+        keys = [key for key in (url_key, text_key) if key]
+        # A headline already shown loses to one that has not, or the same
+        # competitor posts fill every list and new stories never leave the machine.
+        unseen = 0 if keys and known and not any(key in known for key in keys) else 1
+        return (unseen, kind_order.get(row["kind"], 9), -eng, row["words"])
 
     rows.sort(key=rank)
     caps = {"competitor": 4, "news": 3, "docs": 3, "community": 2, "market": 2}
@@ -255,76 +270,54 @@ class ContinuousIngestionDaemon:
         print(f"\n📡 INTELLIGENCE SCOUT (AGENT 1): Initiating simultaneous parallel polling cycle {cycle_id}...")
 
         candidate_signals: List[Dict[str, Any]] = []
+        focus = _research_focus()
+        sources = {str(s) for s in (focus.get("sources") or [])}
+        narrow = bool(sources)
 
-        # Launch 8 concurrent workers across all intelligence channels simultaneously
+        def want(name: str) -> bool:
+            return (not narrow) or (name in sources)
+
+        # A sentence that names Twitter does not also pull news, Reddit, and chain fees.
         with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-            future_stellar = executor.submit(self._poll_stellar_horizon_fees)
-            future_blend = executor.submit(self._poll_blend_liquidity)
-            future_soroswap = executor.submit(self._poll_soroswap_liquidity)
-            future_liquidation = executor.submit(self._poll_liquidation_telemetry)
-            future_twitter = executor.submit(self.social_collector.collect_news_feed_signals)
-            future_reddit = executor.submit(self.social_collector.collect_reddit_signals)
-            future_telegram = executor.submit(self.social_collector.collect_telegram_signals)
-            future_docs = executor.submit(self.social_collector.collect_docs_and_blog_signals)
-            future_news = executor.submit(self.social_collector.collect_google_news_signals)
-            future_context = executor.submit(self.social_collector.collect_context_signals)
-            future_x = executor.submit(self.social_collector.collect_x_signals)
+            future_stellar = executor.submit(self._poll_stellar_horizon_fees) if want("chain") else None
+            future_blend = executor.submit(self._poll_blend_liquidity) if want("chain") else None
+            future_soroswap = executor.submit(self._poll_soroswap_liquidity) if want("chain") else None
+            future_liquidation = executor.submit(self._poll_liquidation_telemetry) if want("chain") else None
+            future_twitter = executor.submit(self.social_collector.collect_news_feed_signals) if want("news") else None
+            future_reddit = executor.submit(self.social_collector.collect_reddit_signals) if want("reddit") else None
+            future_telegram = executor.submit(self.social_collector.collect_telegram_signals) if want("telegram") else None
+            future_docs = executor.submit(self.social_collector.collect_docs_and_blog_signals) if want("sites") else None
+            future_news = executor.submit(self.social_collector.collect_google_news_signals) if want("news") else None
+            future_context = executor.submit(self.social_collector.collect_context_signals) if want("news") else None
+            future_x = executor.submit(
+                self.social_collector.collect_x_signals, focus.get("names") or None, bool(focus.get("one")),
+            ) if want("twitter") else None
 
             # Gather results concurrently
-            try:
-                candidate_signals.append(future_stellar.result(timeout=15))
-            except Exception as e:
-                print(f"   ⚠️ Stellar Horizon worker error: {e}")
+            def take(fut, timeout, label, many=False):
+                if fut is None:
+                    return
+                try:
+                    got = fut.result(timeout=timeout)
+                except Exception as e:
+                    print(f"   ⚠️ {label}: {e}")
+                    return
+                if many:
+                    candidate_signals.extend(got or [])
+                elif got:
+                    candidate_signals.append(got)
 
-            try:
-                candidate_signals.append(future_blend.result(timeout=15))
-            except Exception as e:
-                print(f"   ⚠️ Blend TVL worker error: {e}")
-
-            try:
-                candidate_signals.append(future_soroswap.result(timeout=15))
-            except Exception as e:
-                print(f"   ⚠️ Soroswap AMM worker error: {e}")
-
-            try:
-                candidate_signals.append(future_liquidation.result(timeout=15))
-            except Exception as e:
-                print(f"   ⚠️ Liquidation telemetry error: {e}")
-
-            try:
-                candidate_signals.extend(future_twitter.result(timeout=15))
-            except Exception as e:
-                print(f"   ⚠️ Twitter signals error: {e}")
-
-            try:
-                candidate_signals.extend(future_reddit.result(timeout=15))
-            except Exception as e:
-                print(f"   ⚠️ Reddit signals error: {e}")
-
-            try:
-                candidate_signals.extend(future_telegram.result(timeout=15))
-            except Exception as e:
-                print(f"   ⚠️ Telegram signals error: {e}")
-
-            try:
-                candidate_signals.extend(future_docs.result(timeout=15))
-            except Exception as e:
-                print(f"   ⚠️ Docs signals error: {e}")
-
-            try:
-                candidate_signals.extend(future_news.result(timeout=15))
-            except Exception as e:
-                print(f"   ⚠️ Market News signals error: {e}")
-
-            try:
-                candidate_signals.extend(future_context.result(timeout=30))
-            except Exception as e:
-                print(f"   ⚠️ Context.dev signals error: {e}")
-
-            try:
-                candidate_signals.extend(future_x.result(timeout=100))
-            except Exception as e:
-                print(f"   ⚠️ Competitor X posts error: {e}")
+            take(future_stellar, 15, "Stellar Horizon worker error")
+            take(future_blend, 15, "Blend TVL worker error")
+            take(future_soroswap, 15, "Soroswap AMM worker error")
+            take(future_liquidation, 15, "Liquidation telemetry error")
+            take(future_twitter, 15, "News feed error", many=True)
+            take(future_reddit, 15, "Reddit signals error", many=True)
+            take(future_telegram, 15, "Telegram signals error", many=True)
+            take(future_docs, 15, "Docs signals error", many=True)
+            take(future_news, 15, "Market News signals error", many=True)
+            take(future_context, 30, "Context.dev signals error", many=True)
+            take(future_x, 100, "Competitor X posts error", many=True)
 
         elapsed = round(time.time() - start_t, 2)
         new_evidence_count = 0
@@ -345,9 +338,9 @@ class ContinuousIngestionDaemon:
             else:
                 skipped_duplicates += 1
 
-        kept = _digest_items(candidate_signals)
         prior = _load_seen()
         known = set(prior)
+        kept = _digest_items(candidate_signals, known)
         fresh_keys: list[str] = []
         marked: list[Dict[str, Any]] = []
         for row in kept:
@@ -368,6 +361,11 @@ class ContinuousIngestionDaemon:
         }
         latest = STATE_DIR / "research_latest.json"
         latest.write_text(json.dumps(digest, indent=2), encoding="utf-8")
+        try:
+            from pipeline.scheduler.configurable_scheduler_daemon import deliver_research
+            deliver_research()
+        except Exception as exc:                   # noqa: BLE001 — the list is saved; delivery retries at the end
+            print(f"headline delivery skipped: {exc}")
         try:
             from pipeline.gtm_os.state_sync import push_state_files
             push_state_files([

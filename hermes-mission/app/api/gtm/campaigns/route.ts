@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
 import { lastJson, pythonPath, runPython, spawnHidden } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
+import { seesSince, viewerSince } from '@/lib/viewer';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,11 +12,16 @@ const TENANT = /^[a-z0-9][a-z0-9_-]{1,40}$/;
 export async function GET(req: Request) {
   const asked = (new URL(req.url).searchParams.get('tenant') || '').toLowerCase();
   if (asked && !TENANT.test(asked)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
-  const access = companyAccess('campaign research', asked || null);
+  const access = companyAccess('campaign research', asked || null, { publicRead: true });
   if (access instanceof NextResponse) return access;
   const tenant = access.tenant || asked || 'vanna';
   const r = await runPython(['-m', 'pipeline.gtm_os.campaigns', 'list', tenant], 60_000);
-  return NextResponse.json(lastJson(r.stdout) ?? { ok: false, error: r.stderr.slice(-300) || r.error || 'unavailable' });
+  const body: any = lastJson(r.stdout);
+  if (body && viewerSince() && Array.isArray(body.shelves)) {
+    const shelves = body.shelves.filter((s: any) => seesSince(s?.scraped_at));
+    return NextResponse.json({ ...body, shelves, count: shelves.length });
+  }
+  return NextResponse.json(body ?? { ok: false, error: r.stderr.slice(-300) || r.error || 'unavailable' });
 }
 
 /** Start a scrape. Query is what kind of campaign. Source is where, Galxe today. */

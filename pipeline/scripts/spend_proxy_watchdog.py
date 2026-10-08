@@ -80,9 +80,14 @@ def ensure_proxy_running() -> Dict[str, Any]:
         try:
             # Spawn detached background process
             if sys.platform == "win32":
+                exe = sys.executable
+                if exe.lower().endswith("python.exe"):
+                    windowless = exe[: -len("python.exe")] + "pythonw.exe"
+                    if os.path.isfile(windowless):
+                        exe = windowless
                 subprocess.Popen(
-                    [sys.executable, str(PROXY_SCRIPT)],
-                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS,
+                    [exe, str(PROXY_SCRIPT)],
+                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP | 0x08000000,
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                     cwd=str(REPO_ROOT)

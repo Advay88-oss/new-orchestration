@@ -117,7 +117,7 @@ secrets_flag() {
 COMMON_ENV="VANNA_STATE_BUCKET=${BUCKET},VANNA_CLOUD=1,GOOGLE_CLOUD_PROJECT=${PROJECT},VANNA_MEDIA_PROJECT=${PROJECT},VANNA_IMAGE_VIA=apikey,DASHBOARD_URL=${URL},VANNA_REGION=${REGION}"
 # Jobs with their own Cloud Scheduler cron stay off this list so the 2-minute
 # tick does not run them as well. Posts stay off until that cron is resumed.
-SCHEDULER_ONLY="brain_watch,github_commits,notion_sync,metrics_collect,ops_watch,campaigns_refresh"
+SCHEDULER_ONLY="research_collect,brain_watch,github_commits,notion_sync,metrics_collect,ops_watch,campaigns_refresh"
 
 step_jobs() {
   local img; img="$(image)"

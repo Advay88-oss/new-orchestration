@@ -19,6 +19,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+try:
+    from pipeline.ops.quiet_windows import install as _quiet_console
+    _quiet_console()
+except Exception:                               # noqa: BLE001 — starting the clock still matters
+    pass
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
 LOGS_DIR = REPO_ROOT / "pipeline" / "logs"
 PID_FILE = STATE_DIR / "daemon.pid"
@@ -120,15 +127,23 @@ def start_daemon(interval_seconds: int = 15) -> dict:
             "status": "BUDGET_EXHAUSTED"
         }
 
-    # Spawn background daemon process
+    # Spawn background daemon process. pythonw plus CREATE_NO_WINDOW: a console
+    # python.exe started from the dashboard (which has no console of its own)
+    # is the PowerShell window that used to open and stay open.
     log_fp = open(LOG_FILE, "a", encoding="utf-8")
-    cmd = [sys.executable, str(SCHEDULER_SCRIPT), "--daemon"]
+    exe = sys.executable
+    if sys.platform == "win32" and exe.lower().endswith("python.exe"):
+        windowless = exe[: -len("python.exe")] + "pythonw.exe"
+        if os.path.isfile(windowless):
+            exe = windowless
+    cmd = [exe, str(SCHEDULER_SCRIPT), "--daemon"]
 
-    # Windows creation flags for detached background execution.
+    # CREATE_NO_WINDOW, not DETACHED_PROCESS: Windows ignores CREATE_NO_WINDOW
+    # when DETACHED_PROCESS is also set, and then a console app still flashes.
     # BREAKAWAY so the scheduler keeps running after the shell that started it exits.
     creationflags = 0
     if sys.platform == "win32":
-        creationflags = subprocess.CREATE_NEW_PROCESS_GROUP | subprocess.DETACHED_PROCESS
+        creationflags = subprocess.CREATE_NEW_PROCESS_GROUP | 0x08000000
         breakaway = creationflags | getattr(subprocess, "CREATE_BREAKAWAY_FROM_JOB", 0)
     else:
         breakaway = 0

@@ -540,7 +540,36 @@ class SocialAndDocsCollector:
         m = re.search(r"/status/(\d+)", url or "")
         return "x:" + m.group(1) if m else "t:" + " ".join(re.sub(r"[^\w\s]", " ", text.lower()).split())[:100]
 
-    def collect_x_signals(self) -> List[Dict[str, Any]]:
+    def _chosen_accounts(self, only: Optional[List[str]] = None, one: bool = False) -> List[dict]:
+        """The protocol accounts this scrape should read.
+
+        A named protocol limits the list to that account. "One protocol"
+        rotates through the list so each run is a single account.
+        """
+        accounts = list(self._CFG.get("x_accounts") or [])
+        if only:
+            want = {str(w).lower().lstrip("@") for w in only if str(w).strip()}
+            accounts = [
+                a for a in accounts
+                if str(a.get("handle") or "").lower().lstrip("@") in want
+                or str(a.get("name") or "").lower() in want
+                or any(w in str(a.get("name") or "").lower() or w in str(a.get("handle") or "").lower()
+                       for w in want)
+            ]
+        if one and len(accounts) > 1:
+            path = self._X_STATE / "x_one_cursor.json"
+            try:
+                i = int(json.loads(path.read_text(encoding="utf-8")).get("i") or 0)
+            except (OSError, ValueError, TypeError):
+                i = 0
+            accounts = [accounts[i % len(accounts)]]
+            try:
+                path.write_text(json.dumps({"i": i + 1}), encoding="utf-8")
+            except OSError:
+                pass
+        return accounts
+
+    def collect_x_signals(self, only: Optional[List[str]] = None, one: bool = False) -> List[Dict[str, Any]]:
         """Competitors' own X posts, new ones only.
 
         Apify first (it reads the timeline, with likes and views). When it
@@ -551,10 +580,11 @@ class SocialAndDocsCollector:
         what is new since the last one.
         """
         seen = self._x_seen()
-        rows = self._x_via_apify()
+        accounts = self._chosen_accounts(only, one)
+        rows = self._x_via_apify(accounts)
         via = "apify"
         if not rows:
-            rows = self._x_via_context(seen)
+            rows = self._x_via_context(seen, accounts=accounts)
             via = "context.dev"
         fresh, keys = [], []
         for r in rows:
@@ -571,14 +601,16 @@ class SocialAndDocsCollector:
         self._x_remember(keys)
         return fresh
 
-    def _x_via_context(self, seen: set, per_run: int = 4, every_s: int = 1800) -> List[Dict[str, Any]]:
+    def _x_via_context(self, seen: set, per_run: int = 4, every_s: int = 1800,
+                       accounts: Optional[List[dict]] = None) -> List[Dict[str, Any]]:
         """Recent posts of each competitor X account, found with Context.dev.
 
         Search `site:x.com/<handle>/status` over the last week. To keep the
         cost down a run searches at most `per_run` accounts, the ones searched
         longest ago, and none more than once per `every_s` seconds.
         """
-        accounts = self._CFG.get("x_accounts") or []
+        if accounts is None:
+            accounts = self._CFG.get("x_accounts") or []
         if not accounts:
             return []
         try:
@@ -626,7 +658,7 @@ class SocialAndDocsCollector:
             pass
         return signals
 
-    def _x_via_apify(self) -> List[Dict[str, Any]]:
+    def _x_via_apify(self, accounts: Optional[List[dict]] = None) -> List[Dict[str, Any]]:
         """Recent posts from the protocols' X accounts, through an Apify actor.
 
         Needs APIFY_TOKEN (Apify's free plan carries monthly credit; the
@@ -643,7 +675,8 @@ class SocialAndDocsCollector:
         """
         token = _env("APIFY_TOKEN")
         cfg = dict(self._CFG.get("x_scraper") or {})
-        accounts = self._CFG.get("x_accounts") or []
+        if accounts is None:
+            accounts = self._CFG.get("x_accounts") or []
         if not token or not accounts or not cfg.get("enabled", True):
             return []
         per = int(cfg.get("per_account", 3))

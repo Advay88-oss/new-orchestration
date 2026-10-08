@@ -44,7 +44,7 @@ export function ownerOnly(what: string): NextResponse | null {
  * the hybrid deployment where the pipeline is not in the cloud).
  */
 export function companyAccess(what: string, requested?: string | null,
-                              opts: { write?: boolean } = {}): { tenant: string | null } | NextResponse {
+                              opts: { write?: boolean; publicRead?: boolean; publicChat?: boolean } = {}): { tenant: string | null } | NextResponse {
   if (opts.write && isDeployed() && !cloudMode()) return localOnly(what) as NextResponse;
   if (isOwner()) return { tenant: requested || null };
   const own = clientTenant();
@@ -54,6 +54,17 @@ export function companyAccess(what: string, requested?: string | null,
                                { status: 403 });
     }
     return { tenant: own };
+  }
+  // The public link can read this company's chats, name and research, and
+  // can talk to the assistant (scrape, sources, a post). It cannot open
+  // another company. The schedule drawer stays with the owner.
+  if ((opts.publicRead && !opts.write) || opts.publicChat) {
+    const tenant = String(process.env.BRAIN_TENANT || 'vanna').toLowerCase();
+    if (requested && requested !== tenant) {
+      return NextResponse.json({ success: false, ok: false, error: `${what}: this link is for ${tenant} only.` },
+                               { status: 403 });
+    }
+    return { tenant };
   }
   return NextResponse.json(
     { success: false, ok: false, owner_only: true, error: `${what} is for the owner of this dashboard.` },

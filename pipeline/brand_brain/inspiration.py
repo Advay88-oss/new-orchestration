@@ -746,12 +746,17 @@ def organise_from_watch(tenant: str = "vanna") -> dict[str, Any]:
         import subprocess
         from pathlib import Path
         root = str(Path(__file__).resolve().parents[2])
+        exe = sys.executable
+        if os.name == "nt" and exe.lower().endswith("python.exe"):
+            windowless = exe[: -len("python.exe")] + "pythonw.exe"
+            if os.path.isfile(windowless):
+                exe = windowless
         subprocess.Popen(
-            [sys.executable, "-m", "pipeline.brand_brain.inspiration", "refresh", tenant, started],
+            [exe, "-m", "pipeline.brand_brain.inspiration", "refresh", tenant, started],
             cwd=root,
             env={**os.environ, "PYTHONPATH": root},
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-            creationflags=getattr(subprocess, "DETACHED_PROCESS", 0) if os.name == "nt" else 0,
+            creationflags=0x08000000 if os.name == "nt" else 0,
             start_new_session=os.name != "nt",
         )
     return {"ok": True, "added": added, "refreshing": started}

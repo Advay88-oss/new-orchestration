@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { ownerOnly } from '@/lib/local-only';
 import fs from 'fs';
 import path from 'path';
 import { manifest, queueCounts, workerHealth, listRunIds, runView, REPO_ROOT } from '@/lib/v2';
@@ -37,6 +38,8 @@ function age(ts: number | null | undefined): string {
  * something observable on disk right now.
  */
 export async function GET() {
+  const denied = ownerOnly('the v2 pipeline');
+  if (denied) return denied;
   const stages = manifest();
   const worker = workerHealth();
   const queue = queueCounts();

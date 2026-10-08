@@ -41,6 +41,7 @@ export async function POST(req: Request) {
 
   // The owner runs any company (default: the dashboard's tenant); a client
   // only their own, and at most CLIENT_RUNS_PER_DAY a day, video included.
+  // A visitor to the public link cannot start paid work.
   const access = companyAccess('starting a run', asked, { write: true });
   if (access instanceof NextResponse) return access;
   const tenant = access.tenant || process.env.BRAIN_TENANT || 'vanna';
@@ -50,7 +51,7 @@ export async function POST(req: Request) {
   }
   // A cycle costs model calls and a Veo render: at most 6 launches an hour
   // (the pipeline also caps cycles per day, and the daily budget holds).
-  if (!allow('launch', 6, 3_600_000)) {
+  if (!allow(clientTenant() ? 'launch:' + tenant : 'launch:owner', 6, 3_600_000)) {
     return NextResponse.json({ success: false, error: 'too many launches: the limit is 6 an hour' }, { status: 429 });
   }
 

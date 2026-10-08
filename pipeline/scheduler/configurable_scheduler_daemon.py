@@ -27,6 +27,12 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+try:
+    from pipeline.ops.quiet_windows import install as _quiet_console
+    _quiet_console()
+except Exception:                               # noqa: BLE001 — a missing helper must not stop the clock
+    pass
+
 CONFIG_FILE = REPO_ROOT / "config" / "scheduler.yaml"
 STATE_DIR = REPO_ROOT / "pipeline" / "state"
 PANELS_DIR = REPO_ROOT / "state" / "panels"
@@ -571,12 +577,18 @@ class SchedulerEngine:
         daemon = ContinuousIngestionDaemon()
         poll_res = daemon.run_single_poll()
 
-        # Also execute live web research to update research run artifacts
-        try:
-            from pipeline.research.run_live_research import run_live
-            run_live()
-        except Exception as e:
-            print(f"⚠️ Live research run notice: {e}")
+        # A website crawl of three fixed protocols used to follow every scrape,
+        # so "Twitter, every minute" still spent five minutes on news sites.
+        # Sites run only when the sentence asked for them.
+        brief = _read_intervals().get("_research")
+        brief = brief if isinstance(brief, dict) else {}
+        if brief.get("sites"):
+            try:
+                from pipeline.research.run_live_research import run_live
+                names = brief.get("names") or []
+                run_live(str(names[0]) if names else None)
+            except Exception as e:
+                print(f"⚠️ Live research run notice: {e}")
 
         self.log_spend("research_collect", "gemini-3.8-flash", 3100, 1450, 0.0058)
         return poll_res
@@ -603,6 +615,31 @@ class SchedulerEngine:
         return {"success": True, "count": out.get("count"), "source": source or "galxe"}
 
 
+def _remember_on_since() -> None:
+    """A job that is on keeps the moment it was turned on, so Autopilot can
+    say how long it has been running without anyone restating the plan."""
+    chosen = _read_intervals()
+    on = {str(n) for n in (chosen.get("_on") or []) if str(n)}
+    since = dict(chosen.get("_on_since")) if isinstance(chosen.get("_on_since"), dict) else {}
+    now = datetime.now(timezone.utc).isoformat()
+    changed = False
+    for name in list(since):
+        if name not in on:
+            since.pop(name, None)
+            changed = True
+    for name in on:
+        if not since.get(name):
+            since[name] = now
+            changed = True
+    if not changed:
+        return
+    chosen["_on_since"] = since
+    try:
+        _write_intervals(chosen)
+    except Exception as exc:                        # noqa: BLE001 — the clock still runs; the stamp is retried next start
+        print("on-since not saved: " + str(exc)[:160])
+
+
 def run_scheduler_daemon_loop(poll_interval_s: int = 15):
     """Main daemon loop running 24/7, checking next run times and executing overdue jobs."""
     print("=" * 80)
@@ -613,6 +650,8 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
     print("=" * 80)
 
     from pipeline.scheduler import cloud_cron
+
+    _remember_on_since()
 
     # A daemon that died mid-job left RUNNING behind; without this the job
     # would be skipped as "still running" for half an hour.
@@ -916,14 +955,14 @@ _GAP = r"(\d+)\s*(minutes|minute|mins|min|minut|m|hours|hour|hrs|hr|h|ghante|gha
 # A gap with no recognised job used to become a post. Each phrase here is a
 # real pipeline job. "post" is the only phrase that schedules a post.
 _JOB_WORDS = (
-    ("research_collect", re.compile(r"\b(scrape|scraping|scraped|fresh data|headlines|news|research|competitors?|twitter|tweets?|social|socials|accounts?|handles?|x posts)\b")),
+    ("research_collect", re.compile(r"\b(scrape|scraping|scraped|fetch|fresh data|headlines|news|research|competitors?|twitter|tweets?|reddit|social|socials|accounts?|handles?|x posts|protocols?|defi)\b")),
     ("campaigns_refresh", re.compile(r"\b(campaigns?|galxe)\b")),
     ("trend_scan", re.compile(r"\btrends?\b")),
     ("ideas_panel", re.compile(r"\bideas\b")),
     ("memes_panel", re.compile(r"\bmemes?\b")),
     ("github_commits", re.compile(r"\b(github|commits?)\b")),
     ("notion_sync", re.compile(r"\bnotion\b")),
-    ("brain_watch", re.compile(r"\b(reddit|brand watch|listens?)\b")),
+    ("brain_watch", re.compile(r"\b(brand watch|listens?)\b")),
     ("metrics_collect", re.compile(r"\b(metrics|engagement|impressions)\b")),
     ("ops_watch", re.compile(r"\b(health|ops)\b")),
     ("gtm_cycle", re.compile(r"\bposts?\b")),
@@ -957,6 +996,171 @@ _LANDS = {
 }
 
 
+NEWS_CHAT = STATE_DIR / "news_chat.json"
+
+
+def remember_news_chat(tenant: str, thread_id: str) -> None:
+    """The chat that asked for news, so the scrape can answer there."""
+    if not tenant or not thread_id:
+        return
+    try:
+        NEWS_CHAT.write_text(json.dumps({"tenant": tenant, "thread_id": thread_id}), encoding="utf-8")
+    except OSError:
+        return
+    try:
+        from pipeline.gtm_os.state_sync import push_state_files
+        push_state_files(["pipeline/state/news_chat.json"])
+    except Exception:                               # noqa: BLE001 — the local file is what this machine reads
+        pass
+
+
+def _digest_headlines(limit: int = 12) -> list[dict]:
+    """Headlines this scrape marked as new. The same rows are what Signals lists."""
+    try:
+        latest = json.loads((STATE_DIR / "research_latest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    out: list[dict] = []
+    for row in latest.get("items") or []:
+        if not isinstance(row, dict) or row.get("fresh") is False:
+            continue
+        head = " ".join(str(row.get("headline") or "").split())
+        named = re.match(r"^\[([^\]]+)\]\s*", head)
+        title = head[named.end():].strip() if named else head
+        if not title:
+            continue
+        source = str(row.get("source") or "")
+        out.append({
+            "title": title[:180],
+            "who": named.group(1).replace(" Telegram", "") if named else "",
+            "url": source if source.startswith("http") else "",
+            "kind": str(row.get("kind") or row.get("source_type") or ""),
+        })
+        if len(out) >= limit:
+            break
+    return out
+
+
+def _post_news_to_chat(text: str, items: list[dict]) -> None:
+    try:
+        rec = json.loads(NEWS_CHAT.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    tenant = str(rec.get("tenant") or "")
+    thread_id = str(rec.get("thread_id") or "")
+    if not tenant or not thread_id:
+        return
+    try:
+        from pipeline.assistant import store as ST
+        meta = {"cards": [{"type": "news", "items": items}]} if items else None
+        ST.add_message(tenant, thread_id, "assistant", text, meta)
+    except Exception:                               # noqa: BLE001 — Telegram and Signals still have the scrape
+        pass
+
+
+_NEWS_KEYS: list[str] = []
+DELIVERED = STATE_DIR / "research_delivered.json"
+NOTICES = STATE_DIR / "notices.json"
+
+
+def _mark_news_sent(keys: list[str]) -> None:
+    sent_file = STATE_DIR / "telegram_sent_news.json"
+    try:
+        sent = set(json.loads(sent_file.read_text(encoding="utf-8")))
+    except (OSError, ValueError):
+        sent = set()
+    try:
+        sent_file.write_text(json.dumps(list(sent | set(keys))[-4000:]), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _write_notice(stamp: str, items: list[dict]) -> None:
+    """A note the dashboard shows when headlines land in Signals."""
+    if not items:
+        return
+    try:
+        prev = json.loads(NOTICES.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        prev = []
+    if not isinstance(prev, list):
+        prev = []
+    title = str(len(items)) + " new " + ("headline" if len(items) == 1 else "headlines") + " in Signals"
+    body = " · ".join(it["title"] for it in items[:3])[:240]
+    row = {"id": stamp, "at": stamp, "title": title, "body": body, "section": "scraped", "count": len(items)}
+    prev = [n for n in prev if isinstance(n, dict) and n.get("id") != stamp]
+    prev.insert(0, row)
+    try:
+        NOTICES.write_text(json.dumps(prev[:20], ensure_ascii=False), encoding="utf-8")
+    except OSError:
+        return
+    try:
+        from pipeline.gtm_os.state_sync import push_state_files
+        push_state_files(["pipeline/state/notices.json", "pipeline/state/research_latest.json"])
+    except Exception:                               # noqa: BLE001 — the local notice is enough here
+        pass
+
+
+def deliver_research() -> None:
+    """Headlines are in Signals the moment the scrape saves them.
+
+    Telegram, the chat that asked, and a dashboard notice go out then too.
+    The slower site research that follows does not hold them back. A failed
+    Telegram send is tried again; the chat and the notice are written once.
+    """
+    try:
+        latest = json.loads((STATE_DIR / "research_latest.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return
+    stamp = str(latest.get("collected_at") or "")
+    if not stamp:
+        return
+    try:
+        done = json.loads(DELIVERED.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        done = {}
+    if not isinstance(done, dict):
+        done = {}
+    if done.get("collected_at") != stamp:
+        items = _digest_headlines()
+        if items:
+            file_news_in_chat()
+            _write_notice(stamp, items)
+        done = {"collected_at": stamp, "telegram": False}
+    if not done.get("telegram"):
+        text = _telegram_body("research_collect", {}, "Headlines and competitor posts", "Signals")
+        if not text:
+            done["telegram"] = True
+        else:
+            try:
+                from pipeline.gtm_os.telegram_sender import send_note
+                sent = send_note(text[:3500])
+            except Exception as exc:                # noqa: BLE001 — the next pass tries Telegram again
+                sent = {"sent": False, "reason": str(exc)[:160]}
+            if sent.get("sent"):
+                _mark_news_sent(_NEWS_KEYS)
+                done["telegram"] = True
+                print("telegram: headlines sent")
+            else:
+                print("telegram: headlines not sent: " + str(sent.get("reason") or "")[:160])
+    try:
+        DELIVERED.write_text(json.dumps(done), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def file_news_in_chat() -> None:
+    """Write this scrape's headlines into the chat that asked, when there are any."""
+    items = _digest_headlines()
+    if not items:
+        return
+    lines = ["Here is what just came in. The same list is in Signals.", ""]
+    for it in items:
+        who = (it["who"] + ": ") if it.get("who") else ""
+        lines.append("• " + who + it["title"])
+    _post_news_to_chat("\n".join(lines), items)
+
+
 def _telegram_result(job_name: str, result: dict) -> None:
     """Every finished cron sends its result to Telegram. A post already does, inside the cycle."""
     if job_name == "gtm_cycle":
@@ -968,6 +1172,14 @@ def _telegram_result(job_name: str, result: dict) -> None:
         text = label + " failed.\n" + " ".join(str(result.get("error") or "").split())[:800]
     else:
         text = _telegram_body(job_name, result, label, where)
+    if job_name == "research_collect":
+        # The scrape already delivered this when it saved the list. This call
+        # only retries Telegram if that send did not land.
+        if failed:
+            _post_news_to_chat(text or "The scrape failed.", [])
+        else:
+            deliver_research()
+            return
     if not text:
         return
     try:
@@ -1024,11 +1236,10 @@ def _telegram_body(job_name: str, result: dict, label: str, where: str) -> str:
             lines.append("• " + ((who + ": ") if who else "") + title[:180])
         if len(fresh) > len(shown):
             lines.append("… and " + str(len(fresh) - len(shown)) + " more in Signals.")
-        try:
-            keep = list(sent | seen)[-4000:]
-            sent_file.write_text(json.dumps(keep), encoding="utf-8")
-        except OSError:
-            pass
+        # Remember the keys. They are marked sent only after Telegram accepts
+        # the note, so a failed send is tried again next time.
+        global _NEWS_KEYS
+        _NEWS_KEYS = list(seen)
     else:
         for key in ("count", "memes_count", "ideas_count", "trends_count", "signals_ingested", "note", "source"):
             if result.get(key) not in (None, "", [], {}):
@@ -1083,6 +1294,9 @@ def parse_tell(text: str) -> dict:
     hour = re.search(r"\bevery hour\b", low)
     if hour and not any(unit.endswith("h") for _, _, unit in intervals):
         intervals.append((hour.start(), 60, "1h"))
+    bare_min = re.search(r"\b(?:every|har)\s+(?:minute|min)\b", low)
+    if bare_min and not any(minutes == 1 and unit.endswith("m") for _, minutes, unit in intervals):
+        intervals.append((bare_min.start(), 1, "1m"))
     mentioned = []
     for name, cre in _JOB_WORDS:
         for m in cre.finditer(low):
@@ -1295,6 +1509,170 @@ class _TellLock:
         self.path.unlink(missing_ok=True)
 
 
+def _running_in_cloud() -> bool:
+    from pipeline.gtm_os.state_sync import in_cloud
+    return in_cloud()
+
+
+def _kick_cloud_research() -> str:
+    """Start one scrape on the Cloud Run job. The 2-minute tick repeats it
+    until the plan says stop. This process does not keep the loop itself."""
+    import urllib.request
+    project = os.environ.get("GOOGLE_CLOUD_PROJECT") or os.environ.get("VANNA_MEDIA_PROJECT") or ""
+    region = os.environ.get("VANNA_REGION") or "us-central1"
+    job = os.environ.get("VANNA_PIPELINE_JOB") or "vanna-gtm-pipeline"
+    if not project:
+        return "The plan is saved. The next scrape starts on the clock."
+    try:
+        req = urllib.request.Request(
+            "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token",
+            headers={"Metadata-Flavor": "Google"},
+        )
+        token = json.loads(urllib.request.urlopen(req, timeout=5).read().decode())["access_token"]
+        url = ("https://run.googleapis.com/v2/projects/" + project + "/locations/" + region
+               + "/jobs/" + job + ":run")
+        body = json.dumps({"overrides": {"containerOverrides": [{
+            "args": ["job", "sched", "--job", "research_collect"],
+        }], "taskCount": 1}}).encode()
+        call = urllib.request.Request(url, data=body, headers={
+            "Authorization": "Bearer " + token, "Content-Type": "application/json",
+        })
+        with urllib.request.urlopen(call, timeout=20) as resp:
+            if resp.status >= 300:
+                return "The plan is saved. The next scrape starts on the clock."
+    except Exception as exc:                        # noqa: BLE001 — the tick still runs the saved plan
+        return "The plan is saved. The next scrape starts on the clock. (" + str(exc)[:80] + ")"
+    return "The first scrape has started. It repeats on that gap until you say stop."
+
+
+def _scrape_on_this_machine() -> None:
+    def _scrape_now() -> None:
+        try:
+            result = SchedulerEngine().execute_job("research_collect", force=True)
+        except Exception as exc:                    # noqa: BLE001 — the schedule is already saved
+            _post_news_to_chat("The scrape did not finish: " + str(exc)[:160], [])
+            return
+        if result.get("status") == "SKIPPED_STILL_RUNNING":
+            _post_news_to_chat(
+                "A scrape is already running. Headlines will show in this chat and in Signals when it finishes.",
+                [],
+            )
+            return
+        failed = result.get("status") == "FAILED" or result.get("success") is False
+        if not failed and not _digest_headlines():
+            _post_news_to_chat(
+                "The scrape finished. Nothing new this time. Signals still has what was already read.",
+                [],
+            )
+
+    threading.Thread(target=_scrape_now, name="research-now", daemon=True).start()
+
+
+def _research_brief(text: str) -> dict:
+    """What this sentence asked to scrape. Twitter stays Twitter. News is
+    added only when the sentence asks for news."""
+    low = " ".join(str(text or "").lower().split())
+    sources: list[str] = []
+    if re.search(r"\b(twitter|tweets?|x\.com)\b", low) or re.search(r"\bon x\b", low):
+        sources.append("twitter")
+    if re.search(r"\breddit\b", low):
+        sources.append("reddit")
+    if re.search(r"\btelegram\b", low):
+        sources.append("telegram")
+    if re.search(r"\b(news|headlines)\b", low) and not re.fullmatch(
+            r"(?:please\s+)?(?:start|stop|pause|resume)\s+(?:the\s+)?(?:headlines|news)", low,
+    ):
+        sources.append("news")
+    if re.search(r"\b(docs|blog|blogs|website|websites|site)\b", low):
+        sources.append("sites")
+    topic = " ".join(part for part in (
+        "DeFi" if re.search(r"\bdefi\b", low) else "",
+        "protocols" if re.search(r"\bprotocols?\b", low) else "",
+    ) if part)
+    found = re.findall(
+        r"\b(morpho|aave|gearbox|euler|derive|compound|spark|fluid|pendle|ethena|sky|maker|blend|uniswap|hyperliquid)\b",
+        low,
+    )
+    names: list[str] = []
+    for name in found:
+        if name not in names:
+            names.append(name)
+    one = bool(re.search(r"\b(one|single|ek)\s+protocols?\b", low))
+    if not sources and (topic or names):
+        sources = ["twitter"]
+    return {
+        "ask": " ".join(str(text or "").split())[:240],
+        "sources": sources,
+        "topic": topic,
+        "one": one or bool(names),
+        "names": names[:4],
+        "sites": "sites" in sources,
+    }
+
+
+def _research_sentence(brief: dict, gap: str) -> str:
+    """The line the chat shows: the ask, the gap, where it lands."""
+    sources = [str(s) for s in (brief.get("sources") or [])]
+    bits: list[str] = []
+    topic = str(brief.get("topic") or "").strip()
+    if topic:
+        bits.append(topic)
+    if brief.get("names") and not topic:
+        bits.append(", ".join(str(n).title() for n in brief["names"]))
+    if "twitter" in sources:
+        bits.append("on Twitter")
+    if "reddit" in sources:
+        bits.append("on Reddit")
+    if "telegram" in sources:
+        bits.append("on Telegram")
+    if "news" in sources:
+        bits.append("from the news")
+    if brief.get("sites"):
+        bits.append("from their sites")
+    subject = " ".join(bits).strip()
+    if brief.get("one"):
+        subject = (subject + ", one protocol at a time").strip(", ")
+    if not subject:
+        subject = "Headlines and competitor posts"
+    subject = subject[0].upper() + subject[1:]
+    return subject + (" every " + gap if gap else "") + ". It shows in Signals."
+
+
+def _tick_cron(interval: str) -> str:
+    """Cloud Scheduler cron for the gap they asked. One minute is the shortest."""
+    try:
+        minutes = max(1, int(parse_interval_to_seconds(interval) / 60))
+    except Exception:                               # noqa: BLE001 — a bad gap stays on the two-minute clock
+        return "*/2 * * * *"
+    if minutes == 1:
+        return "* * * * *"
+    if minutes < 60 and 60 % minutes == 0:
+        return "*/" + str(minutes) + " * * * *"
+    if minutes % 60 == 0:
+        hours = min(24, minutes // 60)
+        return "0 * * * *" if hours == 1 else "0 */" + str(hours) + " * * *"
+    return "*/2 * * * *"
+
+
+def _steer_research_clock(chosen: dict, action: str) -> str:
+    """On the public site the cloud clock follows this sentence. The laptop
+    keeps its own scheduler and does not resume that clock."""
+    if not _running_in_cloud():
+        return ""
+    from pipeline.scheduler.cloud_cron import steer_tick
+    research_on = "research_collect" in set(chosen.get("_on") or []) and "research_collect" not in set(chosen.get("_paused") or [])
+    if research_on and action in ("plan", "start"):
+        cron = _tick_cron(str(chosen.get("research_collect") or "2m"))
+        ok_s, _why_s = steer_tick("schedule", cron)
+        ok_r, _why_r = steer_tick("resume")
+        if ok_s and ok_r:
+            return ""
+        return "The plan is saved. The clock did not start yet."
+    if not research_on and action == "stop":
+        steer_tick("pause")
+    return ""
+
+
 def apply_tell(text: str) -> dict:
     """The owner says the whole plan in one sentence. Each named job follows its own gap."""
     with _TellLock():
@@ -1308,6 +1686,7 @@ def _apply_tell(text: str) -> dict:
     on = {str(n) for n in (chosen.get("_on") or []) if str(n)}
     until = parsed.get("until") or ""
     lines: list[str] = []
+    applied: set[str] = set()
     if parsed["action"] == "stop" and parsed.get("jobs") == ["@owner"]:
         parsed["jobs"] = sorted(on | {"gtm_cycle"})
     if parsed["action"] == "stop":
@@ -1363,10 +1742,17 @@ def _apply_tell(text: str) -> dict:
             paused.discard(name)
             on.add(name)
             applied.add(name)
-            label = _LABELS.get(name, name)
             gap = interval or str(chosen.get(name) or spec.get("interval") or "")
-            lands = _LANDS.get(name, "the dashboard")
-            lines.append(label + (" every " + gap if gap else " is on") + ". It shows in " + lands + ".")
+            if name == "research_collect":
+                brief = _research_brief(text)
+                if brief.get("sources") or brief.get("topic") or brief.get("names"):
+                    chosen["_research"] = brief
+                saved = chosen.get("_research") if isinstance(chosen.get("_research"), dict) else {}
+                lines.append(_research_sentence(saved, gap))
+            else:
+                label = _LABELS.get(name, name)
+                lands = _LANDS.get(name, "the dashboard")
+                lines.append(label + (" every " + gap if gap else " is on") + ". It shows in " + lands + ".")
         if "campaigns_refresh" in applied:
             source = "galxe" if re.search(r"\bgalxe\b", text.lower()) else ""
             prev = chosen.get("_campaigns") if isinstance(chosen.get("_campaigns"), dict) else {}
@@ -1407,6 +1793,13 @@ def _apply_tell(text: str) -> dict:
             lines.append("Posts stop when you say stop.")
     chosen["_paused"] = sorted(paused)
     chosen["_on"] = sorted(on)
+    since = chosen.get("_on_since") if isinstance(chosen.get("_on_since"), dict) else {}
+    now = datetime.now(timezone.utc).isoformat()
+    for name in on:
+        since.setdefault(str(name), now)
+    for name in paused:
+        since.pop(str(name), None)
+    chosen["_on_since"] = since
     cron_state: dict = {}
     try:
         from pipeline.scheduler.cloud_cron import sync_plan
@@ -1439,6 +1832,17 @@ def _apply_tell(text: str) -> dict:
                              + "), so this machine makes them. Keep it on.")
         else:
             lines.append("This machine makes them, so keep it on. The first one starts within a minute.")
+    if "research_collect" in on and "research_collect" not in paused and parsed["action"] in ("plan", "start"):
+        brief = chosen.get("_research") if isinstance(chosen.get("_research"), dict) else {}
+        where = "on Twitter" if brief.get("sources") == ["twitter"] else ""
+        lines.append("Looking " + (where + " " if where else "") + "now. What comes in shows in this chat and in Signals.")
+        if _running_in_cloud():
+            lines.append(_kick_cloud_research())
+        else:
+            _scrape_on_this_machine()
+    clock_note = _steer_research_clock(chosen, parsed["action"])
+    if clock_note:
+        lines.append(clock_note)
     message = "\n".join(lines) or "Set."
     return {
         "ok": True,

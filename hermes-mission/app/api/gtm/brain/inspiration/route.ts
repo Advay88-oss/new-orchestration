@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { companyAccess } from '@/lib/local-only';
 import { lastJson, pythonPath, runPython, spawnHidden } from '@/lib/python';
 import { REPO_ROOT } from '@/lib/v2';
+import { seesSince, viewerSince } from '@/lib/viewer';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,11 +39,16 @@ function xHandle(raw: string): string {
 export async function GET(req: Request) {
   const asked = (new URL(req.url).searchParams.get('tenant') || '').toLowerCase();
   if (asked && !TENANT.test(asked)) return NextResponse.json({ ok: false, error: 'bad tenant' }, { status: 400 });
-  const access = companyAccess('the brands this company learns from', asked || null);
+  const access = companyAccess('the brands this company learns from', asked || null, { publicRead: true });
   if (access instanceof NextResponse) return access;
   const tenant = access.tenant || asked;
   const r = await runPython(['-m', 'pipeline.brand_brain.mcp_call', 'inspiration', 'list', ...(tenant ? [tenant] : [])], 60_000);
-  return NextResponse.json(lastJson(r.stdout) ?? { ok: false, error: r.stderr.slice(-300) || r.error || 'unavailable' });
+  const body: any = lastJson(r.stdout);
+  if (body && viewerSince()) {
+    const key = ['brands', 'items', 'studies'].find((k) => Array.isArray(body[k]));
+    if (key) return NextResponse.json({ ...body, [key]: body[key].filter((b: any) => seesSince(b?.added_at)) });
+  }
+  return NextResponse.json(body ?? { ok: false, error: r.stderr.slice(-300) || r.error || 'unavailable' });
 }
 
 export async function POST(req: Request) {
