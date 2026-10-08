@@ -8,6 +8,7 @@ jobs alone so they are not run twice.
 from __future__ import annotations
 
 import json
+import sys
 import os
 import shutil
 import subprocess
@@ -290,8 +291,19 @@ def tick_live(max_age_s: float = 600) -> bool:
     if _TICK_SEEN and _t.time() - float(_TICK_SEEN.get("at", 0)) < max_age_s:
         return bool(_TICK_SEEN.get("live"))
     crons = live_crons()
-    live = bool(crons and TICK in crons)
-    _TICK_SEEN.update(at=_t.time(), live=live)
+    if crons is None:
+        # GCP could not be asked (an expired sign-in, no network). Not knowing
+        # is not "paused": keep the last answer this machine had, and retry in
+        # a minute. With no answer ever, assume GCP has the clock, so this
+        # machine mirrors instead of risking a job running in both places.
+        if "live" not in _TICK_SEEN:
+            print("[cloud_cron] cannot reach GCP to see who keeps the clock; this machine waits "
+                  "(sign in: gcloud auth application-default login)", file=sys.stderr)
+        live = bool(_TICK_SEEN.get("live", True))
+        _TICK_SEEN.update(at=_t.time() - max_age_s + 60, live=live, unknown=True)
+    else:
+        live = TICK in crons
+        _TICK_SEEN.update(at=_t.time(), live=live, unknown=False)
     try:
         cache.write_text(json.dumps(_TICK_SEEN), encoding="utf-8")
     except OSError:

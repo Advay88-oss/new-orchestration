@@ -45,8 +45,18 @@ VERSION = "2022-06-28"
 AGENT = "BRAIN_notion"
 
 
+def _env_token_tenants() -> set[str]:
+    """Which tenants the workspace-wide NOTION_TOKEN belongs to: the ones
+    listed in NOTION_TOKEN_TENANTS, else only the primary tenant."""
+    from pipeline.intelligence_stream.social_and_docs_collector import _env
+    listed = str(_env("NOTION_TOKEN_TENANTS") or "")
+    return {t.strip().lower() for t in listed.split(",") if t.strip()} or {"vanna"}
+
+
 def _token(tenant: Optional[str] = None) -> Optional[str]:
-    """The tenant's OAuth token (encrypted at rest), else NOTION_TOKEN."""
+    """The tenant's OAuth token (encrypted at rest), else NOTION_TOKEN — but
+    the env token only for the tenant(s) it belongs to. Falling back to it for
+    every tenant copied Vanna's workspace into each other company's brain."""
     if tenant:
         try:
             from pipeline.brand_brain.notion_oauth import token
@@ -55,6 +65,8 @@ def _token(tenant: Optional[str] = None) -> Optional[str]:
                 return t
         except Exception:                           # noqa: BLE001 — fall back to the env token
             pass
+        if tenant.lower() not in _env_token_tenants():
+            return None
     from pipeline.intelligence_stream.social_and_docs_collector import _env
     return _env("NOTION_TOKEN")
 

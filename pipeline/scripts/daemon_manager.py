@@ -48,11 +48,18 @@ def is_process_running(pid: int) -> bool:
     if pid <= 0:
         return False
     if sys.platform == "win32":
+        # The pid must belong to a Python process: Windows reuses pids, and
+        # an unrelated program on the old pid made a dead daemon look alive.
         try:
-            out = subprocess.check_output(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV"], text=True)
-            return str(pid) in out
+            out = subprocess.check_output(["tasklist", "/FI", f"PID eq {pid}", "/FO", "CSV", "/NH"],
+                                          text=True, creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
         except Exception:
             return False
+        for line in out.splitlines():
+            cells = [c.strip('"') for c in line.split('","')]
+            if len(cells) > 1 and cells[1].strip('"') == str(pid):
+                return cells[0].lower().startswith("python")
+        return False
     else:
         try:
             os.kill(pid, 0)

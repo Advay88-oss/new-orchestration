@@ -34,6 +34,12 @@ STATE = REPO / "pipeline" / "state"
 RUNS = STATE / "gtm_runs"
 LEDGER = STATE / "feedback.jsonl"
 
+
+def ledger_path() -> Path:
+    """This tenant's decisions (pipeline/gtm_learning/tenant_paths.py)."""
+    from pipeline.gtm_learning.tenant_paths import tenant_file
+    return tenant_file(LEDGER)
+
 # Reward per decision. Revise is not a failure — the founder thought it was
 # worth fixing — so it sits between the two, closer to kill than approve.
 # "edit" is an approval of the founder's edited version: the draft was not
@@ -127,7 +133,7 @@ def record(run_id: str, verdict: str, note: str = "", *,
     tmp.replace(fb_file)
 
     from pipeline.gtm_storage.atomic_store import AtomicJsonlStore
-    AtomicJsonlStore(LEDGER).append(row)
+    AtomicJsonlStore(ledger_path()).append(row)
 
     # A decision on a run with a Veo clip is also a rating of that clip, so
     # A09 learns from the same Approve / Revise / Kill with no separate step.
@@ -179,7 +185,7 @@ def record(run_id: str, verdict: str, note: str = "", *,
 
 def ledger() -> list[dict[str, Any]]:
     try:
-        return [json.loads(l) for l in LEDGER.read_text(encoding="utf-8").splitlines()
+        return [json.loads(l) for l in ledger_path().read_text(encoding="utf-8").splitlines()
                 if l.strip()]
     except FileNotFoundError:
         return []

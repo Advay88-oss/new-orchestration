@@ -46,3 +46,18 @@ pipeline/brain/tenants/*/brain.db*
 pipeline/brain/tenants/*/website/
 pipeline/gtm_engine/registry/cache/
 pipeline/gtm_engine/registry/snapshots/
+
+# This machine's live process state: never valid inside another container.
+# (The rest of pipeline/state is overwritten from the bucket at start;
+# see state_sync.pull_state, which lets the bucket win in the cloud.)
+pipeline/state/*.pid
+pipeline/state/*.lock
+pipeline/state/_tell.lock
+pipeline/state/_tick_live.json
+pipeline/state/daemon_status.json
+pipeline/state/daemon_wanted.json
+pipeline/state/telegram_pending_*.json
+pipeline/state/scheduler_state.json
+pipeline/state/x_seen.json
+pipeline/state/x_context_cursor.json
+pipeline/state/telegram_sent_news.json

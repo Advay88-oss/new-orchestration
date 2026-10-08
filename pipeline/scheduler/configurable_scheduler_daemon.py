@@ -219,44 +219,47 @@ class SchedulerEngine:
         self.state = self.load_state()
 
     def load_state(self) -> Dict[str, Any]:
-        """Loads persistent job state across restarts."""
-        if SCHEDULER_STATE_FILE.exists():
-            try:
-                return json.loads(SCHEDULER_STATE_FILE.read_text(encoding="utf-8"))
-            except Exception:
-                pass
-        return {}
+        """Loads persistent job state across restarts. A file that does not
+        parse falls back to its last good copy; when both are bad this
+        raises CorruptState rather than returning {} — an empty state makes
+        every job look never-run, and all of them would start at once."""
+        from pipeline.ops.atomic import read_json
+        state = read_json(SCHEDULER_STATE_FILE, {}, strict=True)
+        return state if isinstance(state, dict) else {}
 
     def save_state(self) -> None:
         """Persists state to disk. A newer last_run already on disk or in the bucket stays."""
+        from pipeline.ops.atomic import FileLock, read_json, write_json
         try:
-            from pipeline.gtm_os.state_sync import blend_scheduler_records, merge_scheduler_state_from_bucket
+            from pipeline.gtm_os.state_sync import merge_scheduler_state_from_bucket
             merge_scheduler_state_from_bucket()
-            on_disk = {}
-            if SCHEDULER_STATE_FILE.exists():
-                on_disk = json.loads(SCHEDULER_STATE_FILE.read_text(encoding="utf-8"))
-            if isinstance(on_disk, dict):
-                self.state = blend_scheduler_records(self.state, on_disk)
         except Exception:
             pass
-        SCHEDULER_STATE_FILE.write_text(json.dumps(self.state, indent=2), encoding="utf-8")
+        with _STATE_LOCK, FileLock(SCHEDULER_STATE_FILE):
+            try:
+                from pipeline.gtm_os.state_sync import blend_scheduler_records
+                on_disk = read_json(SCHEDULER_STATE_FILE, {}, strict=True)
+                if isinstance(on_disk, dict):
+                    self.state = blend_scheduler_records(self.state, on_disk)
+            except ImportError:
+                pass
+            write_json(SCHEDULER_STATE_FILE, self.state)
 
     def save_job(self, job_name: str) -> None:
         """Write one job's record and leave every other job as it is on disk.
 
         Jobs run side by side in the daemon. A whole-file save from one job
         would put its stale copy of another job's status back."""
-        with _STATE_LOCK:
-            try:
-                from pipeline.gtm_os.state_sync import merge_scheduler_state_from_bucket
-                merge_scheduler_state_from_bucket()
-            except Exception:
-                pass
-            try:
-                on_disk = json.loads(SCHEDULER_STATE_FILE.read_text(encoding="utf-8")) \
-                    if SCHEDULER_STATE_FILE.exists() else {}
-            except (OSError, ValueError):
-                on_disk = {}
+        from pipeline.ops.atomic import FileLock, read_json, write_json
+        try:
+            from pipeline.gtm_os.state_sync import merge_scheduler_state_from_bucket
+            merge_scheduler_state_from_bucket()
+        except Exception:
+            pass
+        with _STATE_LOCK, FileLock(SCHEDULER_STATE_FILE):
+            # Strict: a state that cannot be read is not overwritten with
+            # this one job's record (that wiped every other job's clock).
+            on_disk = read_json(SCHEDULER_STATE_FILE, {}, strict=True)
             if not isinstance(on_disk, dict):
                 on_disk = {}
             rec = dict(self.state[job_name])
@@ -266,7 +269,7 @@ class SchedulerEngine:
                 rec["last_run"] = theirs["last_run"]
             on_disk[job_name] = rec
             self.state = on_disk
-            SCHEDULER_STATE_FILE.write_text(json.dumps(on_disk, indent=2), encoding="utf-8")
+            write_json(SCHEDULER_STATE_FILE, on_disk)
 
     def log_spend(self, job_name: str, model_id: str, input_tokens: int, output_tokens: int, cost_usd: float) -> None:
         """Logs job spend accounting to registry/spend.jsonl."""
@@ -554,8 +557,10 @@ class SchedulerEngine:
         ideas_data = generate_ideas_panel()
         
         # Write to both state/panels/ideas.json and pipeline/state/panels/ideas.json
+        from pipeline.ops.atomic import FileLock, write_json
         for p in [PANELS_DIR / "ideas.json", ALT_PANELS_DIR / "ideas.json"]:
-            p.write_text(json.dumps(ideas_data, indent=2), encoding="utf-8")
+            with FileLock(p):
+                write_json(p, ideas_data, backup=False)
 
         self.log_spend("ideas_panel", "gemini-3.8-flash", 1850, 920, 0.0034)
         return {"ideas_count": len(ideas_data.get("ideas", [])), "output_file": str(PANELS_DIR / "ideas.json")}
@@ -565,8 +570,10 @@ class SchedulerEngine:
         from pipeline.scheduler.memes_generator import generate_memes_panel
         memes_data = generate_memes_panel()
 
+        from pipeline.ops.atomic import FileLock, write_json
         for p in [PANELS_DIR / "memes.json", ALT_PANELS_DIR / "memes.json"]:
-            p.write_text(json.dumps(memes_data, indent=2), encoding="utf-8")
+            with FileLock(p):
+                write_json(p, memes_data, backup=False)
 
         self.log_spend("memes_panel", "gemini-3.8-flash", 1400, 680, 0.0025)
         return {"memes_count": len(memes_data.get("memes", [])), "output_file": str(PANELS_DIR / "memes.json"), "memes": memes_data.get("memes") or []}
@@ -640,6 +647,32 @@ def _remember_on_since() -> None:
         print("on-since not saved: " + str(exc)[:160])
 
 
+_INSTANCE_LOCK: list = []
+
+
+def _single_instance() -> bool:
+    """One daemon per machine. The lock is an open file the OS holds for this
+    process (msvcrt on Windows, flock elsewhere): it is released the moment
+    the process dies, so a crash never leaves a stale lock, and a second
+    daemon started by a race in daemon_manager exits at once."""
+    path = STATE_DIR / "scheduler_daemon.instance"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    f = open(path, "a+")
+    try:
+        if os.name == "nt":
+            import msvcrt
+            f.seek(0)
+            msvcrt.locking(f.fileno(), msvcrt.LK_NBLCK, 1)
+        else:
+            import fcntl
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        f.close()
+        return False
+    _INSTANCE_LOCK.append(f)                        # held for the life of the process
+    return True
+
+
 def run_scheduler_daemon_loop(poll_interval_s: int = 15):
     """Main daemon loop running 24/7, checking next run times and executing overdue jobs."""
     print("=" * 80)
@@ -655,11 +688,9 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
 
     # A daemon that died mid-job left RUNNING behind; without this the job
     # would be skipped as "still running" for half an hour.
-    with _STATE_LOCK:
-        try:
-            st = json.loads(SCHEDULER_STATE_FILE.read_text(encoding="utf-8")) if SCHEDULER_STATE_FILE.exists() else {}
-        except (OSError, ValueError):
-            st = {}
+    from pipeline.ops.atomic import FileLock, read_json, write_json
+    with _STATE_LOCK, FileLock(SCHEDULER_STATE_FILE):
+        st = read_json(SCHEDULER_STATE_FILE, {})
         dirty = False
         for name, rec in (st.items() if isinstance(st, dict) else []):
             if isinstance(rec, dict) and rec.get("status") == "RUNNING" and (
@@ -669,12 +700,12 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
                 dirty = True
                 print(f"↺ [SCHEDULER] '{name}' was cut off when the last scheduler stopped; it runs again when due.")
         if dirty:
-            SCHEDULER_STATE_FILE.write_text(json.dumps(st, indent=2), encoding="utf-8")
+            write_json(SCHEDULER_STATE_FILE, st)
 
     # One thread per running job, so a 20-minute post does not hold up a
     # 2-minute scrape. A job never overlaps itself.
     busy: Dict[str, threading.Thread] = {}
-    cloud, checked, pulled = False, 0.0, 0.0
+    cloud, checked, pulled, leased = False, 0.0, 0.0, 0.0
 
     def fire(name: str) -> None:
         res = SchedulerEngine().execute_job(name)
@@ -699,6 +730,12 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
             if cloud:
                 time.sleep(poll_interval_s)
                 continue
+            # This machine runs the schedule: say so in the bucket, so a GCP
+            # tick switched on meanwhile runs nothing (state_sync lease).
+            if now - leased > 120:
+                leased = now
+                from pipeline.gtm_os.state_sync import renew_clock_lease
+                threading.Thread(target=renew_clock_lease, daemon=True, name="clock-lease").start()
 
             _expire_timeline()
             for name, th in list(busy.items()):
@@ -752,6 +789,16 @@ def run_scheduler_daemon_loop(poll_interval_s: int = 15):
             break
         except Exception as e:
             print(f"⚠️ Scheduler loop error: {e}")
+            from pipeline.ops.atomic import CorruptState
+            if isinstance(e, CorruptState):
+                # Nothing is started on a state that cannot be read; the owner is told once a day.
+                try:
+                    from pipeline.ops import alerts
+                    alerts.send("scheduler-state-corrupt-" + datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                                "The scheduler stopped starting jobs: " + str(e)
+                                + ". Fix or delete pipeline/state/scheduler_state.json.", severity="critical")
+                except Exception:
+                    pass
             time.sleep(poll_interval_s)
 
 
@@ -883,9 +930,9 @@ def _push_clock(wait_s: float = 8) -> Optional[bool]:
 
 
 def _write_intervals(chosen: dict) -> Optional[bool]:
+    from pipeline.ops.atomic import write_json
     path = _interval_file()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(chosen, indent=2), encoding="utf-8")
+    write_json(path, chosen)
     from pipeline.gtm_os.state_sync import in_cloud
     from pipeline.scheduler.cloud_cron import upload_clock_file
     # This machine's scheduler reads the file it just wrote. Uploading it
@@ -1922,6 +1969,9 @@ if __name__ == "__main__":
     elif args.tick:
         print(json.dumps(run_scheduler_tick(), indent=2, default=str))
     elif args.daemon:
+        if not _single_instance():
+            print("another scheduler daemon is already running on this machine; this one exits")
+            sys.exit(0)
         run_scheduler_daemon_loop()
     else:
         overview = engine.get_status_overview()

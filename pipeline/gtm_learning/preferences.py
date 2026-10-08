@@ -34,6 +34,7 @@ from pipeline.gtm_learning import feedback as _fb
 
 STATE = Path(__file__).resolve().parents[2] / "pipeline" / "state"
 SNAPSHOT = STATE / "learned_preferences.json"
+from pipeline.gtm_learning.tenant_paths import tenant_file
 
 DIMENSIONS = ("visual_archetype", "pillar", "machine", "poster_layout", "motion_style")
 
@@ -280,7 +281,8 @@ def snapshot(write: bool = True) -> dict[str, Any]:
         "corrections": corrections(),
     }
     if write:
-        tmp = SNAPSHOT.with_suffix(".tmp")
+        snapshot = tenant_file(SNAPSHOT)
+        tmp = snapshot.with_suffix(".tmp")
         tmp.write_text(json.dumps(snap, indent=2, ensure_ascii=False), encoding="utf-8")
-        tmp.replace(SNAPSHOT)
+        tmp.replace(snapshot)
     return snap

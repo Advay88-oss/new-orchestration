@@ -157,5 +157,57 @@ class BlockedRunsCannotBeApproved(unittest.TestCase):
         self.assertEqual(labels, ["approve", "revise", "kill"])
 
 
+class StateSurvivesCrashes(unittest.TestCase):
+    def test_truncated_file_falls_back_to_last_good(self):
+        from pipeline.ops.atomic import CorruptState, read_json, write_json
+        with tempfile.TemporaryDirectory() as tmp:
+            f = Path(tmp) / "scheduler_state.json"
+            write_json(f, {"gtm_cycle": {"last_run": "1"}})
+            write_json(f, {"gtm_cycle": {"last_run": "2"}})
+            f.write_text('{"gtm_cycle": {"last_', encoding="utf-8")       # killed mid-write
+            self.assertEqual(read_json(f, {}), {"gtm_cycle": {"last_run": "1"}})
+            (Path(tmp) / "scheduler_state.json.bak").write_text("x", encoding="utf-8")
+            with self.assertRaises(CorruptState):
+                read_json(f, {}, strict=True)
+
+    def test_lock_is_exclusive(self):
+        from pipeline.ops.atomic import FileLock
+        with tempfile.TemporaryDirectory() as tmp:
+            f = Path(tmp) / "ideas.json"
+            with FileLock(f):
+                with self.assertRaises(TimeoutError):
+                    with FileLock(f, timeout_s=0.2):
+                        pass
+
+    def test_an_older_copy_is_never_pushed_over_a_newer_one(self):
+        from datetime import datetime, timedelta, timezone
+        from pipeline.gtm_os.state_sync import _newer_than
+        with tempfile.TemporaryDirectory() as tmp:
+            f = Path(tmp) / "coach_state.json"
+            f.write_text("{}", encoding="utf-8")
+            os.utime(f, (1_000_000, 1_000_000))                  # baked into an image long ago
+            self.assertFalse(_newer_than(f, datetime.now(timezone.utc)))
+            self.assertTrue(_newer_than(f, datetime.fromtimestamp(1_000_000, timezone.utc) - timedelta(hours=1)))
+            self.assertTrue(_newer_than(f, None))                # not in the bucket yet
+
+
+class LearningIsPerTenant(unittest.TestCase):
+    def test_primary_keeps_its_paths_and_others_get_their_own(self):
+        from pipeline.gtm_learning.tenant_paths import tenant_file
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp) / "feedback.jsonl"
+            self.assertEqual(tenant_file(base, "vanna"), base)
+            self.assertEqual(tenant_file(base, "auri"), Path(tmp) / "tenants" / "auri" / "feedback.jsonl")
+            with self.assertRaises(ValueError):
+                tenant_file(base, "../etc")
+
+    def test_workspace_notion_token_is_not_shared(self):
+        from pipeline.brand_brain import notion_sync as N
+        with mock.patch.dict(os.environ, {"NOTION_TOKEN": "secret_x", "NOTION_TOKEN_TENANTS": ""}), \
+                mock.patch("pipeline.brand_brain.notion_oauth.token", return_value=None):
+            self.assertEqual(N._token("vanna"), "secret_x")
+            self.assertIsNone(N._token("auri"))
+
+
 if __name__ == "__main__":
     unittest.main()

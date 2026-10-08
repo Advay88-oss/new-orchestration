@@ -113,13 +113,17 @@ def available() -> bool:
         return False
 
 
-def _upload(bucket, local: Path, key: str) -> Optional[str]:
+def _upload(bucket, local: Path, key: str, *, if_generation: Optional[int] = None) -> Optional[str]:
+    """Upload one file. `if_generation`: only if the object is still at that
+    generation (0: only if it does not exist yet), so a write that landed
+    since it was listed is never overwritten. Returns the key, or None."""
     try:
         blob = bucket.blob(key)
         ctype = mimetypes.guess_type(local.name)[0]
-        blob.upload_from_filename(str(local), content_type=ctype)
+        kwargs = {} if if_generation is None else {"if_generation_match": int(if_generation)}
+        blob.upload_from_filename(str(local), content_type=ctype, **kwargs)
         return key
-    except Exception:                               # noqa: BLE001 — boundary
+    except Exception:                               # noqa: BLE001 — boundary (412: someone wrote first)
         return None
 
 
@@ -237,10 +241,19 @@ STATE_FILES = (
     # baked into the image put yesterday's headlines back over a fresh scrape.
     "pipeline/state/telegram_pending_post.json",
     "pipeline/state/telegram_pending_revise.json",
+    # What has already been seen and sent. Without these a cloud run starts
+    # from the image's old copy and repeats news and X posts already sent.
+    "pipeline/state/x_seen.json",
+    "pipeline/state/x_context_cursor.json",
+    "pipeline/state/telegram_sent_news.json",
+    "pipeline/state/research_seen.json",
 )
 STATE_DIRS = (
     "pipeline/brain/visual_exemplars",
     "pipeline/brain/video_exemplars",
+    # Every other company's own learning state (tenant_paths.py).
+    "pipeline/state/tenants",
+    "pipeline/brain/knowledge/tenants",
 )
 
 
@@ -252,6 +265,10 @@ def _brain_snapshot(tenant_dir: Path) -> Optional[Path]:
     import sqlite3
     import tempfile
     from pipeline.brand_brain import store as S
+    if S.in_fallback():
+        # The SQLite files are a stale stand-in for an unreachable Postgres:
+        # uploading them would replace the bucket's copy of the real brain.
+        return None
     if S.backend() == "pg":
         if tenant_dir.name not in S.tenants():
             return None
@@ -278,8 +295,10 @@ def _state_jobs() -> list[tuple[Path, str]]:
         if p.exists():
             jobs.append((p, PREFIX_STATE + rel))
     for rel in STATE_DIRS:
-        for p in sorted((REPO_ROOT / rel).glob("*")):
-            if p.is_file():
+        # tenants/<id>/... are a level deeper: walked whole.
+        walk = (REPO_ROOT / rel).rglob("*") if rel.endswith("/tenants") else (REPO_ROOT / rel).glob("*")
+        for p in sorted(walk):
+            if p.is_file() and not p.name.endswith((".lock", ".tmp", ".bak")):
                 jobs.append((p, PREFIX_STATE + p.relative_to(REPO_ROOT).as_posix()))
     tenants = REPO_ROOT / "pipeline" / "brain" / "tenants"
     from pipeline.brand_brain import store as S
@@ -307,21 +326,45 @@ def _md5_b64(p: Path) -> str:
     return base64.b64encode(h.digest()).decode()
 
 
+def _newer_than(local: Path, remote_updated) -> bool:
+    """True when the local file was written after the bucket's copy."""
+    if remote_updated is None:
+        return True
+    try:
+        return local.stat().st_mtime > remote_updated.timestamp() + 1
+    except OSError:
+        return False
+
+
 def push_state() -> dict[str, Any]:
-    """Back up brain and learning state; only files that changed are sent.
-    Never raises."""
+    """Back up brain and learning state. A file is sent only when it differs
+    from the bucket's copy AND was written after it: an older copy — one
+    baked into the image, or a laptop that was asleep — never replaces a
+    newer one. Each upload is conditional on the generation just listed, so
+    a write that lands in between wins. Never raises."""
     try:
         bucket = _client().bucket(BUCKET)
-        remote = {b.name: b.md5_hash for b in bucket.list_blobs(prefix=PREFIX_STATE)}
+        remote = {b.name: (b.md5_hash, b.updated, b.generation)
+                  for b in bucket.list_blobs(prefix=PREFIX_STATE)}
     except Exception as exc:                        # noqa: BLE001 — boundary
         return {"pushed": False, "reason": "no GCS client: " + str(exc)[:160]}
-    jobs = [(p, k) for p, k in _state_jobs() if remote.get(k) != _md5_b64(p)]
+    jobs, older = [], 0
+    for p, k in _state_jobs():
+        md5, updated, gen = remote.get(k, (None, None, 0))
+        if md5 == _md5_b64(p):
+            continue
+        if not _newer_than(p, updated):
+            older += 1
+            continue
+        jobs.append((p, k, gen))
     if not jobs:
-        return {"pushed": True, "objects": 0, "unchanged": len(remote), "bucket": BUCKET}
+        return {"pushed": True, "objects": 0, "unchanged": len(remote), "kept_newer_remote": older,
+                "bucket": BUCKET}
     with ThreadPoolExecutor(max_workers=6) as pool:
-        done = list(pool.map(lambda j: _upload(bucket, j[0], j[1]), jobs))
+        done = list(pool.map(lambda j: _upload(bucket, j[0], j[1], if_generation=j[2]), jobs))
     ok = [d for d in done if d]
-    return {"pushed": bool(ok), "objects": len(ok), "failed": len(done) - len(ok), "bucket": BUCKET}
+    return {"pushed": bool(ok), "objects": len(ok), "failed_or_raced": len(done) - len(ok),
+            "kept_newer_remote": older, "bucket": BUCKET}
 
 
 def push_state_files(rels: list[str]) -> int:
@@ -347,10 +390,14 @@ def push_state_files(rels: list[str]) -> int:
     return n
 
 
-def pull_state(*, overwrite: bool = False) -> dict[str, Any]:
-    """Restore brain and learning state from the bucket. By default only
+def pull_state(*, overwrite: Optional[bool] = None) -> dict[str, Any]:
+    """Restore brain and learning state from the bucket. On a laptop only
     files missing locally are fetched, so a pull never clobbers newer local
-    work; `overwrite=True` makes the local copy match the bucket."""
+    work. In the cloud (and with `overwrite=True`) the bucket wins: the
+    container's own copies were baked into the image at build time and are
+    older than anything the bucket holds."""
+    if overwrite is None:
+        overwrite = in_cloud()
     try:
         bucket = _client().bucket(BUCKET)
         blobs = list(bucket.list_blobs(prefix=PREFIX_STATE))
@@ -448,19 +495,16 @@ def merge_scheduler_state_from_bucket() -> None:
         return
     if not isinstance(remote, dict):
         return
+    from pipeline.ops.atomic import FileLock, read_json, write_json
     try:
-        local = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    except (OSError, ValueError):
-        local = {}
-    if not isinstance(local, dict):
-        local = {}
-    merged = blend_scheduler_records(local, remote)
-    if merged == local:
-        return
-    try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(merged, indent=2), encoding="utf-8")
-    except OSError:
+        with FileLock(path):
+            local = read_json(path, {})
+            if not isinstance(local, dict):
+                local = {}
+            merged = blend_scheduler_records(local, remote)
+            if merged != local:
+                write_json(path, merged)
+    except (OSError, TimeoutError):
         return
 
 
@@ -499,17 +543,18 @@ def claim_scheduler_job(job_name: str, interval_s: int, *, force: bool = False) 
         return state
 
     if not in_cloud():
+        from pipeline.ops.atomic import CorruptState, FileLock, read_json, write_json
         try:
-            state = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-        except (OSError, ValueError):
-            state = {}
-        if not isinstance(state, dict):
-            state = {}
-        rec = state.get(job_name) if isinstance(state.get(job_name), dict) else {}
-        if _too_soon(rec):
-            return False, "not due"
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps(_stamp(state), indent=2), encoding="utf-8")
+            with FileLock(path):
+                state = read_json(path, {}, strict=True)
+                if not isinstance(state, dict):
+                    state = {}
+                rec = state.get(job_name) if isinstance(state.get(job_name), dict) else {}
+                if _too_soon(rec):
+                    return False, "not due"
+                write_json(path, _stamp(state))
+        except (CorruptState, TimeoutError) as exc:
+            return False, "state unreadable or busy: " + str(exc)[:120]
         return True, "claimed"
 
     try:
@@ -541,6 +586,46 @@ def claim_scheduler_job(job_name: str, interval_s: int, *, force: bool = False) 
     except OSError:
         pass
     return True, "claimed"
+
+
+CLOCK_LEASE = PREFIX_STATE + "clock_lease.json"
+
+
+def renew_clock_lease(ttl_s: int = 600) -> bool:
+    """The laptop says, in the bucket, that it is running the schedule now.
+    Renewed every couple of minutes while it does; a cloud tick that finds a
+    fresh lease runs nothing, so a job never runs in both places even if the
+    GCP tick is switched on while the laptop is still going. Never raises."""
+    if in_cloud():
+        return False
+    import socket
+    import time as _t
+    try:
+        body = json.dumps({"owner": "laptop", "host": socket.gethostname(), "pid": os.getpid(),
+                           "until": _t.time() + ttl_s})
+        _client().bucket(BUCKET).blob(CLOCK_LEASE).upload_from_string(body, content_type="application/json")
+        return True
+    except Exception:                               # noqa: BLE001 — no sign-in: the lease lapses
+        return False
+
+
+def release_clock_lease() -> None:
+    try:
+        _client().bucket(BUCKET).blob(CLOCK_LEASE).delete()
+    except Exception:                               # noqa: BLE001 — it lapses by itself
+        pass
+
+
+def laptop_holds_clock() -> Optional[dict]:
+    """The laptop's lease when it is still fresh, else None."""
+    import time as _t
+    try:
+        lease = json.loads(_client().bucket(BUCKET).blob(CLOCK_LEASE).download_as_text())
+    except Exception:                               # noqa: BLE001 — none, or unreadable
+        return None
+    if isinstance(lease, dict) and lease.get("owner") == "laptop" and float(lease.get("until", 0)) > _t.time():
+        return lease
+    return None
 
 
 def cloud_lock_acquire(blob_name: str, stale_s: int) -> bool:
@@ -603,7 +688,7 @@ def _cli() -> None:
         print(json.dumps(push_state(), indent=2))
         return
     if sys.argv[1:2] == ["pull-state"]:
-        print(json.dumps(pull_state(overwrite="--overwrite" in sys.argv), indent=2))
+        print(json.dumps(pull_state(overwrite=True if "--overwrite" in sys.argv else None), indent=2))
         return
     rid = sys.argv[1] if len(sys.argv) > 1 else sorted(
         d.name for d in RUNS_DIR.iterdir()

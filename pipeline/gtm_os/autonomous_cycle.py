@@ -1855,8 +1855,9 @@ def _finish(summary: dict, t0: float, rid: str) -> dict:
     summary["agents_ran"] = sum(1 for a in summary["agents"]
                                 if a.get("status") in ("ok", "degraded"))
 
-    (d / "summary.json").write_text(json.dumps(summary, indent=2, default=str),
-                                    encoding="utf-8")
+    # Atomic: the dashboard reads summary.json while the cycle writes it.
+    from pipeline.ops.atomic import write_text as _atomic_write
+    _atomic_write(d / "summary.json", json.dumps(summary, indent=2, default=str), backup=False)
     # The run's reward event (the reviewer's verdict now; the founder's
     # decision and engagement update it when they arrive).
     try:
@@ -1883,8 +1884,7 @@ def _finish(summary: dict, t0: float, rid: str) -> dict:
         print("  [sync] " + str(n) + " object(s) to GCS"
               if n else "  [sync] nothing pushed: "
               + str((sync.get("run") or {}).get("reason", "")))
-        (d / "summary.json").write_text(
-            json.dumps(summary, indent=2, default=str), encoding="utf-8")
+        _atomic_write(d / "summary.json", json.dumps(summary, indent=2, default=str), backup=False)
     except Exception as exc:                        # noqa: BLE001 — boundary
         print("  [warn] state sync failed: " + str(exc)[:160])
     print("-" * 70)
@@ -1912,11 +1912,22 @@ def _panel_write(name: str, key: str, entry: dict, keep: int = 24) -> None:
     topic with A02 and neither appeared in the section named after it. The
     agents' own output now lands in the panel a user would look for it in.
     """
+    from pipeline.ops.atomic import FileLock, read_json, write_json
     PANELS_DIR.mkdir(parents=True, exist_ok=True)
     path = PANELS_DIR / name
+    # Read-modify-write under a lock: the scheduler's panel jobs write the
+    # same file, and the later writer used to drop the earlier one's entry.
+    lock = FileLock(path)
+    lock.__enter__()
     try:
-        doc = json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
-    except Exception:                               # noqa: BLE001 — boundary
+        _panel_update(path, key, entry, keep, read_json, write_json)
+    finally:
+        lock.__exit__()
+
+
+def _panel_update(path, key, entry, keep, read_json, write_json) -> None:
+    doc = read_json(path, {})
+    if not isinstance(doc, dict):
         doc = {}
     items = [i for i in (doc.get(key) or []) if isinstance(i, dict)]
     items = [i for i in items if i.get("id") != entry.get("id")]
@@ -1937,7 +1948,7 @@ def _panel_write(name: str, key: str, entry: dict, keep: int = 24) -> None:
             1 for i in doc[key] if i.get("runnable_today"))
         doc["blocked_count"] = sum(
             1 for i in doc[key] if not i.get("runnable_today"))
-    path.write_text(json.dumps(doc, indent=2, default=str), encoding="utf-8")
+    write_json(path, doc, backup=False, default=str)
 
 
 def publish_panels(summary: dict, rid: str) -> None:

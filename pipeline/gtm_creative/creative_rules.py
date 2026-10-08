@@ -24,6 +24,17 @@ KNOWLEDGE = Path(__file__).resolve().parents[1] / "brain" / "knowledge"
 RULES = KNOWLEDGE / "creative-rules.md"
 LEARNED_MD = KNOWLEDGE / "learned-rules.md"
 LEARNED_JSON = KNOWLEDGE / "learned-rules.json"
+
+
+def _learned_json() -> Path:
+    """This tenant's rules (pipeline/gtm_learning/tenant_paths.py)."""
+    from pipeline.gtm_learning.tenant_paths import tenant_file
+    return tenant_file(LEARNED_JSON)
+
+
+def _learned_md() -> Path:
+    from pipeline.gtm_learning.tenant_paths import tenant_file
+    return tenant_file(LEARNED_MD)
 MAX_ACTIVE = 40
 RETIRE_MIN_N = 4
 RETIRE_BELOW = 0.3
@@ -50,12 +61,12 @@ def _now() -> str:
 
 def _load() -> list[dict]:
     try:
-        rules = json.loads(LEARNED_JSON.read_text(encoding="utf-8"))
+        rules = json.loads(_learned_json().read_text(encoding="utf-8"))
     except Exception:                               # noqa: BLE001 — first run
         rules = []
     # The founder's veto: a rule whose line was deleted from the .md retires.
     try:
-        md = LEARNED_MD.read_text(encoding="utf-8")
+        md = _learned_md().read_text(encoding="utf-8")
         for r in rules:
             if r["status"] == "active" and "[" + r["id"] + "]" not in md:
                 r["status"], r["retired_why"] = "retired", "removed by the founder"
@@ -66,9 +77,9 @@ def _load() -> list[dict]:
 
 def _save(rules: list[dict]) -> None:
     KNOWLEDGE.mkdir(parents=True, exist_ok=True)
-    LEARNED_JSON.write_text(json.dumps(rules, indent=1, ensure_ascii=False), encoding="utf-8")
+    _learned_json().write_text(json.dumps(rules, indent=1, ensure_ascii=False), encoding="utf-8")
     active = [r for r in rules if r["status"] == "active"]
-    LEARNED_MD.write_text(_HEADER + "\n".join(
+    _learned_md().write_text(_HEADER + "\n".join(
         "- " + r["text"] + " — " + _record(r) + " [" + r["id"] + "]" for r in active) + "\n",
         encoding="utf-8")
 

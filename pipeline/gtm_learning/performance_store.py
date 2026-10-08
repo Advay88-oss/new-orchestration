@@ -24,7 +24,8 @@ class PerformanceStore:
     """
 
     def __init__(self, storage_file: Optional[Path] = None):
-        self.storage_file = storage_file or (STATE_DIR / "performance_records.jsonl")
+        from pipeline.gtm_learning.tenant_paths import tenant_file
+        self.storage_file = storage_file or tenant_file(STATE_DIR / "performance_records.jsonl")
         self.atomic_store = AtomicJsonlStore(self.storage_file)
 
     def record_performance(self, record: PostPerformanceRecord) -> None:

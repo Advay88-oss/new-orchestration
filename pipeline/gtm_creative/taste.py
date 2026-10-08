@@ -61,7 +61,8 @@ def _latest() -> dict[str, str]:
     """Each run's latest founder decision; a later approve overrides a kill."""
     out: dict[str, str] = {}
     try:
-        lines = LEDGER.read_text(encoding="utf-8").splitlines()
+        from pipeline.gtm_learning.feedback import ledger_path
+        lines = ledger_path().read_text(encoding="utf-8").splitlines()
     except FileNotFoundError:
         return out
     for line in lines:

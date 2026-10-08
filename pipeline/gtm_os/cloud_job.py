@@ -134,7 +134,9 @@ def _tick_lock(hold: bool) -> bool:
     if not hold:
         cloud_lock_release("state/tick.lock")
         return True
-    return cloud_lock_acquire("state/tick.lock", 1200)
+    # Stale only after the job's own --task-timeout (3600 s in deploy_cloud.sh):
+    # at 1200 s a slow tick still running had its lock taken by the next one.
+    return cloud_lock_acquire("state/tick.lock", 3700)
 
 
 def tick() -> int:
@@ -143,6 +145,11 @@ def tick() -> int:
         print(json.dumps({"skipped": "a tick is already running"}))
         return 0
     try:
+        from pipeline.gtm_os.state_sync import laptop_holds_clock
+        held = laptop_holds_clock()
+        if held:
+            print(json.dumps({"skipped": "the laptop keeps the clock", "host": held.get("host")}))
+            return 0
         _restore()
         from pipeline.scheduler.configurable_scheduler_daemon import run_scheduler_tick
         out = run_scheduler_tick()
@@ -167,10 +174,38 @@ def sched(job_name: str) -> int:
     if not job.get("enabled", True):
         print(json.dumps({"job": job_name, "skipped": "paused"}))
         return 0
-    res = SchedulerEngine().execute_job(job_name, force=True)
-    if job_name == "gtm_cycle" and (res.get("success") or res.get("status") == "COMPLETED"):
-        _consume_post()
-    _save()
+    from pipeline.gtm_os.state_sync import laptop_holds_clock
+    held = laptop_holds_clock()
+    if held:
+        print(json.dumps({"job": job_name, "skipped": "the laptop keeps the clock", "host": held.get("host")}))
+        return 0
+    engine = SchedulerEngine()
+    rec = engine.state.get(job_name) or {}
+    # The same guards as the tick: a job in failure backoff waits, and a job
+    # never overlaps itself — two cron fires, or a slow run still going when
+    # the next fire comes, would otherwise both spend.
+    if rec.get("status") == "DISABLED_AUTO_BACKOFF":
+        print(json.dumps({"job": job_name, "skipped": "in failure backoff"}))
+        return 0
+    from pipeline.gtm_os.state_sync import claim_scheduler_job, cloud_lock_acquire, cloud_lock_release
+    from pipeline.scheduler.configurable_scheduler_daemon import parse_interval_to_seconds
+    lock = "state/job-" + job_name + ".lock"
+    if not cloud_lock_acquire(lock, 3600):
+        print(json.dumps({"job": job_name, "skipped": "already running"}))
+        return 0
+    try:
+        # Half the gap: a cron that fires twice in a minute runs once.
+        half = parse_interval_to_seconds(job.get("interval", "24h")) // 2
+        claimed, why = claim_scheduler_job(job_name, half)
+        if not claimed:
+            print(json.dumps({"job": job_name, "skipped": why}))
+            return 0
+        res = engine.execute_job(job_name)
+        if job_name == "gtm_cycle" and (res.get("success") or res.get("status") == "COMPLETED"):
+            _consume_post()
+        _save()
+    finally:
+        cloud_lock_release(lock)
     print(json.dumps(res, default=str)[:4000])
     ok = bool(res.get("success")) or res.get("status") == "COMPLETED"
     return 0 if ok else 1

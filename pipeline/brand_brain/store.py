@@ -433,8 +433,11 @@ def database_url() -> Optional[str]:
     return os.environ.get("BRAIN_DATABASE_URL") or _env_file("BRAIN_DATABASE_URL")
 
 
+FELL_BACK = False                                   # set when Postgres could not be reached
+
+
 def backend() -> str:
-    global OVERRIDE
+    global OVERRIDE, FELL_BACK
     if OVERRIDE == "sqlite" or os.environ.get("BRAIN_BACKEND") == "sqlite":
         return "sqlite"
     u = database_url()
@@ -446,7 +449,7 @@ def backend() -> str:
             with socket.create_connection(("127.0.0.1", 5433), timeout=0.5):
                 return "pg"
         except OSError:
-            OVERRIDE = "sqlite"
+            OVERRIDE, FELL_BACK = "sqlite", True
             return "sqlite"
     if "/cloudsql/" in u:
         return "pg"
@@ -462,10 +465,20 @@ def backend() -> str:
             con = psycopg.connect(u, connect_timeout=3)
             con.close()
         except Exception:                           # noqa: BLE001 — the file brain is the fallback
-            OVERRIDE = "sqlite"
+            OVERRIDE, FELL_BACK = "sqlite", True
             os.environ["BRAIN_BACKEND"] = "sqlite"
+            os.environ["BRAIN_FELL_BACK"] = "1"     # child processes inherit the pin: say why
             return "sqlite"
     return "pg"
+
+
+def in_fallback() -> bool:
+    """True when a Postgres brain is configured but this process fell back to
+    the SQLite files (it could not reach the database). The files are then
+    older than the database: they serve chat, and are never backed up over
+    the real brain (state_sync._brain_snapshot)."""
+    backend()
+    return FELL_BACK or os.environ.get("BRAIN_FELL_BACK") == "1"
 
 
 class TenantError(ValueError):
@@ -480,7 +493,7 @@ def tenant_dir(tenant: str) -> Path:
 
 
 def _pg_raw():
-    global OVERRIDE
+    global OVERRIDE, FELL_BACK
     import time
     import psycopg
 
@@ -504,7 +517,7 @@ def _pg_raw():
             if attempt < 3:
                 time.sleep(attempt)
     if url and "127.0.0.1:5433" in url:
-        OVERRIDE = "sqlite"
+        OVERRIDE, FELL_BACK = "sqlite", True
     raise last_err
 
 

@@ -132,15 +132,17 @@ def review_run(s: dict, run_id: Optional[str] = None) -> list[str]:
 def learn_from_decisions() -> dict[str, int]:
     """Study every founder decision not yet studied."""
     from pipeline.gtm_creative.creative_rules import add_learned
-    from pipeline.gtm_learning.feedback import LEDGER, RUNS
+    from pipeline.gtm_learning.feedback import RUNS, ledger_path
+    from pipeline.gtm_learning.tenant_paths import tenant_file
+    coach_state = tenant_file(COACH_STATE)
     from pipeline.gtm_os import agent_runtime as R
 
     try:
-        state = json.loads(COACH_STATE.read_text(encoding="utf-8"))
+        state = json.loads(coach_state.read_text(encoding="utf-8"))
     except Exception:                               # noqa: BLE001 — first run
         state = {"last_at": ""}
     try:
-        rows = [json.loads(l) for l in Path(LEDGER).read_text(encoding="utf-8").splitlines()
+        rows = [json.loads(l) for l in ledger_path().read_text(encoding="utf-8").splitlines()
                 if l.strip()]
     except FileNotFoundError:
         rows = []
@@ -211,6 +213,6 @@ def learn_from_decisions() -> dict[str, int]:
                            + note[:140], source="founder via coach"):
                 counts["rules"] += 1
     if rows:
-        COACH_STATE.write_text(json.dumps({"last_at": max(str(r.get("at")) for r in rows)}),
+        coach_state.write_text(json.dumps({"last_at": max(str(r.get("at")) for r in rows)}),
                                encoding="utf-8")
     return counts
