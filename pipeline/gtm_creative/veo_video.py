@@ -46,7 +46,6 @@ from typing import Any, Optional
 REPO = Path(__file__).resolve().parents[2]
 EX_DIR = REPO / "pipeline" / "brain" / "video_exemplars"
 INDEX = EX_DIR / "exemplars.jsonl"
-MODEL = "veo-3.1-generate-001"
 DURATION_S = 8
 
 MOTION_BRIEF = (
@@ -199,15 +198,17 @@ def _veo(prompt: str, image: Path, out: Path, *, project: str = "vanna-mcp",
             "mimeType": "image/png"}
     params = {"aspectRatio": "16:9", "sampleCount": 1, "durationSeconds": DURATION_S,
               "generateAudio": False, "resolution": "1080p"}
-    res, key, _via = run_veo(MODEL, instance, params, project=project,
+    from pipeline.gtm_os.agent_runtime import MODELS
+    model = MODELS["video"]
+    res, key, via = run_veo(model, instance, params, project=project,
                              location=location, timeout_s=timeout_s)
     if res.get("error"):
-        _journal(False, round(time.time() - started, 2), MODEL, "image-to-video failed")
+        _journal(False, round(time.time() - started, 2), model, "image-to-video failed", transport=via)
         raise RuntimeError("Veo failed: " + json.dumps(res["error"])[:300])
     b64, uri = _find_video(res)
     if not (b64 or uri) or not _write_video(b64, uri, out, key):
         raise RuntimeError("Veo finished with no usable video")
-    _journal(True, round(time.time() - started, 2), MODEL, "image-to-video")
+    _journal(True, round(time.time() - started, 2), model, "image-to-video", transport=via)
     return out
 
 
@@ -299,8 +300,13 @@ BUILD_BRIEF = (
     "word, numeral or logo — a previous clip spelled 'actually deploy it' as "
     "'acilly deppe it'. Words are composited afterwards. Add no objects, "
     "people, coins or scenes that are not in the last frame. "
-    "The ground stays {company}'s dark violet-and-magenta throughout."
+    "The ground stays {company}'s {video_ground} throughout."
 )
+
+
+def _build_brief() -> str:
+    from pipeline.brand_brain import context as C
+    return C.fill(BUILD_BRIEF).replace("{video_ground}", C.rule("video_ground") or "own ground colours")
 
 
 def letter_mask(im):
@@ -427,7 +433,7 @@ def make_build(poster: str | Path, brief: str, out: str | Path, *,
     learned = learned_block()
     history, correction = [], ""
     for n in range(1, attempts + 1):
-        head = directed or (__import__('pipeline.brand_brain.context', fromlist=['fill']).fill(BUILD_BRIEF) + ("\n\n" + learned if learned else ""))
+        head = directed or (_build_brief() + ("\n\n" + learned if learned else ""))
         prompt = (head
                   + "\n\nWHAT THIS POST SAYS (the build should tell it): "
                   + " ".join(brief.split())[:700]
@@ -454,7 +460,9 @@ def make_build(poster: str | Path, brief: str, out: str | Path, *,
     rank = {"SHIP": 0, "REVISE": 1}
     best = min(history, key=lambda h: rank.get(str(h.get("verdict")).upper(), 2))
     _hold(Path(best["path"]), out, total_s)
-    return {"final": str(out), "first": str(first), "last": str(last), "attempts": history}
+    # `chosen` is the attempt now in `out`; the caller judges that one, not the last.
+    return {"final": str(out), "first": str(first), "last": str(last), "attempts": history,
+            "chosen": history.index(best)}
 
 
 def main(argv: Optional[list] = None) -> int:

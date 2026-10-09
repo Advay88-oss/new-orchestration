@@ -110,10 +110,15 @@ def build_prompt(panel_left: str, panel_right: str,
     )
 
 
+def _meme_model() -> str:
+    from pipeline.gtm_os.agent_runtime import MODELS
+    return MODELS["meme"]
+
+
 def render_meme(panel_left: str, panel_right: str, caption: str,
                 labels: Optional[list[str]] = None, *,
                 out: Optional[Path] = None,
-                model: str = "gemini-3-pro-image",
+                model: Optional[str] = None,
                 size: tuple[int, int] = (1400, 760),
                 palette: Optional[dict] = None) -> Path:
     """Draw the scene with the model; composite the caption ourselves."""
@@ -126,7 +131,7 @@ def render_meme(panel_left: str, panel_right: str, caption: str,
     generate_gemini_image(
         prompt=build_prompt(panel_left, panel_right, labels or [], pal),
         output_path=raw, project="vanna-mcp", location="global",
-        model=model, temperature=0.85)
+        model=model or _meme_model(), temperature=0.85)
 
     base = Image.open(raw).convert("RGB").resize(size, Image.Resampling.LANCZOS)
     W, H = size

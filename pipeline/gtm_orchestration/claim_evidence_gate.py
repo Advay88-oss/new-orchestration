@@ -70,6 +70,40 @@ def _competitor_names() -> list[str]:
     return [c.lower() for c in C.competitors() if c.lower() not in partners]
 
 
+def _support(text: str, k: int = 3) -> tuple[Optional[dict], float, list[str]]:
+    """The brain section that best supports `text`, its term overlap, and the
+    refs of every section looked at. Proof comes from documents
+    (context.evidence_hits), never from the profile that states the claim; a
+    number in the claim must appear in the evidence exactly."""
+    t_lower = text.lower()
+    hits = _brand().evidence_hits(text, k=k, max_authority=3)
+    terms = set(re.findall(r"[a-z0-9.]{4,}", t_lower))
+    best, overlap = None, 0.0
+    for h in hits:
+        ht = set(re.findall(r"[a-z0-9.]{4,}", (h["text"] + " " + h["section"]).lower()))
+        o = len(terms & ht) / max(1, len(terms))
+        if o > overlap:
+            best, overlap = h, o
+    refs = [h["source"] + ":" + h["section"][:80] + (" " + h["url"] if h.get("url") else "")
+            for h in hits]
+    nums = re.findall(r"\d[\d,.]*\d|\d", t_lower)
+    if best and nums:
+        ev = " ".join(h["text"].lower() for h in hits)
+        if not all(n in ev for n in nums):
+            best = None
+    return best, overlap, refs
+
+
+def _players(path: Path) -> list[dict]:
+    rows = []
+    if path.exists():
+        with open(path, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.strip():
+                    rows.append(json.loads(line))
+    return rows
+
+
 class ClaimEvidenceGate:
     """Pre-strategic and pre-editorial evidence firewall."""
 
@@ -155,22 +189,41 @@ class ClaimEvidenceGate:
                     rationale="Comparative claim lacks verifiable evidence on one of the comparison axes."
                 )
 
-            # Verified two-sided comparative claim
+            # Both sides are named; now each is looked up. This used to return
+            # HIGH / USE with fixed source ids ("DOCS_VANNA_FINANCE",
+            # "PLAYERS_DB_AAVE_MORPHO") and no lookup at all.
+            best, overlap, refs = _support(text)
+            named = [c for c in _competitor_names() if c in t_lower]
+            players_file = self.brain_db / "players.jsonl"
+            profiled = {str(p.get("player_id", "")).lower() for p in _players(players_file)}
+            missing = [c for c in named if c not in profiled]
+            if not (best and overlap >= 0.4):
+                return ClaimRecord(
+                    claim_id=cid, text=text, claim_type=ctype,
+                    evidence_status="INSUFFICIENT", evidence_refs=refs, confidence="LOW",
+                    source_records=[],
+                    calculation_method="Brand brain search on the company side; best term overlap " + str(round(overlap, 2)),
+                    action="USE_AS_INFERENCE",
+                    rationale="The company side of the comparison is not stated in the brain's documents; keep it as framing.")
+            if missing:
+                return ClaimRecord(
+                    claim_id=cid, text=text, claim_type=ctype,
+                    evidence_status="UNKNOWN", evidence_refs=refs, confidence="LOW",
+                    source_records=[best["id"]],
+                    action="REQUIRES_VERIFICATION",
+                    rationale="The competitor side (" + ", ".join(missing) + ") has no profile in the brain.")
             return ClaimRecord(
-                claim_id=cid,
-                text=text,
-                claim_type=ctype,
+                claim_id=cid, text=text, claim_type=ctype,
                 evidence_status="DERIVED",
-                evidence_refs=[
-                    str(self.knowledge_root / "approved-claims.md"),
-                    str(self.brain_db / "players.jsonl")
-                ],
-                confidence="HIGH",
-                source_records=["DOCS_VANNA_FINANCE", "PLAYERS_DB_AAVE_MORPHO"],
-                calculation_method="Comparative contrast between the company's mechanism and the pooled alternative.",
-                action="USE",
-                rationale="Both sides of the comparison are named; the reviewer's fact check verifies each against the brand brain."
-            )
+                evidence_refs=refs + ([str(players_file)] if named else []),
+                confidence="MEDIUM",
+                source_records=[best["id"]] + ["PLAYER_PROFILE_" + c.upper() for c in named],
+                calculation_method="Company side: brand brain search, term overlap " + str(round(overlap, 2))
+                                   + ("; competitor side: player profiles" if named else "; competitor side: generic"),
+                action="USE" if named else "USE_AS_INFERENCE",
+                rationale=("Company side supported by " + best["source"] + " · " + best["section"][:80]
+                           + ("; competitor side observed in its profile." if named
+                              else "; the other side is a generic alternative, so the contrast stays framing.")))
 
         # ── RULE 3: COMPANY FACTS REQUIRE GROUND TRUTH IN THE BRAND BRAIN ─────
         # The evidence is the brain's best matching sections, with their
@@ -189,23 +242,9 @@ class ClaimEvidenceGate:
                     source_records=["BRAND_PROFILE_DEPLOYMENT"],
                     action="DO_NOT_USE",
                     rationale="REJECTED: contradicts the deployment in the brand profile.")
-            hits = _brand().knowledge_hits(text, k=3, max_authority=3)
-            terms = set(re.findall(r"[a-z0-9.]{4,}", t_lower))
-            best, overlap = None, 0.0
-            for h in hits:
-                ht = set(re.findall(r"[a-z0-9.]{4,}", (h["text"] + " " + h["section"]).lower()))
-                o = len(terms & ht) / max(1, len(terms))
-                if o > overlap:
-                    best, overlap = h, o
-            refs = [h["source"] + ":" + h["section"][:80] + (" " + h["url"] if h.get("url") else "")
-                    for h in hits]
             # A number in the claim must appear, exactly, in its evidence: an
             # invented figure shares every other word with a real section.
-            nums = re.findall(r"\d[\d,.]*\d|\d", t_lower)
-            if best and nums:
-                ev = " ".join(h["text"].lower() for h in hits)
-                if not all(n in ev for n in nums):
-                    best, overlap = None, overlap
+            best, overlap, refs = _support(text)
             if best and overlap >= 0.4:
                 return ClaimRecord(
                     claim_id=cid,
@@ -237,9 +276,9 @@ class ClaimEvidenceGate:
                 text=text,
                 claim_type=ctype,
                 evidence_status="INFERRED",
-                evidence_refs=[str(self.brain_db / "whitespace.jsonl")],
-                confidence="MEDIUM",
-                source_records=["BRAIN_WHITESPACE_RECORD_LENDING"],
+                evidence_refs=[],
+                confidence="LOW",
+                source_records=[],
                 action="USE_AS_INFERENCE",
                 rationale="Valid strategic hypothesis; must be framed as an inference, never as an empirical market census."
             )
@@ -247,12 +286,7 @@ class ClaimEvidenceGate:
         # ── RULE 5: COMPETITOR FACTS REQUIRE OBSERVED EVIDENCE ────────────────
         if ctype == "COMPETITOR_FACT":
             players_file = self.brain_db / "players.jsonl"
-            players = []
-            if players_file.exists():
-                with open(players_file, "r", encoding="utf-8") as f:
-                    for line in f:
-                        if line.strip():
-                            players.append(json.loads(line))
+            players = _players(players_file)
 
             matched_players = [p["player_id"] for p in players if p["player_id"] in t_lower]
             if matched_players:
@@ -286,11 +320,11 @@ class ClaimEvidenceGate:
             text=text,
             claim_type=ctype,
             evidence_status="DERIVED",
-            evidence_refs=[str(self.brain_db / "opportunities.jsonl")],
-            confidence="MEDIUM",
-            source_records=["BRAIN_OPPORTUNITIES_RECORD"],
-            action="USE",
-            rationale="Derived strategic positioning angle."
+            evidence_refs=[],
+            confidence="LOW",
+            source_records=[],
+            action="USE_AS_INFERENCE",
+            rationale="A positioning angle, not a fact; nothing was looked up, so it is framing only."
         )
 
     def audit_claim_list(self, claims: List[str]) -> List[ClaimRecord]:

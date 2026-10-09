@@ -265,8 +265,11 @@ class ClaimConsistencyGate:
 
         return GateEvaluationResult(
             status="PASS",
-            reason="All numerical thresholds, mechanism definitions, and product stages are consistent with canonical Vanna specifications.",
-            evidence=evidence or ["Matches docs.vanna.finance 1.10x Health Factor floor and 0.00014 XLM fixed gas."],
+            # What this gate checks is what it reports: no contradiction found.
+            # It used to cite "docs.vanna.finance 1.10x ... 0.00014 XLM" as
+            # evidence on every PASS, for any text and any tenant.
+            reason="No threshold, penalty or deployment contradiction found in the claims.",
+            evidence=evidence,
             assumptions=[],
             confidence=0.95
         )

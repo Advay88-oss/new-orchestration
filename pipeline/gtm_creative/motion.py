@@ -186,7 +186,10 @@ def element_prompt_for(archetype: Optional[str], subject: str = "") -> str:
     at all — silently fell back to the isolation grid. The archetype still
     fixes the motion; the subject decides what the moving part represents.
     """
-    base = ELEMENT_PROMPTS.get(str(archetype or ""), DEFAULT_ELEMENT)
+    from pipeline.brand_brain import context as C
+    accent = str(C.rule("motion_accent") or "muted accent-colour")
+    base = (ELEMENT_PROMPTS.get(str(archetype or ""), DEFAULT_ELEMENT)
+            .replace("muted violet", accent).replace("a violet pulse", "a " + accent.split()[-1] + " pulse"))
     s = " ".join(str(subject or "").split())[:200]
     if not s:
         return base
@@ -204,7 +207,7 @@ def _ffmpeg() -> str:
 
 
 def veo_element(prompt: str, out: Path, *, project: str = "vanna-mcp",
-                location: str = "us-central1", model: str = "veo-3.1-generate-001",
+                location: str = "us-central1", model: Optional[str] = None,
                 timeout_s: float = 420.0) -> Path:
     """Render one locked-off element clip with Veo."""
     import json
@@ -216,11 +219,14 @@ def veo_element(prompt: str, out: Path, *, project: str = "vanna-mcp",
     from pipeline.scripts.veo_broll import _find_video, _write_video, run_veo
 
     project = media_project(project)
+    if not model:
+        from pipeline.gtm_os.agent_runtime import MODELS
+        model = MODELS["video"]
 
     started = time.time()
     params = {"aspectRatio": "16:9", "sampleCount": 1, "durationSeconds": DURATION_S}
     try:
-        res, key, _via = run_veo(model, {"prompt": prompt}, params, project=project,
+        res, key, via = run_veo(model, {"prompt": prompt}, params, project=project,
                                  location=location, timeout_s=timeout_s)
     except RuntimeError as exc:
         _journal(False, round(time.time() - started, 2), model, str(exc)[:120])
@@ -236,14 +242,14 @@ def veo_element(prompt: str, out: Path, *, project: str = "vanna-mcp",
     # Journal the call. Routing A09 through here rather than through the
     # cycle's own Veo path silently dropped veo-3.1 off the dashboard's
     # model list — the work was happening and the telemetry said it was not.
-    _journal(True, round(time.time() - started, 2), model)
+    _journal(True, round(time.time() - started, 2), model, transport=via)
     return out
 
 
-def _journal(ok: bool, secs: float, model: str, note: str = "") -> None:
+def _journal(ok: bool, secs: float, model: str, note: str = "", transport: str = "unknown") -> None:
     from pipeline.gtm_os import agent_runtime as R
     R.record(R.AgentCall("A09_video_production", "video", model, ok, secs,
-                         note=note, transport="vertex"))
+                         note=note, transport=transport))
 
 
 # --------------------------------------------------------------------------

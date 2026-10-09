@@ -56,7 +56,7 @@ GUARDRAILS = (
 # and the choreography change: the last few used are unavailable, the rest
 # are ordered by the founder's record, and the model picks what fits.
 LAYOUTS = {
-    "split_contrast": "logo at top, big headline, grey subtitle, then two large cards side by side — the problem on the left in red (cracked, draining or stuck at zero), {company} on the right in violet (holding or rising) — one arrow between. Each card holds a readable mechanism (a meter, a chart, a crack, a flow) with short labels, not an empty card. The cards take the MATERIAL of this post",
+    "split_contrast": "logo at top, big headline, grey subtitle, then two large cards side by side — the problem on the left in red (cracked, draining or stuck at zero), {company} on the right in the brand accent colour (holding or rising) — one arrow between. Each card holds a readable mechanism (a meter, a chart, a crack, a flow) with short labels, not an empty card. The cards take the MATERIAL of this post",
     "hub_spokes": "one central card for {company} with three cards around it, joined by straight lines, on the MATERIAL of this post",
     "step_flow": "three or four cards in a row joined by arrows, a numbered sequence, on the MATERIAL of this post",
     "stack_checklist": "one tall card of 3-5 rows with check marks, and a call-to-action pill below, on the MATERIAL of this post",
@@ -160,7 +160,9 @@ def _fill(text: str) -> str:
                         if not any(s in r.lower() for s in skip)][:5])
     comps = ", ".join(c.title() for c in _competitors()[:3])
     avoid = C.avoid_colors()
-    return (text.replace("{company_line}", C.company_line())
+    return (text.replace("{poster_scope}", C.rule("poster_scope"))
+            .replace("{figure_scope}", C.rule("figure_scope") or ("The profile figures are " + figs + "."))
+            .replace("{company_line}", C.company_line())
             .replace("{company}", C.company_name())
             .replace("{figures}", figs)
             .replace("{venues}", venues or "partner protocols")
@@ -168,6 +170,11 @@ def _fill(text: str) -> str:
             .replace("{competitor_rule}", str(C.profile().get("competitor_rule", "")))
             .replace("{palette_rule}", "Keep to the brand palette"
                      + ("; no " + " or ".join(avoid) if avoid else "") + "."))
+
+
+def _c_rule(name: str) -> str:
+    from pipeline.brand_brain import context as C
+    return str(C.rule(name) or "")
 
 
 def _brief_faults(out: dict, animated: bool = True) -> list[str]:
@@ -289,10 +296,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         "Write a brief an image model can draw "
         "from: ONE idea, as a diagram of cards, icons and arrows, on ONE material.\n"
         "The diagram depicts the mechanism in the post body. Draw those names "
-        "and those figures. Do not add Blend, Aquarius, a SmartAccount sandbox, "
-        "or 1.10× unless the post body names them. A Solana post draws the "
-        "Solana mechanism (a stock token, one margin account, a borrow), not "
-        "the Stellar diagram.\n"
+        "and those figures. {poster_scope}\n"
         "Pick the layout from LAYOUT FAMILIES below. Consecutive posts must "
         "not share a layout. Logo at top, one headline, one subtitle, then "
         "the cards that layout describes, then a footer.\n"
@@ -308,8 +312,8 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         "Never draw coins, token logos, currency symbols or any protocol's "
         "logo. {palette_rule}\n"
         + shape +
-        "A figure is drawn only when the post body already states it. The "
-        "profile figures ({figures}) belong to Stellar testnet posts. Invent none. "
+        "A figure is drawn only when the post body already states it. "
+        "{figure_scope} Invent none. "
         "Other protocols ({venues}) appear as plain text names.\n"
         "Rules:\n"
         "- Cover EVERY subject the founder's query names. If it asks about "
@@ -365,7 +369,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         '(under 14 words), "problem_side": str, "brand_side": str, '
         '"diagram": str (what is drawn, laid out as the chosen layout family), '
         '"labels": [str] (every word that appears on the diagram, 1-4 words '
-        'each), "footer": str (bold lead + testnet caveat), "why": str}')
+        'each), "footer": str (' + (_c_rule("footer") or "bold lead + the brand disclosure") + '), "why": str}')
     out = R.brain_json(prompt, agent=AGENT, role="director", system=system,
                        temperature=0.5, max_output_tokens=8192, run_id=run_id)
     # The rules are checked, not only stated: in testing, both Flash and Pro
@@ -407,7 +411,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
     picture = " ".join(str(out.get("idea") or out.get("diagram") or "").split())[:160]
     if picture:
         _remember("recent_poster_pictures.json", picture)
-    text = ("Material: " + material + " — " + MATERIALS[material] + "\n"
+    text = ("Material: " + material + " — " + _fill(MATERIALS[material]) + "\n"
             + "Layout: " + layout + " — " + _fill(LAYOUTS[layout]) + "\n" + text)
     return {"brief": text, "raw": out, "layout": layout}
 
@@ -473,9 +477,15 @@ def motion_plan(poster: str | Path, brief: str, *,
         style = open_styles[0]
     _remember("recent_motion_styles.json", style)
     plan = "MOTION STYLE: " + style + " — " + MOTION_STYLES[style] + "\n" + plan
-    plan += ("\nSURFACE: no glassmorphism. Do not add frost, blur, a see-through fill, "
-             "or a glowing glass border. Move only the opaque shapes already drawn."
-             "\nLETTERS: do not draw, type, reveal, fade, wipe or morph any letter, "
+    # A glass_accent poster has one glass card; the clip keeps that card as it
+    # is and adds no other. Any other poster gets no glass at all.
+    if "Material: glass_accent" in brief:
+        plan += ("\nSURFACE: the one frosted card already on the poster stays as drawn. Add no "
+                 "other frost, blur or see-through fill; every other shape stays opaque.")
+    else:
+        plan += ("\nSURFACE: no glassmorphism. Do not add frost, blur, a see-through fill, "
+                 "or a glowing glass border. Move only the opaque shapes already drawn.")
+    plan += ("\nLETTERS: do not draw, type, reveal, fade, wipe or morph any letter, "
              "word, numeral or logo. Those are composited afterwards. Animate "
              "shapes, cards, arrows, connectors and light only.")
     return {"plan": plan, "raw": out, "motion_style": style,

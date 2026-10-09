@@ -52,6 +52,9 @@ MODELS: dict[str, str] = {
     # "nano banana pro". `nano-banana-pro-preview` is the marketing name and
     # 404s on Model Garden; this is the id the publisher actually serves.
     "meme":      os.environ.get("VANNA_GTM_MODEL_MEME", "gemini-3-pro-image"),
+    # The direct poster (A08's live path). Its own role: the founder approved
+    # the posters this model draws, and "image" is the cheaper archetype model.
+    "poster":    os.environ.get("VANNA_GTM_MODEL_POSTER", "gemini-3-pro-image"),
     "video":     os.environ.get("VANNA_GTM_MODEL_VIDEO", "veo-3.1-generate-001"),
     # The Motion Director (poster brief + Veo motion plan). Its own role so its
     # model can change without moving every other agent. Flash by default:

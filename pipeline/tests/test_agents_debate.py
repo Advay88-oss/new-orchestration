@@ -71,16 +71,32 @@ class Debate(unittest.TestCase):
         out, _ = self.run_compete(made, verdict, directive=True)
         self.assertEqual(out.action_status, "ACTION")
 
-    def test_only_one_arc_found_an_angle(self):
+    def test_only_one_arc_found_an_angle_still_meets_the_bar(self):
         made = {"capital efficiency": _strategy(status="NO_ACTION"), "risk isolation": _strategy(pillar="RI")}
-        out, summary = self.run_compete(made, {"ok": False})
-        self.assertEqual(out.narrative_pillar, "RI")
+        ok = {"ok": True, "winner": 0, "best_score": 75,
+              "scores": [{"i": 0, "arc": "risk isolation", "score": 75, "why": "w"}]}
+        out, summary = self.run_compete(made, ok)
+        self.assertEqual(out.action_status, "ACTION")
         self.assertEqual(summary["strategist_debate"]["winner"], "risk isolation")
+        self.assertEqual(summary["strategist_debate"]["score"], 75)
+        low = {"ok": True, "winner": 0, "best_score": 50,
+               "scores": [{"i": 0, "arc": "risk isolation", "score": 50, "why": "thin"}]}
+        out, _ = self.run_compete(made, low)
+        self.assertEqual(out.decision_reason_class, "EDITORIAL_BELOW_BAR")
 
-    def test_judge_down_takes_the_most_proof_not_a_coin(self):
+    def test_judge_down_stops_an_autonomous_run(self):
         made = {"capital efficiency": _strategy(pillar="CE", proof=("a",)),
                 "risk isolation": _strategy(pillar="RI", proof=("a", "b", "c"))}
-        out, _ = self.run_compete(made, {"ok": False, "error": "503"})
+        out, summary = self.run_compete(made, {"ok": False, "error": "503"})
+        self.assertEqual(out.action_status, "NO_ACTION")
+        self.assertEqual(out.decision_reason_class, "EDITORIAL_UNSCORED")
+        self.assertIsNone(summary["strategist_debate"]["score"])
+
+    def test_judge_down_on_a_directive_takes_the_most_proof_not_a_coin(self):
+        made = {"capital efficiency": _strategy(pillar="CE", proof=("a",)),
+                "risk isolation": _strategy(pillar="RI", proof=("a", "b", "c"))}
+        out, _ = self.run_compete(made, {"ok": False, "error": "503"}, directive=True)
+        self.assertEqual(out.action_status, "ACTION")
         self.assertEqual(out.narrative_pillar, "RI")
 
     def test_judge_scores_are_clamped_and_indexed(self):

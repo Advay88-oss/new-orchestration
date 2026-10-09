@@ -197,8 +197,17 @@ def judge_assets(summary: dict[str, Any], run_id: str) -> dict[str, Any]:
     assets = verdict.get("assets") or []
     rejects = [a for a in assets if str(a.get("verdict")).upper() == "REJECT"]
     no_mech = [a for a in assets if a.get("shows_mechanism") is False]
-    overall = str(verdict.get("overall", "")).upper() or (
-        "REJECT" if rejects else "SHIP")
+    # No overall line: derive it from the asset verdicts, and when there are
+    # none the run is UNJUDGED, which blocks. A missing verdict used to read
+    # as SHIP, so a judge that returned nothing passed everything.
+    judged = [str(a.get("verdict")).upper() for a in assets if a.get("verdict")]
+    derived = ("REJECT" if rejects else "UNJUDGED" if not judged or len(judged) < len(labels)
+               else "SHIP" if all(v == "SHIP" for v in judged) else "REVISE")
+    overall = str(verdict.get("overall", "")).upper() or derived
+    if str(verdict.get("copy_verdict", "")).upper() == "REJECT" and overall != "REJECT":
+        # A rejected copy does not ship either, whatever the images got.
+        overall = "REJECT"
+        verdict["summary"] = "Overall raised to REJECT: the copy was rejected. " + str(verdict.get("summary", ""))[:300]
     # The per-asset verdicts dominate. A run came back overall REVISE while
     # carrying a REJECTed video, and shipped — the asset the judge refused was
     # rescued by its own summary line. If one asset must not publish, the run

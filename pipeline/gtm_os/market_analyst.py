@@ -70,11 +70,8 @@ _SYSTEM = (
     "string for NONE.\n"
     "   post_idea — for DIRECT and ADJACENT only: ONE sentence the later agents "
     "will post, under 25 words. It names this signal's real subject and one "
-    "mechanism from the GitHub product pages that fits that subject. A Solana "
-    "or tokenized-stock signal uses a Solana page (xStocks, one margin account, "
-    "up to 5×, no funding rate, or the Kamino earn line). A Stellar signal uses "
-    "a Stellar page. Do not mention Blend or Aquarius unless this signal is "
-    "about those venues. Empty string for NONE. This sentence is the post idea "
+    "mechanism from the GitHub product pages that fits that subject. "
+    "{signal_mechanism}Empty string for NONE. This sentence is the post idea "
     "References shows on this source.\n\n"
     "   MOST SIGNALS ARE NONE OR ADJACENT. A harvest where everything is "
     "DIRECT is not a good harvest, it is a dishonest reading, and it makes "
@@ -131,6 +128,7 @@ def _system() -> str:
     text = (_SYSTEM.replace("{company_line}", C.company_line())
             .replace("{company}", C.company_name())
             .replace("{mechanisms}", ", ".join(C.relevance_terms()[:16]))
+            .replace("{signal_mechanism}", (C.rule("signal_mechanism") + " ") if C.rule("signal_mechanism") else "")
             .replace("{deployment}", str(C.profile().get("company", {}).get("deployment", ""))))
     pages = C.product_pages_block()
     return text if not pages or "GITHUB PRODUCT PAGES" in text else text + "\n\n" + pages

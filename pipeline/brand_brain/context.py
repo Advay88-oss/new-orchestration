@@ -59,6 +59,33 @@ def profile(tenant: Optional[str] = None) -> dict[str, Any]:
     return p
 
 
+def _seed(tenant: Optional[str] = None) -> dict[str, Any]:
+    seed = SEEDS / ((tenant or current_tenant()) + ".profile.json")
+    try:
+        return json.loads(seed.read_text(encoding="utf-8")) if seed.exists() else {}
+    except (OSError, ValueError):
+        return {}
+
+
+def rule(name: str, default: Any = "", tenant: Optional[str] = None) -> Any:
+    """A company-specific prompt rule, from profile["prompt_rules"].
+
+    The shared prompts used to carry Vanna's rules as literals (Stellar vs
+    Solana figures, "no Blend or Aquarius", testnet caveats), so every tenant
+    was briefed with them. They live in the tenant's profile now; a tenant
+    without the rule gets `default`. A stored profile older than the key falls
+    back to the tenant's seed file. In a string rule, {figures} is the
+    profile's true figures and {company} the company name."""
+    rules = _get("prompt_rules", None, tenant)
+    if not isinstance(rules, dict):
+        rules = _seed(tenant).get("prompt_rules") or {}
+    value = rules.get(name, default)
+    if isinstance(value, str) and value:
+        figs = ", ".join(f["value"] + " " + f.get("meaning", "") for f in true_figures(tenant))
+        value = value.replace("{figures}", figs).replace("{company}", company_name(tenant))
+    return value
+
+
 def _get(path: str, default: Any = None, tenant: Optional[str] = None) -> Any:
     cur: Any = profile(tenant)
     for k in path.split("."):
@@ -270,6 +297,20 @@ def knowledge_hits(topic: str, k: int = 8, tenant: Optional[str] = None,
         return brain(tenant).search_knowledge(topic, k=k, max_authority=max_authority, sources=sources)
     except Exception:                               # noqa: BLE001 — boundary
         return []
+
+
+# The brand's own restatements of its claims. They brief the writers, but they
+# cannot prove a claim: the profile's figures were stored at the top authority,
+# so the fact check found "profile:facts" and passed a figure on itself.
+SELF_SOURCES = ("profile", "rulebook")
+
+
+def evidence_hits(topic: str, k: int = 4, tenant: Optional[str] = None,
+                  max_authority: int = 3) -> list[dict]:
+    """Brain sections that may serve as proof for a claim: knowledge_hits
+    without the brand's own restatements (SELF_SOURCES)."""
+    hits = knowledge_hits(topic, k=k + 6, tenant=tenant, max_authority=max_authority)
+    return [h for h in hits if h.get("source") not in SELF_SOURCES][:k]
 
 
 def facts_block(topic: str, *, k: int = 8, excerpts: Optional[int] = None,

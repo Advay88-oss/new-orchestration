@@ -36,7 +36,7 @@ RUBRIC = (
     "  checkable proof                  20  (specific claims a fact checker can verify; no invented numbers)\n"
     "  audience fit                     15  (the named audience would care)\n"
     "  one clear idea                   15  (one arc, one argument, no blending)\n"
-    "70 or more is publishable. Below 70 is not."
+    + str(MIN_SCORE) + " or more is publishable. Below " + str(MIN_SCORE) + " is not."
 )
 
 

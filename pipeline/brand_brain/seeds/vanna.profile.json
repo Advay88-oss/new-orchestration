@@ -409,5 +409,55 @@
     "MACH_09_DEVELOPER_SDK_ADOPTION": "Release npm and rust SDK for Soroban contract integration.",
     "MACH_10_VIRAL_MEME_BOUNTY": "Strictly prohibited by Vanna positioning rules (never use meme hype)."
   },
-  "competitor_note": "Morpho is a competitor (founder, 2026-09-26). The Notion ground truth still lists it among integrations; the founder's decision overrides it."
+  "competitor_note": "Morpho is a competitor (founder, 2026-09-26). The Notion ground truth still lists it among integrations; the founder's decision overrides it.",
+  "prompt_rules": {
+    "_note": "Company-specific rules the shared agent prompts insert by name (brand_brain.context.rule). A tenant without a rule gets none of it. {figures} is replaced by claims.true_figures, {company} by the name.",
+    "deployments": "The profile line is the Stellar deployment. A GitHub page for Solana is the other deployment, not a contradiction of the profile. Never assert live token trading or first-mover status. A post is about one deployment. Solana pages (xStocks, PreStocks, borrow from one margin account, up to 5×, no funding rate, Kamino's xStocks market) are true of the Solana program. Do not reject a Solana subject because the profile line is Stellar, and do not put a Stellar figure or Blend or Aquarius on a Solana post.",
+    "signal_mechanism": "A Solana or tokenized-stock signal uses a Solana page (xStocks, one margin account, up to 5×, no funding rate, or the Kamino earn line). A Stellar signal uses a Stellar page. Do not mention Blend or Aquarius unless this signal is about those venues.",
+    "stay_on_source": "Do not rewrite the post into Blend and Aquarius unless the source is about those venues.",
+    "figure_scope": "A Solana page's figures stay on a Solana post. The profile figures ({figures}) are the Stellar testnet figures and stay on a Stellar post. Never give either set to the other deployment, and never give them to another protocol.",
+    "figure_suffix": " (Stellar testnet only)",
+    "poster_facts": [
+      "Solana only, when the post is about Solana: xStocks and PreStocks, one margin account, up to 5x, no funding rate. Do not draw a Stellar figure on that poster."
+    ],
+    "poster_scope": "Do not add Blend, Aquarius, a SmartAccount sandbox, or 1.10× unless the post body names them. A Solana post draws the Solana mechanism (a stock token, one margin account, a borrow), not the Stellar diagram.",
+    "footer": "bold lead + testnet caveat",
+    "kill_phrases": [
+      "mainnet live",
+      "token trading"
+    ],
+    "kill_reason": "Signal asserts mainnet live or live token trading, which contradicts the deployment in the brand profile.",
+    "default_objective": "Drive qualified testnet sandbox deployments.",
+    "risk_flags": [
+      "Testnet only: do not claim mainnet live or live institutional adoption"
+    ],
+    "motion_accent": "muted violet",
+    "video_ground": "dark violet-and-magenta",
+    "rotation_subjects": [
+      {
+        "id": "solana-margin",
+        "text": "A trader on Solana lends a stock token such as TSLAx, or a PreStock such as OPENAI, then borrows from one margin account to go long or short up to 5× through a Jupiter swap, with no funding rate. Say it is on the Solana devnet fork. One idea. Do not mention Stellar, Blend, Aquarius, SmartAccount, 10×, 1.10×, or XLM."
+      },
+      {
+        "id": "solana-earn",
+        "text": "Supplying a stock token such as TSLAx on Solana earns the live borrow rate, while the same mint sitting in Kamino's xStocks market does not. Use only that sentence from the Solana earn page. Do not add an APY number. One idea. Do not mention Stellar, Blend, Aquarius, SmartAccount, or 10×."
+      },
+      {
+        "id": "stellar-how",
+        "text": "Stellar testnet only. Explain the two connected sides from the how-vanna-works page: who supplies liquidity, and who borrows. Use only a mechanism that page states. One idea. Do not make Blend and Aquarius the subject. Do not mention Solana, xStocks, Jupiter, or 5×."
+      },
+      {
+        "id": "stellar-floor",
+        "text": "Stellar testnet only. Each borrower has an isolated SmartAccount, and the liquidation floor is 1.10×. One idea. Do not make Blend and Aquarius the diagram. Do not mention Solana, xStocks, Jupiter, or 5×."
+      }
+    ],
+    "doc_roots": [
+      "Vanna_docs",
+      "Solana_Docs"
+    ],
+    "doc_page_notes": {
+      "Solana_Docs": "Solana devnet fork only; do not mention Stellar, Blend, Aquarius or 1.10x.",
+      "*": "Stellar testnet only. Do not make Blend, Aquarius, SmartAccount isolation or the 1.10x floor the subject unless this page is about them."
+    }
+  }
 }

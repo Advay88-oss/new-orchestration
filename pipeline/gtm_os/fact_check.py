@@ -118,7 +118,8 @@ def check_copy(hook: str, copy: str, *, run_id: Optional[str] = None,
 
     evidence: dict[int, list[dict]] = {}
     for i, c in enumerate(claims):
-        evidence[i] = C.knowledge_hits(c, k=4, max_authority=3)
+        # Proof comes from documents, not from the profile that states the claim.
+        evidence[i] = C.evidence_hits(c, k=4, max_authority=3)
     listing = []
     for i, c in enumerate(claims):
         listing.append("CLAIM " + str(i) + ": " + c)

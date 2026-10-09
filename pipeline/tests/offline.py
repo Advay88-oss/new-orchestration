@@ -22,6 +22,7 @@ import unittest
 OFFLINE_SAFE = [
     "test_p1_safety",
     "test_agents_debate",
+    "test_agent_hardcoding",
     "test_copilot_layers",
     "test_schedule_sentences",
     "test_assistant_chat",

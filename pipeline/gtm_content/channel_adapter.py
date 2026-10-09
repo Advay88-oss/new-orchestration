@@ -116,6 +116,8 @@ class ChannelAdapter:
         objective = strategy.objective or "Educate the audience and drive the call to action"
         cta = strategy.cta or C.cta()
         figures = ", ".join(f["value"] + " " + f.get("meaning", "") for f in C.true_figures())
+        stay_rule = C.rule("stay_on_source")
+        figure_scope = C.rule("figure_scope")
         # The research step of the architecture: the brand brain's knowledge on
         # this subject, with sources. Only what is here may be stated as fact;
         # the reviewer checks every claim against the same brain.
@@ -180,7 +182,7 @@ Write native social copy for the following strategy:
 - Core Objective: "{objective}"
 - Call to Action: "{cta}"
 
-Stay on the subject. If the founder asked for a concept, explain THAT concept in a few plain sentences; never swap it for a neighbouring one (liquidity is not liquidation). If the subject is a scraped reference, the post is about that doc, post or article, and the last line may be its URL. Do not replace that source with Blend and Aquarius.
+Stay on the subject. If the founder asked for a concept, explain THAT concept in a few plain sentences; never swap it for a neighbouring one (liquidity is not liquidation). If the subject is a scraped reference, the post is about that doc, post or article, and the last line may be its URL. Do not replace that source with another subject. {stay_rule}
 {learned_section}
 How the posts that travel are written, and how you write:
 People stop for one picture and one fact. They scroll past a mechanism paragraph.
@@ -202,7 +204,7 @@ Use the real subject from this run. Only a figure the ground truth states. If th
 2. Short lines, separated by a blank line. No threads, no numbered points, no bullets, no bold labels.
 3. Simple words. No "introduces", "revolutionary", "game-changing", "seamlessly", "isolates assets", "dedicated lending reserves", "unifying margin", "devnet fork", "uniform risk pool".
 4. No em dashes and no exclamation marks.
-5. A figure only when a GitHub product page in the ground truth states it for this subject. A Solana page's figures stay on a Solana post. The profile figures ({figures}) are the Stellar testnet figures and stay on a Stellar post. Never give either set to the other deployment, and never give them to another protocol.
+5. A figure only when a GitHub product page in the ground truth states it for this subject. The profile figures are {figures}; never give them to another protocol. {figure_scope}
 6. X: 2 or 3 short lines, under 280 characters. The first line is the picture. The link, if any, is the last line.
 7. LinkedIn: the same picture in 3 or 4 short lines, under 500 characters. Not an article. Do not say "architecture" or "failure modes" unless the subject is those words.
 8. Reddit: the same picture in short lines, under 700 characters, then the disclosure. The title is a plain sentence, not "Technical analysis".
@@ -294,6 +296,9 @@ Return STRICT JSON matching this schema:
         # The template stand-in is marked on every post: the cycle stops
         # before paying for a poster or a video for copy no model wrote.
         synthesised = bool(parsed_data.get("_synthesised"))
+        # Template copy no model wrote is LOW; model copy is unmeasured until
+        # the reviewer and fact check run, so it is not claimed as HIGH.
+        _confidence = "LOW" if synthesised else "MEDIUM"
         parsed_data = _simplify_if_dense(parsed_data, ground_truth)
 
         x_hook = parsed_data.get("x_hook", title)
@@ -318,11 +323,11 @@ Return STRICT JSON matching this schema:
             hook=x_hook,
             copy=x_copy,
             call_to_action=cta,
-            risk_flags=["Requires testnet anchor verification"],
-            confidence="HIGH",
+            risk_flags=list(C.rule("risk_flags", []) or []),
+            confidence=_confidence,
             provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id,
                         "synthesised": synthesised},
-            media_direction="16:9 cinematic textless video showing sub-second optical deflection path away from danger boundary."
+            media_direction=None
         )
 
         # -------------------------------------------------------------
@@ -343,11 +348,11 @@ Return STRICT JSON matching this schema:
             hook=linkedin_hook,
             copy=linkedin_copy,
             call_to_action=cta,
-            risk_flags=["Must not claim mainnet live or live institutional fund adoption"],
-            confidence="HIGH",
+            risk_flags=list(C.rule("risk_flags", []) or []),
+            confidence=_confidence,
             provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id,
                         "synthesised": synthesised},
-            media_direction="High-resolution 2-panel architecture schematic comparing monolithic pool vs isolated sandboxes."
+            media_direction=None
         )
 
         # -------------------------------------------------------------
@@ -370,8 +375,8 @@ Return STRICT JSON matching this schema:
             copy=reddit_copy,
             call_to_action=cta,
             discussion_question=(reddit_hook or "What would you want this to do next?"),
-            risk_flags=["Requires testnet disclosure"],
-            confidence="HIGH",
+            risk_flags=list(C.rule("risk_flags", []) or []),
+            confidence=_confidence,
             provenance={"strategy_id": strategy.strategy_id, "machine_id": strategy.gtm_machine_id,
                         "synthesised": synthesised},
             media_direction="Detailed code walkthrough of the mechanism the post explains."

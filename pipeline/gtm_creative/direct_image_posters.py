@@ -18,7 +18,12 @@ from typing import Any, Optional
 
 REPO = Path(__file__).resolve().parents[2]
 OUT_DIR = REPO / "pipeline" / "state" / "direct_posters"
-MODEL = "gemini-3-pro-image"
+
+def _model() -> str:
+    """The poster model, from the run's model table (VANNA_GTM_MODEL_POSTER)."""
+    from pipeline.gtm_os.agent_runtime import MODELS
+    return MODELS["poster"]
+
 
 # Everything company-specific here (the facts, the logo, the references, the
 # approved posters, the house style) comes from the tenant's brand brain.
@@ -63,8 +68,9 @@ def _facts() -> str:
     C = _c()
     lines = [C.company_name().upper() + " — the only facts you may use:", "- " + C.company_line()]
     lines += ["- " + k + ": " + v for k, v in C.anchors().items()]
-    lines += ["- " + f["value"] + ": " + f.get("meaning", "") + " (Stellar testnet only)" for f in C.true_figures()]
-    lines.append("- Solana only, when the post is about Solana: xStocks and PreStocks, one margin account, up to 5x, no funding rate. Do not draw a Stellar figure on that poster.")
+    suffix = str(C.rule("figure_suffix") or "")
+    lines += ["- " + f["value"] + ": " + f.get("meaning", "") + suffix for f in C.true_figures()]
+    lines += ["- " + str(x) for x in (C.rule("poster_facts", []) or [])]
     ns = C.never_state()
     if ns:
         lines.append("- Never state any other number: no " + ", no ".join(ns) + ".")
@@ -241,9 +247,7 @@ def _prompt(brief: str, correction: str = "", approved: int = 0,
         + _learned_rules()
         + _taste_rules()
         + "\n\nTHE POST THIS IMAGE IS FOR:\n" + " ".join(brief.split())
-        + "\n\nDraw the mechanism this post describes. Do not add Blend, "
-          "Aquarius, or a SmartAccount sandbox unless the post text names them. "
-          "A Solana post does not use the Stellar diagram."
+        + "\n\nDraw the mechanism this post describes. " + str(_c().rule("poster_scope") or "")
         + ("\n\nFIX FROM THE PREVIOUS ATTEMPT (it was rejected): " + correction
            if correction else "")
     )
@@ -332,8 +336,8 @@ def judge(image: Path, brief: str, *, animated: bool = True) -> dict[str, Any]:
         "icon for them is a fake brand mark); no markdown characters "
         "(asterisks, underscores, hashes) rendered as text; " + _shape_rule(animated) + " "
         "BASIC ERRORS the founder never wants: the same label, name or figure "
-        "printed twice (a card titled \"~320ms\" that also holds \"~320ms\"; a "
-        "container and the card inside it both named \"Isolated SmartAccount\"; "
+        "printed twice (a card titled \"2s\" that also holds \"2s\"; a "
+        "container and the card inside it both named \"Isolated account\"; "
         "the venue names drawn twice); an arrow that leaves the frame, ends at "
         "nothing or goes through a card; a figure written on an arrow as its "
         "label; an icon or chart that explains nothing (radar rings, a random "
@@ -345,7 +349,7 @@ def judge(image: Path, brief: str, *, animated: bool = True) -> dict[str, Any]:
         "wired into a shared pool in the middle); filler status text (\"Calm "
         "status\", \"Healthy\") standing in for a mechanism. Count every figure "
         "on the poster, subtitle and labels included: a figure that appears more "
-        "than once (\"1.10x floor\" in a title and \"1.10x\" beside its meter) is a "
+        "than once (\"1.5x floor\" in a title and \"1.5x\" beside its meter) is a "
         "BASIC ERROR. "
         "REJECT on any spelling error, invented figure, wrong logo, another "
         "protocol's logo, markdown characters, overlap, any BASIC ERROR above, "
@@ -519,7 +523,7 @@ def make(brief: str, name: str, *, out_dir: Optional[Path] = None,
         path = out_dir / f"{name}_try{n}.png"
         generate_gemini_image(prompt=_prompt(brief, correction, len(approved), animated),
                               output_path=path,
-                              model=MODEL, temperature=0.7, images=imgs,
+                              model=_model(), temperature=0.7, images=imgs,
                               aspect_ratio="1:1")
         # The real lockup replaces the drawn one before the judge looks, so a
         # wrong mark costs nothing instead of a whole attempt.

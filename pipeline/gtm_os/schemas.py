@@ -59,8 +59,12 @@ class FullHumanApprovalPacket(BaseModel):
     unsupported_claims_rejected: List[str] = Field(default_factory=list)
     content_variants: Dict[str, Any]
     creative_concept: Dict[str, Any]
-    reviewer_score: int
-    confidence_dimensions: Dict[str, float]
+    # The editorial judge's real /100, or None when no judge scored this run.
+    reviewer_score: Optional[int] = None
+    # Filled only from a real confidence matrix; empty means none was measured.
+    confidence_dimensions: Dict[str, float] = Field(default_factory=dict)
+    gate_passed: Optional[bool] = None
+    blocking: List[str] = Field(default_factory=list)
     known_limitations: List[str]
     expected_cta: str
     exact_action_requested: str

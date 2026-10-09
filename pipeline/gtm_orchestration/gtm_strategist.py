@@ -71,12 +71,14 @@ class GTMStrategist:
         # GATE 0: KILL CHECK — Prohibited or Fatal Signal Assertions
         # -------------------------------------------------------------
         full_signal_text = f"{signal.headline} {signal.description}".lower()
-        if "mainnet live" in full_signal_text or "token trading" in full_signal_text:
+        from pipeline.brand_brain import context as _C
+        _kill = [str(k).lower() for k in (_C.rule("kill_phrases", []) or [])]
+        if any(k and k in full_signal_text for k in _kill):
             return GTMStrategy(
                 strategy_id=strat_id,
                 action_status="KILL",
                 decision_reason_class="PROHIBITED_CLAIM_VIOLATION",
-                kill_rationale="Signal asserts mainnet live or live token trading, which contradicts the deployment in the brand profile.",
+                kill_rationale=_C.rule("kill_reason") or "Signal contradicts the deployment in the brand profile.",
                 objective="NONE",
                 audience_segment="NONE",
                 problem="NONE",
@@ -144,24 +146,15 @@ class GTMStrategist:
             "Decide whether a market signal is worth publishing about, and if "
             "so, formulate the strategy. Return strict JSON only.\n\n"
             "Rules:\n"
-            "- The profile line is the Stellar deployment. A GitHub page for Solana "
-            "is the other deployment, not a contradiction of the profile. Never assert "
-            "live token trading or first-mover status.\n"
-            "- The GitHub pages name two deployments. A post is about one of them. "
-            "Solana pages (xStocks, PreStocks, borrow from one margin account, up to 5×, "
-            "no funding rate, Kamino's xStocks market) are true of the Solana program. "
-            "Do not reject a Solana subject because the profile line is Stellar, and "
-            "do not put a Stellar figure or Blend or Aquarius on a Solana post.\n"
+            "{deployments_rule}"
             "- A signal marked SCRAPED REFERENCE is a doc, post, news item or "
             "market page the scout took. That source is the subject. The post "
             "idea in the description is what to say. The GitHub page named "
-            "there is the only Vanna mechanism. Do not drop the source and do "
-            "not rewrite the post into Blend and Aquarius unless the source "
-            "is about those venues. Do not reject it for lacking a news hook.\n"
+            "there is the only {company} mechanism. Do not drop the source. "
+            "{stay_on_source}Do not reject it for lacking a news hook.\n"
             "- A signal marked PRODUCT PAGE was chosen because recent posts repeated "
             "one story. That page is the subject. Write problem, positioning and "
-            "proof_claims about that page only. Do not rewrite it into Blend and "
-            "Aquarius unless the page itself is about those venues. Do not reject "
+            "proof_claims about that page only. {stay_on_source}Do not reject "
             "it for lacking a news hook.\n"
             "- `proof_claims` must be claims you believe are true of {company} and "
             "checkable. Do not invent metrics. If you are unsure of a number, "
@@ -413,7 +406,7 @@ class GTMStrategist:
             strategy_id=strat_id,
             action_status="ACTION",
             decision_reason_class="VALID_ACTIONABLE_SIGNAL",
-            objective=model_objective or "Drive qualified testnet sandbox deployments.",
+            objective=model_objective or _default_objective(),
             audience_segment=chosen_audience,
             problem=problem_statement,
             market_context=signal.description,
@@ -429,9 +422,12 @@ class GTMStrategist:
             machine_eligibility=machine_check,
             reasoning=model_reasoning + [
                 f"Market Signal '{signal.headline}' verified from {signal.source_type} (Confidence: {signal.confidence}).",
-                f"Audience '{chosen_audience}' targeted to resolve verified objection from Brain DB.",
+                f"Audience '{chosen_audience}' chosen for this signal.",
                 f"Machine '{candidate_machine_id}' verified eligible ({machine_check.selection_reason}).",
-                f"Claims verified: {len(claim_records)} claims evaluated by ClaimEvidenceGate (0 blocked)."
+                (f"Claims: {len(claim_records)} evaluated by ClaimEvidenceGate — "
+                 f"{sum(1 for x in claim_records if x.action == 'USE')} sourced, {len(inferred_claims)} framing only, "
+                 f"{len(blocked_claims)} blocked, "
+                 f"{sum(1 for x in claim_records if x.action == 'REQUIRES_VERIFICATION')} unverified.")
             ],
             evidence=[
                 {
@@ -582,12 +578,21 @@ def _fill_strategy(text: str) -> str:
     block = "\n".join("    (" + chr(97 + i) + ") " + a["name"] + " — " + a["claim"]
                       + ". This is the argument for " + a.get("subjects", "") + "."
                       for i, a in enumerate(args))
-    return (text.replace("{company_line}", C.company_line())
+    deployments = C.rule("deployments")
+    stay = C.rule("stay_on_source")
+    return (text.replace("{deployments_rule}", ("- " + deployments + "\n") if deployments else "")
+            .replace("{stay_on_source}", (stay + " ") if stay else "")
+            .replace("{company_line}", C.company_line())
             .replace("{company}", C.company_name())
             .replace("{deployment}", str(prof.get("company", {}).get("deployment", "")))
             .replace("{n_arguments}", str(len(args)))
             .replace("{arguments}", block)
             .replace("{arguments_note}", str(prof.get("arguments_note", ""))))
+
+
+def _default_objective() -> str:
+    from pipeline.brand_brain import context as C
+    return C.rule("default_objective") or ("Earn qualified interest in " + C.company_name() + ".")
 
 
 def _default_positioning() -> str:

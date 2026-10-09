@@ -274,7 +274,7 @@ def _render_direct(hook: str, body: str, subject: str,
     """The poster from the image model itself, shown the founder's approved
     posters and the design references. None when it did not pass its own
     judge, so the caller can fall back."""
-    from pipeline.gtm_creative.direct_image_posters import MODEL, make
+    from pipeline.gtm_creative.direct_image_posters import make
 
     # The Motion Director writes the brief — the idea, headline, contrast and
     # diagram — from the query and the post, learning from the posters the
@@ -300,7 +300,7 @@ def _render_direct(hook: str, body: str, subject: str,
                        "direct-model poster failed: " + str(exc)[:200])
         return None
     for a in out["attempts"]:
-        R.record(R.AgentCall("A08_visual_synthesis", "image", MODEL, True, 0.0,
+        R.record(R.AgentCall("A08_visual_synthesis", "image", R.MODELS["poster"], True, 0.0,
                              note="direct poster attempt, judged "
                                   + str(a.get("verdict")),
                              transport="model-garden"))
@@ -318,7 +318,7 @@ def _render_direct(hook: str, body: str, subject: str,
     # The poster's own stage row. Without it A08's only row on a run was
     # "meme not requested", and a run that made a poster showed A08 skipped.
     R.record_stage("A08_visual_synthesis", "degraded" if rejected else "ok",
-                   "poster by " + MODEL + " from the approved posters and the "
+                   "poster by " + R.MODELS["poster"] + " from the approved posters and the "
                    "design references; own judge " + "/".join(verdicts)
                    + ("; every attempt rejected" if rejected else ""),
                    outputs=[str(png)])
@@ -355,23 +355,31 @@ def _compete(ip, signal, summary: dict, run_id: str, *, directive: bool):
         if first is None:
             raise RuntimeError("every strategist failed: " + "; ".join(str(s)[:120] for _, s in entries))
         return first
-    if len(ok) == 1:
-        debate["winner"] = debate["proposed"][[s for _, s in entries].index(ok[0][1])]["arc"]
-        debate["judged"] = "only one arc found an angle"
-        R.record_decision("A03_gtm_strategist", "debate", debate)
-        return ok[0][1]
+    # Every ACTION strategy faces the judge, a lone one too: a single arc, a
+    # judge that is down or a retried signal used to go on unscored, so an
+    # autonomous post could ship without ever meeting the bar.
     verdict = EJ.judge(signal, ok, run_id=run_id)
     debate["judge"] = verdict
     if not verdict.get("ok"):
-        # No judge, no winner by chance: the arc whose strategy carries the
-        # most checkable proof goes on, and the run says the judge was out.
         R.record_stage(EJ.AGENT, "degraded", "editorial judge unavailable: " + str(verdict.get("error"))[:160])
         win = max(ok, key=lambda e: len(getattr(e[1], "proof", None) or []))
         debate["winner"] = str((win[0] or {}).get("name") or "free")
+        debate["score"] = None
         R.record_decision("A03_gtm_strategist", "debate", debate)
-        return win[1]
+        if directive:
+            # The founder chose the subject; the most-proof angle goes on and
+            # the review card says it was not scored.
+            return win[1]
+        # Unscored is not publishable: an autonomous run stops (fails closed).
+        return win[1].model_copy(update={
+            "action_status": "NO_ACTION", "decision_reason_class": "EDITORIAL_UNSCORED",
+            "no_action_rationale": "the editorial judge could not score this run ("
+                                   + str(verdict.get("error"))[:160] + "); nothing ships unscored"})
     arc, best = ok[verdict["winner"]]
     debate["winner"] = str((arc or {}).get("name") or "free")
+    debate["score"] = verdict.get("best_score")
+    if len(ok) == 1:
+        debate["judged"] = "only one arc found an angle; scored against the bar alone"
     R.record_stage(EJ.AGENT, "ok", "editorial: " + " / ".join(
         str(s["arc"]) + " " + str(s["score"]) for s in verdict["scores"]))
     R.record_decision("A03_gtm_strategist", "debate", debate)
@@ -461,7 +469,7 @@ def render_meme(blueprint, run_id: str, strategy=None, content_pkg=None) -> str:
         panel_right=str(brief.get("panel_right") or ""),
         caption=str(brief.get("caption") or hook)[:120],
         labels=[str(l) for l in (brief.get("labels") or [])][:3],
-        out=out,
+        out=out, model=R.MODELS["meme"],
     )
     R.record(R.AgentCall("A08_visual_synthesis", "meme", R.MODELS["meme"], True,
                          0.0, note="two-panel meme", transport="model-garden"))
@@ -573,11 +581,14 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
                     return False
                 blob = (str(a.get("critique") or "") + " " + str(a.get("fix") or "")).lower()
                 return not any(w in blob for w in ("garbled", "misspell", "morph", "scrambl"))
-            if any(v in ("SHIP", "REVISE") and _words_ok(a)
-                   for v, a in zip(verdicts, res["attempts"])):
+            # The clip in `out` is the one judged here. Passing on ANY attempt
+            # let a REVISE with garbled words ship because another try was clean.
+            chosen = res["attempts"][res.get("chosen", -1)]
+            if (str(chosen.get("verdict")).upper() in ("SHIP", "REVISE")
+                    and _words_ok(chosen)):
                 s["video_mode"] = "veo_build"
-                s["video_prompt"] = res["attempts"][-1].get("prompt", "")[:1500]
-                s["video_review"] = {k: res["attempts"][-1].get(k) for k in
+                s["video_prompt"] = chosen.get("prompt", "")[:1500]
+                s["video_review"] = {k: chosen.get(k) for k in
                                      ("verdict", "critique", "fix")}
                 R.record_stage("A09_video_production", "ok",
                                "Motion Director planned, Veo 3.1 built the poster from "
@@ -755,7 +766,6 @@ def _assets_wanted(directive: Optional[str]) -> dict[str, bool]:
 def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
               run_id: Optional[str] = None) -> dict[str, Any]:
     from pipeline.gtm_orchestration.intelligence_provider import IntelligenceProvider
-    from pipeline.gtm_orchestration.gtm_strategist import GTMStrategist
     from pipeline.gtm_orchestration.content_creator import ContentCreator
     from pipeline.gtm_creative.creative_director_system import CreativeDirectorSystem
     from pipeline.gtm_creative.creative_validator import CreativeValidator
@@ -874,6 +884,10 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 return chosen[0]
             from pipeline.gtm_os.subject_rotation import next_subject
             subject = next_subject()
+            if subject is None:
+                # A tenant with no product pages to rotate: the scout's top
+                # signal is the subject, and A03 decides whether it is worth it.
+                return signals[0]
             summary["product_subject"] = subject["id"]
             return _product_signal(subject, signals)
         signal = _stage("A02_opportunity_selector", pick,
@@ -934,7 +948,6 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
 
         # A03 — GTM Strategists, one per narrative arc, competing; an
         # independent editorial judge picks (gtm_os/editorial_judge.py).
-        strategist = GTMStrategist(intelligence_provider=ip)
         strategy = _stage("A03_gtm_strategist",
                           lambda: _compete(ip, signal, summary, rid, directive=bool(directive)),
                           detail="formulated competing strategies")
@@ -996,7 +1009,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 tried.add(str(signal.headline))
                 strategy = _stage(
                     "A03_gtm_strategist",
-                    lambda s=signal: strategist.evaluate_and_formulate_strategy(s),
+                    lambda s=signal: _compete(ip, s, summary, rid, directive=bool(directive)),
                     detail="formulated strategy on the next product page")
                 summary["signal"] = str(signal.headline)[:300]
                 summary["action_status"] = strategy.action_status
@@ -1027,7 +1040,7 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
             signal = nxt
             strategy = _stage(
                 "A03_gtm_strategist",
-                lambda s=nxt: strategist.evaluate_and_formulate_strategy(s),
+                lambda s=nxt: _compete(ip, s, summary, rid, directive=bool(directive)),
                 detail="formulated strategy on runner-up signal")
             summary["signal"] = str(nxt.headline)[:300]
             summary["signal_source_type"] = str(nxt.source_type)
@@ -1244,7 +1257,13 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
         # A judge whose rejection changes nothing is decoration. A creative
         # REJECT blocks the run the same way a channel or slop failure does,
         # and so does a claim the brand brain does not support.
-        creative_rejected = str(summary.get("creative_verdict") or "").upper() == "REJECT"
+        # The creative judge fails closed like A10: assets that no judge could
+        # look at (the judge errored, or returned no verdict) do not ship.
+        made_assets = any(summary.get(k) for k in ("visual_path", "meme_path", "video_path"))
+        verdict_now = str(summary.get("creative_verdict") or "").upper()
+        if made_assets and verdict_now in ("", "UNJUDGED"):
+            summary["creative_verdict"] = verdict_now = "UNJUDGED"
+        creative_rejected = verdict_now in ("REJECT", "UNJUDGED")
         # Fails closed: a fact check that could not run blocks like one that failed.
         facts_blocked = bool(facts.get("blocked")) or not facts.get("ok", False)
         passed = bool(channel_verdict.approved and creative_verdict.approved
@@ -1293,7 +1312,8 @@ def run_cycle(directive: Optional[str] = None, *, with_video: bool = True,
                 signal=signal, strategy=strategy, claims=strategy.claims,
                 machine=strategy.gtm_machine_id, campaign=selection,
                 content_pkg=content_pkg, creative_brief=blueprint,
-                review_result=None),
+                review_result={"score": (summary.get("strategist_debate") or {}).get("score"),
+                               "passed": passed, "blocking": _blocking_lines(summary)}),
             required=False, detail="built the human review packet")
         if packet is not None:
             summary["packet_built"] = True
@@ -1488,30 +1508,31 @@ def _reference_choice(signals, run_id: str):
         return None
     ranked.sort(key=lambda row: (row[0], row[1]))
     _, _, sig, idea = ranked[0]
+    from pipeline.brand_brain import context as C
     page = next_subject()
-    remember(page["id"], run_id)
+    if page is not None:
+        remember(page["id"], run_id)
     url = str(getattr(sig, "source", "") or "")
     description = (
         "SCRAPED REFERENCE. The post is about this source.\n"
         "Headline: " + str(sig.headline) + "\n"
         "URL: " + url + "\n"
         "Post idea: " + idea + "\n"
-        "Vanna's mechanism for this post, from the GitHub pages, and no other: "
-        + page["text"] + "\n"
-        "Do not change the source. Do not rewrite the post into Blend and "
-        "Aquarius unless this source is about those venues."
+        + (C.company_name() + "'s mechanism for this post, from the GitHub pages, and no other: "
+           + page["text"] + "\n" if page is not None else "")
+        + "Do not change the source. " + str(C.rule("stay_on_source") or "")
     )
     R.record_decision("A02_opportunity_selector", "chose", {
         "chosen": str(sig.headline)[:200],
         "why": idea[:400],
         "chosen_source": "SCRAPED_REFERENCE",
         "reference_id": str(sig.signal_id),
-        "product_subject": page["id"],
+        "product_subject": page["id"] if page else None,
         "url": url[:300],
     })
     data = sig.model_dump() if hasattr(sig, "model_dump") else sig.dict()
     data["description"] = description[:1400]
-    return type(sig)(**data), str(sig.signal_id), page["id"]
+    return type(sig)(**data), str(sig.signal_id), (page["id"] if page else None)
 
 
 def _product_signal(subject: dict, signals):
@@ -1826,6 +1847,25 @@ def _checkpoint(summary: dict, rid: str) -> None:
 
 
 _last_push = 0.0
+
+
+def _blocking_lines(summary: dict) -> list[str]:
+    """Why the gate blocked, one short line per reason, for the review card."""
+    if summary.get("review_passed"):
+        return []
+    notes = summary.get("review_notes") or {}
+    out: list[str] = []
+    out += ["fact check: " + str(f)[:180] for f in (notes.get("facts") or [])[:3]]
+    out += ["claim: " + str(c)[:140] for c in (notes.get("blocked_claims") or [])[:2]]
+    out += [str(ch) + ": " + str(v)[:140] for ch, v in (notes.get("channel_issues") or {}).items()][:2]
+    out += ["slop: " + str(s)[:140] for s in (notes.get("slop") or [])[:2]]
+    if notes.get("validator"):
+        out.append("validator: " + str(notes["validator"])[:140])
+    if str(notes.get("creative") or "").upper() in ("REJECT", "UNJUDGED"):
+        out.append("creative judge: " + str(notes["creative"]).upper())
+    if notes.get("poster"):
+        out.append("poster: " + str(notes["poster"]))
+    return out or ["blocked (see the run page for details)"]
 
 
 def _finish(summary: dict, t0: float, rid: str) -> dict:
