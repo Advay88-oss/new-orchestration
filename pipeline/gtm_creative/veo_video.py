@@ -80,7 +80,7 @@ def _rows() -> list[dict]:
 
 
 def add_exemplar(video: str | Path, *, score: float, note: str = "",
-                 prompt: str = "", still: str | Path | None = None) -> dict:
+                 prompt: str = "", still: str | Path | None = None, style: str = "") -> dict:
     """Store a founder-rated clip with the prompt that made it."""
     src = Path(video)
     digest = hashlib.sha1(src.read_bytes()).hexdigest()[:12]
@@ -93,6 +93,7 @@ def add_exemplar(video: str | Path, *, score: float, note: str = "",
            "note": " ".join(str(note).split())[:500] or None,
            "prompt": " ".join(str(prompt).split())[:1500] or None,
            "still": str(still) if still else None,
+           "style": style or prior.get("style") or None,
            "at": datetime.now(timezone.utc).isoformat()}
     # Re-rating a clip keeps a longer note already written for it: approving
     # the run behind the benchmark replaced its detailed description with a
@@ -203,7 +204,11 @@ def _veo(prompt: str, image: Path, out: Path, *, project: str = "vanna-mcp",
             "bytesBase64Encoded": base64.b64encode(last_frame.read_bytes()).decode(),
             "mimeType": "image/png"}
     params = {"aspectRatio": "16:9", "sampleCount": 1, "durationSeconds": DURATION_S,
-              "generateAudio": False, "resolution": "1080p"}
+              "generateAudio": False, "resolution": "1080p",
+              # Veo draws what a prompt names; these it must not draw at all.
+              "negativePrompt": ("text, letters, words, numbers, labels, captions, typography, "
+                                 "watermark, logo, charts, graphs, dashboards, new screens, extra "
+                                 "cards, people, coins, camera movement")}
     from pipeline.gtm_os.agent_runtime import MODELS
     model = MODELS["video"]
     res, key, via = run_veo(model, instance, params, project=project,
@@ -353,7 +358,8 @@ def without_letters(frame: Path, out: Path) -> Path:
     return out
 
 
-def stamp_poster_text(clip: Path, plate: Path, out: Path) -> Path:
+def stamp_poster_text(clip: Path, plate: Path, out: Path, *, fade_start: float = 6.4,
+                      fade_s: float = 0.9) -> Path:
     """Paint the plate's real letters over every frame of the clip."""
     from PIL import Image
 
@@ -377,7 +383,8 @@ def stamp_poster_text(clip: Path, plate: Path, out: Path) -> Path:
     subprocess.run(
         [exe, "-y", "-loglevel", "error", "-i", str(clip), "-loop", "1", "-i", str(overlay),
          "-filter_complex",
-         "[1:v]format=rgba,fade=t=in:st=5.2:d=1.3:alpha=1[ov];"
+         "[1:v]format=rgba" + (",fade=t=in:st=" + str(fade_start) + ":d=" + str(fade_s) + ":alpha=1"
+                               if fade_s > 0 else "") + "[ov];"
          "[0:v][ov]overlay=0:0:format=auto:shortest=1",
          "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "16", "-an", str(out)],
         check=True, timeout=300)
@@ -451,10 +458,13 @@ def make_build(poster: str | Path, brief: str, out: str | Path, *,
     history, correction = [], ""
     for n in range(1, attempts + 1):
         head = directed or (_build_brief() + ("\n\n" + learned if learned else ""))
+        # No words reach Veo: not the post's (it drew them), not the judge's
+        # quotes of the garbage it drew (it drew those again).
+        import re as _re
+        fix = _re.sub(r"[\"'‘’“”][^\"'‘’“”]{1,80}[\"'‘’“”]", "the invented text", correction)
         prompt = (head
-                  + "\n\nWHAT THIS POST SAYS (the build should tell it): "
-                  + " ".join(brief.split())[:700]
-                  + ("\n\nFIX FROM THE PREVIOUS ATTEMPT: " + correction if correction else ""))
+                  + "\n\nThe clip contains no text of any kind: every letter is added afterwards."
+                  + ("\n\nFIX FROM THE PREVIOUS ATTEMPT: " + fix if fix else ""))
         clip = out.with_name(out.stem + f"_try{n}.mp4")
         _veo(prompt, first, clip, last_frame=bare)
         stamped = out.with_name(out.stem + f"_try{n}_sharp.mp4")
@@ -480,6 +490,62 @@ def make_build(poster: str | Path, brief: str, out: str | Path, *,
     # `chosen` is the attempt now in `out`; the caller judges that one, not the last.
     return {"final": str(out), "first": str(first), "last": str(last), "attempts": history,
             "chosen": history.index(best)}
+
+
+def judge_living(mp4: Path, poster: Path, brief: str) -> dict[str, Any]:
+    """A living poster is judged on staying the poster while its light moves."""
+    from pipeline.gtm_os import agent_runtime as R
+
+    frames = _frames(mp4, at=(1.0, 3.0, 5.0, 7.5))
+    prompt = (
+        "The FIRST image is the finished poster. The next four are frames from a living-poster clip at "
+        "1s, 3s, 5s and 7.5s. The clip must BE the poster the whole time: only light and atmosphere may "
+        "move.\n\nThe post: " + brief[:500] + "\n\n"
+        "REJECT when ANY frame changes the layout (an element moves, appears, disappears or changes "
+        "shape), shows a misspelled, melted, doubled or invented word, a smoky or blurred patch around "
+        "text, an added object, or camera movement. SHIP when the poster holds and the light makes it "
+        "feel alive and points at the takeaway. Name every fault in `fix` without quoting any text. "
+        "Return JSON exactly:\n" + JUDGE_SCHEMA)
+    return R.brain_vision(prompt, [poster] + frames, agent="A15_creative_judge",
+                          system="You review a short brand video before a human sees it. "
+                                 "Be strict and specific. Return strict JSON.",
+                          role="reasoning", temperature=0.1, max_output_tokens=2048)
+
+
+def make_living(poster: str | Path, brief: str, out: str | Path, *, total_s: float = 10.0,
+                attempts: int = 1, directed: Optional[str] = None) -> dict[str, Any]:
+    """The finished poster as the first and the last frame; Veo moves only its
+    light; the poster's real letters are stamped over every frame from 0s, so
+    no frame can show a wrong word. For dense product slides."""
+    import re as _re
+    poster, out = Path(poster), Path(out)
+    frame = first_frame(poster, out.with_name(out.stem + "_frame.png"))
+    history, correction = [], ""
+    for n in range(1, attempts + 1):
+        fix = _re.sub(r"[\"'‘’“”][^\"'‘’“”]{1,80}[\"'‘’“”]", "the invented text", correction)
+        prompt = ((directed or "") + "\n\nThe clip contains no text of any kind: every letter is "
+                  "added afterwards." + ("\n\nFIX FROM THE PREVIOUS ATTEMPT: " + fix if fix else ""))
+        clip = out.with_name(out.stem + f"_try{n}.mp4")
+        _veo(prompt, frame, clip, last_frame=frame)
+        stamped = out.with_name(out.stem + f"_try{n}_sharp.mp4")
+        stamp_poster_text(clip, frame, stamped, fade_start=0.0, fade_s=0.0)
+        v = None
+        for _ in range(2):
+            try:
+                v = judge_living(stamped, poster, brief)
+                break
+            except Exception as exc:                # noqa: BLE001 — boundary
+                v = {"verdict": "UNJUDGED", "fix": str(exc)[:200]}
+                time.sleep(5)
+        history.append({"path": str(stamped), "prompt": prompt, **v})
+        if str(v.get("verdict")).upper() == "SHIP":
+            break
+        correction = str(v.get("fix") or "")
+    rank = {"SHIP": 0, "REVISE": 1}
+    best = min(history, key=lambda h: rank.get(str(h.get("verdict")).upper(), 2))
+    _hold(Path(best["path"]), out, total_s)
+    return {"final": str(out), "frame": str(frame), "attempts": history, "chosen": history.index(best),
+            "mode": "living"}
 
 
 def main(argv: Optional[list] = None) -> int:

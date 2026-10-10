@@ -236,6 +236,13 @@ def render_visual(strategy, content_pkg, blueprint, run_id: str,
     # The founder wants every run to look like the posters they approved —
     # "ditto same" — so the direct renderer is always used. The code-set
     # renderer is still explored only when VANNA_VISUAL_EXPLORE=1.
+    # The founder's engraved-card pattern is the default poster; the
+    # direct-model poster is VANNA_POSTER_STYLE=direct.
+    if os.environ.get("VANNA_POSTER_STYLE", "engraved") == "engraved":
+        engraved = _render_engraved(hook, body, run_id)
+        if engraved:
+            return engraved
+
     renderer = "direct_model"
     if os.environ.get("VANNA_VISUAL_EXPLORE") == "1":
         try:
@@ -267,6 +274,33 @@ def render_visual(strategy, content_pkg, blueprint, run_id: str,
     return {"path": str(png), "filename": png.name,
             "archetype": result["archetype"], "why": result["why"],
             "public_url": "/" + png.name, "renderer": "code_set"}
+
+
+def _render_engraved(hook: str, body: str, run_id: str) -> Optional[dict]:
+    """The engraved-card poster: the poster model draws the textless engraving,
+    the card and every word are set in code from the true figures. None on
+    failure, so the caller falls back to the direct-model poster."""
+    from pipeline.gtm_creative.engraved_posters import from_post
+
+    try:
+        out = from_post(hook + "\n" + body, run_id + "_visual",
+                        out_dir=Path(__file__).resolve().parents[1] / "state")
+    except Exception as exc:                        # noqa: BLE001 — boundary
+        R.record_stage("A08_visual_synthesis", "degraded",
+                       "engraved poster failed: " + str(exc)[:200])
+        return None
+    png = Path(out["path"])
+    R.record(R.AgentCall("A08_visual_synthesis", "image" if out["texture_by_model"] else "none",
+                         R.MODELS["poster"] if out["texture_by_model"] else None, True, 0.0,
+                         note="engraved " + out["variant"] + " card",
+                         transport="model-garden" if out["texture_by_model"] else "deterministic"))
+    R.record_stage("A08_visual_synthesis", "ok",
+                   "engraved " + out["variant"] + " poster; texture by "
+                   + (R.MODELS["poster"] if out["texture_by_model"] else "code"),
+                   outputs=[str(png)])
+    return {"path": str(png), "filename": png.name, "archetype": "ENGRAVED_" + out["variant"].upper(),
+            "why": "founder's engraved-card reference pattern in the Vanna palette",
+            "public_url": "/" + png.name, "renderer": "engraved", "slots": out["slots"]}
 
 
 def _render_direct(hook: str, body: str, subject: str,
@@ -600,15 +634,24 @@ def render_video(summary_or_blueprint, run_id: str, *, timeout_s: float = 420.0)
             # The Motion Director looks at this run's poster and writes its
             # build, beat by beat, from what the founder approved in past
             # clips; Veo 3.1 builds the poster out of the empty ground.
-            plan = motion_plan(visual, s.get("poster_brief") or brief)
+            # A founder-format product slide is dense (phones, cards, sliders):
+            # building it out of an empty ground made Veo invent other screens,
+            # so it becomes a living poster — the slide holds, its light moves.
+            living = str(s.get("visual_archetype") or "") == "FOUNDER_FORMAT"
+            if living:
+                from pipeline.gtm_creative.motion_director import living_plan
+                plan = living_plan(visual, s.get("poster_brief") or brief)
+            else:
+                plan = motion_plan(visual, s.get("poster_brief") or brief)
             s["motion_plan"] = plan["plan"][:2000]
             s["motion_style"] = plan.get("motion_style")
             R.record_stage("A14_motion_director", "ok",
                            "wrote the poster brief and the motion plan (layout "
                            + str(s.get("poster_layout")) + ", motion "
                            + str(plan.get("motion_style")) + ")")
-            res = VV.make_build(visual, brief, out, total_s=10.0, attempts=2,
-                                directed=plan["prompt"])
+            res = (VV.make_living(visual, brief, out, total_s=10.0, attempts=2, directed=plan["prompt"])
+                   if living else
+                   VV.make_build(visual, brief, out, total_s=10.0, attempts=2, directed=plan["prompt"]))
             verdicts = [str(a.get("verdict")).upper() for a in res["attempts"]]
             def _words_ok(a: dict) -> bool:
                 if a.get("text_intact") is False:

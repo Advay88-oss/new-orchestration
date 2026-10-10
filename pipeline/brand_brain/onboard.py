@@ -95,9 +95,19 @@ def ingest_knowledge(tenant: str, *, embed: bool = True) -> dict[str, Any]:
     s = spec(tenant)
     brain = Brain(tenant, create=True)
     report: dict[str, Any] = {}
-    for src in s["knowledge"]:
+    items = {i: _markdown_items(src) for i, src in enumerate(s["knowledge"])}
+    # A page that left its source (moved to another folder, excluded, deleted)
+    # is retired first. Kept, its text blocked the moved copy: a chunk whose
+    # text the brain already holds at the same or higher trust is not stored
+    # again, so pages moved down to a lower authority never arrived there.
+    # A source name that yields nothing this run retires nothing.
+    yielded: dict[str, set] = {}
+    for i, src in enumerate(s["knowledge"]):
+        yielded.setdefault(src["source"], set()).update(it[0] for it in items[i])
+    report["retired_pages"] = sum(brain.retire_pages(name, ids) for name, ids in yielded.items() if ids)
+    for i, src in enumerate(s["knowledge"]):
         totals = {"pages": 0, "added_or_changed": 0, "tombstoned": 0, "unchanged": 0}
-        for page_id, title, text, url, updated in _markdown_items(src):
+        for page_id, title, text, url, updated in items[i]:
             chunks = chunk_markdown(text, title=title, company=s["company"], source_label=src["label"],
                                     content_type=src.get("content_type", "doc"))
             r = brain.upsert_page(page_id, chunks, source=src["source"], authority=src["authority"],

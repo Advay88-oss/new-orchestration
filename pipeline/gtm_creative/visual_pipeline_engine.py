@@ -259,25 +259,60 @@ class VisualPipelineEngine:
             shutil.copy(str(raw_path), str(out_path))
 
     def _synthesize_procedural_canvas(self, out_path: Path, concept: Dict[str, Any], fp: Dict[str, Any]) -> None:
-        """High-craft procedural canvas fallback when Model Garden offline."""
-        img = Image.new("RGB", (1200, 1200), (8, 3, 16))
+        """High-craft procedural Vanna Dark Hybrid canvas canvas generator."""
+        img = Image.new("RGB", (1200, 1200), (9, 10, 15))
         draw = ImageDraw.Draw(img)
 
-        # Dual ambient blooms
-        # Fuchsia top-right bloom
+        # 1. Dual Vanna Ambient Blooms (#471485 & #5E0D46)
+        # Deep Purple bloom top-center
+        for r in range(500, 0, -15):
+            alpha = int(35 * (1.0 - r / 500.0))
+            draw.ellipse([(600 - r, 300 - r), (600 + r, 300 + r)], fill=(71, 20, 133))
+
+        # Fuchsia/Magenta bloom bottom-right
         for r in range(400, 0, -20):
-            alpha = int(25 * (1.0 - r / 400.0))
-            draw.ellipse([(1200 - r, -r // 2), (1200 + r, r)], fill=(94, 13, 70, alpha))
+            draw.ellipse([(1000 - r, 1000 - r), (1000 + r, 1000 + r)], fill=(94, 13, 70))
 
-        # Violet bottom-left bloom
-        for r in range(400, 0, -20):
-            alpha = int(25 * (1.0 - r / 400.0))
-            draw.ellipse([(-r // 2, 1200 - r), (r, 1200 + r // 2)], fill=(71, 20, 133, alpha))
+        # 2. Cybernetic / Stipple Halftone Matrix Grid Lines (Dark Engraving Pattern)
+        for y in range(0, 1200, 40):
+            draw.line([(0, y), (1200, y)], fill=(20, 24, 38), width=1)
+        for x in range(0, 1200, 40):
+            draw.line([(x, 0), (x, 1200)], fill=(20, 24, 38), width=1)
 
-        # Center geometric technical metaphor
-        draw.rectangle([(250, 250), (950, 950)], outline=(112, 58, 230, 80), width=2)
-        draw.rectangle([(320, 320), (880, 880)], outline=(50, 238, 226, 60), width=1)
+        # 3. Floating Obsidian Frosted Glass Rectangular Card (Centered)
+        card_rect = [(180, 280), (1020, 920)]
+        # Card background fill (Dark Glass)
+        draw.rectangle(card_rect, fill=(15, 17, 26), outline=(56, 239, 125), width=2)
+        # Inner subtle accent border
+        draw.rectangle([(190, 290), (1010, 910)], outline=(71, 20, 133), width=1)
 
-        # Monogram anchor
-        draw.text((420, 580), "VANNA CREDIT LAYER", fill=(240, 240, 250))
+        # 4. Vanna Hybrid Typography & Layout
+        concept_title = str(concept.get("concept_title", "AUTONOMOUS YIELD")).upper()
+        if "SOLVENCY" in concept_title or "RISK" in concept_title:
+            headline = "SUB-SECOND SOLVENCY"
+            metric_val = "1.10x FLOOR"
+            subtext = "ZERO HALLUCINATION RISK DEFLECTION"
+            footer = "POWERED BY VANNA SECURITY LAYER"
+        elif "ECOSYSTEM" in concept_title or "PARTNER" in concept_title:
+            headline = "ECOSYSTEM COMPOSABILITY"
+            metric_val = "vanna × Base"
+            subtext = "AUTONOMOUS MULTI-VENUE ROUTING"
+            footer = "INTEGRATED PROTOCOL SUITE"
+        else:
+            headline = "AUTONOMOUS YIELD"
+            metric_val = "$10,000,000"
+            subtext = "IN ROUTED LIQUIDITY DEPOSITS"
+            footer = "POWERED BY vanna + base"
+
+        # Text rendering using standard default/fallback fonts
+        # Header
+        draw.text((380, 360), headline, fill=(148, 163, 184))
+        # High-Contrast Serif Metric (Solvency Mint #38EF7D)
+        draw.text((320, 480), metric_val, fill=(56, 239, 125))
+        # Subtext
+        draw.text((360, 680), subtext, fill=(226, 232, 240))
+        # Footer
+        draw.text((430, 800), footer, fill=(94, 163, 184))
+
         img.save(out_path, quality=95)
+

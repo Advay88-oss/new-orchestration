@@ -352,6 +352,11 @@ def facts_block(topic: str, *, k: int = 8, excerpts: Optional[int] = None,
     if wn:
         lines += ["", wn]
     lines += ["", figures_block(tenant)]
+    # How the company describes itself (profile prompt rule "language"), for
+    # every writer: the founder's vocabulary page, not each agent's guess.
+    vocab = str(rule("language", "", tenant) or "")
+    if vocab:
+        lines += ["", "HOW " + name + " DESCRIBES ITSELF:", "  " + vocab]
     pc = prohibited_claims(tenant)
     if pc:
         lines += ["", "NEVER CLAIM:"] + ["  - " + p for p in pc[:14]]

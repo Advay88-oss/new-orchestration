@@ -62,6 +62,14 @@
 | ~100M x402 payments on Base; $1+ transactions rose from 49% to 95% of volume in a year | Chainalysis, Jun 2026 |
 | Galaxy Research estimates agentic commerce at $3–5T B2C revenue by 2030 | Galaxy, Jan 2026 |
 | MPP launched with 100+ integrated services incl. Stripe, Anthropic, OpenAI, Shopify, Visa; spec submitted to IETF | Stellar, Apr 2026 |
+| Front-end traders on Hyperliquid, mostly retail, lost **$1.11B** from 27 Mar 2025 to 30 Jun 2026; market makers made **$208M** over the same period | Jia, Moallemi, Wang and Zeng (Stanford, Columbia), 2026 — cited in the real margin launch kit (10 Oct 2026) |
+| Hedge funds borrowed **$7.95T** as of 30 Jun 2026: prime brokerage $3.688T + repo $3.382T + other secured $0.882T | OFR Hedge Fund Monitor (SEC Form PF), 30 Jun 2026; re-pulled from the OFR API on 9 Oct 2026 |
+| **54%** of hedge-fund borrowing goes to multi-strategy and relative-value (hedged-strategy) funds | OFR Hedge Fund Monitor, 30 Jun 2026 |
+| Vanna is building on **Solana** since August 2026; it first built on Stellar and plans to launch there separately | Founder's Notion, Colosseum World Fair (3–10 Oct 2026) |
+| Vanna on Solana is **pre-mainnet**: cross-margin mode runs on the web at test.solana.vanna.finance and isolated margin mode (tokenized stocks) in the Android app, both on a hosted Solana mainnet fork — a **test app** | Founder's Notion, Colosseum World Fair (3–10 Oct 2026) |
+| Isolated margin mode was submitted to Solana's **Stocklana** hackathon on 25 Sep 2026 | Founder's Notion, Colosseum World Fair (3–10 Oct 2026) |
+| Stellar closed testnet alpha: **130+ wallets opened 99 margin accounts** across deposit, borrow, trade and farm | Founder's Notion, Colosseum World Fair (3–10 Oct 2026) (founder-stated) |
+| The Stellar build was funded by **Stellar Community Fund** and **Draper University** grants | Founder's Notion, Colosseum World Fair (3–10 Oct 2026) |
 
 ### Tier B — Design / architecture (shipped on testnet)
 
@@ -74,6 +82,10 @@
 - MCP server is zero-custody with a separate Sign Service as the only signer, using scoped session keys and spend caps.
 - Analytics includes a Risk Explorer for stress simulations (crashes, depegs, liquidity shocks).
 - A working end-to-end demo exists: natural language → agent computes constraints → multiple auto-signed transactions → health factor maintained.
+- **Real margin** (the Solana narrative): you borrow real money (USDC), more than you deposit, and pay a borrow rate, not a funding fee. It is **secured credit**: the loan stays in your Vanna account, so the whole account backs it. Say it this way; never "credit can't be withdrawn".
+- On Solana each margin account is a PDA only Vanna's program can sign for; `margin_execute` CPIs into whitelisted programs (Kamino, Jupiter, GMTrade) and the account is health-checked after every call; separate oracle and validator programs price holdings from Scope and Pyth.
+- On Solana every position counts toward **one health factor**, so a hedge counts as a hedge instead of two separate bets (cross-margin mode, test app).
+- Solana pools: lenders fund USDC, USDT and SOL; borrowers post LSTs or tokenized stocks (cross margin, web) or trade tokenized stocks in isolated mode (Android app). Test app only.
 
 ### Tier C — Illustrative / demo (must be labelled)
 
@@ -88,6 +100,9 @@
 | Video: $1,000 → $10,000 credit → ETH spot $4,000 / ETH short perp $4,000 / yield farm $2,000; funding fees +$150, yield +$200, borrow interest −$85, **net +$265, ROI 26%** | Marketing video — a modelled scenario, **not realised performance** |
 | Video: utilization 58%, APY 11.5% | Marketing video mock |
 | CLI/SDK example fees ("fee $0.004") and tx hashes | Illustrative |
+| Same $10, two paths: synthetic $10 × 5 = a $50 perp, a 20% move against you wipes out the $10; real margin $10 + $40 borrowed USDC = $50 hedged (spot plus a short), you pay a borrow rate and the legs largely offset | Launch-kit poster 4 — label "Illustration only. Hedged positions still carry risk." |
+| "$150 locked to lend $100" (overcollateralized lending) and a "10× position" boxed inside one exchange | Launch-kit poster 5 — a typical case, not a measured figure |
+| "$1,000 deposit, borrow up to $6,670 in real USDC" | Pitch transcript v9 screen — a scenario; the Solana leverage limit is not in this ledger |
 
 **Required labelling patterns:** "illustrative example" · "a worked scenario" · "in this example" · "hypothetical". **Never:** "our users earned" · "returns of" · "we delivered".
 
@@ -103,6 +118,13 @@
 - **Institutions:** segregated accounts, prime-broker experience.
 - Base / Arbitrum / Optimism deployments.
 - Mainnet.
+- Real margin **on Solana mainnet**; the waitlist gives early access to it ("starting on Solana").
+- The **World prediction-market vault** live against World's program (its README says not deployed).
+- **Basis vaults** on BTC, ETH and SOL in the app (contracts and tests done, not in the UI).
+- Cross-margin mode in the Android app.
+- The MCP server reachable for outside agents (today it serves only Vanna's Copilot).
+- **Leverage as a service**: businesses, institutions and banks offering their users leverage through Vanna's APIs and SDKs.
+- A separate Stellar launch.
 
 ### Tier E — Internal only, never publish
 
@@ -117,6 +139,10 @@
 - Token prerequisites.
 - The internal MCP server's 43-tool count (unconfirmed publicly).
 - Any competitor's confidential detail.
+- Investment agreements, fundraising status, legal entity and team locations (they live in the founder's Notion, not here).
+- The Colosseum answers, judge reviews and pitch transcripts before they are submitted or published.
+- Campaign budgets and the waitlist export.
+- Any waitlist count that is not a verified, deduplicated count of signups.
 
 ### Tier F — Unverified / stale, do not use
 
@@ -134,6 +160,12 @@
 | Audits, bug bounty, multi-sig, insurance | **None published.** Never claim. |
 | Any TVL figure | Pre-mainnet. There is no TVL. |
 | Any token, airdrop, points or reward | Does not exist. |
+| "Over a thousand people joined our waitlist in three days" (and the 500 variant) | Pitch line recorded in versions; use only the verified count on the day. Never count X followers as signups. |
+| ~20 Solana test-user sign-ups at Solana Summit Canada | The founder's draft says to confirm the number. |
+| 20K+ followers across the founders' channels; ~4,000 YouTube subscribers; partner/KOL communities of 500K+ traders | Reach, not users; the draft says to confirm the 20K+. |
+| Solana saw $3.3B of tokenized-stock trading in the 30 days to 20 Sep 2026 | No source named in the draft. |
+| $167M was borrowed against USDe on Kamino on 2 Oct 2026 | No source named in the draft. |
+| Phoenix as a Vanna integration | Named in the launch kit and pitch v9; the Colosseum technology answer lists GMTrade, not Phoenix. Confirm before naming it as integrated. |
 
 ---
 

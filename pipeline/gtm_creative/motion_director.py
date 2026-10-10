@@ -444,6 +444,43 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
     return {"brief": text, "raw": out, "layout": layout}
 
 
+LIVING_RULES = (
+    "The FIRST and the LAST frame are both the finished poster. Nothing in it moves position, appears, "
+    "disappears, changes shape or changes size. CAMERA: completely locked off. Only light and atmosphere "
+    "move: soft light sweeps across the coloured panel, the background glows breathe, a thin highlight "
+    "travels along an edge, a faint shimmer on the gradient. Draw no letters, numbers, labels, charts, "
+    "screens, coins or people; add nothing that is not already in the frame.")
+
+
+def living_plan(poster: str | Path, brief: str, *, run_id: Optional[str] = None) -> dict[str, Any]:
+    """A living poster: the finished poster stays exactly as it is and only
+    its light moves. For dense product slides, where building the layout out
+    of an empty ground made Veo invent seven seconds of different screens."""
+    from pipeline.gtm_os import agent_runtime as R
+
+    system = _fill(
+        "You are {company}'s Motion Director. You direct Veo 3.1 for an 8-second LIVING POSTER: the "
+        "finished poster is the first and the last frame and stays exactly in place; you direct only "
+        "light and atmosphere. NAME NOTHING: Veo draws every word of the prompt it can, so refer to "
+        "every element by its shape, colour and position (the tall rounded panel on the right, the soft "
+        "glow top-left, the edge of the phone), never by a label, product word or number. "
+        "The light should lead the eye to the post's point: read the Takeaway in the brief. "
+        "Return strict JSON.")
+    prompt = (
+        "THE POSTER'S BRIEF:\n" + str(brief)[:1500] + "\n\n"
+        "The attached image is the finished poster (the first and last frame).\n"
+        'Return JSON: {"beats": [{"t": str (e.g. "0-2s"), "action": str}] (3-5 beats covering 0-8s, '
+        'light and atmosphere only, shapes named by position), "why": str (under 25 words)}')
+    out = R.brain_vision(prompt, [Path(poster)], agent=MOTION_AGENT, system=system, role="director",
+                         temperature=0.4, max_output_tokens=4096, run_id=run_id)
+    beats = [b for b in (out.get("beats") or []) if isinstance(b, dict)]
+    plan = ("LIGHT, beat by beat:\n"
+            + "\n".join("  " + str(b.get("t", "")) + ": " + str(b.get("action", "")) for b in beats))
+    R.record_decision(MOTION_AGENT, "living_plan", {"beats": beats, "why": out.get("why")}, run_id=run_id)
+    return {"plan": plan, "raw": out, "motion_style": "living",
+            "prompt": LIVING_RULES + "\n\n" + plan}
+
+
 def motion_plan(poster: str | Path, brief: str, *,
                 run_id: Optional[str] = None) -> dict[str, Any]:
     """The beat-by-beat build for THIS poster, written by looking at it."""
@@ -464,7 +501,11 @@ def motion_plan(poster: str | Path, brief: str, *,
         "a headline, subtitle, label, footer or logo appears, fades, types or "
         "wipes: Veo invents the spelling when it draws letters. Words are "
         "painted on after the clip, from the poster. Your beats move shapes, "
-        "cards, arrows, connectors and light only. Describe every "
+        "cards, arrows, connectors and light only. NAME NOTHING: Veo draws every word of the prompt "
+        "it can, so refer to each element only by its shape, size, colour and position (the tall "
+        "rounded panel on the right, the three thin rows on the left, the small floating card at the "
+        "right edge, the pill at the bottom) — never by a label, a product word, a token name or a "
+        "number from the poster. Describe every "
         "element as flat and face-on; never use the words isometric, 3D, "
         "perspective or depth, which make Veo tilt the camera. "
         "Never say glass, frost, blur, translucent, or glassmorphism, and do not "

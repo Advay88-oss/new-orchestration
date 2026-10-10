@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vanna Dark Hybrid Poster Designs</title>
+  <style>
+    body {
+      background-color: #05060A;
+      color: #E2E8F0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 50px;
+    }
+    h1 {
+      font-size: 28px;
+      letter-spacing: 2px;
+      color: #FFFFFF;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+    p.subtitle {
+      color: #94A3B8;
+      font-size: 15px;
+      margin-top: 0;
+    }
+    .poster-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 40px;
+      width: 100%;
+      max-width: 1400px;
+    }
+    .poster-card {
+      background: #090A0F;
+      border: 1px solid #1E293B;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    svg {
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Vanna OS — Dark Theme Hybrid Designs</h1>
+  <p class="subtitle">Replicating the Superform/Engraving layout pattern in Vanna's Dark Void (#090A0F) & Solvency Mint (#38EF7D) theme.</p>
+
+  <div class="poster-grid">
+
+    <!-- Poster 1 -->
+    <div class="poster-card">
+      <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="purpleGlow" cx="50%" cy="30%" r="50%">
+            <stop offset="0%" stop-color="#471485" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#090A0F" stop-opacity="0"/>
+          </radialGradient>
+          <radialGradient id="magentaGlow" cx="80%" cy="80%" r="40%">
+            <stop offset="0%" stop-color="#5E0D46" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#090A0F" stop-opacity="0"/>
+          </radialGradient>
+          <pattern id="stippleGrid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="1200" y2="0" stroke="#161B2E" stroke-width="1"/>
+            <line x1="0" y1="0" x2="0" y2="1200" stroke="#161B2E" stroke-width="1"/>
+            <circle cx="20" cy="20" r="1" fill="#38EF7D" opacity="0.15"/>
+          </pattern>
+        </defs>
+
+        <!-- Background -->
+        <rect width="1200" height="1200" fill="#090A0F"/>
+        <rect width="1200" height="1200" fill="url(#purpleGlow)"/>
+        <rect width="1200" height="1200" fill="url(#magentaGlow)"/>
+        <rect width="1200" height="1200" fill="url(#stippleGrid)"/>
+
+        <!-- Obsidian Frosted Glass Card -->
+        <rect x="160" y="260" width="880" height="680" rx="20" fill="#0F111A" fill-opacity="0.9" stroke="#38EF7D" stroke-width="3"/>
+        <rect x="175" y="275" width="850" height="650" rx="14" fill="none" stroke="#471485" stroke-width="2" stroke-opacity="0.6"/>
+
+        <!-- Typography -->
+        <text x="600" y="380" font-family="Inter, sans-serif" font-size="32" font-weight="600" fill="#94A3B8" letter-spacing="4" text-anchor="middle">AUTONOMOUS YIELD</text>
+        <text x="600" y="540" font-family="Georgia, serif" font-size="96" font-weight="bold" fill="#38EF7D" text-anchor="middle">$10,000,000</text>
+        <text x="600" y="660" font-family="'JetBrains Mono', monospace" font-size="28" fill="#E2E8F0" letter-spacing="2" text-anchor="middle">IN ROUTED LIQUIDITY DEPOSITS</text>
+        <line x1="300" y1="730" x2="900" y2="730" stroke="#1E293B" stroke-width="2"/>
+        <text x="600" y="810" font-family="Inter, sans-serif" font-size="24" fill="#94A3B8" letter-spacing="3" text-anchor="middle">POWERED BY VANNA + BASE</text>
+      </svg>
+    </div>
+
+    <!-- Poster 2 -->
+    <div class="poster-card">
+      <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="coralGlow" cx="50%" cy="40%" r="50%">
+            <stop offset="0%" stop-color="#FC5457" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#090A0F" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+
+        <!-- Background -->
+        <rect width="1200" height="1200" fill="#090A0F"/>
+        <rect width="1200" height="1200" fill="url(#purpleGlow)"/>
+        <rect width="1200" height="1200" fill="url(#coralGlow)"/>
+        <rect width="1200" height="1200" fill="url(#stippleGrid)"/>
+
+        <!-- Vault Engraving Lines -->
+        <path d="M 200 1100 L 600 200 L 1000 1100 Z" fill="none" stroke="#1E293B" stroke-width="2" opacity="0.5"/>
+        <path d="M 300 1100 L 600 400 L 900 1100 Z" fill="none" stroke="#471485" stroke-width="1.5" opacity="0.7"/>
+
+        <!-- Obsidian Frosted Glass Card -->
+        <rect x="160" y="260" width="880" height="680" rx="20" fill="#0F111A" fill-opacity="0.92" stroke="#FC5457" stroke-width="3"/>
+        <rect x="175" y="275" width="850" height="650" rx="14" fill="none" stroke="#38EF7D" stroke-width="2" stroke-opacity="0.7"/>
+
+        <!-- Typography -->
+        <text x="600" y="380" font-family="Inter, sans-serif" font-size="32" font-weight="600" fill="#94A3B8" letter-spacing="4" text-anchor="middle">RISK & SOLVENCY ENGINE</text>
+        <text x="600" y="540" font-family="Georgia, serif" font-size="96" font-weight="bold" fill="#38EF7D" text-anchor="middle">1.10x FLOOR</text>
+        <text x="600" y="660" font-family="'JetBrains Mono', monospace" font-size="28" fill="#E2E8F0" letter-spacing="2" text-anchor="middle">SUB-SECOND LIQUIDATION DEFLECTION</text>
+        <line x1="300" y1="730" x2="900" y2="730" stroke="#1E293B" stroke-width="2"/>
+        <text x="600" y="810" font-family="Inter, sans-serif" font-size="24" fill="#FC5457" letter-spacing="3" text-anchor="middle">POWERED BY VANNA SECURITY LAYER</text>
+      </svg>
+    </div>
+
+    <!-- Poster 3 -->
+    <div class="poster-card">
+      <svg viewBox="0 0 1200 1200" xmlns="http://www.w3.org/2000/svg">
+        <!-- Background -->
+        <rect width="1200" height="1200" fill="#090A0F"/>
+        <rect width="1200" height="1200" fill="url(#purpleGlow)"/>
+        <rect width="1200" height="1200" fill="url(#magentaGlow)"/>
+
+        <!-- Concentric Linocut Rings -->
+        <circle cx="600" cy="600" r="450" fill="none" stroke="#1E293B" stroke-width="2" stroke-dasharray="10 15"/>
+        <circle cx="600" cy="600" r="350" fill="none" stroke="#471485" stroke-width="2"/>
+        <circle cx="600" cy="600" r="250" fill="none" stroke="#38EF7D" stroke-width="1" opacity="0.4"/>
+
+        <!-- Obsidian Frosted Glass Card -->
+        <rect x="160" y="260" width="880" height="680" rx="20" fill="#0F111A" fill-opacity="0.9" stroke="#38EF7D" stroke-width="3"/>
+        <rect x="175" y="275" width="850" height="650" rx="14" fill="none" stroke="#471485" stroke-width="2"/>
+
+        <!-- Typography -->
+        <text x="600" y="380" font-family="Inter, sans-serif" font-size="32" font-weight="600" fill="#94A3B8" letter-spacing="4" text-anchor="middle">ECOSYSTEM COMPOSABILITY</text>
+        <text x="600" y="540" font-family="Georgia, serif" font-size="90" font-weight="bold" fill="#38EF7D" text-anchor="middle">vanna × Base</text>
+        <text x="600" y="660" font-family="'JetBrains Mono', monospace" font-size="28" fill="#E2E8F0" letter-spacing="2" text-anchor="middle">AUTONOMOUS MULTI-VENUE ROUTING</text>
+        <line x1="300" y1="730" x2="900" y2="730" stroke="#1E293B" stroke-width="2"/>
+        <text x="600" y="810" font-family="Inter, sans-serif" font-size="24" fill="#94A3B8" letter-spacing="3" text-anchor="middle">INTEGRATED PROTOCOL SUITE</text>
+      </svg>
+    </div>
+
+  </div>
+
+</body>
+</html>

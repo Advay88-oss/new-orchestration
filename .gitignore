@@ -126,3 +126,13 @@ hermes-mission/public/*.mp4
 # brand films are made from D:/vanna-remotion by the crypto-video-style skill).
 remotion-video/
 claude-video/
+
+# The founder's Notion, crawled into the brain (pipeline.brand_brain.notion_public).
+# This repository is public; these pages include internal plans, audits and
+# fundraising. They deploy through .gcloudignore and are re-crawled, never committed.
+pipeline/brain/notion/
+pipeline/brain/notion_background/
+pipeline/brain/notion_archive/
+pipeline/brain/notion_internal/
+pipeline/brain/knowledge/vanna-current-thesis.md
+knowledge/notion_scraped/

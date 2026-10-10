@@ -109,7 +109,16 @@
       "Guaranteeing zero liquidation risk or fully hedged returns without risk parameters",
       "Claiming custody or unrestricted autonomous fund withdrawal",
       "Claiming uncontested first mover advantage or zero competitors without market census",
-      "Calling Morpho a partner or an integration of Vanna — Morpho is a competitor"
+      "Calling Morpho a partner or an integration of Vanna — Morpho is a competitor",
+      "we are a prime broker",
+      "we prevent liquidation",
+      "the buffer is our recourse",
+      "deposit once",
+      "post collateral once",
+      "borrow against markets",
+      "nobody can do this",
+      "battle-tested",
+      "provably safe"
     ],
     "true_figures": [
       {
@@ -145,7 +154,16 @@
       "mainnet live",
       "uncontested first-mover",
       "zero competitors exist",
-      "pivotal moment"
+      "pivotal moment",
+      "we are a prime broker",
+      "we prevent liquidation",
+      "the buffer is our recourse",
+      "deposit once",
+      "post collateral once",
+      "borrow against markets",
+      "nobody can do this",
+      "battle-tested",
+      "provably safe"
     ]
   },
   "partners": {
@@ -165,7 +183,16 @@
     "ZeroDev": "account abstraction infrastructure",
     "Draper University": "backer",
     "Pivot Ventures": "backer",
-    "Gitcoin": "backer / ecosystem"
+    "Gitcoin": "backer / ecosystem",
+    "Solana": "chain — the active build since Aug 2026 (test app on a hosted mainnet fork)",
+    "Kamino": "integration on the Solana test app (Kamino Lend + Scope oracle, via CPI) — not a partnership",
+    "Jupiter": "integration on the Solana test app (Jupiter v6 spot, via CPI) — not a partnership",
+    "GMTrade": "integration on the Solana test app (perps, via CPI) — not a partnership",
+    "World": "integration on the Solana test app (prediCt prediction markets; the vault is not deployed yet) — not a partnership",
+    "Pyth": "oracle used by the Solana build — not a partnership",
+    "Phoenix": "named as a perps venue in the 10 Oct launch kit; not in the Colosseum technology list — confirm before calling it integrated; not a partnership",
+    "Colosseum": "hackathon / accelerator (Vanna is selected for the accelerator) — not an investor",
+    "Stellar Community Fund": "grant (Stellar build)"
   },
   "partner_rule": "This is the whole list. A relationship with anything not on it is fabricated.",
   "competitors": [
@@ -340,7 +367,18 @@
     "stablecoin",
     "restaking",
     "rwa",
-    "tokeniz"
+    "tokeniz",
+    "solana",
+    "perp",
+    "funding rate",
+    "prime brok",
+    "hedge fund",
+    "basis trade",
+    "hyperliquid",
+    "kamino",
+    "jupiter",
+    "real margin",
+    "synthetic margin"
   ],
   "known_entities": [
     "Aave",
@@ -394,6 +432,12 @@
       "name": "risk isolation",
       "claim": "per-borrower SmartAccount sandboxes versus pooled debt, a 1.10x liquidation floor, deterministic liquidation",
       "subjects": "liquidation, bad debt, contagion and insolvency"
+    },
+    {
+      "name": "real margin",
+      "claim": "most DeFi leverage is synthetic — a bigger bet on one exchange, nothing lent, all the risk on your collateral; Vanna lends real money, more than you deposit, as secured credit that stays in your Vanna account and works across DeFi under one health factor, so a hedge counts as a hedge and more real money enters DeFi",
+      "subjects": "perp leverage and retail perp losses, funding rates, prime brokerage and hedge-fund borrowing, hedged and basis trades, overcollateralized lending, tokenized stocks and margin on Solana",
+      "source": "founder's Notion: real margin launch kit (10 Oct 2026); pitch transcript v9"
     }
   ],
   "arguments_note": "Both apply to stories on any chain. A pooled-lending failure on Ethereum is a strong signal precisely because it demonstrates the problem Vanna solves; rejecting it for being 'EVM-centric' or 'not directly about Soroban' is a misreading.",
@@ -424,12 +468,18 @@
     "footer": "bold lead + testnet caveat",
     "kill_phrases": [
       "mainnet live",
-      "token trading"
+      "token trading",
+      "credit can't be withdrawn",
+      "only enriches perp dexs"
     ],
     "kill_reason": "Signal asserts mainnet live or live token trading, which contradicts the deployment in the brand profile.",
     "default_objective": "Drive qualified testnet sandbox deployments.",
     "risk_flags": [
-      "Testnet only: do not claim mainnet live or live institutional adoption"
+      "Pre-mainnet: do not claim mainnet live or live institutional adoption. Stellar is a testnet; the Solana build is a test app on a hosted mainnet fork — call it 'test app', not 'testnet'.",
+      "Real margin posts are about the Solana test app: never present test balances or volumes as real money; say 'test app'.",
+      "The 'same $10, two paths' example is an illustration and says hedged positions still carry risk.",
+      "Never count followers as waitlist signups; quote only a verified waitlist count.",
+      "No token or airdrop is promised, ever."
     ],
     "motion_accent": "muted violet",
     "video_ground": "dark violet-and-magenta",
@@ -449,6 +499,10 @@
       {
         "id": "stellar-floor",
         "text": "Stellar testnet only. Each borrower has an isolated SmartAccount, and the liquidation floor is 1.10×. One idea. Do not make Blend and Aquarius the diagram. Do not mention Solana, xStocks, Jupiter, or 5×."
+      },
+      {
+        "id": "real-margin",
+        "text": "Real margin vs synthetic margin. Most DeFi leverage is synthetic: a perp exchange gives a bigger position but lends nothing, and the leverage cannot leave that exchange. Vanna, starting on Solana, lends real USDC, more than you deposit, as secured credit that stays in your Vanna account and can be used across DeFi under one health factor. Proof you may cite with its source: front-end traders on Hyperliquid lost $1.11B from Mar 2025 to Jun 2026 (Jia, Moallemi, Wang and Zeng, 2026); hedge funds borrowed $7.95T as of 30 Jun 2026 (OFR). One idea per post. Say it is a test app. Do not mention Stellar, Blend, Aquarius, SmartAccount, 10x, 1.10x or XLM."
       }
     ],
     "doc_roots": [
@@ -458,6 +512,8 @@
     "doc_page_notes": {
       "Solana_Docs": "Solana devnet fork only; do not mention Stellar, Blend, Aquarius or 1.10x.",
       "*": "Stellar testnet only. Do not make Blend, Aquarius, SmartAccount isolation or the 1.10x floor the subject unless this page is about them."
-    }
+    },
+    "real_margin": "Say 'real margin' and 'secured credit: the loan stays in your {company} account, so the whole account backs it'; 'you borrow real money, more than you deposit'; 'you pay a borrow rate, not a funding fee'; 'one health factor, so a hedge counts as a hedge'; 'more real money enters DeFi'. The CTA is 'Hungry for real margin?'. Keep 'leverage as a service'. Never say credit 'can't be withdrawn'. Never say synthetic margin only enriches perp exchanges — say what it is, show the losses, then the positive point. Name Kamino, Jupiter or Phoenix as places the credit can be used, never as partners. The Solana app is a test app on a hosted copy of Solana mainnet, not a testnet: never call it 'testnet', and never put a Stellar testnet figure (10x, 1.10x, XLM, Blend, Aquarius, SmartAccount) on a Solana post. 'Testnet' is the Stellar deployment only.",
+    "language": "Vanna's own vocabulary (Notion › Vanna — Language & Messaging): the company is composable credit infrastructure (a protocol); the product is a unified portfolio margin account; prime brokerage is an analogy only ('prime-broker-style'). Say 'undercollateralized' (one word), 'single health factor', 'borrow against deposited collateral, then deploy', 'one account, every market, one health factor', 'credit that exceeds collateral, and moves'. On the website say 'offset', not 'netting'. Default audience: 'humans and AI agents'."
   }
 }

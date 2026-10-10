@@ -132,6 +132,40 @@ VANNA_VISUAL_REFERENCE_PRINCIPLES: Dict[str, VisualReferencePrinciple] = {
             "Floating dollar signs or golden tokens.",
             "Flat spreadsheet cards floating in a void."
         ]
+    ),
+    "REF_DUOTONE_ENGRAVING_PRINT": VisualReferencePrinciple(
+        reference_id="REF_DUOTONE_ENGRAVING_PRINT",
+        title="Vanna Brand Dark Engraving & Obsidian Editorial Card",
+        content_intent="Ecosystem / Partnerships / Market Metrics / Editorial Announcements",
+        why_it_works=(
+            "Combines retro linocut/woodcut printmaking halftone background texture (stock charts, modern vault architecture, "
+            "concentric security rings) with Vanna's signature Dark Void (#090A0F) & Deep Purple Glow (#471485). "
+            "Features a floating obsidian glass rectangular card with high-contrast Solvency Mint (#38EF7D) serif metrics "
+            "and clean partner logos."
+        ),
+        information_hierarchy="Dark textured background etching -> floating obsidian glass central card -> Solvency Mint headline & partner logos.",
+        composition_principles=[
+            "Vanna dark-mode palette: Void Dark (#090A0F), Ambient Purple Bloom (#471485), Solvency Mint (#38EF7D), Risk Coral (#FC5457).",
+            "Halftone stipple stippling / cybernetic line engraving background.",
+            "Centered flat obsidian frosted glass card with subtle glowing specular borders."
+        ],
+        visual_metaphor_principles=[
+            "Woodcut bank architecture for solvency, stipple candlestick charts for market metrics, concentric security rings for partnerships."
+        ],
+        typography_role="High contrast combination of clean Swiss sans-serif, editorial serif numbers ($1,000,000) in Solvency Mint, and monospace partner tags.",
+        negative_space_usage="Clear optical separation between dark textured background print and pristine obsidian text card.",
+        contrast_and_depth="Chiaroscuro atmosphere with deep purple bloom and glowing specular accents.",
+        technical_clarity="Immediate clarity for ecosystem partnerships, deposit milestones, and protocol buybacks.",
+        brand_principles=[
+            "Official Vanna dark void (#090A0F) and purple bloom (#471485) palette.",
+            "Solvency Mint (#38EF7D) key numbers and metrics.",
+            "Clean partner logo integration with minimalist multiplication symbol (x)."
+        ],
+        overfitted_cliches_to_avoid=[
+            "Light beige/cream background (must use Vanna dark void theme).",
+            "Generic bright neon gradients without dark contrast.",
+            "Standard dark-mode developer screenshot."
+        ]
     )
 }
 
@@ -143,7 +177,7 @@ CONTENT_TREATMENT_MAPPING = {
             "refined technical illustration",
             "spatial containment metaphor",
             "architectural blueprint with dimension rails",
-            "isometric sectional cutaway",
+            "duo-tone vintage bank engraving",
             "system state transition diagram"
         ],
         "primary_focus": "Structural state isolation, contract boundaries, modular sandboxes.",
@@ -152,6 +186,7 @@ CONTENT_TREATMENT_MAPPING = {
     "product_value_proposition": {
         "recommended_treatments": [
             "designed product interface integration",
+            "duo-tone vintage engraving editorial card",
             "tactile terminal mockup with perspective camera choreography",
             "dual-state comparison (legacy vs composable)",
             "operational cockpit with live status chips"
@@ -161,32 +196,33 @@ CONTENT_TREATMENT_MAPPING = {
     },
     "market_data_insight": {
         "recommended_treatments": [
+            "duo-tone vintage halftone print card",
             "editorial data visualization",
             "information-led typography and metric composition",
-            "statistical data matrix with calibrated hierarchy",
-            "kinetic rate curve with coordinate callouts"
+            "statistical data matrix with calibrated hierarchy"
         ],
         "primary_focus": "TVL growth, volume, yield curves, fixed fee guarantees.",
         "avoid_aesthetics": ["cinematic 3D render without data", "stock crypto candlestick chart"]
     },
     "risk_security_concept": {
         "recommended_treatments": [
+            "duo-tone woodcut bank architecture etching",
             "physical containment and pressure metaphor",
             "hydro-dynamic shock absorption",
-            "optical deflection caustics",
-            "watertight bulkhead structural metaphor"
+            "optical deflection caustics"
         ],
         "primary_focus": "1.10x floor, bad debt quarantine, sub-second liquidation prevention.",
         "avoid_aesthetics": ["cartoon padlocks", "alarmist red warning sirens", "purple cubes"]
     },
     "ecosystem_integration": {
         "recommended_treatments": [
+            "duo-tone concentric ring linocut partnership card",
             "ecosystem relationship visualization",
             "atomic protocol handshake",
-            "modular liquidity infrastructure dock",
-            "cross-protocol capital bridge"
+            "modular liquidity infrastructure dock"
         ],
         "primary_focus": "Blend b-tokens, Soroswap AMM, Stellar Soroban Protocol 20.",
         "avoid_aesthetics": ["floating 3D logos without connection", "spiderweb network nodes"]
     }
 }
+

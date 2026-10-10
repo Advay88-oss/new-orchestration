@@ -308,6 +308,17 @@ class Brain:
                                "FROM profile_versions ORDER BY version DESC").fetchall()
         return [dict(r) for r in rows]
 
+    def retire_pages(self, source: str, keep: set) -> int:
+        """Tombstone every live page of `source` whose page id is not in
+        `keep` (the pages its knowledge sources yield now). Returns the count."""
+        with self._db() as con:
+            live = {r["page_id"] for r in con.execute(
+                "SELECT DISTINCT page_id FROM chunks WHERE source=? AND deleted=0", (source,)).fetchall()}
+            gone = sorted(p for p in live if p not in keep)
+            for p in gone:
+                con.execute("UPDATE chunks SET deleted=1 WHERE page_id=? AND source=?", (p, source))
+        return len(gone)
+
     def upsert_page(self, page_id: str, chunks: list[Chunk], *, source: str, authority: int,
                     url: Optional[str] = None, updated_at: Optional[str] = None,
                     embed: bool = True) -> dict[str, int]:

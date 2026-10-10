@@ -1,11 +1,11 @@
 {
   "_note": "Daily caps (UTC day) and the rates used to estimate spend. A service over its cap, or the day over daily_usd, refuses new calls until midnight UTC; human review and decisions never stop. Override the total with BUDGET_DAILY_USD. Rates are estimates: put your billed rates here.",
-  "daily_usd": 15.0,
+  "daily_usd": 40.0,
   "alert_at": 0.8,
   "services": {
     "gemini": 6.0,
     "image": 6.0,
-    "veo": 8.0,
+    "veo": 37.0,
     "embed": 1.0,
     "apify": 2.0,
     "context_dev": 2.0

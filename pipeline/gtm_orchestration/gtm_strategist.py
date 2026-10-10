@@ -563,11 +563,19 @@ def _arc_brief(arc: Optional[Dict[str, Any]]) -> str:
     one argues only through its arc and competes with the others."""
     if not arc:
         return ""
+    # An argument can carry its own wording rules in the profile, under its
+    # name (profile.prompt_rules["real_margin"] for the "real margin" arc).
+    try:
+        from pipeline.brand_brain import context as C
+        wording = str(C.rule(str(arc.get("name") or "").strip().replace(" ", "_"), "") or "")
+    except Exception:                               # noqa: BLE001 — no profile: no extra rule
+        wording = ""
     return ("YOUR ARC (you are one of several strategists; each argues through one arc and an "
             "independent judge picks): argue ONLY through the '" + str(arc.get("name")) + "' argument — "
             + str(arc.get("claim") or "") + ". Choose the narrative pillar that carries it. Do not "
             "blend in another arc. If this signal cannot honestly be argued through this arc, set "
-            "relevant to false: another strategist has the other arcs.\n\n")
+            "relevant to false: another strategist has the other arcs.\n"
+            + ("WORDING FOR THIS ARC: " + wording + "\n" if wording else "") + "\n")
 
 
 def _fill_strategy(text: str) -> str:

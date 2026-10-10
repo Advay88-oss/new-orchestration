@@ -177,12 +177,65 @@ def direct(query: str, hook: str = "", body: str = "", *, run_id: Optional[str] 
           '"footer": [str] (the footer strings exactly as this format uses them), "takeaway": str}')
     out = R.brain_vision(prompt, [_sheet(items)], agent=AGENT_DIRECTOR, system=system, role="director",
                          temperature=0.4, max_output_tokens=6144, run_id=run_id)
+    # Told "no Stellar figure on a Solana post", the director still wrote
+    # "HF ≤ 1.1" (the Stellar floor) on a Solana hedge poster, and the judge
+    # passed it. Code checks the strings; one rewrite, then no poster.
+    leaks = _other_deployment(out) if solana else []
+    if leaks:
+        out = R.brain_vision(prompt + "\n\nYOUR LAST BRIEF PUT THE OTHER DEPLOYMENT'S FIGURES OR VENUES ON THIS "
+                             "SOLANA POST: " + ", ".join(leaks) + ". Write the brief again without them.",
+                             [_sheet(items)], agent=AGENT_DIRECTOR, system=system, role="director",
+                             temperature=0.4, max_output_tokens=6144, run_id=run_id)
+        leaks = _other_deployment(out)
+        if leaks:
+            raise RuntimeError("the director put Stellar figures on a Solana post twice: " + ", ".join(leaks))
     ids = {it["id"] for it in items}
     if str(out.get("base")) not in ids:
         out["base"] = items[0]["id"]
     out["solana"] = solana
     R.record_decision(AGENT_DIRECTOR, "poster_brief", {"brief": out}, run_id=run_id)
     return out
+
+
+def _solana_states(num: str) -> bool:
+    """True when the brain's Solana product docs state this figure too (the
+    1.1x health-factor floor holds on both deployments), so it is not a leak."""
+    from pipeline.brand_brain import context as C
+    want = re.compile(r"(?<![\d.])" + re.escape(num.rstrip("0").rstrip(".") if "." in num else num) + r"0*(?![\d])")
+    for h in C.knowledge_hits(num + " health factor Solana", k=8, sources=["github"]):
+        where = (str(h.get("title") or "") + " " + str(h.get("url") or "")).lower()
+        if "solana" in where and want.search(str(h.get("text") or "")):
+            return True
+    return False
+
+
+def _other_deployment(d: dict) -> list[str]:
+    """The profile's Stellar figures and Stellar venues found in a brief's
+    strings. The profile's true figures are the Stellar testnet figures
+    (prompt rule figure_scope); a venue counts as Stellar when the profile's
+    partner list says so."""
+    from pipeline.brand_brain import context as C
+    slide, ui = _strings(d)
+    text = " ".join(slide + ui + [str(d.get("takeaway") or "")])
+    found = []
+    for f in C.true_figures():
+        v = str(f.get("value") or "")
+        for num, unit in re.findall(r"(\d+(?:\.\d+)?)\s*([a-zA-Z×]*)", v):
+            if "." in num:                          # 1.10x: also "1.1", with or without the x
+                pat = r"(?<![\d.])" + re.escape(num.rstrip("0")) + r"0*(?![\d])"
+            elif unit:                              # 10x, 320ms: the unit must follow
+                pat = r"(?<![\d.])" + num + r"\s*" + re.escape(unit)
+            else:
+                continue
+            if re.search(pat, text, re.I) and not _solana_states(num):
+                found.append(v)
+        for word in re.findall(r"[A-Za-z]{3,}", v):
+            if word.isupper() and re.search(r"\b" + word + r"\b", text):
+                found.append(word)                  # e.g. XLM
+    for name, what in (C.partners() or {}).items():
+        if "stellar" in (str(name) + " " + str(what)).lower() and re.search(r"\b" + re.escape(name) + r"\b", text, re.I):
+            found.append(name)
+    return sorted(set(found))
 
 
 def brief_text(d: dict) -> str:
