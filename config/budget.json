@@ -4,7 +4,7 @@
   "alert_at": 0.8,
   "services": {
     "gemini": 6.0,
-    "image": 3.0,
+    "image": 6.0,
     "veo": 8.0,
     "embed": 1.0,
     "apify": 2.0,

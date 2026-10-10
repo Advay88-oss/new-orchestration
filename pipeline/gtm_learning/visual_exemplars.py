@@ -50,7 +50,8 @@ def _rows() -> list[dict]:
 
 
 def add(image: str | Path, *, renderer: str, score: float, note: str = "",
-        brief: str = "", source: str = "founder") -> dict[str, Any]:
+        brief: str = "", source: str = "founder",
+        format_set: Optional[str] = None) -> dict[str, Any]:
     """Store an approved visual. `score` is the founder's reward in [0, 1]."""
     if renderer not in RENDERERS:
         raise ValueError("renderer must be one of " + ", ".join(RENDERERS))
@@ -77,6 +78,7 @@ def add(image: str | Path, *, renderer: str, score: float, note: str = "",
            "note": new_note[:900] or None,
            "brief": " ".join(str(brief).split())[:600] or prior.get("brief") or None,
            "source": source, "from": str(src.name),
+           "format_set": format_set or prior.get("format_set"),
            "at": datetime.now(timezone.utc).isoformat()}
     rows.append(row)
     tmp = INDEX.with_suffix(".tmp")
@@ -90,6 +92,47 @@ def add(image: str | Path, *, renderer: str, score: float, note: str = "",
     except Exception:                               # noqa: BLE001 — boundary
         pass
     return row
+
+
+def current_format(k: int = 3) -> list[Path]:
+    """The founder's current format: the posters in the newest format set.
+
+    A format set is a group of posters the founder locked together as "make
+    posts like these" (add(..., format_set="<date or name>")). While one
+    exists, the poster agent and its judge are shown these first and the
+    older design references are left out, so a new direction is not pulled
+    back toward the old one by references it replaced. Empty when no set."""
+    rows = [r for r in _rows() if r.get("format_set") and (EX_DIR / r["file"]).exists()]
+    if not rows:
+        return []
+    newest = max(rows, key=lambda r: r.get("at", ""))["format_set"]
+    chosen = [r for r in rows if r["format_set"] == newest]
+    chosen.sort(key=lambda r: (r.get("score", 0), r.get("at", "")), reverse=True)
+    return [EX_DIR / r["file"] for r in chosen[:k]]
+
+
+def current_format_aspect() -> str:
+    """The aspect ratio the current format set is drawn in: "16:9" for
+    landscape slides, "4:5" for portrait posts, "1:1" otherwise (or no set)."""
+    paths = current_format(1)
+    if not paths:
+        return "1:1"
+    try:
+        from PIL import Image
+        with Image.open(paths[0]) as im:
+            r = im.width / max(1, im.height)
+    except Exception:                               # noqa: BLE001 — unreadable: square
+        return "1:1"
+    return "16:9" if r > 1.3 else "4:5" if r < 0.9 else "1:1"
+
+
+def current_format_note() -> str:
+    """The founder's words on the current format set (its newest note)."""
+    rows = [r for r in _rows() if r.get("format_set")]
+    if not rows:
+        return ""
+    newest = max(rows, key=lambda r: r.get("at", ""))
+    return str(newest.get("note") or "")
 
 
 def top(k: int = 3, *, renderer: Optional[str] = None,

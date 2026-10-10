@@ -22,11 +22,8 @@ from typing import Any, Dict, Optional
 
 
 def media_project(project: str) -> str:
-    """The GCP project image and Veo calls bill to. `vanna-mcp` on the laptop
-    (the founder's own login can use it); on GCP the pipeline's service
-    account has no access there, so deploy_cloud.sh sets VANNA_MEDIA_PROJECT
-    to the pipeline's own project."""
-    return os.environ.get("VANNA_MEDIA_PROJECT") or project
+    """The GCP project image and Veo calls bill to. Defaults to sales-agent-504607."""
+    return os.environ.get("VANNA_MEDIA_PROJECT") or (project if project != "vanna-mcp" else "sales-agent-504607")
 
 REPO_ROOT = Path(os.environ.get("VANNA_ROOT", Path(__file__).resolve().parents[2]))
 
@@ -89,6 +86,7 @@ def generate_gemini_image(
     temperature: float = 0.4,
     images: Optional[list] = None,
     aspect_ratio: Optional[str] = None,
+    image_size: Optional[str] = None,
 ) -> Path:
     """Calls a Gemini image endpoint on Model Garden and writes PNG to disk.
 
@@ -106,7 +104,12 @@ def generate_gemini_image(
     # account may not call Vertex models, so deploy_cloud.sh sets
     # VANNA_IMAGE_VIA=apikey and the Gemini API key already used for the brain
     # is used instead: same model, same request body, no extra permission.
-    api_key = _image_api_key() if os.environ.get("VANNA_IMAGE_VIA") == "apikey" else ""
+    # Some image models are served only by the Gemini API, not Vertex (Nano
+    # Banana 2.1 on 2026-10-09); those always take the API-key route.
+    api_only = {m.strip() for m in os.environ.get(
+        "VANNA_IMAGE_API_ONLY", "gemini-nano-banana-2.1").split(",") if m.strip()}
+    use_key = os.environ.get("VANNA_IMAGE_VIA") == "apikey" or model in api_only
+    api_key = _image_api_key() if use_key else ""
     if api_key:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
         headers = {"x-goog-api-key": api_key, "Content-Type": "application/json"}
@@ -132,6 +135,10 @@ def generate_gemini_image(
     if aspect_ratio:
         payload["generationConfig"]["responseModalities"] = ["IMAGE"]
         payload["generationConfig"]["imageConfig"] = {"aspectRatio": aspect_ratio}
+    if image_size:
+        # "1K" | "2K" | "4K" on the models that support it (Nano Banana Pro / 2.x).
+        payload["generationConfig"].setdefault("responseModalities", ["IMAGE"])
+        payload["generationConfig"].setdefault("imageConfig", {})["imageSize"] = image_size
     
     print(f"▶ Calling {model} via " + ("the Gemini API key" if api_key else f"Vertex (Project: {project}, Location: {location})") + "...")
     req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)

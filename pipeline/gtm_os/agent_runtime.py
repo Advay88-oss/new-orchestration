@@ -54,7 +54,10 @@ MODELS: dict[str, str] = {
     "meme":      os.environ.get("VANNA_GTM_MODEL_MEME", "gemini-3-pro-image"),
     # The direct poster (A08's live path). Its own role: the founder approved
     # the posters this model draws, and "image" is the cheaper archetype model.
-    "poster":    os.environ.get("VANNA_GTM_MODEL_POSTER", "gemini-3-pro-image"),
+    # Nano Banana 2.1 since 2026-10-09 (the newest image model the Gemini key
+    # lists; Gemini API only, see gemini_flash_image). Nano Banana Pro was
+    # gemini-3-pro-image.
+    "poster":    os.environ.get("VANNA_GTM_MODEL_POSTER", "gemini-nano-banana-2.1"),
     "video":     os.environ.get("VANNA_GTM_MODEL_VIDEO", "veo-3.1-generate-001"),
     # The Motion Director (poster brief + Veo motion plan). Its own role so its
     # model can change without moving every other agent. Flash by default:
@@ -434,12 +437,25 @@ def brain_vision(
     attached = 0
     for img in images:
         path = Path(str(img))
-        if not path.exists() or path.stat().st_size > 12_000_000:
+        if not path.exists():
             continue
         mime = mimetypes.guess_type(path.name)[0] or "image/png"
+        data = path.read_bytes()
+        if len(data) > 7_000_000:
+            # A 4K poster PNG is ~14 MB. It used to be skipped without a word,
+            # so the director and the judges never saw it. Send a 2560 px
+            # JPEG instead: the model reads it the same, the request stays small.
+            import io
+            from PIL import Image
+            with Image.open(path) as im:
+                im = im.convert("RGB")
+                im.thumbnail((2560, 2560))
+                buf = io.BytesIO()
+                im.save(buf, "JPEG", quality=90)
+            data, mime = buf.getvalue(), "image/jpeg"
         parts.append({"inlineData": {
             "mimeType": mime,
-            "data": base64.b64encode(path.read_bytes()).decode("ascii"),
+            "data": base64.b64encode(data).decode("ascii"),
         }})
         attached += 1
     if attached == 0:

@@ -129,6 +129,17 @@ export function PostDetail({ run, brand, brandColor, owner, onBack, onReferences
 }) {
   const [ch, setCh] = useState<Channel>("x");
   const [media, setMedia] = useState<"poster" | "video">("poster");
+  // The poster's real pixel size, read from the image itself (posters are
+  // 16:9 slides, 4:5 posts or squares, at 2K or 4K; never a fixed label).
+  const [imgSize, setImgSize] = useState("");
+  useEffect(() => {
+    setImgSize("");
+    const src = run?.visual;
+    if (!src) return;
+    const im = new Image();
+    im.onload = () => setImgSize(im.naturalWidth + " × " + im.naturalHeight);
+    im.src = String(src);
+  }, [run?.visual]);
   const [reviseOpen, setReviseOpen] = useState(false);
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
@@ -274,7 +285,7 @@ export function PostDetail({ run, brand, brandColor, owner, onBack, onReferences
           <div className="box-h" style={run.video ? { padding: "8px 8px 8px 16px" } : undefined}>Creative
             {run.video
               ? <Seg label="Creative" value={media} onChange={setMedia} options={[{ key: "poster", label: "Poster" }, { key: "video", label: "Video" }]} />
-              : <span>1080 × 1080</span>}
+              : <span>{imgSize || (run.visual ? "…" : "")}</span>}
           </div>
           <div className="rv-creative">
             {media === "video" && run.video ? (

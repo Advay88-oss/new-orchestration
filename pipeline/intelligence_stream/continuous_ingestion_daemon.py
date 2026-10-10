@@ -212,22 +212,9 @@ class ContinuousIngestionDaemon:
     def _init_cache(self) -> None:
         """Initializes local snapshot cache if not present."""
         if not CACHE_FILE.exists():
-            default_cache = {
-                "stellar_fee_stats": {
-                    "last_ledger": "4739270",
-                    "base_fee": 100,
-                    "ledger_capacity_usage": 0.07,
-                    "updated_at": datetime.now(timezone.utc).isoformat()
-                },
-                "blend_tvl": {
-                    "tvl_usd": 149772668.26,
-                    "updated_at": datetime.now(timezone.utc).isoformat()
-                },
-                "soroswap_tvl": {
-                    "tvl_usd": 1202219.00,
-                    "updated_at": datetime.now(timezone.utc).isoformat()
-                }
-            }
+            # Empty until a live poll writes a reading. Seeded figures here
+            # used to be reported as observations when a poll failed.
+            default_cache: Dict[str, Any] = {}
             CACHE_FILE.write_text(json.dumps(default_cache, indent=2), encoding="utf-8")
 
     def _get_cache(self) -> Dict[str, Any]:
@@ -282,7 +269,6 @@ class ContinuousIngestionDaemon:
             future_stellar = executor.submit(self._poll_stellar_horizon_fees) if want("chain") else None
             future_blend = executor.submit(self._poll_blend_liquidity) if want("chain") else None
             future_soroswap = executor.submit(self._poll_soroswap_liquidity) if want("chain") else None
-            future_liquidation = executor.submit(self._poll_liquidation_telemetry) if want("chain") else None
             future_twitter = executor.submit(self.social_collector.collect_news_feed_signals) if want("news") else None
             future_reddit = executor.submit(self.social_collector.collect_reddit_signals) if want("reddit") else None
             future_telegram = executor.submit(self.social_collector.collect_telegram_signals) if want("telegram") else None
@@ -310,7 +296,6 @@ class ContinuousIngestionDaemon:
             take(future_stellar, 15, "Stellar Horizon worker error")
             take(future_blend, 15, "Blend TVL worker error")
             take(future_soroswap, 15, "Soroswap AMM worker error")
-            take(future_liquidation, 15, "Liquidation telemetry error")
             take(future_twitter, 15, "News feed error", many=True)
             take(future_reddit, 15, "Reddit signals error", many=True)
             take(future_telegram, 15, "Telegram signals error", many=True)
@@ -391,28 +376,23 @@ class ContinuousIngestionDaemon:
             "completed_at": datetime.now(timezone.utc).isoformat()
         }
 
-    def _poll_stellar_horizon_fees(self) -> Dict[str, Any]:
+    def _poll_stellar_horizon_fees(self) -> Optional[Dict[str, Any]]:
         """Polls live Stellar Testnet Horizon fee statistics."""
         data, status = self._http_get_with_retry("https://horizon-testnet.stellar.org/fee_stats", timeout=3.5)
-        cache = self._get_cache()
 
-        if data and "last_ledger" in data:
-            ledger = data.get("last_ledger", "4739000")
-            base_fee = int(data.get("last_ledger_base_fee", 100))
-            cap_usage = float(data.get("ledger_capacity_usage", 0.07))
-            source_status = "LIVE_HORIZON_RPC"
-            self._update_cache("stellar_fee_stats", {
-                "last_ledger": ledger,
-                "base_fee": base_fee,
-                "ledger_capacity_usage": cap_usage,
-                "updated_at": datetime.now(timezone.utc).isoformat()
-            })
-        else:
-            cached = cache.get("stellar_fee_stats", {})
-            ledger = cached.get("last_ledger", "4739270")
-            base_fee = cached.get("base_fee", 100)
-            cap_usage = cached.get("ledger_capacity_usage", 0.07)
-            source_status = "CACHED_SNAPSHOT"
+        if not (data and "last_ledger" in data and "last_ledger_base_fee" in data):
+            # No live reading, no signal. A cached snapshot is not news.
+            return None
+        ledger = data["last_ledger"]
+        base_fee = int(data["last_ledger_base_fee"])
+        cap_usage = float(data.get("ledger_capacity_usage") or 0.0)
+        source_status = "LIVE_HORIZON_RPC"
+        self._update_cache("stellar_fee_stats", {
+            "last_ledger": ledger,
+            "base_fee": base_fee,
+            "ledger_capacity_usage": cap_usage,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        })
 
         return {
             "signal_id": f"SIG-STELLAR-FEE-{int(time.time() // 3600)}",
@@ -424,34 +404,32 @@ class ContinuousIngestionDaemon:
             "confidence": "HIGH",
             "data": {
                 "chain": "stellar",
-                "soroban_protocol_version": 20,
                 "ledger_sequence": ledger,
                 "base_fee_stroops": base_fee,
                 "capacity_usage": cap_usage,
-                "surge_pricing": cap_usage > 0.85,
-                "deterministic_gas_xlm": 0.00014
+                "surge_pricing": cap_usage > 0.85
             }
         }
 
-    def _poll_blend_liquidity(self) -> Dict[str, Any]:
+    def _poll_blend_liquidity(self) -> Optional[Dict[str, Any]]:
         """Polls live Blend Protocol liquidity on Stellar Soroban."""
         data, status = self._http_get_with_retry("https://api.llama.fi/protocol/blend", timeout=3.5)
-        cache = self._get_cache()
 
-        if data and "tvl" in data and data["tvl"]:
-            tvl = float(data["tvl"][-1].get("totalLiquidityUSD", 149772668.26))
-            source_status = "LIVE_DEFILLAMA_REST"
-            self._update_cache("blend_tvl", {
-                "tvl_usd": tvl,
-                "updated_at": datetime.now(timezone.utc).isoformat()
-            })
-        else:
-            tvl = float(cache.get("blend_tvl", {}).get("tvl_usd", 149772668.26))
-            source_status = "CACHED_SNAPSHOT"
+        last = (data or {}).get("tvl") or []
+        tvl = last[-1].get("totalLiquidityUSD") if last and isinstance(last[-1], dict) else None
+        if tvl is None:
+            # No live reading, no signal. A cached snapshot is not news.
+            return None
+        tvl = float(tvl)
+        source_status = "LIVE_DEFILLAMA_REST"
+        self._update_cache("blend_tvl", {
+            "tvl_usd": tvl,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        })
 
         return {
             "signal_id": f"SIG-BLEND-TVL-{int(time.time() // 3600)}",
-            "headline": f"Blend Protocol v2 money market liquidity verified at ${tvl:,.2f} TVL",
+            "headline": f"Blend Protocol TVL ${tvl:,.0f}, as reported by DefiLlama",
             "source": "https://api.llama.fi/protocol/blend",
             "source_type": "PRIMARY_SOURCE_OBSERVED",
             "derivation_provenance": source_status,
@@ -460,30 +438,29 @@ class ContinuousIngestionDaemon:
             "data": {
                 "protocol": "blend",
                 "tvl_usd": tvl,
-                "chain": "stellar",
-                "composable_layer": "vanna-protocol"
+                "chain": "stellar"
             }
         }
 
-    def _poll_soroswap_liquidity(self) -> Dict[str, Any]:
+    def _poll_soroswap_liquidity(self) -> Optional[Dict[str, Any]]:
         """Polls live Soroswap DEX AMM liquidity on Stellar Soroban."""
         data, status = self._http_get_with_retry("https://api.llama.fi/protocol/soroswap", timeout=3.5)
-        cache = self._get_cache()
 
-        if data and "tvl" in data and data["tvl"]:
-            tvl = float(data["tvl"][-1].get("totalLiquidityUSD", 1202219.00))
-            source_status = "LIVE_DEFILLAMA_REST"
-            self._update_cache("soroswap_tvl", {
-                "tvl_usd": tvl,
-                "updated_at": datetime.now(timezone.utc).isoformat()
-            })
-        else:
-            tvl = float(cache.get("soroswap_tvl", {}).get("tvl_usd", 1202219.00))
-            source_status = "CACHED_SNAPSHOT"
+        last = (data or {}).get("tvl") or []
+        tvl = last[-1].get("totalLiquidityUSD") if last and isinstance(last[-1], dict) else None
+        if tvl is None:
+            # No live reading, no signal. A cached snapshot is not news.
+            return None
+        tvl = float(tvl)
+        source_status = "LIVE_DEFILLAMA_REST"
+        self._update_cache("soroswap_tvl", {
+            "tvl_usd": tvl,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        })
 
         return {
             "signal_id": f"SIG-SOROSWAP-DEX-{int(time.time() // 3600)}",
-            "headline": f"Soroswap DEX liquidity tracked at ${tvl:,.2f} TVL for atomic margin swap routing",
+            "headline": f"Soroswap TVL ${tvl:,.0f}, as reported by DefiLlama",
             "source": "https://api.llama.fi/protocol/soroswap",
             "source_type": "PRIMARY_SOURCE_OBSERVED",
             "derivation_provenance": source_status,
@@ -491,27 +468,7 @@ class ContinuousIngestionDaemon:
             "confidence": "HIGH",
             "data": {
                 "protocol": "soroswap",
-                "tvl_usd": tvl,
-                "routing_type": "AMM_SWAP_ROUTING"
-            }
-        }
-
-    def _poll_liquidation_telemetry(self) -> Dict[str, Any]:
-        """Synthesizes cross-chain lending liquidation and gas vulnerability signal."""
-        return {
-            "signal_id": f"SIG-MEV-DEFENSE-{int(time.time() // 3600)}",
-            "headline": "EVM priority gas bidding cascades price out borrower defensive rebalances",
-            "source": "Etherscan Mempool & Flashbots Telemetry",
-            "source_type": "PRIMARY_SOURCE_OBSERVED",
-            "derivation_provenance": "CROSS_CHAIN_BENCHMARK",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "confidence": "HIGH",
-            "data": {
-                "event": "liquidation_frontrunning",
-                "evm_gas_peak_gwei": 180,
-                "soroban_fixed_fee_xlm": 0.00014,
-                "mercury_telemetry_ms": 320,
-                "vanna_advantage": "Sub-second liquidation deflection inside isolated SmartAccounts"
+                "tvl_usd": tvl
             }
         }
 

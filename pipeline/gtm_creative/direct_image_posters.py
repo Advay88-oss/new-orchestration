@@ -104,6 +104,37 @@ def _refs(topic: str, kinds: list[str], n: int, min_score: float = 0.0) -> list[
     return out[:n]
 
 
+def _format_note() -> str:
+    """The founder's description of the locked format set, when one exists."""
+    try:
+        from pipeline.gtm_learning.visual_exemplars import current_format, current_format_note
+        return current_format_note() if current_format(1) else ""
+    except Exception:                               # noqa: BLE001 — no set
+        return ""
+
+
+def _aspect() -> str:
+    """The shape of the image: the founder's format set decides (16:9 slides,
+    4:5 posts), square when there is no set."""
+    try:
+        from pipeline.gtm_learning.visual_exemplars import current_format_aspect
+        return current_format_aspect()
+    except Exception:                               # noqa: BLE001 — no set
+        return "1:1"
+
+
+_SHAPE = {"16:9": "landscape (16:9)", "4:5": "portrait (4:5)", "1:1": "square (1:1)"}
+
+
+def _current_format() -> list[Path]:
+    """The founder's locked format set, if any (visual_exemplars.current_format)."""
+    try:
+        from pipeline.gtm_learning.visual_exemplars import current_format
+        return current_format(4)
+    except Exception:                               # noqa: BLE001 — no set: the usual refs
+        return []
+
+
 def references(topic: str = "") -> list[Path]:
     """The tenant's design references, closest to the topic first; a company
     with none yet is shown its own website instead (the analyzer's
@@ -205,10 +236,19 @@ def _prompt(brief: str, correction: str = "", approved: int = 0,
     has_logo = _logo() is not None
     last = " The LAST image is the official logo." if has_logo else ""
     ground = _ground()
+    fmt = _format_note() if approved else ""
+    # The founder locked a format: compose like those posts, from the founder's
+    # own description of them, not like the older card diagrams.
+    head = ("ATTACHED IMAGES: the FIRST " + str(approved) + " are the founder's CURRENT FORMAT. "
+            "Compose this post the way they are composed — " + fmt + " Use their ground, glow, "
+            "type hierarchy, spacing and amount of text. Draw a NEW hero visual for THIS post's "
+            "own point; do not copy their text or their objects. Ignore any layout family or "
+            "material named in the brief below." + last + "\n\n") if fmt else ""
     return (
-        "You are designing ONE finished square (1:1) image for an X post by "
+        "You are designing ONE finished " + _SHAPE.get(_aspect(), "square (1:1)") + " image for an X post by "
         + _c().company_name() + ".\n\n"
-        + ("ATTACHED IMAGES: the FIRST " + str(approved) + " are posters the "
+        + head
+        + ("" if fmt else ("ATTACHED IMAGES: the FIRST " + str(approved) + " are posters the "
            "founder APPROVED — the quality bar, and the way to compose one: an "
            "explanatory diagram built from clear cards, icons and "
            "arrows, clearly contrasting the problem with " + _c().company_name() + "'s answer. Match "
@@ -219,15 +259,15 @@ def _prompt(brief: str, correction: str = "", approved: int = 0,
            + " are further STYLE REFERENCES." + last + "\n\n"
            if approved else
            "ATTACHED IMAGES: " + ("all images except the last" if has_logo else "the images")
-           + " are STYLE REFERENCES from the brand's own website and designs." + last + "\n\n")
-        + "FORMAT: one full-bleed square, the brand's ground colour" + (" " + ground if ground else "")
+           + " are STYLE REFERENCES from the brand's own website and designs." + last + "\n\n"))
+        + "FORMAT: one full-bleed " + _SHAPE.get(_aspect(), "square (1:1)") + " frame, the brand's ground colour" + (" " + ground if ground else "")
         + " running edge to edge — no borders, bands or frame around it.\n\n"
         + ("BRAND COLOURS (use these, not others): " + _palette_line() + ".\n\n" if _palette_line() else "")
         + "Match the references' house style exactly: " + _c().house_style()
         + ". Generous spacing, nothing overlapping, everything aligned.\n\n"
         + _point(brief)
         + _shape_rule(animated) + "\n\n"
-        + _material_rule(brief) + "\n\n"
+        + ("" if fmt else _material_rule(brief) + "\n\n")
         + ("LOGO: use the logo from the LAST attached image, exactly as it is: "
            + _c().logo_description() + ". Same mark, same wordmark, drawn once, in a tone that "
            "reads on the ground (dark on a light ground, light on a dark one). Do NOT invent a "
@@ -306,7 +346,7 @@ def judge(image: Path, brief: str, *, animated: bool = True) -> dict[str, Any]:
     # The approved side is the founder's approved posters closest to this
     # topic (the same ones the image model was shown), the newest as fallback.
     # A poster is never compared with a copy of itself.
-    ok = [p for p in _refs(brief, ["approved_poster"], 3, min_score=0.7)
+    ok = [p for p in (_current_format() or _refs(brief, ["approved_poster"], 3, min_score=0.7))
           if _digest(p) != me] or [
         p["path"] for p in pile["approved"] if _digest(p["path"]) != me]
     bad = [p["path"] for p in pile["sent_back"] if _digest(p["path"]) != me]
@@ -514,8 +554,9 @@ def make(brief: str, name: str, *, out_dir: Optional[Path] = None,
     # Both come from the brain's visual memory, ranked for this brief: the
     # founder-approved posters closest to the topic (rated 0.7 or better),
     # then the design references.
-    approved = _refs(brief, ["approved_poster"], 3, min_score=0.7)
-    imgs = (approved + references(brief)
+    fmt = _current_format()
+    approved = fmt or _refs(brief, ["approved_poster"], 3, min_score=0.7)
+    imgs = (approved + ([] if fmt else references(brief))
             + [Path(p) for p in (extra_refs or []) if Path(p).exists()] + ([_logo()] if _logo() else []))
     history = []
     correction = ""
@@ -524,7 +565,7 @@ def make(brief: str, name: str, *, out_dir: Optional[Path] = None,
         generate_gemini_image(prompt=_prompt(brief, correction, len(approved), animated),
                               output_path=path,
                               model=_model(), temperature=0.7, images=imgs,
-                              aspect_ratio="1:1")
+                              aspect_ratio=_aspect())
         # The real lockup replaces the drawn one before the judge looks, so a
         # wrong mark costs nothing instead of a whole attempt.
         fix_logo(path)

@@ -177,6 +177,24 @@ def _c_rule(name: str) -> str:
     return str(C.rule(name) or "")
 
 
+def _format_note() -> str:
+    """The founder's locked format, when one is set (visual_exemplars)."""
+    try:
+        from pipeline.gtm_learning.visual_exemplars import current_format, current_format_note
+        return current_format_note() if current_format(1) else ""
+    except Exception:                               # noqa: BLE001 — no set
+        return ""
+
+
+STORY_RULE = (
+    "TELL A STORY a stranger gets in three seconds, before reading the caption: WHO it "
+    "happens to (name them in the picture with a short label, e.g. YOU and ANOTHER "
+    "BORROWER), WHAT happens to them, and what it MEANS for the reader. Every pronoun in "
+    "the headline (you, your, their) must point at something labelled in the picture. The "
+    "headline is two short lines: line 1 is the event, line 2 is what it means for the "
+    "reader. One hero visual carries the whole story; no cards of text.\n")
+
+
 def _brief_faults(out: dict, animated: bool = True) -> list[str]:
     """Rule breaks a model reliably makes in a brief, found in code."""
     import re
@@ -290,6 +308,11 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
             "top, then the cards the layout describes, short plain-text "
             "labels, a footer. Cards are opaque and flat unless the material is "
             "glass_accent, and then only the one card it names is glass. ")
+    fmt_note = _format_note()
+    if fmt_note:
+        # The founder's locked format replaces the card layouts: one hero
+        # visual, a two-line headline, one line under it.
+        shape = "The poster follows the founder's CURRENT FORMAT: " + fmt_note + " "
     system = _fill(
         "You are {company}'s Motion Director, briefing the poster that will be "
         "drawn" + (" and then animated" if animated else "") + ". {company_line} "
@@ -345,6 +368,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
           "is the takeaway. Then decide the single element that carries it (the focal element) and draw "
           "the picture around it. The picture must show the change or the contrast the headline claims "
           "— not a generic architecture diagram that could sit under any post.\n"
+        + (STORY_RULE if fmt_note else "")
         + ("RECENT POSTERS drew these pictures; draw something that does not look like them:\n"
            + "\n".join("  - " + p for p in recent_pictures) + "\n" if recent_pictures else "")
         + (fresh if fresh else "")
@@ -363,6 +387,7 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         '"layout": str (one id from LAYOUT FAMILIES), '
         '"material": str (one id from MATERIALS), '
         '"takeaway": str (the one sentence a stranger gets from the image alone, under 14 words), '
+        '"story": {"who": str, "what": str, "means": str} (who it happens to, what happens, what it means for the reader), '
         '"focal": str (the one element that carries the takeaway: what it is and why it dominates), '
         '"idea": str, "headline": str (under 9 words), '
         '"gradient_word": str (1-2 words from the headline), "subtitle": str '
@@ -388,6 +413,9 @@ def poster_brief(query: str, hook: str = "", body: str = "", *,
         if str(out.get(k) or "").strip() and str(out.get(k)).strip().lower() not in ("n/a", "none"))
     text = ("Format: " + str(out.get("format") or "explainer")
             + "\nTakeaway: " + str(out.get("takeaway", ""))
+            + ("\nStory: who = " + str((out.get("story") or {}).get("who", "")) + "; what = "
+               + str((out.get("story") or {}).get("what", "")) + "; means for the reader = "
+               + str((out.get("story") or {}).get("means", "")) if isinstance(out.get("story"), dict) else "")
             + "\nFocal: " + str(out.get("focal", ""))
             + "\nHeadline: " + str(out.get("headline", "")) + " (gradient word: "
             + str(out.get("gradient_word", "")) + ")\nSubtitle: "

@@ -276,6 +276,40 @@ def _render_direct(hook: str, body: str, subject: str,
     judge, so the caller can fall back."""
     from pipeline.gtm_creative.direct_image_posters import make
 
+    # The founder locked a format (real slides): the director picks the slide
+    # whose layout fits and writes every string; the image model copies that
+    # layout with those strings; the real logo is pasted (format_poster).
+    from pipeline.gtm_creative import format_poster as FP
+    if FP.active():
+        try:
+            res = FP.run(subject or hook, hook, body, name=run_id + "_visual",
+                         out_dir=Path(__file__).resolve().parents[1] / "state", run_id=run_id)
+        except Exception as exc:                    # noqa: BLE001 — fall through to the usual path
+            R.record_stage("A08_visual_synthesis", "degraded",
+                           "founder-format poster failed: " + str(exc)[:200])
+        else:
+            verdicts = [str(a.get("verdict")).upper() for a in res["attempts"]]
+            for _a in res["attempts"]:
+                R.record(R.AgentCall("A08_visual_synthesis", "image", R.MODELS["poster"], True, 0.0,
+                                     note="founder-format poster attempt, judged " + str(_a.get("verdict")),
+                                     transport="gemini-api"))
+            R.record_stage("A14_motion_director", "ok", "briefed a founder-format slide (base "
+                           + Path(res["base"]).stem + ")")
+            png = Path(res["final"])
+            rejected = bool(verdicts) and all(v == "REJECT" for v in verdicts)
+            R.record_stage("A08_visual_synthesis", "degraded" if rejected else "ok",
+                           "poster by " + R.MODELS["poster"] + " in the founder's format; own judge "
+                           + "/".join(verdicts), outputs=[str(png)])
+            best = max(res["attempts"], key=lambda h: int(h.get("score") or 0))
+            return {"path": str(png), "filename": png.name, "rejected": rejected,
+                    "archetype": "FOUNDER_FORMAT",
+                    "visual_review": {"verdict": best.get("verdict"),
+                                      "fix": "; ".join(best.get("differences") or [])[:300]},
+                    "why": "founder-format slide (base " + Path(res["base"]).stem + "); own judge: "
+                           + "/".join(verdicts),
+                    "public_url": "/" + png.name, "renderer": "direct_model",
+                    "poster_brief": res["brief"], "poster_layout": "founder:" + Path(res["base"]).stem}
+
     # The Motion Director writes the brief — the idea, headline, contrast and
     # diagram — from the query and the post, learning from the posters the
     # founder approved. The raw post is the fallback if the agent fails.

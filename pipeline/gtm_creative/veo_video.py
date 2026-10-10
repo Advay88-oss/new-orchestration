@@ -149,29 +149,35 @@ def first_frame(poster: Path, out: Path, size=(1920, 1080)) -> Path:
 
     W, H = size
     p = Image.open(poster).convert("RGB")
+    # A 16:9 slide already is the frame: scale it, never squeeze it. (Every
+    # poster used to be forced to a square, which distorted 16:9 and 4:3 ones.)
+    if abs(p.width / p.height - W / H) < 0.04:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        p.resize((W, H), Image.Resampling.LANCZOS).save(out)
+        return out
+    side_w = min(W, int(round(H * p.width / p.height)))
+    p = p.resize((side_w, H), Image.Resampling.LANCZOS)
     side = H
-    p = p.resize((side, side), Image.Resampling.LANCZOS)
     # The sides are the poster's own outermost columns — pure ground —
     # stretched outward. A separately drawn ground was brighter than the
     # poster's and read as a column; a blurred copy of the whole poster kept
     # the ghost of its content (a big "1.10x" became a soft grey shape) and
     # Veo animated that shape as an object — the judge rejected the clip for
     # a "blurred silhouette" on the left.
-    pad = (W - side) // 2
-    strip = max(4, side // 120)
-    left = p.crop((0, 0, strip, side)).resize((pad, side), Image.Resampling.BICUBIC)
-    right = p.crop((side - strip, 0, side, side)).resize((W - side - pad, side),
-                                                          Image.Resampling.BICUBIC)
+    pad = (W - side_w) // 2
+    strip = max(4, side_w // 120)
+    left = p.crop((0, 0, strip, side)).resize((max(1, pad), side), Image.Resampling.BICUBIC)
+    right = p.crop((side_w - strip, 0, side_w, side)).resize((max(1, W - side_w - pad), side),
+                                                            Image.Resampling.BICUBIC)
     canvas = Image.new("RGB", (W, H))
     canvas.paste(left, (0, 0))
-    canvas.paste(right, (pad + side, 0))
+    canvas.paste(right, (pad + side_w, 0))
     canvas = ImageEnhance.Brightness(canvas.filter(ImageFilter.GaussianBlur(40))).enhance(0.9)
-    mask = Image.new("L", (side, side), 255)
-    feather = int(side * 0.06)
-    edge = Image.new("L", (side, side), 0)
-    edge.paste(255, (feather, 0, side - feather, side))
+    feather = int(side_w * 0.06)
+    edge = Image.new("L", (side_w, side), 0)
+    edge.paste(255, (feather, 0, side_w - feather, side))
     mask = edge.filter(ImageFilter.GaussianBlur(feather * 0.6))
-    canvas.paste(p, ((W - side) // 2, 0), mask)
+    canvas.paste(p, (pad, 0), mask)
     out.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(out)
     return out
@@ -310,27 +316,38 @@ def _build_brief() -> str:
 
 
 def letter_mask(im):
-    """Type, not hairlines. A 1px rule is dropped; a letter is kept and grown
-    enough to cover the misspelled glyph Veo puts in the same place."""
+    """Where the words are: deviation from a local median at two scales, so
+    both small UI text and thick headline strokes are caught (one fine edge
+    filter left the inside of big letters, and Veo then animated ghost text).
+    Hairlines and smooth gradients stay out of the mask."""
     from PIL import Image, ImageFilter
     import numpy as np
 
-    lum = np.asarray(im.convert("L"), dtype=np.int16)
-    soft = np.asarray(im.convert("L").filter(ImageFilter.BoxBlur(1)), dtype=np.int16)
-    ink = np.abs(lum - soft) > 16
+    W, H = im.size
+    g = im.convert("L")
+
+    def ink_at(scale: int, size: int, thr: int):
+        s = g.resize((max(1, W // scale), max(1, H // scale)), Image.Resampling.BILINEAR)
+        med = s.filter(ImageFilter.MedianFilter(size))
+        d = np.abs(np.asarray(s, dtype=np.int16) - np.asarray(med, dtype=np.int16)) > thr
+        m = Image.fromarray(np.where(d, 255, 0).astype("uint8"), "L").resize((W, H), Image.Resampling.BILINEAR)
+        return np.asarray(m) > 100
+
+    ink = ink_at(1, 15, 26) | ink_at(4, 13, 24)
     mask = Image.fromarray(np.where(ink, 255, 0).astype("uint8"), "L")
-    mask = mask.filter(ImageFilter.MinFilter(3))
-    mask = mask.filter(ImageFilter.MaxFilter(7))
-    return mask.filter(ImageFilter.GaussianBlur(0.6))
+    return mask.filter(ImageFilter.MaxFilter(7)).filter(ImageFilter.GaussianBlur(1.5))
 
 
 def without_letters(frame: Path, out: Path) -> Path:
-    """The poster with its words dissolved, so Veo is not asked to draw them."""
+    """The poster with its words dissolved into its own ground, so Veo is not
+    asked to draw them."""
     from PIL import Image, ImageFilter
 
     im = Image.open(frame).convert("RGB")
-    ground = im.filter(ImageFilter.GaussianBlur(14))
-    im.paste(ground, mask=letter_mask(im))
+    W, H = im.size
+    small = im.resize((max(1, W // 4), max(1, H // 4)), Image.Resampling.BILINEAR)
+    ground = small.filter(ImageFilter.MedianFilter(13)).resize((W, H), Image.Resampling.BILINEAR)
+    im.paste(ground.filter(ImageFilter.GaussianBlur(10)), mask=letter_mask(im))
     out.parent.mkdir(parents=True, exist_ok=True)
     im.save(out)
     return out
