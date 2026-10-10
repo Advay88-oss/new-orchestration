@@ -90,6 +90,14 @@
     },
     {
       "kind": "markdown_file",
+      "path": "pipeline/brain/knowledge/channel-playbook.md",
+      "source": "rulebook",
+      "authority": 1,
+      "label": "channel playbook (X, LinkedIn, Reddit)",
+      "content_type": "rule"
+    },
+    {
+      "kind": "markdown_file",
       "path": "pipeline/brain/knowledge/creative-rules.md",
       "source": "rulebook",
       "authority": 1,
@@ -117,7 +125,8 @@
         "motion-direction.md",
         "learned-rules.md",
         "real-margin-launch-2026-10.md",
-        "vanna-current-thesis.md"
+        "vanna-current-thesis.md",
+        "channel-playbook.md"
       ]
     },
     {

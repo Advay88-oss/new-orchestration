@@ -10,8 +10,15 @@ sources:
 - id: notion-language-messaging
   resource: https://app.notion.com/p/3e0846d6f5598115a3c3c779091b3756
   title: Notion › Vanna — Current Thesis › Vanna — Language & Messaging (19 Sep 2026)
-rule_count: 6
+rule_count: 7
 rules:
+- id: L-custody-jargon
+  severity: WARN
+  pattern: \b(?:PDA|custody|custodial|cross-offset)\b
+  why: Jargon in a post, and Vanna never holds custody (non-custodial is the only true form).
+  fix: Say "your Vanna account"; say what offsets, not the mechanism's name.
+  flags:
+  - IGNORECASE
 - id: L-prime-broker-identity
   severity: BLOCK
   pattern: \b(?:we\s+are|vanna\s+is)\s+(?:a|an|the)\s+(?:on-?chain\s+)?prime\s+broker\b
