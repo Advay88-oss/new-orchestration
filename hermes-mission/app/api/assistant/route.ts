@@ -33,9 +33,11 @@ export async function POST(req: Request) {
     return Response.json({ ok: false, error: 'the limit for this link is 20 messages an hour' }, { status: 429 });
   }
   const text = String(body.text || '').slice(0, 8000);
+  // An image the owner attached (uploaded first to /api/studio) or a Studio poster, by bare name.
+  const image = /^studio-[a-z0-9][a-z0-9-]{2,90}\.(png|jpg|jpeg|webp)$/.test(String(body.image || '')) ? String(body.image) : '';
   const thread_id = THREAD.test(String(body.thread_id || '')) ? String(body.thread_id) : null;
   if (!TENANT.test(tenant)) return Response.json({ ok: false, error: 'pick a company first' }, { status: 400 });
-  if (!text.trim()) return Response.json({ ok: false, error: 'empty message' }, { status: 400 });
+  if (!text.trim() && !image) return Response.json({ ok: false, error: 'empty message' }, { status: 400 });
 
   const enc = new TextEncoder();
   let turn: ReturnType<typeof ask> | null = null;
@@ -49,7 +51,7 @@ export async function POST(req: Request) {
           controller.enqueue(enc.encode('data: ' + JSON.stringify(rest) + '\n\n'));
         } catch { open = false; }
       };
-      turn = ask({ tenant, text, thread_id, base: new URL(req.url).origin, client, role: who, viewer: viewerKey() }, send);
+      turn = ask({ tenant, text, image, thread_id, base: new URL(req.url).origin, client, role: who, viewer: viewerKey() }, send);
       req.signal.addEventListener('abort', () => turn?.cancel());
       turn.done.finally(() => { open = false; try { controller.close(); } catch { /* */ } });
     },

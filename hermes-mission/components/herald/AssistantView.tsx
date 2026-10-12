@@ -7,13 +7,27 @@
  * or publishes anything itself; the owner confirms every action.
  */
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ICheck, ILock, ISend, ISpin, IStop, Mark } from "./ui";
+import { ICheck, IImage, ILock, ISend, ISpin, IStop, Mark } from "./ui";
 
 type Card = { type: string; [k: string]: any };
 type Tool = { name: string; summary: string };
 type Grounding = { checked: number; supported?: number; flagged?: { text: string; verdict: string }[]; note?: string };
-type Msg = { role: "user" | "assistant"; text: string; tools?: Tool[]; cards?: Card[]; grounding?: Grounding;
+type Msg = { role: "user" | "assistant"; text: string; image?: string; tools?: Tool[]; cards?: Card[]; grounding?: Grounding;
              error?: string; pending?: boolean; stopped?: boolean };
+/** An image attached to the next message: uploaded to /api/studio, or a Studio poster by name. */
+type Attach = { file: string; local?: string; uploading?: boolean; error?: string };
+
+const media = (file: string) => "/api/media?file=" + encodeURIComponent(file);
+
+/** Upload one image the owner picked, pasted or dropped; returns its studio file name. */
+async function upload(f: File): Promise<string> {
+  const fd = new FormData();
+  fd.append("file", f);
+  const r = await fetch("/api/studio", { method: "POST", body: fd });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok || !j.ok) throw new Error(j.error || "HTTP " + r.status);
+  return String(j.file);
+}
 
 const TOOL_LABEL: Record<string, string> = {
   search_knowledge: "Searched your sources", web_search: "Searched the web", brand_profile: "Read the company profile",
@@ -22,6 +36,7 @@ const TOOL_LABEL: Record<string, string> = {
   analyse_competitors: "Started reading competitors", notion_connect: "Made a Notion link", propose_action: "Prepared an action",
   list_companies: "Listed brands", set_post_cadence: "Updated the schedule", find_campaigns: "Searched campaigns",
   study_brand: "Added to Inspiration", schedule_status: "Checked the schedule",
+  make_visual: "Sent to the visual agents", visual_status: "Checked the image", list_visuals: "Looked in the Studio",
 };
 
 // The same step when it did not go through: never a tick on a failure.
@@ -30,6 +45,7 @@ const TOOL_FAILED: Record<string, string> = {
   find_campaigns: "Couldn’t search campaigns", study_brand: "Couldn’t add it to Inspiration",
   propose_action: "Couldn’t prepare that", notion_connect: "Couldn’t make the Notion link",
   web_search: "The web search failed", search_knowledge: "The source search failed",
+  make_visual: "Couldn’t start the image",
 };
 
 function inline(s: string, key: string): React.ReactNode[] {
@@ -206,22 +222,92 @@ function NotionCard({ c }: { c: Card }) {
   );
 }
 
+/** A make_visual job: the agents' steps while it runs, then the new poster. */
+function VisualCard({ c, onChangeAgain }: { c: Card; onChangeAgain: (file: string) => void }) {
+  const d = usePoll("/api/studio?job=" + c.job_id, (j) => Boolean(j?.job && j.job.state !== "running"));
+  const j = d?.job;
+  const state = j?.state || "running";
+  const item = j?.item;
+  return (
+    <StatusCard label={c.kind === "revise" ? "Visual agents · changing your image" : "Visual agents · new poster"}>
+      {c.request && <span className="meta">“{String(c.request).slice(0, 200)}”</span>}
+      {state === "running" && (
+        <span className="thinking" style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>
+          <ISpin />{(j?.step || "Starting") + " · one to four minutes"}
+        </span>
+      )}
+      {state === "done" && item && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          <a href={media(item.file)} target="_blank" rel="noreferrer">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={media(item.preview || item.file)} alt={item.title} style={{ width: "100%", maxWidth: 560, borderRadius: 10, display: "block" }} />
+          </a>
+          {Array.isArray(j?.director?.changes) && j.director.changes.length > 0 && (
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13, color: "var(--muted)" }}>
+              {j.director.changes.slice(0, 5).map((x: string, k: number) => <li key={k}>{x}</li>)}
+            </ul>
+          )}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <a className="btn btn-primary btn-sm" href={media(item.file)} download={item.file}>Download {Array.isArray(item.size) ? item.size.join("×") : ""}</a>
+            <button className="btn btn-sm" onClick={() => onChangeAgain(item.file)}>Change it again</button>
+          </div>
+          <span className="meta">Also saved in Posts → Studio.</span>
+        </div>
+      )}
+      {state === "failed" && <span className="bad-c">That did not work: {j?.error || "unknown error"}</span>}
+    </StatusCard>
+  );
+}
+
 function greeting(): string {
   const h = new Date().getHours();
   return h < 5 ? "Good evening" : h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
 }
 
-function Composer({ id, rows, value, onChange, onSend, onStop, busy, disabled, company, placeholder, boxRef }: {
+function Composer({ id, rows, value, onChange, onSend, onStop, busy, disabled, company, placeholder, boxRef, attach, onFile, onClearAttach }: {
   id: string; rows: number; value: string; onChange: (v: string) => void; onSend: () => void; onStop: () => void; busy: boolean;
   disabled: boolean; company: { id: string; name: string; color: string } | null; placeholder: string; boxRef: React.RefObject<HTMLTextAreaElement>;
+  attach: Attach | null; onFile: (f: File) => void; onClearAttach: () => void;
 }) {
+  const pick = useRef<HTMLInputElement>(null);
+  const [over, setOver] = useState(false);
+  const fileOf = (list: FileList | DataTransferItemList | null | undefined): File | null => {
+    for (const it of Array.from((list || []) as ArrayLike<File | DataTransferItem>)) {
+      const f = it instanceof File ? it : (it as DataTransferItem).kind === "file" ? (it as DataTransferItem).getAsFile() : null;
+      if (f && /^image\/(png|jpeg|webp)$/.test(f.type)) return f;
+    }
+    return null;
+  };
+  const ready = Boolean(value.trim() || (attach && attach.file && !attach.uploading));
   return (
-    <div className="composer">
+    <div className={"composer" + (over ? " drop" : "")} style={over ? { outline: "2px dashed var(--faint)", outlineOffset: 2 } : undefined}
+         onDragOver={(e) => { if (Array.from(e.dataTransfer.types).includes("Files")) { e.preventDefault(); setOver(true); } }}
+         onDragLeave={() => setOver(false)}
+         onDrop={(e) => { setOver(false); const f = fileOf(e.dataTransfer.files); if (f) { e.preventDefault(); onFile(f); } }}>
       <label htmlFor={id} style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Message the Assistant</label>
+      {attach && (
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ position: "relative", display: "inline-block" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={attach.local || (attach.file ? media(attach.file) : "")} alt="Attached image"
+                 style={{ height: 64, maxWidth: 140, objectFit: "cover", borderRadius: 8, border: "1px solid var(--line)", opacity: attach.uploading ? 0.5 : 1 }} />
+            <button onClick={onClearAttach} aria-label="Remove the image" title="Remove"
+                    style={{ position: "absolute", top: -7, right: -7, width: 20, height: 20, borderRadius: 10, border: "1px solid var(--line)", background: "var(--surface)", color: "var(--text)", cursor: "pointer", lineHeight: "16px", fontSize: 13 }}>×</button>
+          </span>
+          <span className="meta">{attach.error ? <span className="bad-c">{attach.error}</span> : attach.uploading ? "Uploading…" : "Say what to change, or ask what could be better."}</span>
+        </div>
+      )}
       <textarea id={id} ref={boxRef} rows={rows} placeholder={placeholder} value={value} disabled={disabled}
                 onChange={(e) => onChange(e.target.value)}
+                onPaste={(e) => { const f = fileOf(e.clipboardData?.items); if (f) { e.preventDefault(); onFile(f); } }}
                 onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend(); } }} />
       <div className="comp-row">
+        <input ref={pick} type="file" accept="image/png,image/jpeg,image/webp" hidden
+               onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); e.target.value = ""; }} />
+        <button className="btn btn-quiet btn-sm" onClick={() => pick.current?.click()} disabled={disabled || busy}
+                aria-label="Attach an image" title="Attach an image: the visual agents can change it">
+          <IImage size={16} /><span className="hide-sm" style={{ marginLeft: 4 }}>Image</span>
+        </button>
         {company && (
           <span className="comp-ws">
             <span className="ws-av" style={{ width: 16, height: 16, borderRadius: 4, fontSize: 9, background: company.color }}>{company.name.charAt(0)}</span>
@@ -230,7 +316,7 @@ function Composer({ id, rows, value, onChange, onSend, onStop, busy, disabled, c
         )}
         {busy
           ? <button className="send idle" onClick={onStop} aria-label="Stop"><IStop /></button>
-          : <button className={"send " + (value.trim() ? "" : "idle")} onClick={onSend} aria-label="Send"><ISend /></button>}
+          : <button className={"send " + (ready ? "" : "idle")} onClick={onSend} aria-label="Send"><ISend /></button>}
       </div>
     </div>
   );
@@ -240,7 +326,7 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
   company: { id: string; name: string; color: string } | null;
   owner: boolean;
   ownerName: string;
-  prefill: { text: string; n: number };
+  prefill: { text: string; n: number; image?: string };
   /** The open conversation; null is a new chat. The sidebar's Recents choose it. */
   threadId: string | null;
   onThreadChange: (id: string | null) => void;
@@ -259,6 +345,7 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
   const cache = useRef(new Map<string, Msg[]>());
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
+  const [attach, setAttach] = useState<Attach | null>(null);
   const [busy, setBusy] = useState(false);
   const [loadingThread, setLoadingThread] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -324,20 +411,43 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
     return () => clearInterval(t);
   }, [tenant, threadId, busy]);
 
+  // Pick, paste or drop an image: it uploads at once, and the message waits for it.
+  const onFile = useCallback(async (f: File) => {
+    if (f.size > 15 * 1024 * 1024) { setAttach({ file: "", error: "That image is over 15 MB." }); return; }
+    const local = URL.createObjectURL(f);
+    setAttach({ file: "", local, uploading: true });
+    try {
+      const file = await upload(f);
+      setAttach((a) => (a && a.local === local ? { file, local } : a));
+    } catch (e: any) {
+      setAttach((a) => (a && a.local === local ? { file: "", local, error: "Upload failed: " + String(e?.message || e).slice(0, 80) } : a));
+    }
+    setTimeout(() => box.current?.focus(), 0);
+  }, []);
+  const changeAgain = useCallback((file: string) => {
+    setAttach({ file });
+    setInput("");
+    setTimeout(() => box.current?.focus(), 0);
+  }, []);
+
   useEffect(() => {
     if (!prefill.n) return;
     setInput(prefill.text);
+    if (prefill.image) setAttach({ file: prefill.image });
     setTimeout(() => { const b = box.current; if (b) { b.focus(); b.setSelectionRange(b.value.length, b.value.length); } }, 0);
   }, [prefill.n]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { end.current?.scrollIntoView({ block: "end" }); }, [msgs]);
 
   const send = async (text?: string) => {
-    const q = (text ?? input).trim();
+    const img = text === undefined && attach?.file && !attach.uploading ? attach.file : "";
+    if (text === undefined && attach?.uploading) return;      // wait for the upload
+    const q = (text ?? input).trim() || (img ? "What could be better in this image?" : "");
     if (!q || busy || !tenant) return;
     setInput("");
+    if (img) setAttach(null);
     setErr(null);
-    setMsgs((m) => [...m, { role: "user", text: q }, { role: "assistant", text: "", tools: [], cards: [], pending: true }]);
+    setMsgs((m) => [...m, { role: "user", text: q, image: img || undefined }, { role: "assistant", text: "", tools: [], cards: [], pending: true }]);
     setBusy(true);
     const ctl = new AbortController();
     abort.current = ctl;
@@ -351,7 +461,7 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
     try {
       const r = await fetch("/api/assistant", {
         method: "POST", headers: { "Content-Type": "application/json" }, signal: ctl.signal,
-        body: JSON.stringify({ tenant, text: q, thread_id: startedIn || null }),
+        body: JSON.stringify({ tenant, text: q, image: img || undefined, thread_id: startedIn || null }),
       });
       if (!r.ok || !r.body) {
         const j = await r.json().catch(() => ({}));
@@ -409,9 +519,12 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
     ["Change the schedule", "@autopilot"],
     ["Study a brand", "Study "],
     ["Find campaigns", "Find campaigns on Galxe about "],
+    ["Fix an image", "@image"],
+    ["Make a poster", "Make a poster about "],
   ];
   const useSugg = (label: string, fill: string | null) => {
     if (fill === "@autopilot") { onAutopilot(); return; }
+    if (fill === "@image") { (document.querySelector(".composer input[type=file]") as HTMLInputElement | null)?.click(); return; }
     if (fill === null) { send("What's new this week?"); return; }
     setInput(fill);
     setTimeout(() => { const b = box.current; if (b) { b.focus(); b.setSelectionRange(b.value.length, b.value.length); } }, 0);
@@ -428,7 +541,7 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
           {owner ? (
             <>
               <Composer id="ask1" rows={2} value={input} onChange={setInput} onSend={() => send()} onStop={stop} busy={busy} disabled={!tenant}
-                        company={company} boxRef={box} placeholder={"Ask anything about " + name + ", or tell me what to make…"} />
+                        company={company} boxRef={box} placeholder={"Ask anything about " + name + ", or attach an image and say what to change…"} attach={attach} onFile={onFile} onClearAttach={() => setAttach(null)} />
               <div className="pills">
                 {SUGG.map(([l, f]) => <button key={l} className="pill-s" onClick={() => useSugg(l, f)} disabled={!tenant}>{l}</button>)}
               </div>
@@ -447,7 +560,19 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
       <div className="thread" aria-live="polite">
         {loadingThread && <span className="thinking">Opening the conversation…</span>}
         {msgs.map((m, i) => {
-          if (m.role === "user") return <div key={i} className="m-user">{m.text}</div>;
+          if (m.role === "user") {
+            return (
+              <div key={i} className="m-user">
+                {m.image && (
+                  <a href={media(m.image)} target="_blank" rel="noreferrer" style={{ display: "block", marginBottom: m.text ? 8 : 0 }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={media(m.image)} alt="Attached image" style={{ maxWidth: 280, maxHeight: 220, borderRadius: 10, display: "block" }} />
+                  </a>
+                )}
+                {m.text}
+              </div>
+            );
+          }
           const tools = m.tools || [];
           // The copilot's own answer is the reply; the tool's raw note stays a short line on its chip.
           const planned = false;
@@ -496,6 +621,7 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
                 if (c.type === "analysis") return <AnalysisCard key={j} c={c} />;
                 if (c.type === "competitors") return <CompetitorsCard key={j} c={c} />;
                 if (c.type === "notion") return <NotionCard key={j} c={c} />;
+                if (c.type === "visual") return <VisualCard key={j} c={c} onChangeAgain={changeAgain} />;
                 return null;
               })}
             </React.Fragment>
@@ -506,7 +632,7 @@ export function AssistantView({ company, owner, ownerName, prefill, threadId, on
       {owner ? (
         <div className="dock">
           <Composer id="ask2" rows={1} value={input} onChange={setInput} onSend={() => send()} onStop={stop} busy={busy} disabled={!tenant}
-                    company={company} boxRef={box} placeholder="Reply…" />
+                    company={company} boxRef={box} placeholder="Reply…" attach={attach} onFile={onFile} onClearAttach={() => setAttach(null)} />
           <div className="hint">Herald suggests. You decide. Nothing is ever published for you.</div>
         </div>
       ) : (

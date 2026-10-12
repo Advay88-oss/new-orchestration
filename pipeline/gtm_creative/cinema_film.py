@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
@@ -127,7 +128,21 @@ def paste_logo(path: Path) -> None:
 # A14 — the director
 # --------------------------------------------------------------------------
 
-def direct(brief: str, refs: list[Path], note: str, *, run_id: Optional[str] = None) -> dict:
+PATTERNS = {
+    # The founder's liked clip: what it showed, in order.
+    "liked": ("(1) the hero object with the hook, (2) the product moment — a realistic phone and a realistic "
+              "finger tapping the main button, ending with the finger lifting and the confirmation shown, "
+              "(3) the sign-off"),
+    "problem-solution-intro": (
+        "(1) THE PROBLEM — what goes wrong for the reader today, as one clear visual metaphor and a short "
+        "line; (2) THE SOLUTION — how {company} fixes it, the mechanism shown simply (what moves where), "
+        "ending in a different state than it starts; (3) {company} — the introduction: the company's "
+        "one-liner from the facts and the website, calm and confident"),
+}
+
+
+def direct(brief: str, refs: list[Path], note: str, *, pattern: str = "liked",
+           run_id: Optional[str] = None) -> dict:
     from pipeline.brand_brain import context as C
     from pipeline.gtm_os import agent_runtime as R
     system = C.fill(
@@ -137,19 +152,21 @@ def direct(brief: str, refs: list[Path], note: str, *, run_id: Optional[str] = N
         C.facts_block(brief, k=6, excerpts=3) + "\n\n----\n\n"
         "THE POST: " + " ".join(brief.split())[:900] + "\n\n"
         "THE LOOK: the attached frames are from a film the founder liked. What they said about it: " + note
-        + "\nKeep its look and its kind of shots — the hero object, the phone moment with a real tap, the "
-        "sign-off — but its words are wrong: never reuse any of its text or numbers.\n\n"
-        "Direct three shots, in the film's order. RULES:\n"
-        "- every string comes from the facts above or the post; a number inside the app is sample data, and "
+        + "\nKeep its LOOK (light, depth, type, colour); its words are wrong: never reuse any of its text or "
+        "numbers.\n\n"
+        "THE SHOTS, in order: " + C.fill(PATTERNS.get(pattern, PATTERNS["liked"])) + ".\n"
+        "THINK FIRST: for every shot consider three ways to show it — one symbolic object, light and motion, "
+        "kinetic type, a data card, money moving through a flow, a product screen — and choose the one a "
+        "stranger understands fastest. Each shot a different kind of visual. A phone or a hand only when a "
+        "screen is truly the clearest way: the founder asked for scenes beyond the phone.\n"
+        "RULES:\n"
+        "- every string comes from the facts above or the post; a number inside an app is sample data, and "
         "a footer string says so with the deployment named in the facts;\n"
-        "- few words: a frame holds at most 12 strings and none longer than 6 words, each big enough to read "
+        "- few words: a frame holds at most 8 strings and none longer than 7 words, each big enough to read "
         "at 1080p — tiny labels are what Veo melts;\n"
-        "- the phone shot shows a realistic smartphone and a realistic human finger: it starts with the finger "
-        "about to touch the main button and ends with the finger lifting and the confirmation shown beside "
-        "the phone;\n"
         "- leave the top-left corner empty: the real logo is placed there; never ask for a logo;\n"
-        "- the camera is locked off in every shot; motion is the finger, the light, the ring, the UI settling;\n"
-        "- use_s: 2.5-4.5 each, the phone shot longest; never name a competitor.\n\n"
+        "- the camera is locked off in every shot; motion is light, objects, cards settling — never the words;\n"
+        "- use_s: 2.5-3.5 each (the film is about 8 seconds); never name a competitor.\n\n"
         "Return JSON: " + SCHEMA)
     spec = R.brain_vision(prompt, refs, agent="A14_motion_director", role="director", system=system,
                           temperature=0.4, max_output_tokens=4096, run_id=run_id)
@@ -174,8 +191,10 @@ def direct(brief: str, refs: list[Path], note: str, *, run_id: Optional[str] = N
 def _key_prompt(frame: str, text: list[str], fix: str, *, edit: bool) -> str:
     from pipeline.brand_brain import context as C
     pal = C.palette()
-    head = ("Image 1 is this shot's start frame. Return the SAME frame — identical composition, phone, "
+    head = ("Image 1 is this shot's start frame. Return the SAME frame — identical composition, objects, "
             "position, light, text and type — with only this change: " + frame + "\n"
+            "Every string of the start frame stays exactly where it is. A new string goes into EMPTY space and "
+            "never touches another string. Add no new panel, chart, dashboard or screen.\n"
             "Images 2 onward are the founder's liked film, for the look only.\n") if edit else (
             "Make one 16:9 frame of a premium cinematic product film for " + C.company_name() + ". "
             "The images are frames of a film the founder liked: match their look — deep near-black ground, "
@@ -215,7 +234,10 @@ def judge_key(path: Path, text: list[str], frame: str) -> dict:
         "guess what was meant; include the logo's wordmark and any small label. THEN judge the look (the "
         "logo in the top-left corner is placed there on purpose and is correct): it "
         "should show " + frame + "; any hand is realistic with five fingers; it reads as one cinematic frame. "
-        'Return JSON: {"seen": [str], "look_ok": bool, "look_fixes": [str], "score": int (0-10)}',
+        "Then answer three questions exactly: does any string touch or overlap another string; is there any "
+        "small unreadable text, fake chart label or UI chrome; how many VANNA logos or 'vanna' wordmarks are drawn (other brands' icons do not count). "
+        'Return JSON: {"seen": [str], "look_ok": bool, "look_fixes": [str], "score": int (0-10), '
+        '"text_overlap": bool, "tiny_text": bool, "logos": int}',
         [path, left, right], agent="A15_creative_judge", role="reasoning", temperature=0.0,
         max_output_tokens=1536)
     seen = [_norm(x) for x in (v.get("seen") or []) if _norm(x)]
@@ -223,11 +245,28 @@ def judge_key(path: Path, text: list[str], frame: str) -> dict:
     need = [t for t in text if _norm(t)]
     missing = [t for t in need if _norm(t) not in blob]
     allowed = [_norm(t) for t in need] + [_norm(C.company_name())]
-    extra = [x for x in seen if not any(x in a or a in x for a in allowed)]
+    # An icon's glyph ("$" on a USDC coin) is not text, and a word the director put in the frame itself
+    # ("the TSLAx disk") is not invented: both failed a good frame five times.
+    described = _norm(frame)
+    extra = [x for x in seen if len(x) > 2 and x not in described
+             and not any(x in a or a in x for a in allowed)]
     fixes = (['write exactly "' + t + '" (it is missing or misspelled)' for t in missing]
              + ['remove the text "' + x + '": it is not in the script' for x in extra]
              + ([str(x) for x in v.get("look_fixes") or []] if not v.get("look_ok", True) else []))
-    ok = not missing and not extra and bool(v.get("look_ok", True))
+    # The judge passed an end frame where "Zero funding rate." ran into "Solana test app", with fake
+    # dashboards of unreadable labels beside it; and a second, drawn logo. Its answers are decided here.
+    if v.get("text_overlap"):
+        fixes.append("move the strings apart: no string may touch another")
+    if v.get("tiny_text"):
+        fixes.append("remove every small label, chart, dashboard and UI panel; only the listed strings")
+    try:
+        logos = int(v.get("logos") or 1)
+    except (TypeError, ValueError):
+        logos = 1
+    if logos > 1:
+        fixes.append("draw no logo or wordmark anywhere: exactly one logo, the one placed top-left")
+    ok = (not missing and not extra and bool(v.get("look_ok", True)) and not v.get("text_overlap")
+          and not v.get("tiny_text") and logos <= 1)
     return {"score": int(v.get("score") or 0), "seen": v.get("seen"), "fixes": fixes,
             "verdict": "SHIP" if ok else "REVISE"}
 
@@ -241,7 +280,16 @@ def keyframe(name: str, frame: str, text: list[str], refs: list[Path], *, start:
         v = judge_key(final, text, frame)
         if v["verdict"] == "SHIP":
             return {"path": final, "tries": [{"path": str(final), **v}]}
-    done = len(list((OUT / "keys").glob(name + "_try*.png")))
+    # Earlier tries are judged again before any new image is paid for (newest first): a judge rule
+    # fixed since may pass one of them.
+    olds = sorted((OUT / "keys").glob(name + "_try*.png"),
+                  key=lambda p: int(re.search(r"_try(\d+)$", p.stem).group(1)), reverse=True)
+    for old in olds[:3]:
+        v = judge_key(old, text, frame)
+        if v["verdict"] == "SHIP":
+            final.write_bytes(old.read_bytes())
+            return {"path": final, "tries": [{"path": str(old), **v}]}
+    done = len(olds)
     tries, fix = [], ""
     for k in range(done + 1, done + attempts + 1):
         path = OUT / "keys" / f"{name}_try{k}.png"
@@ -346,6 +394,9 @@ def stamp(clip: Path, keys: list[Path], out: Path, *, thr: float = 34.0) -> Path
     med = float(np.median(holds)) if holds else 0.0
     drop = {i for i, g in enumerate(holds) if g > med + 0.1}
     drop |= {i + d for i in drop for d in (-1, 1)}
+    # The last fifth lands on the end keyframe, where new lines appear: a change there is the point,
+    # not a jump (cutting it removed shot 1's "Capital drains without price movement.").
+    drop = {i for i in drop if i < int(len(holds) * 0.8)}
     dec = subprocess.Popen([exe, "-loglevel", "error", "-i", str(clip), "-vf", f"scale={W}:{H}",
                             "-f", "rawvideo", "-pix_fmt", "rgb24", "-"], stdout=subprocess.PIPE)
     enc = subprocess.Popen([exe, "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
@@ -426,8 +477,12 @@ def edit(clips: list[Path], shots: list[dict], out: Path, xd: float = 0.4) -> Pa
     args, chains = [exe, "-y", "-loglevel", "error"], []
     for i, (c, s) in enumerate(zip(clips, shots)):
         args += ["-i", str(c)]
-        chains.append(f"[{i}:v]setpts={s['use_s'] / _dur(c):.4f}*PTS,fps={FPS},scale={W}:{H},format=yuv420p,"
-                      f"trim=0:{s['use_s']:.3f},setpts=PTS-STARTPTS[v{i}]")
+        # A shot that ends in a new state holds it, so its new lines are read before the crossfade.
+        hold = 0.7 if s.get("end_frame") else 0.0
+        run = s["use_s"] - hold
+        chains.append(f"[{i}:v]setpts={run / _dur(c):.4f}*PTS,fps={FPS},scale={W}:{H},format=yuv420p,"
+                      f"trim=0:{run:.3f},setpts=PTS-STARTPTS"
+                      + (f",tpad=stop_mode=clone:stop_duration={hold}" if hold else "") + f"[v{i}]")
     prev, off = "v0", 0.0
     for i in range(1, len(clips)):
         off += shots[i - 1]["use_s"] - xd
@@ -456,8 +511,8 @@ def judge(mp4: Path, spec: dict) -> dict:
     return R.brain_vision(
         "Frames, in order, of a cinematic product film. The words on screen must be exactly these, per shot:\n"
         + "\n".join(strings) + "\nCheck: every visible word spelled exactly; no invented text or numbers; "
-        "the logo once top-left; the hand (in the phone shot) realistic with five fingers and actually "
-        "touching the button (text under the finger is hidden, that is fine); no melted, doubled or ghost "
+        "the logo once top-left; any hand realistic with five fingers (text under a finger is hidden, that is "
+        "fine); no melted, doubled or ghost "
         "letters; no frame where the layout jumps; it looks like a premium film. A ticker like TSLAx may set "
         "its last letter in a different colour or size: that is styling, not a fault. "
         'Return JSON: {"verdict": "SHIP"|"REVISE"|"REJECT", "faults": [{"shot": str, "fault": str}]}',
@@ -465,10 +520,10 @@ def judge(mp4: Path, spec: dict) -> dict:
 
 
 def run(brief: str, *, name: str, run_id: Optional[str] = None, spec: Optional[dict] = None,
-        reuse_veo: bool = False) -> dict[str, Any]:
+        reuse_veo: bool = False, pattern: str = "liked") -> dict[str, Any]:
     (OUT / "keys").mkdir(parents=True, exist_ok=True)
     refs, note = style_refs()
-    spec = spec or direct(brief, refs, note, run_id=run_id)
+    spec = spec or direct(brief, refs, note, pattern=pattern, run_id=run_id)
     (OUT / f"{name}.spec.json").write_text(json.dumps(spec, ensure_ascii=False, indent=1), encoding="utf-8")
     keys: list[dict] = []
     for s in spec["shots"]:
@@ -510,13 +565,14 @@ if __name__ == "__main__":
     ap.add_argument("--keys-only", action="store_true", help="the director's spec only, no images or Veo")
     ap.add_argument("--spec", help="reuse a saved director spec; its keyframes that still pass are kept")
     ap.add_argument("--reuse-veo", action="store_true", help="with --spec: keep the Veo shots already rendered")
+    ap.add_argument("--pattern", default="liked", choices=sorted(PATTERNS))
     a = ap.parse_args()
     if a.keys_only:
         (OUT / "keys").mkdir(parents=True, exist_ok=True)
         refs, note = style_refs()
-        spec = direct(a.brief, refs, note)
+        spec = direct(a.brief, refs, note, pattern=a.pattern)
         (OUT / f"{a.name}.spec.json").write_text(json.dumps(spec, ensure_ascii=False, indent=1), encoding="utf-8")
         print(json.dumps(spec, ensure_ascii=False, indent=1))
     else:
         prior = json.loads(Path(a.spec).read_text(encoding="utf-8")) if a.spec else None
-        print(json.dumps(run(a.brief, name=a.name, spec=prior, reuse_veo=a.reuse_veo), ensure_ascii=False, indent=1))
+        print(json.dumps(run(a.brief, name=a.name, spec=prior, reuse_veo=a.reuse_veo, pattern=a.pattern), ensure_ascii=False, indent=1))

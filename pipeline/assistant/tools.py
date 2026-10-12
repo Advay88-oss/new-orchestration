@@ -508,6 +508,50 @@ def propose_action(tenant: str, action: str, run_id: str = "", directive: str = 
                                          "directive": directive or None, "note": note or None, "tenant": tenant}}
 
 
+# ------------------------------------------------------------------ visuals (the visual agents)
+
+def make_visual(tenant: str, request: str, image: str = "", shape: str = "") -> dict:
+    """The visual agents make an image in the background: with `image` (an upload or a studio poster)
+    they change it as the owner asked; without, they make a new poster in the founder's format."""
+    from pipeline.gtm_creative import studio as SD
+    request, image, shape = str(request or "").strip(), str(image or "").strip(), str(shape or "").strip()
+    if not request:
+        return {"error": "say what to make or what to change"}
+    if image and not SD.FILE.match(image):
+        return {"error": "that is not an image in the studio; attach it again or name a poster from list_visuals"}
+    if image and not SD.fetch_upload(image):
+        return {"error": "that image is gone; attach it again"}
+    if shape and shape not in SD.ASPECTS:
+        shape = ""
+    kind = "revise" if image else "create"
+    j = SD.start(kind, request, image=image, shape=shape, tenant=tenant, thread_id=_turn_thread.get())
+    return {"started": True, "job_id": j["id"], "kind": kind,
+            "note": ("the new version appears in this chat in one to four minutes, and in Posts > Studio"),
+            "card": {"type": "visual", "job_id": j["id"], "kind": kind, "image": image or None,
+                     "request": request[:240]}}
+
+
+def visual_status(tenant: str, job_id: str) -> dict:
+    from pipeline.gtm_creative import studio as SD
+    j = SD.job(str(job_id or ""))
+    if not j:
+        return {"error": "no such image job"}
+    out = {k: j.get(k) for k in ("id", "kind", "state", "step", "error", "director", "attempts")}
+    if j.get("item"):
+        out["result"] = {k: j["item"].get(k) for k in ("id", "file", "title")}
+    return out
+
+
+def list_visuals(tenant: str, collection: str = "", limit: int = 40) -> dict:
+    """The posters in the Studio (Posts > Studio), newest first: id, file, title, collection."""
+    from pipeline.gtm_creative import studio as SD
+    items = [i for i in SD.load() if (i.get("tenant") or "vanna") == tenant]
+    if collection:
+        items = [i for i in items if collection.lower() in str(i.get("collection") or "").lower()]
+    return {"visuals": [{k: i.get(k) for k in ("id", "file", "title", "collection", "size")}
+                        for i in items[: max(1, min(int(limit or 40), 80))]]}
+
+
 # ------------------------------------------------------------------ registry
 
 def _p(**props: Any) -> dict:
@@ -565,6 +609,18 @@ TOOLS: dict[str, tuple[Callable[..., dict], str, dict]] = {
                          "only when they asked for news. Also for stop, pause, band karo, resume. Each job runs "
                          "on its own. Nothing is published.",
                          {**_p(instruction=S_), "required": ["instruction"]}),
+    "make_visual": (make_visual, "The visual agents (art director, Nano Banana image model, judge) make an image. "
+                    "With `image` (the file of an image the owner attached, or of a Studio poster from "
+                    "list_visuals) they change THAT image: `request` is the owner's feedback in full (what is "
+                    "lacking, what they did not like, what to change). Without `image` they make a new poster "
+                    "on `request` in the founder's format. `shape` optional: 1:1, 4:5, 16:9, 9:16, 4:1, 3:2. "
+                    "Runs in the background; the chat shows the result.",
+                    {**_p(request=S_, image=S_, shape=S_), "required": ["request"]}),
+    "visual_status": (visual_status, "Progress or result of a make_visual job.",
+                      {**_p(job_id=S_), "required": ["job_id"]}),
+    "list_visuals": (list_visuals, "The posters already made (Posts > Studio): their file names, titles and "
+                     "collections. Use it when the owner names one (\"the Galxe cover\") to get its file.",
+                     _p(collection=S_, limit=I_)),
     "propose_action": (propose_action, "Offer the owner a button for something only they may do: launch_run "
                        "(optional directive), approve / revise / kill a run, approve_profile. It does NOT do it.",
                        {**_p(action=S_, run_id=S_, directive=S_, note=S_), "required": ["action"]}),
@@ -577,7 +633,7 @@ CLIENT_BLOCKED = {"list_companies", "add_company", "set_post_cadence", "find_cam
 
 # A visitor to the public link reads and asks; nothing they say changes the
 # schedule, adds a company, starts paid work or proposes a run.
-VISITOR_ALLOWED = {"schedule_status", "brand_profile", "search_knowledge", "whats_new", "competitor_patterns",
+VISITOR_ALLOWED = {"list_visuals", "visual_status", "schedule_status", "brand_profile", "search_knowledge", "whats_new", "competitor_patterns",
                    "list_runs", "get_run", "learning_overview", "analysis_status"}
 
 

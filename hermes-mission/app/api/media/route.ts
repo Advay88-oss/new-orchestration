@@ -48,6 +48,7 @@ export async function GET(req: Request) {
       path.join(REPO_ROOT, 'hermes-mission/public', safeName),
       path.join(REPO_ROOT, 'pipeline/state', safeName),
       path.join(REPO_ROOT, 'pipeline/state/panels', safeName),
+      path.join(REPO_ROOT, 'pipeline/state/studio', safeName),
     ];
 
     for (const c of candidates) {

@@ -113,7 +113,9 @@ def add_message(tenant: str, thread_id: str, role: str, text: str, meta: Optiona
 def history(tenant: str, thread_id: str) -> tuple[str, list[dict]]:
     """(summary of the older messages, the recent ones) — what the model sees."""
     t = thread(tenant, thread_id) or {"messages": [], "summary": ""}
-    msgs = [{"role": m["role"], "text": m["text"]} for m in t["messages"]]
+    # An attached image is named in the text, so the model can change it again later in the chat.
+    msgs = [{"role": m["role"], "text": m["text"] + ("\n[attached image: " + str(m["image"]) + "]"
+                                                     if m.get("image") else "")} for m in t["messages"]]
     return str(t.get("summary") or ""), msgs[int(t.get("summarized") or 0):]
 
 

@@ -42,7 +42,8 @@ PLATFORMS = {
 BLOCK_X, LOGO_Y, LOGO_H = 0.36, 0.20, 0.15
 
 
-def direct(platform: str, current: Optional[Path], refs: list[Path], *, run_id: Optional[str] = None) -> dict:
+def direct(platform: str, current: Optional[Path], refs: list[Path], *, variants: int = 1,
+           run_id: Optional[str] = None) -> dict:
     from pipeline.brand_brain import context as C
     from pipeline.gtm_os import agent_runtime as R
     spec = PLATFORMS[platform]
@@ -60,12 +61,19 @@ def direct(platform: str, current: Optional[Path], refs: list[Path], *, run_id: 
         "A cover is read in one second and lives for months: the company's identity, not a campaign. One headline "
         "(the founder's one-liner or a shorter rung of it, from the facts), at most one short sub-line, the website. "
         "Use the founder's vocabulary above; never a phrase the facts rule out. No numbers, no claims about traction.\n"
-        'Return JSON: {"critique": [str], "headline": [str] (1-2 lines), "emphasis": str (the words in the gradient), '
-        '"sub": str, "url": str, "composition": str (what sits where, right of the covered zone), '
-        '"elements": [str] (every visual element besides the words)}')
+        "VISUAL RULES: at most 12 words in all; no phone, no app screen, no UI chrome, no tiny labels; one visual "
+        "idea that carries the headline (a symbol, light, a line that links things, a quiet pattern) or none.\n"
+        "Brief " + str(variants) + " DIFFERENT covers: each a different rung of the founder's description ladder "
+        "or a different one of his reusable one-liners, and a different visual idea; the founder chooses.\n"
+        'Return JSON: {"critique": [str], "covers": [{"idea": str, "headline": [str] (1-2 lines), '
+        '"emphasis": str (the words in the gradient), "sub": str, "url": str, '
+        '"composition": str (what sits where, right of the covered zone), '
+        '"elements": [str] (every visual element besides the words)}]}')
     images = ([current] if current else []) + refs
     out = R.brain_vision(prompt, images, agent="A14_motion_director", role="director", system=system,
-                         temperature=0.4, max_output_tokens=6144, run_id=run_id)
+                         temperature=0.5, max_output_tokens=8192, run_id=run_id)
+    if not isinstance(out.get("covers"), list) or not out["covers"]:
+        out["covers"] = [{k: out.get(k) for k in ("headline", "emphasis", "sub", "url", "composition", "elements")}]
     R.record_decision("A14_motion_director", "cover_brief", {"brief": out, "platform": platform}, run_id=run_id)
     return out
 
@@ -80,8 +88,9 @@ def _prompt(d: dict, platform: str, fix: str) -> str:
     return (
         "Make an ultra-wide brand cover for " + C.company_name() + " (" + spec["label"] + "). The images are the "
         "founder's own posts: match their design system exactly — ground, glow, type, the gradient emphasis.\n"
-        "LAYOUT: the whole design sits in the middle horizontal band; the top 20% and bottom 20% are plain ground "
-        "(they are cropped). The left " + str(int(BLOCK_X * 100)) + "% of the width is quiet ground with only soft "
+        "LAYOUT: the ground is ONE continuous surface from edge to edge — no panel, no band, no frame, no "
+        "letterbox, no rectangle behind the words. Keep the words and the logo slot away from the top and bottom "
+        "edges (about 20% padding each: they are cropped). The left " + str(int(BLOCK_X * 100)) + "% of the width is quiet ground with only soft "
         "glow (the platform covers part of it). The content block starts at " + str(int(BLOCK_X * 100)) + "% of the "
         "width: at its top an EMPTY slot for the logo (draw no logo, no mark, no wordmark anywhere), then the "
         "headline, then the sub-line, then the website.\n"
@@ -106,37 +115,68 @@ def _text_box(im: Image.Image) -> tuple[int, int, int, int]:
     return (int(cols[0]), int(rows[0]), int(cols[-1]), int(rows[-1]))
 
 
+def _extend(im: Image.Image, *, left: int = 0, up: int = 0, down: int = 0) -> Image.Image:
+    """The image's own plain edge stretched outward: more ground, never black."""
+    W0, H0 = im.size
+    out = Image.new("RGB", (W0 + left, H0 + up + down))
+    s = max(4, min(W0, H0) // 100)
+    if up:
+        out.paste(im.crop((0, 0, W0, s)).resize((W0, up), Image.Resampling.BICUBIC), (left, 0))
+    if down:
+        out.paste(im.crop((0, H0 - s, W0, H0)).resize((W0, down), Image.Resampling.BICUBIC), (left, up + H0))
+    out.paste(im, (left, up))
+    if left:
+        col = out.crop((left, 0, left + s, out.height)).resize((left, out.height), Image.Resampling.BICUBIC)
+        out.paste(col, (0, 0))
+    return out
+
+
 def compose(raw: Path, platform: str, out: Path) -> Path:
     """The real logo just above the words, then the platform's band cropped
     around logo and words together. (A fixed crop cut the website off when the
-    model set the words lower; a fixed logo position landed on the headline.)"""
+    model set the words lower; a fixed logo position landed on the headline.)
+    The ground is extended before the logo goes on: extended after, its edge
+    rows carried part of the logo into a streak."""
+    import numpy as np
     from pipeline.gtm_creative.cinema_film import _logo
     W, H = PLATFORMS[platform]["size"]
     im = Image.open(raw).convert("RGB")
+    e = max(2, int(im.width * 0.004))               # the image model's own edge line (a dark 1-px border)
+    im = im.crop((e, e, im.width - e, im.height - e))
+    # A letterbox the model drew anyway: plain near-black rows at the top or bottom.
+    lum = np.asarray(im.convert("L"), dtype=float)
+    flat = (lum.mean(axis=1) < 6) & (lum.std(axis=1) < 3)
+    t0 = int(np.argmax(~flat)) if flat[0] else 0
+    b0 = im.height - (int(np.argmax(~flat[::-1])) if flat[-1] else 0)
+    if 0 < t0 or b0 < im.height:
+        im = im.crop((0, t0, im.width, b0))
     x0, y0, x1, y1 = _text_box(im)
     band = int(im.width * H / W)
     src = _logo()
-    top = y0
+    logo, lh = None, 0
     if src:
         logo = Image.open(src).convert("RGBA")
         box = logo.getchannel("A").point(lambda a: 255 if a > 8 else 0).getbbox()
         logo = logo.crop(box) if box else logo
         lh = max(1, int(band * LOGO_H))
         logo = logo.resize((max(1, int(logo.width * lh / logo.height)), lh), Image.Resampling.LANCZOS)
-        ly = max(0, y0 - int(lh * 1.7))
-        im.paste(logo, (x0, ly), logo)
-        top = ly
-    need = int((y1 - top) * 1.22)                   # logo + words + a margin above and below
-    if need > band:
-        # Taller than the platform's band: crop taller, and widen the frame on
-        # the left with the image's own plain ground (more room for the avatar).
-        cw = int(need * W / H)
-        edge = im.crop((0, 0, max(4, im.width // 100), im.height)).resize((cw - im.width, im.height),
-                                                                          Image.Resampling.BICUBIC)
-        wide = Image.new("RGB", (cw, im.height))
-        wide.paste(edge, (0, 0))
-        wide.paste(im, (cw - im.width, 0))
-        im, band = wide, need
+    top = y0 - int(lh * 1.7) if logo else y0        # where the logo goes: above the words
+    margin = int((y1 - top) * 0.11)
+    need = (y1 - top) + 2 * margin                  # logo + words + a margin above and below
+    left = 0
+    if need > band:                                 # taller than the platform's band: a taller, wider frame
+        left = int(need * W / H) - im.width
+        band = need
+    up = max(0, margin - top)                       # room above the logo
+    down = max(0, (y1 + margin) - im.height)
+    if band > im.height + up + down:                # still shorter than the band: split the rest
+        extra = band - (im.height + up + down)
+        up, down = up + extra // 2, down + extra - extra // 2
+    if left or up or down:
+        im = _extend(im, left=left, up=up, down=down)
+        x0, top, y1 = x0 + left, top + up, y1 + up
+    if logo:
+        im.paste(logo, (x0, top), logo)
     mid = (top + y1) // 2
     t = min(max(0, mid - band // 2), im.height - band)
     im.crop((0, t, im.width, t + band)).resize((W * 2, H * 2), Image.Resampling.LANCZOS).save(out)
@@ -167,31 +207,35 @@ def judge(path: Path, d: dict) -> dict:
 
 
 def run(platform: str = "linkedin", *, current: Optional[Path] = None, name: str = "cover",
-        attempts: int = 3) -> dict[str, Any]:
+        attempts: int = 2, variants: int = 1) -> dict[str, Any]:
     from pipeline.gtm_creative.format_poster import bases
     from pipeline.gtm_os import agent_runtime as R
     from pipeline.scripts.gemini_flash_image import generate_gemini_image
     OUT.mkdir(parents=True, exist_ok=True)
     refs = [b["path"] for b in bases()][:3]
-    d = direct(platform, current, refs)
-    (OUT / f"{name}.brief.json").write_text(json.dumps(d, ensure_ascii=False, indent=1), encoding="utf-8")
-    tries, fix = [], ""
-    for k in range(1, attempts + 1):
-        raw = OUT / f"{name}_try{k}_raw.png"
-        generate_gemini_image(prompt=_prompt(d, platform, fix), output_path=raw, model=R.MODELS["poster"],
-                              temperature=0.3, images=refs, aspect_ratio="21:9",
-                              image_size=os.environ.get("VANNA_POSTER_SIZE", "4K"))
-        made = compose(raw, platform, OUT / f"{name}_try{k}.png")
-        v = judge(made, d)
-        tries.append({"path": str(made), **v})
-        if v["verdict"] == "SHIP":
-            break
-        fix = "\n".join("- " + f for f in v["fixes"][:8])
-    best = max(tries, key=lambda t: (t["verdict"] == "SHIP", t["score"]))
-    final = OUT / f"{name}.png"
-    final.write_bytes(Path(best["path"]).read_bytes())
-    return {"final": str(final), "critique": d.get("critique"), "headline": d.get("headline"),
-            "sub": d.get("sub"), "tries": [(t["verdict"], t["score"], t["fixes"][:3]) for t in tries]}
+    brief = direct(platform, current, refs, variants=variants)
+    (OUT / f"{name}.brief.json").write_text(json.dumps(brief, ensure_ascii=False, indent=1), encoding="utf-8")
+    results = []
+    for n, d in enumerate(brief["covers"][:variants], 1):
+        tag = f"{name}_{n}" if variants > 1 else name
+        tries, fix = [], ""
+        for k in range(1, attempts + 1):
+            raw = OUT / f"{tag}_try{k}_raw.png"
+            generate_gemini_image(prompt=_prompt(d, platform, fix), output_path=raw, model=R.MODELS["poster"],
+                                  temperature=0.3, images=refs, aspect_ratio="21:9",
+                                  image_size=os.environ.get("VANNA_POSTER_SIZE", "4K"))
+            made = compose(raw, platform, OUT / f"{tag}_try{k}.png")
+            v = judge(made, d)
+            tries.append({"path": str(made), **v})
+            if v["verdict"] == "SHIP":
+                break
+            fix = "\n".join("- " + f for f in v["fixes"][:8])
+        best = max(tries, key=lambda t: (t["verdict"] == "SHIP", t["score"]))
+        final = OUT / f"{tag}.png"
+        final.write_bytes(Path(best["path"]).read_bytes())
+        results.append({"final": str(final), "idea": d.get("idea"), "headline": d.get("headline"),
+                        "sub": d.get("sub"), "tries": [(t["verdict"], t["score"], t["fixes"][:3]) for t in tries]})
+    return {"critique": brief.get("critique"), "covers": results}
 
 
 if __name__ == "__main__":
@@ -200,6 +244,8 @@ if __name__ == "__main__":
     ap.add_argument("platform", choices=sorted(PLATFORMS))
     ap.add_argument("--current")
     ap.add_argument("--name", default="cover")
+    ap.add_argument("--variants", type=int, default=1)
     a = ap.parse_args()
-    print(json.dumps(run(a.platform, current=Path(a.current) if a.current else None, name=a.name),
+    print(json.dumps(run(a.platform, current=Path(a.current) if a.current else None, name=a.name,
+                         variants=a.variants),
                      ensure_ascii=False, indent=1))

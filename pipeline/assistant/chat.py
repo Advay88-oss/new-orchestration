@@ -43,9 +43,11 @@ from pipeline.assistant import tools as T
 # Bumped whenever the system prompt, the router or the gates change in a way
 # that changes answers. Saved with every turn, so a regression can be traced
 # to the version that introduced it.
-PROMPT_VERSION = "2026-10-08.1"
+PROMPT_VERSION = "2026-10-12.1"
 MAX_ROUNDS = 6              # the last round may not call tools: it must answer
 TOOL_TIMEOUT_S = 45
+# An image the owner attached goes to the model with their message (Gemini reads it), downscaled.
+IMAGE_LONG_SIDE = 1280
 MODEL_RETRIES = 3
 AGENT = "ASSISTANT"
 EVIDENCE_TOOLS = {"search_knowledge", "brand_profile", "whats_new", "competitor_patterns", "get_run", "list_runs",
@@ -58,7 +60,7 @@ _pool = ThreadPoolExecutor(max_workers=8, thread_name_prefix="assistant-tool")
 # ------------------------------------------------------------------ prompts
 
 ACTION_TOOLS = {"set_post_cadence", "add_company", "analyse_competitors", "notion_connect",
-                "find_campaigns", "study_brand", "propose_action"}
+                "find_campaigns", "study_brand", "propose_action", "make_visual"}
 
 _ROLE_RULES = {
     "visitor": (
@@ -143,6 +145,16 @@ def _system(tenant: str, summary: str, role: str = "owner") -> str:
         "with action launch_run and directive = the post they want in one sentence. Do not write the post "
         "copy in the chat; a draft in the chat never reaches Posts. Then say in a sentence what the post will "
         "argue and that the button starts it (about 20 minutes, it shows in Posts).\n"
+        "- IMAGES. When the owner attaches an image (the message ends with [attached image: <file>]) you can "
+        "see it. If they ask what is wrong, lacking or could be better, answer from what you see: concrete, "
+        "short, in their language, and offer to make the new version. If they say what they did not like or "
+        "what to change (\"glass hatao\", \"make it less shiny\", \"kya kami hai, theek karke do\"), call "
+        "make_visual with image=<that file> and request = their feedback in full plus any fixes you saw. To "
+        "change a poster already in the Studio, find its file with list_visuals. For a new poster with no "
+        "image, call make_visual without image. Do it yourself: no button, nothing is published. Then say in "
+        "a sentence what the agents will change and that the result shows below in one to four minutes.\n"
+        "- Anything else the owner asks that a tool can do, do it with the tool; when none can, say so plainly "
+        "and say what you can do instead.\n"
         "- You never launch a run, approve, revise, kill or approve a profile yourself: use propose_action, "
         "which shows the owner a button. Nothing is ever published by you or by the pipeline.\n"
         "- When a tool returns a card, the chat shows it; refer to it in a sentence rather than repeating it.\n"
@@ -282,6 +294,10 @@ _GATES: dict[str, tuple[str, str]] = {
                          "the owner did not ask to change the schedule in this message"),
     "find_campaigns": (r"campaign|galxe|quest|zealy|layer3|intract", "the owner did not ask for campaigns"),
     "notion_connect": (r"notion", "the owner did not ask to connect Notion"),
+    "make_visual": (r"attached image|poster|image|visual|banner|design|photo|pic|tasveer|graphic|thumbnail|cover|"
+                    r"creative|slide|header|redo|again|dobara|phir se|change|badal|fix|improve|better|kami|pasand|"
+                    r"hata|remove|add|bana|generate|make|create|version|color|colour|font|glass|shiny|dark|light",
+                    "the owner did not ask for an image in this message"),
 }
 
 
@@ -329,9 +345,16 @@ _MAKE_POST = re.compile(r"\b(make|write|draft|create|generate)\b.{0,40}\b(post|t
                         r"\b(ek|one|a)\s+post\b", re.I)
 
 
-def _route(text: str) -> Optional[str]:
+_CHANGE_IMAGE = re.compile(r"\b(change|badal|badlo|fix|improve|redo|remake|make it|bana|banao|bana do|kar do|kardo|"
+                           r"karo|hata|hatao|remove|add|replace|less|more|zyada|kam|instead|without|dobara|"
+                           r"phir se|again|generate|regenerate)\b", re.I)
+
+
+def _route(text: str, image: str = "") -> Optional[str]:
     """The tool this message must start with, when its intent is plain."""
     t = " ".join(str(text or "").split())
+    if image and _CHANGE_IMAGE.search(t) and not re.search(r"\?\s*$", t):
+        return "make_visual"
     if _SCHEDULE.search(t) and _SCHEDULE_WHAT.search(t):
         return "set_post_cadence"
     if _MAKE_POST.search(t) and not re.search(r"\?\s*$|\b(how|why|what|kya|kaise|kyun)\b", t, re.I):
@@ -405,6 +428,13 @@ def _summary(name: str, result: dict) -> str:
         return "searching " + str(result.get("source") or "the source") + " for " + str(result.get("query") or "")[:80]
     if name == "study_brand":
         return str(result.get("message") or "studying")[:200]
+    if name == "make_visual":
+        return ("changing the image" if result.get("kind") == "revise" else "making a new poster") + " · " + str(
+            result.get("job_id"))
+    if name == "list_visuals":
+        return str(len(result.get("visuals", []))) + " posters in the Studio"
+    if name == "visual_status":
+        return str(result.get("state")) + " · " + str(result.get("step") or "")
     return "done"
 
 
@@ -443,9 +473,30 @@ def _summarize(old: str, msgs: list[dict]) -> str:
 
 # --------------------------------------------------------------------- turn
 
+def _image_part(name: str) -> Optional[dict]:
+    """The attached image as an inline part for the model, downscaled to IMAGE_LONG_SIDE."""
+    import base64
+    import io
+
+    from PIL import Image
+
+    from pipeline.gtm_creative import studio as SD
+    p = SD.fetch_upload(name)
+    if not p:
+        return None
+    with Image.open(p) as im:
+        im = im.convert("RGB")
+        k = IMAGE_LONG_SIDE / max(im.size)
+        if k < 1:
+            im = im.resize((round(im.width * k), round(im.height * k)))
+        buf = io.BytesIO()
+        im.save(buf, "JPEG", quality=85)
+    return {"inlineData": {"mimeType": "image/jpeg", "data": base64.b64encode(buf.getvalue()).decode()}}
+
+
 def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
          cancelled: Callable[[], bool] = lambda: False, client: bool = False,
-         role: str = "owner", viewer: str = "", base_url: str = "") -> Iterator[dict]:
+         role: str = "owner", viewer: str = "", base_url: str = "", image: str = "") -> Iterator[dict]:
     """One turn. `role`: owner, client (the company's own client link — no
     other companies, no onboarding) or visitor (the public link — read only).
     An unknown role is a visitor; pipeline.assistant.server passes the
@@ -460,6 +511,10 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
     from pipeline.brand_brain import mcp_client as M
     M.enable()                                      # the assistant is an agent: brain reads go over MCP
     text = str(text or "").strip()[:8000]
+    from pipeline.gtm_creative import studio as SD
+    image = image if image and SD.FILE.match(image) else ""
+    if image and not text:
+        text = "What could be better in this image?"
     if not text:
         yield {"type": "error", "error": "empty message"}
         yield {"type": "done"}
@@ -484,11 +539,18 @@ def turn(tenant: str, text: str, *, thread_id: Optional[str] = None,
     yield {"type": "thread", "thread_id": thread_id}
     T.bind_thread(thread_id)
     T.bind_base(base_url)
-    ST.add_message(tenant, thread_id, "user", text, {"by": viewer})
+    ST.add_message(tenant, thread_id, "user", text, {"by": viewer, **({"image": image} if image else {})})
     summary, recent = ST.history(tenant, thread_id)
     said = _said_now(recent)
     contents = _contents(recent)
-    route = _route(text)
+    if image and contents and contents[-1]["role"] == "user":
+        try:
+            part = _image_part(image)
+        except Exception:                           # noqa: BLE001 — the file name still reaches the model
+            part = None
+        if part:
+            contents[-1]["parts"].append(part)
+    route = _route(text, image)
     base = {"systemInstruction": {"parts": [{"text": _system(tenant, summary, role)}]},
             "tools": [{"functionDeclarations": T.declarations(role=role)}],
             "generationConfig": {"temperature": 0.3, "maxOutputTokens": 2048}}

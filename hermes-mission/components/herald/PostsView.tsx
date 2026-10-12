@@ -11,7 +11,92 @@ import {
 } from "@/lib/herald";
 import { Empty, IAlert, IBack, IBad, ICheck, ICopy, IOk, IPlus, IVideo, Seg } from "./ui";
 
-type Filter = "all" | "review" | "blocked" | "approved";
+type Filter = "all" | "review" | "blocked" | "approved" | "studio";
+
+/** A poster in the Studio (pipeline/gtm_creative/studio.py): made by the visual agents, outside a run. */
+type StudioItem = { id: string; file: string; preview: string; title: string; collection: string; kind?: string;
+                    size?: number[]; caption?: any; feedback?: string | null; created?: string };
+
+const mediaUrl = (f: string) => "/api/media?file=" + encodeURIComponent(f);
+
+function StudioView({ items, loading, onChange }: { items: StudioItem[]; loading: boolean; onChange?: (file: string, title: string) => void }) {
+  const [open, setOpen] = useState<StudioItem | null>(null);
+  const [copied, setCopied] = useState("");
+  const groups = useMemo(() => {
+    const m = new Map<string, StudioItem[]>();
+    for (const it of items) { const k = it.collection || "Posters"; m.set(k, [...(m.get(k) || []), it]); }
+    return Array.from(m.entries());
+  }, [items]);
+  useEffect(() => {
+    if (!open) return;
+    const k = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(null); };
+    window.addEventListener("keydown", k);
+    return () => window.removeEventListener("keydown", k);
+  }, [open]);
+  if (loading && !items.length) return <div className="meta">Loading the Studio…</div>;
+  if (!items.length) {
+    return <Empty title="The Studio is empty" text="Posters the visual agents make show up here. Attach an image in the Assistant and say what to change." />;
+  }
+  const caps = (c: any): [string, string][] => c && typeof c === "object"
+    ? (["x", "linkedin"] as const).filter((k) => typeof c[k] === "string" && c[k]).map((k) => [k === "x" ? "X" : "LinkedIn", String(c[k])])
+    : [];
+  return (
+    <>
+      {groups.map(([name, list]) => (
+        <div key={name} style={{ marginBottom: 34 }}>
+          <div className="sec-h"><h2>{name}</h2><span className="meta">{list.length} {list.length === 1 ? "poster" : "posters"}</span></div>
+          <div className="grid-cards stagger">
+            {list.map((it) => (
+              <button key={it.id} className="post-card" onClick={() => setOpen(it)}>
+                <div className="poster-frame" style={{ position: "relative", background: "#0b0a10" }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img className="poster-img" src={mediaUrl(it.preview || it.file)} alt={it.title} loading="lazy" style={{ objectFit: "contain" }} />
+                </div>
+                <div className="post-info">
+                  <div className="post-title">{it.title}</div>
+                  <div className="meta" style={{ justifyContent: "space-between" }}>
+                    <span>{Array.isArray(it.size) ? it.size.join(" × ") : ""}</span>
+                    <span>{it.kind === "revise" ? "Revised" : it.kind === "create" ? "New" : ""}</span>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      ))}
+      {open && (
+        <div role="dialog" aria-modal="true" aria-label={open.title} onClick={() => setOpen(null)}
+             style={{ position: "fixed", inset: 0, zIndex: 80, background: "rgba(0,0,0,.72)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+          <div onClick={(e) => e.stopPropagation()} className="card"
+               style={{ width: "min(1100px, 100%)", maxHeight: "92vh", overflow: "auto", padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+              <div><div style={{ fontWeight: 600 }}>{open.title}</div><div className="meta">{open.collection}{Array.isArray(open.size) ? " · " + open.size.join(" × ") : ""}</div></div>
+              <button className="btn btn-quiet btn-sm" onClick={() => setOpen(null)} aria-label="Close">×</button>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={mediaUrl(open.preview || open.file)} alt={open.title} style={{ width: "100%", maxHeight: "62vh", objectFit: "contain", borderRadius: 10, background: "#0b0a10" }} />
+            {open.feedback && <div className="meta">Asked for: “{open.feedback}”</div>}
+            {caps(open.caption).map(([k, v]) => (
+              <div key={k} className="card" style={{ padding: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                  <span className="label">{k} caption</span>
+                  <button className="btn btn-quiet btn-sm" onClick={async () => { try { await navigator.clipboard.writeText(v); setCopied(k); setTimeout(() => setCopied(""), 1500); } catch { /* */ } }}>
+                    <ICopy />{copied === k ? "Copied" : "Copy"}
+                  </button>
+                </div>
+                <div style={{ whiteSpace: "pre-line", fontSize: 14 }}>{v}</div>
+              </div>
+            ))}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <a className="btn btn-primary btn-sm" href={mediaUrl(open.file)} download={open.file}>Download full size</a>
+              {onChange && <button className="btn btn-sm" onClick={() => { onChange(open.file, open.title); setOpen(null); }}>Change this in the Assistant</button>}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 function Poster({ r, brand }: { r: Run; brand: string }) {
   if (r.visual) {
@@ -26,10 +111,21 @@ function Poster({ r, brand }: { r: Run; brand: string }) {
   );
 }
 
-export function PostsView({ runs, loading, brand, owner, onOpen, onAsk }: {
+export function PostsView({ runs, loading, brand, owner, onOpen, onAsk, onChangeImage, tenant }: {
   runs: Run[]; loading: boolean; brand: string; owner: boolean; onOpen: (id: string) => void; onAsk: () => void;
+  onChangeImage?: (file: string, title: string) => void; tenant?: string;
 }) {
   const [f, setF] = useState<Filter>("all");
+  const [studio, setStudio] = useState<StudioItem[]>([]);
+  const [studioLoading, setStudioLoading] = useState(true);
+  useEffect(() => {
+    let stop = false;
+    const load = () => fetch("/api/studio", { cache: "no-store" }).then((r) => r.json())
+      .then((d) => { if (!stop && d.ok) setStudio(((d.items || []) as (StudioItem & { tenant?: string })[]).filter((i) => !tenant || (i.tenant || "vanna") === tenant)); }).catch(() => {}).finally(() => { if (!stop) setStudioLoading(false); });
+    load();
+    const t = setInterval(load, 30000);
+    return () => { stop = true; clearInterval(t); };
+  }, [tenant]);
   const [limit, setLimit] = useState(24);
   const posts = useMemo(() => runs.filter((r) => { const s = stateOf(r); return s !== "nopost" && s !== "running"; }), [runs]);
   const inF = (r: Run, k: Filter) => {
@@ -50,9 +146,12 @@ export function PostsView({ runs, loading, brand, owner, onOpen, onAsk }: {
         <Seg label="Filter posts" value={f} onChange={(k) => { setF(k); setLimit(24); }} options={[
           { key: "all", label: "All", count: counts.all }, { key: "review", label: "To review", count: counts.review },
           { key: "blocked", label: "Blocked", count: counts.blocked }, { key: "approved", label: "Approved", count: counts.approved },
+          { key: "studio", label: "Studio", count: studio.length },
         ]} />
         {owner && <button className="btn btn-sm" onClick={onAsk}><IPlus />Ask for a post</button>}
       </div>
+
+      {f === "studio" && <StudioView items={studio} loading={studioLoading} onChange={owner ? onChangeImage : undefined} />}
 
       {f === "all" && writing.map((r) => {
         const steps = stepsOf(r);
@@ -94,7 +193,7 @@ export function PostsView({ runs, loading, brand, owner, onOpen, onAsk }: {
         </div>
       )}
       {shown.length > limit && <div className="more"><button className="btn btn-sm" onClick={() => setLimit((l) => l + 24)}>Show more ({shown.length - limit})</button></div>}
-      {!loading && shown.length === 0 && (
+      {!loading && f !== "studio" && shown.length === 0 && (
         <Empty title={posts.length ? "Nothing here" : "No posts yet"}
                text={posts.length ? "No posts with this status right now." : "Ask the Assistant to write the first one. It shows up here when it’s done."}
                action={<button className="btn btn-sm" style={{ marginTop: 6 }} onClick={onAsk}>Open the Assistant</button>} />

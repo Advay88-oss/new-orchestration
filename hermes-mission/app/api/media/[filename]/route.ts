@@ -6,7 +6,7 @@ import { bareName, mediaType, within } from '@/lib/safepath';
 const REPO_ROOT = process.env.REPO_ROOT || (fs.existsSync('/app') ? '/app' : path.resolve(process.cwd(), '..'));
 
 // Panel images and videos only, by bare file name, from these folders.
-const FOLDERS = ['hermes-mission/public', 'pipeline/state', 'pipeline/state/panels'];
+const FOLDERS = ['hermes-mission/public', 'pipeline/state', 'pipeline/state/panels', 'pipeline/state/studio'];
 
 export const dynamic = 'force-dynamic';
 

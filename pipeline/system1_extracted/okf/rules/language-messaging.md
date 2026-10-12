@@ -10,8 +10,21 @@ sources:
 - id: notion-language-messaging
   resource: https://app.notion.com/p/3e0846d6f5598115a3c3c779091b3756
   title: Notion › Vanna — Current Thesis › Vanna — Language & Messaging (19 Sep 2026)
-rule_count: 7
+rule_count: 9
 rules:
+- id: L-live-on-test
+  severity: BLOCK
+  pattern: \b(?:live\s+(?:yield|kamino|returns?|apy)|earn\s+live|deploy\s+into\s+live)\b
+  why: The Solana build is a test app; nothing on it is live. A redesigned slide said "earn live yield on Kamino".
+  fix: Drop "live", or say "on the Solana test app".
+  flags:
+  - IGNORECASE
+- id: L-private-repos
+  severity: BLOCK
+  pattern: \b(?:Protocol_V1_Solana|vanna[-_]credit[-_]layer|vanna[-_]prediction[-_]earn[-_]vault|vanna[-_]solana[-_]app|vanna[-_]mcp[-_]solana|[A-Z][A-Za-z0-9]*(?:_[A-Za-z0-9]+){2,})\b
+  why: Never disclose the private repos or code identifiers (facts ledger, hard prohibition 13). A copy agent named a repo in a LinkedIn post.
+  fix: Say what the product does; name the public docs site if a source is needed.
+  flags: []
 - id: L-custody-jargon
   severity: WARN
   pattern: \b(?:PDA|custody|custodial|cross-offset)\b

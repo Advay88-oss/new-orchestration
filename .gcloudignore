@@ -61,3 +61,6 @@ pipeline/state/scheduler_state.json
 pipeline/state/x_seen.json
 pipeline/state/x_context_cursor.json
 pipeline/state/telegram_sent_news.json
+
+# Studio posters and uploads live in the bucket (studio/), not in the image.
+pipeline/state/studio/

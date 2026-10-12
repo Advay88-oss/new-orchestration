@@ -208,7 +208,7 @@ export function HeraldApp() {
   const [autopilot, setAutopilot] = useState(false);
   const [threadId, setThreadId] = useState<string | null>(null);
   const [threads, setThreads] = useState<{ id: string; title: string; updated_at: string; preview?: string }[]>([]);
-  const [prefill, setPrefill] = useState({ text: "", n: 0 });
+  const [prefill, setPrefill] = useState<{ text: string; n: number; image?: string }>({ text: "", n: 0 });
   const [make, setMake] = useState<string | null>(null);
   const [runs, setRuns] = useState<Run[]>([]);
   const [runsLoading, setRunsLoading] = useState(true);
@@ -395,7 +395,7 @@ export function HeraldApp() {
     if (v === "scraped" || v === "history") setUnread((u) => ({ ...u, [v]: false }));
   }, []);
   const openRun = useCallback((id: string) => { setRunId(id); setView("run"); setPalette(false); setMenu(false); }, []);
-  const ask = useCallback((text: string) => { setThreadId(null); setPrefill((p) => ({ text, n: p.n + 1 })); go("assistant"); }, [go]);
+  const ask = useCallback((text: string, image?: string) => { setThreadId(null); setPrefill((p) => ({ text, n: p.n + 1, image })); go("assistant"); }, [go]);
   const openRef = useCallback((id: string) => { setRefFocus(id); setView("references"); }, []);
 
   const mine = useMemo(() => runs.filter((r) => !company?.id || String(r.company || "vanna").toLowerCase() === company.id), [runs, company?.id]);
@@ -565,7 +565,8 @@ export function HeraldApp() {
                            onThreadChange={setThreadId} onSaved={() => loadThreads(true)} onNewThread={addThread}
                            onOpenRun={openRun} onAutopilot={() => setAutopilot(true)} flash={(t) => { flash(t); loadRuns(); }} />
           )}
-          {view === "history" && <PostsView runs={mine} loading={runsLoading} brand={brand} owner={owner} onOpen={openRun} onAsk={() => setMake("")} />}
+          {view === "history" && <PostsView runs={mine} loading={runsLoading} brand={brand} owner={owner} onOpen={openRun} onAsk={() => setMake("")}
+                                                onChangeImage={(file) => ask("", file)} tenant={company?.id} />}
           {view === "run" && (
             <PostDetail run={run} brand={brand} brandColor={ws?.color || "#2F6B5E"} owner={owner}
                         onBack={() => go("history")} onReferences={() => go("references")} onChanged={loadRuns} flash={flash} />

@@ -126,6 +126,9 @@ export async function getBytes(
  * every image. This translates between them.
  */
 export function assetKey(filename: string): string | null {
+  // Studio posters and the owner's uploads keep their own name under studio/.
+  const bare = filename.replace(/^.*[\/]/, '');
+  if (/^studio-[a-z0-9][a-z0-9-]{2,90}\.(png|jpg|jpeg|webp)$/.test(bare)) return `studio/${bare}`;
   const m = /^(GTM-[0-9]{8}-[0-9]{6})_(visual|meme|video)\.(png|mp4)$/.exec(
     filename.replace(/^.*[\\/]/, ''),
   );
@@ -141,4 +144,15 @@ export async function runIds(limit = 25): Promise<string[]> {
     .sort()
     .reverse()
     .slice(0, limit);
+}
+
+/** Write one object (an upload) — deployed only. */
+export async function putBytes(name: string, body: Buffer, contentType: string): Promise<boolean> {
+  const url = `https://storage.googleapis.com/upload/storage/v1/b/${BUCKET}/o?uploadType=media&name=${encodeURIComponent(name)}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${await token()}`, 'Content-Type': contentType },
+    body: new Uint8Array(body),
+  });
+  return res.ok;
 }

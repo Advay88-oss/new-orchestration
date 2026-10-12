@@ -26,6 +26,9 @@ real margin launch kit, pitch transcript v9) and from mistakes in Vanna's own ag
 7. **Vocabulary ladder** (Language & Messaging): composable credit infrastructure (the
    company) → unified portfolio margin account (the product) → prime-broker-style (analogy).
 8. **No hype register**: no exclamation marks, no "revolutionary", no "nobody can do this".
+9. **Never name a repository, program or code identifier** (Protocol_V1_Solana, margin_execute…):
+   they are private. Say what the product does.
+10. **An example number is labelled** ("for example", "illustration") even when it comes from the docs.
 
 ## X (Twitter)
 
